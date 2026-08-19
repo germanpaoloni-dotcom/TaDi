@@ -43,7 +43,7 @@ const categories = [
     kicker: "Para quién es",
     heroBody: "Para la familia que quiere compartir un bautismo con una invitación cálida y sencilla: datos de la ceremonia, la fiesta después y confirmación de asistencia.",
     heroImage: "/static/img/categorias/bautismos.png",
-    flagshipDesign: null,
+    flagshipDesign: "bau-clasica-dorada",
   },
   {
     id: "empresariales",
@@ -82,6 +82,11 @@ const designs = [
   require("./infantiles/safari-aventura"),
   require("./infantiles/espacial"),
   require("./infantiles/dinosaurios"),
+  require("./bautismos/clasica-dorada"),
+  require("./bautismos/celeste-angelical"),
+  require("./bautismos/campestre-botanico"),
+  require("./bautismos/moderno-minimal"),
+  require("./bautismos/realeza-rosa"),
 ];
 
 function getDesign(id) {
