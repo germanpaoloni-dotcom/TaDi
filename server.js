@@ -36,10 +36,13 @@ function layout({ title, body }) {
 <html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title} · TaDi</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/static/img/logo/tadi-favicon-16.png">
+<link rel="apple-touch-icon" href="/static/img/logo/tadi-favicon-180.png">
 <link rel="stylesheet" href="/static/css/site.css">
 </head><body>
 <header class="site">
-  <a class="brand" href="/" style="text-decoration:none;color:#fff">Ta<span>Di</span></a>
+  <a class="brand" href="/" aria-label="TaDi — inicio"><img src="/static/img/logo/tadi-logo-dark-bg.svg" alt="TaDi" class="brand-logo"></a>
   <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
@@ -49,7 +52,7 @@ function layout({ title, body }) {
   </nav>
 </header>
 ${body}
-<footer class="site">TaDi — prototipo de demostración · Pagos con Mercado Pago</footer>
+<footer class="site">TaDi — prototipo de demostración · Pagos con Mercado Pago · <a href="/como-funciona" style="color:inherit">Cómo funciona</a></footer>
 <script>
   document.addEventListener('error', function(e){
     var t = e.target;
@@ -233,6 +236,62 @@ app.get("/categoria/:cat", (req, res) => {
   res.send(catalogPage(req.params.cat));
 });
 
+// ---------- CÓMO FUNCIONA (tutorial para cargar los datos después de pagar) ----------
+app.get("/como-funciona", (req, res) => {
+  const steps = [
+    {
+      title: "Entrá a tu link de edición",
+      body: "Apenas se acredita el pago te llevamos directo al editor, y además te dejamos un link privado guardado ahí mismo para que puedas volver cuando quieras — no hace falta pagar de nuevo ni pedirlo por otro lado. Conviene guardarlo (por ejemplo, mandártelo a vos mismo por WhatsApp).",
+      img: "paso1-link.png",
+    },
+    {
+      title: "Completá los datos de tu evento",
+      body: "Nombres, fecha, horarios, lugares, el mensaje para los invitados... a la izquierda vas completando cada campo y a la derecha ves la invitación real actualizarse al instante, tal cual la van a ver tus invitados.",
+      img: "paso2-datos.png",
+    },
+    {
+      title: "Subí tus fotos",
+      body: "Cargá una foto de portada y las que quieras para la galería. Se suben directo desde el celular o la compu, no hace falta redimensionarlas ni nada — nosotros nos encargamos de que se vean bien.",
+      img: "paso3-fotos.png",
+    },
+    {
+      title: "Guardá los cambios",
+      body: "Cuando quede como te gusta, tocá \"Guardar cambios\". Podés volver a entrar y seguir editando las veces que quieras antes del evento — no hay un único intento.",
+      img: "paso4-guardar.png",
+    },
+    {
+      title: "Compartí el link con tus invitados",
+      body: "Este es el link público (distinto al de edición) — es el que le mandás a la gente por WhatsApp o donde quieras. Ahí van a poder ver la invitación y confirmar asistencia.",
+      img: "paso5-compartir.png",
+    },
+  ];
+
+  res.send(layout({
+    title: "Cómo funciona",
+    body: `
+    <div class="tutorial-hero">
+      <span class="kicker">Guía rápida</span>
+      <h1>Cómo cargar los datos de tu invitación</h1>
+      <p>Después de pagar, tenés que personalizar tu invitación con los datos de tu evento. Son 5 pasos y no lleva más de unos minutos — así funciona.</p>
+    </div>
+    <div class="tutorial-steps">
+      ${steps.map((s, i) => `
+        <div class="tutorial-step">
+          <div class="num">${i + 1}</div>
+          <div>
+            <h3>${s.title}</h3>
+            <p>${s.body}</p>
+            <div class="shot"><img src="/static/img/tutorial/${s.img}" alt="${s.title}" loading="lazy"></div>
+          </div>
+        </div>`).join("")}
+    </div>
+    <div class="tutorial-cta">
+      <p style="color:var(--muted);margin-bottom:16px">¿Ya pagaste y no encontrás tu link de edición? Escribinos y te ayudamos.</p>
+      <a class="btn btn-outline" href="/">← Volver al catálogo</a>
+    </div>`,
+  }));
+});
+
 // ---------- DEMO (preview con datos de ejemplo) ----------
 app.get("/demo/:designId", (req, res) => {
   const design = getDesign(req.params.designId);
@@ -413,13 +472,16 @@ app.get("/editar/:token", (req, res) => {
   res.send(`<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Editar invitación · TaDi</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/static/img/logo/tadi-favicon-16.png">
+<link rel="apple-touch-icon" href="/static/img/logo/tadi-favicon-180.png">
 <link rel="stylesheet" href="/static/css/site.css"></head>
 <body>
 <div class="editor-wrap">
   <div class="editor-form-panel">
     <h1>✏️ Editá tu invitación</h1>
-    <p style="color:var(--muted);font-size:.85rem">Diseño: <strong>${design.name}</strong>. Los cambios se ven al instante en la vista previa →</p>
-    ${req.query.bienvenida ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem">✅ ¡Pago confirmado! Ya podés personalizar tu invitación.</p>` : ""}
+    <p style="color:var(--muted);font-size:.85rem">Diseño: <strong>${design.name}</strong>. Los cambios se ven al instante en la vista previa → · <a href="/como-funciona" target="_blank" style="color:var(--accent)">¿Cómo funciona?</a></p>
+    ${req.query.bienvenida ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Pago confirmado! Ya podés personalizar tu invitación.</p>` : ""}
     <form id="editForm">
       ${design.schema.map((f) => fieldHTML(f, inv.data[f.name])).join("")}
       <div class="save-bar"><button class="save-btn" type="submit">Guardar cambios</button></div>
