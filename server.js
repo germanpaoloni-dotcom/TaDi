@@ -35,11 +35,11 @@ function layout({ title, body, active = "" }) {
   return `<!doctype html>
 <html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${title} · InvitiDigitales</title>
+<title>${title} · TaDi</title>
 <link rel="stylesheet" href="/static/css/site.css">
 </head><body>
 <header class="site">
-  <a class="brand" href="/" style="text-decoration:none;color:#fff">Inviti<span>Digitales</span></a>
+  <a class="brand" href="/" style="text-decoration:none;color:#fff">Ta<span>Di</span></a>
   <nav>
     <a href="/">Catálogo</a>
     <a href="/categoria/bodas">Bodas</a>
@@ -48,7 +48,7 @@ function layout({ title, body, active = "" }) {
   </nav>
 </header>
 ${body}
-<footer class="site">InvitiDigitales — prototipo de demostración · Pagos con Mercado Pago</footer>
+<footer class="site">TaDi — prototipo de demostración · Pagos con Mercado Pago</footer>
 </body></html>`;
 }
 
@@ -295,7 +295,7 @@ app.get("/editar/:token", (req, res) => {
 
   res.send(`<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Editar invitación · InvitiDigitales</title>
+<title>Editar invitación · TaDi</title>
 <link rel="stylesheet" href="/static/css/site.css"></head>
 <body>
 <div class="editor-wrap">
@@ -467,6 +467,6 @@ app.get("/editar/:token/invitados", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`InvitiDigitales corriendo en http://localhost:${PORT}`);
+  console.log(`TaDi corriendo en http://localhost:${PORT}`);
   console.log(mp.isConfigured() ? "Mercado Pago: modo real (credenciales cargadas)" : "Mercado Pago: modo demo (sin credenciales, pago simulado)");
 });

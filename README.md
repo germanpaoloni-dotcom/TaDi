@@ -1,4 +1,4 @@
-# InvitiDigitales — prototipo funcional
+# TaDi — prototipo funcional
 
 Sitio de invitaciones digitales interactivas por categoría (bodas, XV años,
 eventos empresariales), con catálogo ampliable, pago con Mercado Pago y
