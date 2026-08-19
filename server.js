@@ -467,6 +467,9 @@ app.get("/editar/:token", (req, res) => {
 
   const design = getDesign(order.designId);
   const inv = db.invitations.find((i) => i.orderId === order.id);
+
+  if (isEditLocked(inv)) return res.send(lockedPage(order, design));
+
   const publicUrl = `${req.protocol}://${req.get("host")}/invitacion/${order.publicSlug}`;
 
   res.send(`<!doctype html>
@@ -568,6 +571,10 @@ app.get("/editar/:token", (req, res) => {
 });
 
 app.post("/api/upload/:token", upload.single("imagen"), (req, res) => {
+  const db = getDB();
+  const order = db.orders.find((o) => o.editToken === req.params.token);
+  const inv = order && db.invitations.find((i) => i.orderId === order.id);
+  if (!order || !inv || isEditLocked(inv)) return res.status(403).json({ error: "invitación bloqueada" });
   res.json({ url: `/static/uploads/${req.params.token}/${req.file.filename}` });
 });
 
@@ -588,6 +595,38 @@ app.get("/preview/:token", (req, res) => {
   res.send(design.render({ ...data, __slug: order.publicSlug }));
 });
 
+// ---------- BLOQUEO POR VENCIMIENTO DEL EVENTO ----------
+// Para que una invitación pagada no se reutilice indefinidamente para
+// eventos distintos, la edición se bloquea un tiempo después de la fecha
+// del evento (dato "fecha" del propio formulario, presente en todos los
+// esquemas). Pasado ese margen, quien quiera seguir usando TaDi para un
+// evento nuevo tiene que comprar una invitación nueva a precio normal:
+// no hay una "reactivación" con precio especial, es directamente otra compra.
+const EDIT_GRACE_DAYS = 15;
+
+function isEditLocked(inv) {
+  const fecha = inv?.data?.fecha;
+  if (!fecha) return false; // sin fecha cargada todavía: no bloqueamos
+  const eventDate = new Date(`${fecha}T00:00:00`);
+  if (isNaN(eventDate.getTime())) return false;
+  const unlockUntil = eventDate.getTime() + EDIT_GRACE_DAYS * 24 * 60 * 60 * 1000;
+  return Date.now() > unlockUntil;
+}
+
+function lockedPage(order, design) {
+  const publicUrl2 = `/invitacion/${order.publicSlug}`;
+  return layout({
+    title: "Invitación vencida",
+    body: `<div class="status-page">
+      <h1>🔒 Esta invitación ya cumplió su ciclo</h1>
+      <p>Pasaron más de ${EDIT_GRACE_DAYS} días desde la fecha del evento, así que la edición quedó bloqueada para que cada invitación se use para un solo evento.</p>
+      <p>La página que ya compartiste con tus invitados sigue disponible: <a href="${publicUrl2}" target="_blank">${publicUrl2}</a></p>
+      <p style="margin-top:24px">¿Tenés un evento nuevo? Podés comprar una invitación nueva (no hay reactivación con precio especial, es una compra normal):</p>
+      <p><a class="btn btn-primary" href="/checkout/${design.id}">Comprar invitación nueva</a></p>
+    </div>`,
+  });
+}
+
 function normalizeInvitationData(design, raw) {
   const data = { ...raw };
   design.schema.forEach((f) => {
@@ -604,6 +643,7 @@ app.post("/api/invitaciones/:token", (req, res) => {
   if (!order || order.status !== "paid") return res.status(404).json({ error: "no encontrado" });
   const design = getDesign(order.designId);
   const inv = db.invitations.find((i) => i.orderId === order.id);
+  if (isEditLocked(inv)) return res.status(403).json({ error: "invitación bloqueada" });
   inv.data = { ...inv.data, ...normalizeInvitationData(design, req.body) };
   inv.updatedAt = new Date().toISOString();
   saveDB(db);
