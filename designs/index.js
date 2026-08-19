@@ -63,7 +63,7 @@ const categories = [
     kicker: "Para quién es",
     heroBody: "Para organizar la despedida sin grupo de WhatsApp interminable: una invitación con el plan, el lugar y confirmación de quién va, todo en un link.",
     heroImage: "/static/img/categorias/despedidas.png",
-    flagshipDesign: null,
+    flagshipDesign: "desp-tropical-fiesta",
   },
 ];
 
@@ -87,6 +87,11 @@ const designs = [
   require("./bautismos/campestre-botanico"),
   require("./bautismos/moderno-minimal"),
   require("./bautismos/realeza-rosa"),
+  require("./despedidas/tropical-fiesta"),
+  require("./despedidas/noche-rockera"),
+  require("./despedidas/vegas-casino"),
+  require("./despedidas/champagne-chic"),
+  require("./despedidas/boho-ultima-fiesta"),
 ];
 
 function getDesign(id) {
