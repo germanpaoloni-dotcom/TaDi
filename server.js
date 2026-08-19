@@ -31,7 +31,7 @@ const upload = multer({
   limits: { fileSize: 8 * 1024 * 1024 },
 });
 
-function layout({ title, body, active = "" }) {
+function layout({ title, body }) {
   return `<!doctype html>
 <html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -42,18 +42,110 @@ function layout({ title, body, active = "" }) {
   <a class="brand" href="/" style="text-decoration:none;color:#fff">Ta<span>Di</span></a>
   <nav>
     <a href="/">Catálogo</a>
-    <a href="/categoria/bodas">Bodas</a>
-    <a href="/categoria/xv">15 años</a>
-    <a href="/categoria/empresariales">Empresariales</a>
+    ${categories.map((c) => `<a href="/categoria/${c.id}">${c.label}</a>`).join("")}
   </nav>
 </header>
 ${body}
 <footer class="site">TaDi — prototipo de demostración · Pagos con Mercado Pago</footer>
+<script>
+  document.addEventListener('error', function(e){
+    var t = e.target;
+    if(t && t.tagName === 'IMG' && t.src && !t.dataset.fallback){
+      t.dataset.fallback = '1';
+      t.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="500"><rect width="100%" height="100%" fill="#2a2933"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="#6b6875" text-anchor="middle" dy=".3em">Foto</text></svg>'
+      );
+    }
+  }, true);
+</script>
 </body></html>`;
 }
 
 function money(n) {
   return "$" + Number(n).toLocaleString("es-AR");
+}
+
+// ---------- HERO (portada tipo "product drop": foto + aro de acento + textos) ----------
+function heroSlideHTML(cat, index, isCarousel) {
+  const flagship = cat.flagshipDesign ? getDesign(cat.flagshipDesign) : null;
+  return `<div class="mega-hero-slide${index === 0 ? " active" : ""}" data-cat="${cat.id}">
+    <div class="mega-hero-ghost">${cat.ghost}</div>
+    <div class="mega-hero-grid">
+      <div>
+        <span class="mega-hero-kicker">Invitaciones digitales</span>
+        <h1 class="mega-hero-title">${cat.label.replace(/ /g, "<br>")}<span class="dot">.</span></h1>
+      </div>
+      <div class="mega-hero-visual">
+        <div class="mega-hero-ring"></div>
+        <img src="${cat.heroImage}" alt="${cat.label}">
+      </div>
+      <div class="mega-hero-info">
+        <div class="mega-hero-block">
+          <h3>${cat.kicker}</h3>
+          <p>${cat.heroBody}</p>
+        </div>
+        <div class="mega-hero-block">
+          <h3>El diseño</h3>
+          <p>${flagship ? flagship.summary : "Estamos preparando los primeros diseños de esta categoría."}</p>
+          ${flagship
+            ? `<a class="mega-hero-play" href="/demo/${flagship.id}" target="_blank" title="Ver demo">▶</a>`
+            : `<span class="mega-hero-play" style="opacity:.4;cursor:default" title="Muy pronto">▶</span>`}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function megaHeroHTML(cats) {
+  const slides = cats.map((c, i) => heroSlideHTML(c, i, true)).join("");
+  const dots = cats.map((c, i) => `<button class="${i === 0 ? "active" : ""}" data-i="${i}" aria-label="${c.label}"></button>`).join("");
+  return `<section class="mega-hero" id="megaHero">
+    ${slides}
+    <div class="mega-hero-controls">
+      <div class="mega-hero-progress">
+        <div class="mega-hero-bar"><div class="mega-hero-bar-fill" id="heroBarFill" style="width:${100 / cats.length}%"></div></div>
+        <span class="mega-hero-count" id="heroCount">01 / ${String(cats.length).padStart(2, "0")}</span>
+      </div>
+      <div class="mega-hero-dots" id="heroDots">${dots}</div>
+      <button class="mega-hero-arrow" id="heroNext" aria-label="Siguiente categoría">→</button>
+    </div>
+  </section>
+  <script>
+    (function(){
+      var total = ${cats.length};
+      var idx = 0;
+      var slides = document.querySelectorAll('#megaHero .mega-hero-slide');
+      var dots = document.querySelectorAll('#heroDots button');
+      var fill = document.getElementById('heroBarFill');
+      var count = document.getElementById('heroCount');
+      function show(i){
+        idx = (i + total) % total;
+        slides.forEach(function(s, si){ s.classList.toggle('active', si === idx); });
+        dots.forEach(function(d, di){ d.classList.toggle('active', di === idx); });
+        fill.style.width = (100 * (idx + 1) / total) + '%';
+        count.textContent = String(idx + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+      }
+      document.getElementById('heroNext').addEventListener('click', function(){ show(idx + 1); });
+      dots.forEach(function(d, di){ d.addEventListener('click', function(){ show(di); }); });
+      if (total > 1) setInterval(function(){ show(idx + 1); }, 6000);
+    })();
+  </script>`;
+}
+
+function miniHeroHTML(cat, cats) {
+  const nextCat = cats[(cats.findIndex((c) => c.id === cat.id) + 1) % cats.length];
+  const idx = cats.findIndex((c) => c.id === cat.id);
+  return `<section class="mega-hero mini-hero">
+    ${heroSlideHTML(cat, 0, false)}
+    <div class="mega-hero-controls">
+      <div class="mega-hero-progress">
+        <div class="mega-hero-bar"><div class="mega-hero-bar-fill" style="width:${(100 * (idx + 1)) / cats.length}%"></div></div>
+        <span class="mega-hero-count">${String(idx + 1).padStart(2, "0")} / ${String(cats.length).padStart(2, "0")}</span>
+      </div>
+      <div class="mega-hero-dots">${cats.map((c, i) => `<a href="/categoria/${c.id}" class="${i === idx ? "active" : ""}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${i === idx ? "var(--accent)" : "var(--line)"}"></a>`).join("")}</div>
+      <a class="mega-hero-arrow" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="/categoria/${nextCat.id}" aria-label="Siguiente categoría">→</a>
+    </div>
+  </section>`;
 }
 
 // ---------- CATÁLOGO ----------
@@ -69,26 +161,31 @@ function catalogPage(activeCat) {
   let sections = "";
   Object.entries(grouped).forEach(([catId, list2]) => {
     const cat = cats.find((c) => c.id === catId);
-    sections += `<div class="hero-band" style="padding-top:10px;padding-bottom:0;text-align:left;max-width:1100px">
-      <h2 style="margin-bottom:2px">${cat.label}</h2>
-      <p style="margin:0">${cat.description}</p>
-    </div>
-    <div class="grid">
-      ${list2.map(cardHTML).join("")}
-      <div class="coming-soon">
-        <strong>+ Nuevos diseños</strong>
-        <span>Sumamos diseños de ${cat.label.toLowerCase()} todos los meses.</span>
-      </div>
+    sections += `<div class="section-head">
+      <h2>${cat.label}</h2>
+      <p>${cat.description}</p>
     </div>`;
+    if (list2.length === 0) {
+      sections += `<div class="grid"><div class="coming-soon" style="grid-column:1/-1;min-height:140px">
+        <strong>Muy pronto</strong>
+        <span>Estamos preparando los primeros diseños de ${cat.label.toLowerCase()}.</span>
+      </div></div>`;
+    } else {
+      sections += `<div class="grid">
+        ${list2.map(cardHTML).join("")}
+        <div class="coming-soon">
+          <strong>+ Nuevos diseños</strong>
+          <span>Sumamos diseños de ${cat.label.toLowerCase()} todos los meses.</span>
+        </div>
+      </div>`;
+    }
   });
 
+  const hero = activeCat ? miniHeroHTML(cats.find((c) => c.id === activeCat), cats) : megaHeroHTML(cats);
+
   return layout({
-    title: "Catálogo",
-    body: `
-    <div class="hero-band">
-      <h1>Invitaciones digitales que se editan solas... casi 😉</h1>
-      <p>Elegí un diseño, pagalo con Mercado Pago y cargá los datos de tu evento vos mismo. Catálogo en constante crecimiento.</p>
-    </div>
+    title: activeCat ? cats.find((c) => c.id === activeCat).label : "Catálogo",
+    body: `${hero}
     <div class="cat-filter">${catButtons}</div>
     ${sections}`,
   });
