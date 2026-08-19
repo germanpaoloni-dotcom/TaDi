@@ -12,7 +12,7 @@ const categories = [
     ghost: "PARA SIEMPRE",
     kicker: "Para quién es",
     heroBody: "Para la pareja que quiere una invitación que se sienta tan cuidada como la boda misma: cronograma, mapa, mesa de regalos y confirmación de asistencia, todo en un link.",
-    heroImage: "/static/img/categorias/bodas.jpg",
+    heroImage: "/static/img/categorias/bodas.png",
     flagshipDesign: "boda-elegante-clasica",
   },
   {
@@ -22,7 +22,7 @@ const categories = [
     ghost: "MIS QUINCE",
     kicker: "Para quién es",
     heroBody: "Para la quinceañera que quiere algo distinto a una tarjeta de cartulina: fotos, cuenta regresiva, música y una invitación que sus amigas van a querer abrir.",
-    heroImage: "/static/img/categorias/xv.jpg",
+    heroImage: "/static/img/categorias/xv.png",
     flagshipDesign: "xv-glam-rosa",
   },
   {
@@ -32,7 +32,7 @@ const categories = [
     ghost: "A JUGAR",
     kicker: "Para quién es",
     heroBody: "Para el cumpleaños de los más chicos: colores, personajes y una invitación tan divertida como la fiesta, con RSVP para que los papás confirmen fácil.",
-    heroImage: "/static/img/categorias/infantiles.jpg",
+    heroImage: "/static/img/categorias/infantiles.png",
     flagshipDesign: null,
   },
   {
@@ -42,7 +42,7 @@ const categories = [
     ghost: "BAUTISMOS",
     kicker: "Para quién es",
     heroBody: "Para la familia que quiere compartir un bautismo con una invitación cálida y sencilla: datos de la ceremonia, la fiesta después y confirmación de asistencia.",
-    heroImage: "/static/img/categorias/bautismos.jpg",
+    heroImage: "/static/img/categorias/bautismos.png",
     flagshipDesign: null,
   },
   {
@@ -52,7 +52,7 @@ const categories = [
     ghost: "TU EVENTO",
     kicker: "Para quién es",
     heroBody: "Para la empresa que organiza una conferencia, un lanzamiento o un aniversario y necesita una invitación con agenda, oradores y registro de asistentes, con tu marca.",
-    heroImage: "/static/img/categorias/empresariales.jpg",
+    heroImage: "/static/img/categorias/empresariales.png",
     flagshipDesign: "emp-conferencia-corporativa",
   },
   {
@@ -62,7 +62,7 @@ const categories = [
     ghost: "LA ÚLTIMA",
     kicker: "Para quién es",
     heroBody: "Para organizar la despedida sin grupo de WhatsApp interminable: una invitación con el plan, el lugar y confirmación de quién va, todo en un link.",
-    heroImage: "/static/img/categorias/despedidas.jpg",
+    heroImage: "/static/img/categorias/despedidas.png",
     flagshipDesign: null,
   },
 ];
