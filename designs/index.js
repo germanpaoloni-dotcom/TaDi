@@ -33,7 +33,7 @@ const categories = [
     kicker: "Para quién es",
     heroBody: "Para el cumpleaños de los más chicos: colores, personajes y una invitación tan divertida como la fiesta, con RSVP para que los papás confirmen fácil.",
     heroImage: "/static/img/categorias/infantiles.png",
-    flagshipDesign: null,
+    flagshipDesign: "inf-superheroes",
   },
   {
     id: "bautismos",
@@ -77,6 +77,11 @@ const designs = [
   require("./empresariales/conferencia-corporativa"),
   require("./empresariales/lanzamiento-producto"),
   require("./empresariales/gala-aniversario"),
+  require("./infantiles/superheroes"),
+  require("./infantiles/princesas"),
+  require("./infantiles/safari-aventura"),
+  require("./infantiles/espacial"),
+  require("./infantiles/dinosaurios"),
 ];
 
 function getDesign(id) {

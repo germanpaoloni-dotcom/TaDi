@@ -51,4 +51,48 @@ const empresarialSchema = [
   { name: "galeria", label: "Galería / sponsors", type: "images" },
 ];
 
-module.exports = { bodaSchema, xvSchema, empresarialSchema };
+const infantilSchema = [
+  { name: "nombreChico", label: "Nombre del cumpleañero/a", type: "text", required: true },
+  { name: "edad", label: "Edad que cumple", type: "text", required: true },
+  { name: "fecha", label: "Fecha de la fiesta", type: "date", required: true },
+  { name: "hora", label: "Hora", type: "time" },
+  { name: "lugar", label: "Lugar", type: "text" },
+  { name: "direccionMapa", label: "Link de Google Maps", type: "url" },
+  { name: "mensaje", label: "Mensaje para los invitados", type: "textarea" },
+  { name: "tematica", label: "Temática / disfraz sugerido (opcional)", type: "text" },
+  { name: "whatsapp", label: "WhatsApp para RSVP (código país + número)", type: "text" },
+  { name: "coverImage", label: "Foto de portada", type: "image" },
+  { name: "galeria", label: "Galería de fotos", type: "images" },
+];
+
+const bautismoSchema = [
+  { name: "nombreChico", label: "Nombre del bautizado/a", type: "text", required: true },
+  { name: "padres", label: "Padres", type: "text" },
+  { name: "padrinos", label: "Padrinos", type: "text" },
+  { name: "fecha", label: "Fecha", type: "date", required: true },
+  { name: "horaCeremonia", label: "Hora de la ceremonia", type: "time" },
+  { name: "lugarCeremonia", label: "Lugar de la ceremonia", type: "text" },
+  { name: "horaFiesta", label: "Hora de la fiesta (opcional)", type: "time" },
+  { name: "lugarFiesta", label: "Lugar de la fiesta (opcional)", type: "text" },
+  { name: "direccionMapa", label: "Link de Google Maps", type: "url" },
+  { name: "mensaje", label: "Mensaje para los invitados", type: "textarea" },
+  { name: "whatsapp", label: "WhatsApp para RSVP", type: "text" },
+  { name: "coverImage", label: "Foto de portada", type: "image" },
+  { name: "galeria", label: "Galería de fotos", type: "images" },
+];
+
+const despedidaSchema = [
+  { name: "nombre", label: "Nombre de quien se despide de soltero/a", type: "text", required: true },
+  { name: "fecha", label: "Fecha", type: "date", required: true },
+  { name: "hora", label: "Hora de encuentro", type: "time" },
+  { name: "lugar", label: "Lugar / punto de encuentro", type: "text" },
+  { name: "direccionMapa", label: "Link de Google Maps", type: "url" },
+  { name: "plan", label: "El plan (qué van a hacer)", type: "textarea" },
+  { name: "dressCode", label: "Código de vestimenta / consigna", type: "text" },
+  { name: "organizadores", label: "Organiza (nombre de quien organiza)", type: "text" },
+  { name: "whatsapp", label: "WhatsApp para confirmar", type: "text" },
+  { name: "coverImage", label: "Foto de portada", type: "image" },
+  { name: "galeria", label: "Galería de fotos", type: "images" },
+];
+
+module.exports = { bodaSchema, xvSchema, empresarialSchema, infantilSchema, bautismoSchema, despedidaSchema };
