@@ -12,7 +12,7 @@ const categories = [
     ghost: "PARA SIEMPRE",
     kicker: "Para quién es",
     heroBody: "Para la pareja que quiere una invitación que se sienta tan cuidada como la boda misma: cronograma, mapa, mesa de regalos y confirmación de asistencia, todo en un link.",
-    heroImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=900&q=80",
+    heroImage: "/static/img/categorias/bodas.jpg",
     flagshipDesign: "boda-elegante-clasica",
   },
   {
@@ -22,7 +22,7 @@ const categories = [
     ghost: "MIS QUINCE",
     kicker: "Para quién es",
     heroBody: "Para la quinceañera que quiere algo distinto a una tarjeta de cartulina: fotos, cuenta regresiva, música y una invitación que sus amigas van a querer abrir.",
-    heroImage: "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=900&q=80",
+    heroImage: "/static/img/categorias/xv.jpg",
     flagshipDesign: "xv-glam-rosa",
   },
   {
@@ -32,7 +32,7 @@ const categories = [
     ghost: "A JUGAR",
     kicker: "Para quién es",
     heroBody: "Para el cumpleaños de los más chicos: colores, personajes y una invitación tan divertida como la fiesta, con RSVP para que los papás confirmen fácil.",
-    heroImage: "https://images.unsplash.com/photo-1529347599731-ec02b259c9f0?w=900&q=80",
+    heroImage: "/static/img/categorias/infantiles.jpg",
     flagshipDesign: null,
   },
   {
@@ -42,7 +42,7 @@ const categories = [
     ghost: "BAUTISMOS",
     kicker: "Para quién es",
     heroBody: "Para la familia que quiere compartir un bautismo con una invitación cálida y sencilla: datos de la ceremonia, la fiesta después y confirmación de asistencia.",
-    heroImage: "https://images.unsplash.com/photo-1566516171511-1c411a59c8ba?w=900&q=80",
+    heroImage: "/static/img/categorias/bautismos.jpg",
     flagshipDesign: null,
   },
   {
@@ -52,7 +52,7 @@ const categories = [
     ghost: "TU EVENTO",
     kicker: "Para quién es",
     heroBody: "Para la empresa que organiza una conferencia, un lanzamiento o un aniversario y necesita una invitación con agenda, oradores y registro de asistentes, con tu marca.",
-    heroImage: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80",
+    heroImage: "/static/img/categorias/empresariales.jpg",
     flagshipDesign: "emp-conferencia-corporativa",
   },
   {
@@ -62,7 +62,7 @@ const categories = [
     ghost: "LA ÚLTIMA",
     kicker: "Para quién es",
     heroBody: "Para organizar la despedida sin grupo de WhatsApp interminable: una invitación con el plan, el lugar y confirmación de quién va, todo en un link.",
-    heroImage: "https://images.unsplash.com/photo-1714972383578-f5bf00cbc41a?w=900&q=80",
+    heroImage: "/static/img/categorias/despedidas.jpg",
     flagshipDesign: null,
   },
 ];

@@ -40,7 +40,10 @@ function layout({ title, body }) {
 </head><body>
 <header class="site">
   <a class="brand" href="/" style="text-decoration:none;color:#fff">Ta<span>Di</span></a>
-  <nav>
+  <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="siteNav">
     <a href="/">Catálogo</a>
     ${categories.map((c) => `<a href="/categoria/${c.id}">${c.label}</a>`).join("")}
   </nav>
@@ -57,6 +60,23 @@ ${body}
       );
     }
   }, true);
+  (function(){
+    var toggle = document.getElementById('navToggle');
+    var nav = document.getElementById('siteNav');
+    if(!toggle || !nav) return;
+    toggle.addEventListener('click', function(){
+      var open = nav.classList.toggle('open');
+      toggle.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    nav.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(){
+        nav.classList.remove('open');
+        toggle.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  })();
 </script>
 </body></html>`;
 }
