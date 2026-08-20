@@ -29,12 +29,12 @@ const sampleData = {
     "Sofía Martínez - CEO, NodeHub Argentina\nMatías Ferreyra - CTO, CloudNine\nCarolina Vidal - VP Product, ScaleUp\nDiego Suárez - Founding Engineer, ByteForge",
   dressCode: "Smart casual",
   contacto: "5491133445566",
-  coverImage: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80",
   galeria: [
-    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80",
     "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80",
     "https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=800&q=80",
-    "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80",
+    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80",
+    "https://images.unsplash.com/photo-1526378787940-576a539ba69d?w=800&q=80",
   ],
 };
 
@@ -51,17 +51,18 @@ function render(data = {}) {
 <title>${esc(d.nombreEvento)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b0b14;
-    --bg2:#12122199;
-    --violet:#6c2bd9;
-    --cyan:#00d4ff;
-    --card:#14141f;
-    --border:#2a2a3d;
-    --text:#e8e8f5;
-    --muted:#9797b0;
+    --bg:#040a1c;
+    --navy:#0a1a42;
+    --navy2:#0d2359;
+    --blue:#1657d6;
+    --cyan:#5fe3ff;
+    --card:#0a1638;
+    --border:#1e3468;
+    --text:#eef3ff;
+    --muted:#8fa1cc;
   }
   *{box-sizing:border-box;}
   html,body{max-width:100%;overflow-x:hidden;}
@@ -70,15 +71,15 @@ function render(data = {}) {
     background:var(--bg);
     color:var(--text);
     font-family:'Inter',Arial,sans-serif;
-    line-height:1.5;
+    line-height:1.6;
   }
-  h1,h2,h3{font-family:'Space Grotesk','Inter',Arial,sans-serif;}
+  h1,h2,h3{font-family:'Rajdhani','Inter',Arial,sans-serif; text-transform:uppercase;}
   a{color:var(--cyan);}
 
   /* ---------- HERO ---------- */
   .hero{
     position:relative;
-    min-height:clamp(420px,72vh,640px);
+    min-height:clamp(460px,86vh,760px);
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -92,45 +93,51 @@ function render(data = {}) {
     position:absolute; inset:0; z-index:-3;
     background-image:var(--cover);
     background-size:cover; background-position:center;
-    filter:saturate(0.7) brightness(0.55);
+    filter:saturate(0.6) brightness(0.35);
   }
   .hero-mesh{
     position:absolute; inset:0; z-index:-2;
     background:
-      radial-gradient(circle at 15% 20%, rgba(108,43,217,0.55), transparent 45%),
-      radial-gradient(circle at 85% 15%, rgba(0,212,255,0.4), transparent 50%),
-      radial-gradient(circle at 50% 90%, rgba(108,43,217,0.45), transparent 55%),
-      linear-gradient(180deg, rgba(11,11,20,0.55), rgba(11,11,20,0.92) 80%);
+      radial-gradient(circle at 78% 22%, rgba(95,227,255,0.35), transparent 45%),
+      radial-gradient(circle at 15% 85%, rgba(22,87,214,0.55), transparent 55%),
+      linear-gradient(160deg, #030817 0%, #0a1a42 45%, #123a8f 100%);
   }
-  .hero-grid{
-    position:absolute; inset:0; z-index:-1;
-    opacity:0.35;
-    background-image:
-      linear-gradient(rgba(0,212,255,0.15) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,212,255,0.15) 1px, transparent 1px);
-    background-size:40px 40px;
-    mask-image:radial-gradient(ellipse at center, black 40%, transparent 80%);
+  .hero-dots{
+    position:absolute; z-index:-1; width:96px; height:132px;
+    background-image:radial-gradient(rgba(255,255,255,0.55) 1.6px, transparent 1.6px);
+    background-size:22px 22px;
+    opacity:.55;
   }
-  .hero-svg{position:absolute; inset:0; z-index:-1; width:100%; height:100%; pointer-events:none;}
+  .hero-dots.tl{top:6%; left:5%;}
+  .hero-dots.br{bottom:8%; right:6%;}
+  .hero-circuit{position:absolute; inset:0; z-index:-1; width:100%; height:100%; pointer-events:none; opacity:.8;}
   .hero .tag{
-    text-transform:uppercase; letter-spacing:4px; font-size:.72rem;
-    color:var(--cyan); font-weight:600; margin-bottom:14px;
+    text-transform:uppercase; letter-spacing:5px; font-size:.78rem;
+    color:var(--text); font-weight:500; margin-bottom:10px; font-family:'Rajdhani',sans-serif;
   }
   .hero h1{
-    font-size:clamp(2rem,5.5vw,3.6rem);
-    margin:.1em 0;
-    background:linear-gradient(90deg,#fff 20%,var(--cyan) 60%,var(--violet) 100%);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    letter-spacing:-1px;
+    font-size:clamp(2.1rem,7.5vw,4.2rem);
+    margin:.05em 0;
+    font-weight:700;
+    color:#fff;
+    letter-spacing:1px;
+    line-height:1.05;
   }
-  .hero .sub{color:var(--muted); font-size:clamp(.95rem,2vw,1.1rem); max-width:560px; margin:10px auto 0;}
+  .hero .year{
+    font-size:clamp(1.4rem,4.5vw,2.2rem);
+    font-weight:500;
+    color:var(--cyan);
+    margin:6px 0 0;
+    letter-spacing:2px;
+  }
+  .hero .sub{color:#c7d3f2; font-size:clamp(.9rem,2vw,1.02rem); max-width:520px; margin:22px auto 0; text-transform:none; font-family:'Inter',sans-serif;}
   .hero .meta{
-    margin-top:24px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
+    margin-top:26px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
   }
   .pill{
-    border:1px solid var(--border); background:rgba(255,255,255,0.04);
+    border:1px solid rgba(95,227,255,0.4); background:rgba(10,26,66,0.55);
     border-radius:999px; padding:8px 16px; font-size:.85rem; color:var(--text);
-    backdrop-filter:blur(4px);
+    backdrop-filter:blur(4px); font-family:'Inter',sans-serif;
   }
   .pill strong{color:var(--cyan); font-weight:600;}
 
@@ -138,17 +145,19 @@ function render(data = {}) {
   .layout{max-width:960px; margin:0 auto; padding:0 20px 60px;}
   .section{padding:clamp(36px,6vw,56px) 0;}
   .section-title{
-    font-size:clamp(1.3rem,2.6vw,1.8rem);
+    font-size:clamp(1.5rem,3.4vw,2.1rem);
     margin:0 0 6px;
-    letter-spacing:-.5px;
+    letter-spacing:.5px;
+    font-weight:700;
+    color:#fff;
   }
   .section-title .accent{color:var(--cyan);}
-  .section-sub{color:var(--muted); margin:0 0 28px; font-size:.95rem;}
+  .section-sub{color:var(--muted); margin:0 0 28px; font-size:.95rem; font-family:'Inter',sans-serif;}
 
   .card{
     background:var(--card);
     border:1px solid var(--border);
-    border-radius:16px;
+    border-radius:14px;
     padding:clamp(20px,3vw,28px);
     position:relative;
     overflow:hidden;
@@ -156,22 +165,22 @@ function render(data = {}) {
   .card::before{
     content:"";
     position:absolute; top:-1px; left:-1px; right:-1px; height:2px;
-    background:linear-gradient(90deg,var(--violet),var(--cyan));
+    background:linear-gradient(90deg,var(--blue),var(--cyan));
   }
 
   /* countdown (from widget, style hooked to markup) */
   .countdown{display:flex; gap:12px; flex-wrap:wrap; justify-content:center;}
   .countdown > div{
     flex:1; min-width:70px; text-align:center;
-    background:linear-gradient(160deg,rgba(108,43,217,0.18),rgba(0,212,255,0.08));
+    background:linear-gradient(160deg,rgba(22,87,214,0.25),rgba(95,227,255,0.08));
     border:1px solid var(--border);
-    border-radius:12px; padding:16px 8px;
+    border-radius:10px; padding:16px 8px;
   }
-  .cd-num{font-size:clamp(1.4rem,4vw,2rem); display:block; font-weight:700; color:#fff; font-family:'Space Grotesk',sans-serif;}
+  .cd-num{font-size:clamp(1.4rem,4vw,2rem); display:block; font-weight:700; color:#fff; font-family:'Rajdhani',sans-serif;}
   .cd-label{font-size:.65rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted);}
 
   /* description */
-  .desc-card p{color:#c7c7dd; font-size:1rem;}
+  .desc-card p{color:#c7d3f2; font-size:1rem; font-family:'Inter',sans-serif;}
 
   /* agenda timeline */
   .agenda-list{display:flex; flex-direction:column; gap:0;}
@@ -182,103 +191,102 @@ function render(data = {}) {
   }
   .agenda-item:last-child{border-bottom:0;}
   .agenda-time{
-    font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--cyan);
-    font-size:.95rem;
+    font-family:'Rajdhani',sans-serif; font-weight:700; color:var(--cyan);
+    font-size:1rem;
   }
-  .agenda-activity{color:var(--text); font-size:.95rem;}
+  .agenda-activity{color:var(--text); font-size:.95rem; font-family:'Inter',sans-serif;}
   .agenda-dot{
     position:absolute; left:calc(clamp(70px,15vw,100px) - 5px); top:22px;
     width:8px; height:8px; border-radius:50%;
-    background:var(--violet); box-shadow:0 0 8px 2px rgba(108,43,217,0.7);
+    background:var(--cyan); box-shadow:0 0 8px 2px rgba(95,227,255,0.7);
   }
 
   /* speakers */
   .speakers{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px;}
   .speaker{
-    background:linear-gradient(160deg,rgba(108,43,217,0.12),rgba(20,20,31,0.4));
+    background:linear-gradient(160deg,rgba(22,87,214,0.2),rgba(10,22,56,0.4));
     border:1px solid var(--border); border-radius:14px; padding:20px; text-align:left;
   }
   .speaker .avatar{
-    width:52px; height:52px; border-radius:12px;
-    background:linear-gradient(135deg,var(--violet),var(--cyan));
+    width:52px; height:52px; border-radius:10px;
+    background:linear-gradient(135deg,var(--blue),var(--cyan));
     margin-bottom:14px;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Space Grotesk',sans-serif; font-weight:700; color:#0b0b14; font-size:1.1rem;
+    font-family:'Rajdhani',sans-serif; font-weight:700; color:#04102b; font-size:1.2rem;
   }
-  .speaker strong{display:block; font-size:1rem; margin-bottom:2px;}
-  .speaker span{font-size:.82rem; color:var(--muted);}
+  .speaker strong{display:block; font-size:1rem; margin-bottom:2px; text-transform:none; font-family:'Inter',sans-serif;}
+  .speaker span{font-size:.82rem; color:var(--muted); font-family:'Inter',sans-serif;}
 
   /* venue */
   .venue-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;}
-  .venue-item{border:1px solid var(--border); border-radius:12px; padding:16px; background:rgba(255,255,255,0.02);}
-  .venue-item .label{font-size:.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--cyan); margin-bottom:6px;}
-  .venue-item .value{font-size:.95rem; color:var(--text);}
+  .venue-item{border:1px solid var(--border); border-radius:12px; padding:16px; background:rgba(95,227,255,0.03);}
+  .venue-item .label{font-size:.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--cyan); margin-bottom:6px; font-family:'Rajdhani',sans-serif;}
+  .venue-item .value{font-size:.95rem; color:var(--text); font-family:'Inter',sans-serif;}
 
   /* gallery (structure comes from widget, styled here) */
   .gallery{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
-  .gallery img{width:100%; height:150px; object-fit:cover; border-radius:12px; cursor:pointer; border:1px solid var(--border); display:block;}
-  .lightbox{display:none; position:fixed; inset:0; background:rgba(5,5,10,0.94); align-items:center; justify-content:center; z-index:60;}
+  .gallery img{width:100%; height:150px; object-fit:cover; border-radius:10px; cursor:pointer; border:1px solid var(--border); display:block;}
+  .lightbox{display:none; position:fixed; inset:0; background:rgba(2,6,18,0.95); align-items:center; justify-content:center; z-index:60;}
   .lightbox.open{display:flex;}
   .lightbox img{max-width:92%; max-height:86%; border-radius:8px;}
   .lightbox-close{position:absolute; top:20px; right:28px; color:#fff; font-size:2rem; cursor:pointer;}
 
   /* rsvp */
-  .rsvp-form{display:flex; flex-direction:column; gap:14px; max-width:460px;}
+  .rsvp-form{display:flex; flex-direction:column; gap:14px; max-width:460px; font-family:'Inter',sans-serif;}
   .rsvp-form label{font-size:.75rem; text-transform:uppercase; letter-spacing:.5px; color:var(--muted);}
   .rsvp-form input,.rsvp-form select,.rsvp-form textarea{
     font-family:inherit; padding:11px 12px; border:1px solid var(--border); border-radius:8px;
-    margin-top:6px; width:100%; background:#0d0d17; color:var(--text);
+    margin-top:6px; width:100%; background:#061127; color:var(--text);
   }
   .rsvp-form input:focus,.rsvp-form select:focus,.rsvp-form textarea:focus{
     outline:none; border-color:var(--cyan);
   }
   .rsvp-form button{
-    background:linear-gradient(90deg,var(--violet),var(--cyan));
-    color:#fff; border:0; padding:13px; border-radius:8px; cursor:pointer;
-    font-weight:700; font-family:'Space Grotesk',sans-serif; letter-spacing:.5px;
+    background:linear-gradient(90deg,var(--blue),var(--cyan));
+    color:#04102b; border:0; padding:13px; border-radius:8px; cursor:pointer;
+    font-weight:700; font-family:'Rajdhani',sans-serif; letter-spacing:.5px; text-transform:uppercase; font-size:1.05rem;
   }
   .rsvp-whatsapp{color:var(--cyan); font-size:.9rem; text-decoration:none;}
   .rsvp-status{font-weight:600; color:#4ade80;}
 
   footer{
     text-align:center; padding:32px 20px; font-size:.8rem; color:var(--muted);
-    border-top:1px solid var(--border);
+    border-top:1px solid var(--border); font-family:'Inter',sans-serif;
   }
-  footer .brand{color:var(--cyan); font-weight:600;}
+  footer .brand{color:var(--cyan); font-weight:600; font-family:'Rajdhani',sans-serif; text-transform:uppercase; letter-spacing:1px;}
 </style></head>
 <body>
 
   <section class="hero" style="--cover:url('${esc(d.coverImage)}')">
     <div class="hero-bg"></div>
     <div class="hero-mesh"></div>
-    <div class="hero-grid"></div>
-    <svg class="hero-svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <div class="hero-dots tl"></div>
+    <div class="hero-dots br"></div>
+    <svg class="hero-circuit" width="800" height="600" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.6"/>
-          <stop offset="100%" stop-color="#6c2bd9" stop-opacity="0.2"/>
+          <stop offset="0%" stop-color="#5fe3ff" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#1657d6" stop-opacity="0.15"/>
         </linearGradient>
       </defs>
       <g fill="none" stroke="url(#lineGrad)" stroke-width="1.5">
-        <path d="M20 60 H180 V140 H340"/>
-        <circle cx="20" cy="60" r="4" fill="#00d4ff" stroke="none"/>
-        <circle cx="340" cy="140" r="4" fill="#6c2bd9" stroke="none"/>
-        <path d="M780 40 H620 V120 H460 V60"/>
-        <circle cx="780" cy="40" r="4" fill="#00d4ff" stroke="none"/>
-        <circle cx="460" cy="60" r="4" fill="#6c2bd9" stroke="none"/>
-        <path d="M60 460 H240 V380 H400 V430"/>
-        <circle cx="60" cy="460" r="4" fill="#6c2bd9" stroke="none"/>
-        <path d="M760 470 H600 V400 H500"/>
-        <circle cx="760" cy="470" r="4" fill="#00d4ff" stroke="none"/>
-      </g>
-      <g opacity="0.5">
-        <rect x="120" y="220" width="26" height="26" fill="none" stroke="#00d4ff" stroke-width="1.2" transform="rotate(20 133 233)"/>
-        <rect x="640" y="230" width="34" height="34" fill="none" stroke="#6c2bd9" stroke-width="1.2" transform="rotate(-15 657 247)"/>
-        <polygon points="400,20 415,45 385,45" fill="none" stroke="#00d4ff" stroke-width="1.2"/>
+        <path d="M10 40 H140 V110 H300 V60 H420"/>
+        <circle cx="10" cy="40" r="5" fill="#5fe3ff" stroke="none"/>
+        <circle cx="140" cy="40" r="4" fill="#5fe3ff" stroke="none"/>
+        <circle cx="300" cy="110" r="5" fill="#1657d6" stroke="none"/>
+        <path d="M60 20 V90 H180"/>
+        <circle cx="60" cy="20" r="4" fill="#5fe3ff" stroke="none"/>
+        <path d="M760 500 H620 V420 H480 V470 H360"/>
+        <circle cx="760" cy="500" r="5" fill="#5fe3ff" stroke="none"/>
+        <circle cx="480" cy="420" r="4" fill="#1657d6" stroke="none"/>
+        <circle cx="360" cy="470" r="5" fill="#5fe3ff" stroke="none"/>
+        <path d="M700 540 V590"/>
+        <circle cx="700" cy="540" r="4" fill="#5fe3ff" stroke="none"/>
       </g>
     </svg>
-    <div class="tag">${esc(d.empresa)} presenta</div>
+    <div class="tag">We are the future</div>
     <h1>${esc(d.nombreEvento)}</h1>
+    <p class="year">${esc(d.empresa)}</p>
     <p class="sub">${esc(d.descripcion)}</p>
     <div class="meta">
       <span class="pill">📅 <strong>${esc(d.fecha)}</strong></span>
@@ -386,8 +394,9 @@ module.exports = {
   id,
   category: "empresariales",
   name: "Tech Summit",
-  summary: "Estética tech/startup con gradientes violeta-cian, motivos de circuito y agenda tipo timeline — ideal para summits y conferencias digitales.",
-  accent: "#6c2bd9",
+  summary: "Estética tech/conferencia con degradé azul noche a cian eléctrico, líneas de circuito y grillas de puntos — ideal para summits y conferencias digitales.",
+  accent: "#5fe3ff",
+  accent2: "#1657d6",
   schema: empresarialSchema,
   sampleData,
   render,
