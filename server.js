@@ -183,8 +183,9 @@ const TRUST_STRIP_HTML = `<div class="trust-strip">
 function oriosPanelHTML(cat) {
   return `<button type="button" class="orios-panel" data-cat="${cat.id}" aria-label="Ver catálogo de ${cat.label}">
     <span class="orios-panel-glow"></span>
-    <img src="${cat.heroImage}" alt="${cat.label}" loading="lazy">
+    <img src="${cat.heroImage}" alt="${cat.label}" loading="eager" fetchpriority="high">
     <span class="orios-panel-label">${cat.label.replace(/ /g, "<br>")}<span class="dot">.</span></span>
+    <span class="orios-panel-hint">Ver diseños →</span>
   </button>`;
 }
 

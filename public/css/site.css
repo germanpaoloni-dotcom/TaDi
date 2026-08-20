@@ -38,9 +38,11 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .orios-panel:last-child{border-right:0;}
 .orios-panel-glow{position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 65%,rgba(255,122,61,.55),transparent 70%);opacity:0;transition:opacity .3s ease;pointer-events:none;}
 .orios-panel:hover .orios-panel-glow, .orios-panel:focus-visible .orios-panel-glow{opacity:1;}
-.orios-panel img{position:relative;z-index:1;height:88%;max-height:560px;width:auto;max-width:96%;object-fit:contain;object-position:bottom;filter:saturate(.85) contrast(1.08) brightness(.98);transition:transform .35s cubic-bezier(.2,.8,.2,1);transform-origin:bottom center;}
+.orios-panel img{position:absolute;z-index:1;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;filter:saturate(.85) contrast(1.08) brightness(.98);transition:transform .35s cubic-bezier(.2,.8,.2,1);transform-origin:center 20%;}
 .orios-panel:hover img, .orios-panel:focus-visible img{transform:scale(1.08);}
 .orios-panel-label{position:absolute;top:28px;left:0;right:0;z-index:2;text-align:center;font-size:clamp(1rem,1.6vw,1.35rem);font-weight:800;line-height:1.15;color:var(--ink);padding:0 8px;letter-spacing:-.3px;}
+.orios-panel-hint{position:absolute;bottom:22px;left:0;right:0;z-index:2;text-align:center;font-size:.78rem;font-weight:700;color:#fff;letter-spacing:.3px;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;text-shadow:0 2px 8px rgba(0,0,0,.6);pointer-events:none;}
+.orios-panel:hover .orios-panel-hint, .orios-panel:focus-visible .orios-panel-hint{opacity:1;transform:translateY(0);}
 .orios-panel-label .dot{color:var(--accent);}
 
 .cat-modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(8,9,12,.78);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:24px;}
@@ -249,7 +251,6 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
   .orios-home{display:grid;grid-template-columns:1fr 1fr;min-height:0;}
   .orios-panel{border-right:1px solid var(--line);border-bottom:1px solid var(--line);height:180px;align-items:center;}
   .orios-panel:nth-child(2n){border-right:0;}
-  .orios-panel img{height:80%;max-height:150px;}
   .orios-panel-label{top:10px;font-size:.88rem;}
 
   .cat-modal{max-height:92vh;border-radius:14px;}
@@ -265,7 +266,6 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 @media (max-width: 480px){
   .orios-home{grid-template-columns:1fr;}
   .orios-panel{border-right:0;height:150px;}
-  .orios-panel img{max-height:120px;}
   header.site{padding:16px 20px;}
   .mega-hero-title, .mini-hero .mega-hero-title{font-size:2.1rem;}
   .mega-hero-ghost, .mini-hero .mega-hero-ghost{font-size:2.6rem;}
