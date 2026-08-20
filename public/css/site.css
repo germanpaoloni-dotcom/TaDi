@@ -115,15 +115,23 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 
 /* single (non-carousel) hero band used on /categoria/:id */
 .mini-hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);}
-.mini-hero .mega-hero-grid{min-height:460px;}
-.mini-hero .mega-hero-visual{min-height:460px;}
 .mini-hero .mega-hero-text{padding:56px 20px 30px 40px;}
-.mini-hero .mega-hero-ring{width:150px;height:150px;top:44px;left:42%;}
-.mini-hero .mega-hero-ring::before,.mini-hero .mega-hero-ring::after{inset:14px;}
 .mini-hero .mega-hero-title{font-size:clamp(1.8rem,3.2vw,3rem);}
 .mini-hero .mega-hero-ghost{font-size:clamp(2.1rem,4.2vw,4rem);top:12px;}
-.mini-hero .mega-hero-info{max-width:210px;padding:13px 15px;bottom:26px;}
-.mini-hero .mega-hero-info-left{left:26px;}
+/* Los tamaños/posiciones absolutas de abajo son SOLO de desktop: en mobile
+   los pisa por completo el bloque .mega-hero-visual en flex-column de la
+   media query de 900px (min-height:0, ring chico, card en flujo normal). Se
+   scopean a min-width:901px para que la mayor especificidad de ".mini-hero
+   .mega-hero-x" no le gane por cascada a la regla mobile de menor
+   especificidad y deje la caja gigante y vacía / el aro desproporcionado. */
+@media (min-width: 901px){
+  .mini-hero .mega-hero-grid{min-height:460px;}
+  .mini-hero .mega-hero-visual{min-height:460px;}
+  .mini-hero .mega-hero-ring{width:150px;height:150px;top:44px;left:42%;}
+  .mini-hero .mega-hero-ring::before,.mini-hero .mega-hero-ring::after{inset:14px;}
+  .mini-hero .mega-hero-info{max-width:210px;padding:13px 15px;bottom:26px;}
+  .mini-hero .mega-hero-info-left{left:26px;}
+}
 
 /* ---------- trust strip ---------- */
 .trust-strip{max-width:1180px;margin:0 auto;padding:26px 32px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
