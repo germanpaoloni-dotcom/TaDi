@@ -15,6 +15,7 @@ const bodaSchema = [
   { name: "dressCode", label: "Código de vestimenta", type: "text" },
   { name: "alias", label: "Alias / CBU para regalo", type: "text" },
   { name: "whatsapp", label: "WhatsApp para RSVP (código país + número)", type: "text" },
+  { name: "colorPalette", label: "Gama de colores", type: "palette" },
   { name: "coverImage", label: "Foto de portada", type: "image" },
   { name: "galeria", label: "Galería de fotos", type: "images" },
 ];
@@ -31,6 +32,7 @@ const xvSchema = [
   { name: "mensaje", label: "Mensaje para los invitados", type: "textarea" },
   { name: "dressCode", label: "Código de vestimenta", type: "text" },
   { name: "whatsapp", label: "WhatsApp para RSVP", type: "text" },
+  { name: "colorPalette", label: "Gama de colores", type: "palette" },
   { name: "coverImage", label: "Foto de portada", type: "image" },
   { name: "galeria", label: "Galería de fotos", type: "images" },
 ];
@@ -68,6 +70,7 @@ const infantilSchema = [
   { name: "mensaje", label: "Mensaje para los invitados", type: "textarea" },
   { name: "tematica", label: "Temática / disfraz sugerido (opcional)", type: "text" },
   { name: "whatsapp", label: "WhatsApp para RSVP (código país + número)", type: "text" },
+  { name: "colorPalette", label: "Gama de colores", type: "palette" },
   { name: "coverImage", label: "Foto de portada", type: "image" },
   { name: "galeria", label: "Galería de fotos", type: "images" },
 ];
@@ -84,6 +87,7 @@ const bautismoSchema = [
   { name: "direccionMapa", label: "Link de Google Maps", type: "url" },
   { name: "mensaje", label: "Mensaje para los invitados", type: "textarea" },
   { name: "whatsapp", label: "WhatsApp para RSVP", type: "text" },
+  { name: "colorPalette", label: "Gama de colores", type: "palette" },
   { name: "coverImage", label: "Foto de portada", type: "image" },
   { name: "galeria", label: "Galería de fotos", type: "images" },
 ];
@@ -98,6 +102,7 @@ const despedidaSchema = [
   { name: "dressCode", label: "Código de vestimenta / consigna", type: "text" },
   { name: "organizadores", label: "Organiza (nombre de quien organiza)", type: "text" },
   { name: "whatsapp", label: "WhatsApp para confirmar", type: "text" },
+  { name: "colorPalette", label: "Gama de colores", type: "palette" },
   { name: "coverImage", label: "Foto de portada", type: "image" },
   { name: "galeria", label: "Galería de fotos", type: "images" },
 ];

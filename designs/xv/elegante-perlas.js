@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { xvSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "xv-elegante-perlas";
 
@@ -107,6 +108,7 @@ function iconDressSvg(cls = "") {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "dark", "#c9a961");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha, "cd-perlas");
   const gal = galleryWidget(d.galeria || [], "gal-perlas");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
@@ -136,8 +138,8 @@ function render(data = {}) {
   :root{
     --green:#1b3b2c;
     --green-deep:#122a1f;
-    --gold:#c9a961;
-    --gold-light:#e3d3a3;
+    --gold:${accent};
+    --gold-light:color-mix(in srgb, ${accent}, white 48%);
     --cream:#f3ede0;
     --ink:#122a1f;
   }
@@ -156,7 +158,7 @@ function render(data = {}) {
   .corner-floral.bl{bottom:14px;left:14px;transform:scaleY(-1);}
   .corner-floral.br{bottom:14px;right:14px;transform:scale(-1,-1);}
 
-  .card-section{position:relative;padding:clamp(50px,9vw,80px) 22px;overflow:hidden;border-top:1px solid rgba(201,169,97,.25);}
+  .card-section{position:relative;padding:clamp(50px,9vw,80px) 22px;overflow:hidden;border-top:1px solid color-mix(in srgb, ${accent} 25%, transparent);}
   .card-section:first-of-type{border-top:none;}
   .card-section.alt{background:var(--green-deep);}
 
@@ -194,7 +196,7 @@ function render(data = {}) {
 
   .countdown{display:flex;gap:clamp(8px,2vw,18px);justify-content:center;flex-wrap:wrap;}
   .countdown div{
-    background:rgba(201,169,97,.08);
+    background:color-mix(in srgb, ${accent} 8%, transparent);
     border:1px solid var(--gold);
     border-radius:4px;
     padding:clamp(10px,2vw,18px) clamp(12px,2.5vw,22px);

@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { xvSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "xv-neon-fiesta";
 
@@ -26,6 +27,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "dark", "#ff2d95");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "21:00"}:00` : sampleData.fecha, "cd-neon");
   const gal = galleryWidget(d.galeria || [], "gal-neon");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
@@ -40,7 +42,7 @@ function render(data = {}) {
 <style>
   :root{
     --bg:#120a17; --bg2:#1a0f22;
-    --magenta:#ff2d95; --cyan:#22e5ff; --violeta:#7b2ff7;
+    --magenta:${accent}; --cyan:#22e5ff; --violeta:#7b2ff7;
     --ink:#fdf7ff; --ink-dim:#c9b8e0;
   }
   *{box-sizing:border-box;}
@@ -48,7 +50,7 @@ function render(data = {}) {
   body{
     margin:0;font-family:'Poppins',Arial,sans-serif;background-color:var(--bg);color:var(--ink);
     background-image:
-      radial-gradient(ellipse at 18% 12%, rgba(255,45,149,.20), transparent 55%),
+      radial-gradient(ellipse at 18% 12%, color-mix(in srgb, ${accent} 20%, transparent), transparent 55%),
       radial-gradient(ellipse at 85% 25%, rgba(34,229,255,.16), transparent 55%),
       radial-gradient(ellipse at 50% 95%, rgba(123,47,247,.18), transparent 55%),
       linear-gradient(335deg, rgba(0,0,0,.45) 23px, transparent 23px),
@@ -66,10 +68,10 @@ function render(data = {}) {
 
   .neon-outline-magenta{color:#fff;text-shadow:0 0 4px #fff,0 0 12px var(--magenta),0 0 26px var(--magenta),0 0 46px var(--magenta);}
   .neon-outline-cyan{color:#fff;text-shadow:0 0 4px #fff,0 0 12px var(--cyan),0 0 26px var(--cyan),0 0 46px var(--cyan);}
-  .neon-script-magenta{color:var(--magenta);text-shadow:0 0 6px var(--magenta),0 0 18px rgba(255,45,149,.85),0 0 38px rgba(255,45,149,.5);}
+  .neon-script-magenta{color:var(--magenta);text-shadow:0 0 6px var(--magenta),0 0 18px color-mix(in srgb, ${accent} 85%, transparent),0 0 38px color-mix(in srgb, ${accent} 50%, transparent);}
   .neon-script-cyan{color:var(--cyan);text-shadow:0 0 6px var(--cyan),0 0 18px rgba(34,229,255,.85),0 0 38px rgba(34,229,255,.5);}
 
-  .glow-magenta{filter:drop-shadow(0 0 4px var(--magenta)) drop-shadow(0 0 10px rgba(255,45,149,.75));}
+  .glow-magenta{filter:drop-shadow(0 0 4px var(--magenta)) drop-shadow(0 0 10px color-mix(in srgb, ${accent} 75%, transparent));}
   .glow-cyan{filter:drop-shadow(0 0 4px var(--cyan)) drop-shadow(0 0 10px rgba(34,229,255,.75));}
 
   /* ===== HERO ===== */
@@ -86,7 +88,7 @@ function render(data = {}) {
   .hero-age{font-size:clamp(1.3rem,5vw,1.9rem);font-weight:800;letter-spacing:3px;text-transform:uppercase;margin:6px 0 22px;}
   .hero-msg{font-weight:800;text-transform:uppercase;font-size:clamp(.85rem,3vw,1.05rem);line-height:1.6;color:#fff;letter-spacing:.5px;margin:0 0 28px;}
   .date-row{display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,22px);font-weight:800;text-transform:uppercase;letter-spacing:2px;font-size:clamp(.85rem,3vw,1.05rem);flex-wrap:wrap;}
-  .date-row .big{font-size:clamp(1.8rem,7vw,2.6rem);color:var(--magenta);text-shadow:0 0 8px var(--magenta),0 0 22px rgba(255,45,149,.8);}
+  .date-row .big{font-size:clamp(1.8rem,7vw,2.6rem);color:var(--magenta);text-shadow:0 0 8px var(--magenta),0 0 22px color-mix(in srgb, ${accent} 80%, transparent);}
   .date-row .div{color:var(--magenta);opacity:.8;font-weight:300;}
   .hero-time{margin-top:16px;font-weight:800;letter-spacing:2px;text-transform:uppercase;font-size:clamp(.85rem,3vw,1.05rem);}
   .hero-place{margin-top:20px;font-weight:800;letter-spacing:1px;text-transform:uppercase;font-size:clamp(.8rem,2.8vw,.95rem);color:var(--cyan);text-shadow:0 0 8px rgba(34,229,255,.7);max-width:420px;}
@@ -97,20 +99,20 @@ function render(data = {}) {
   section{padding:clamp(36px,7vw,72px) 20px;position:relative;}
   .section-inner{max-width:1000px;margin:0 auto;}
   .section-title{text-align:center;font-size:clamp(1rem,3.2vw,1.3rem);margin:0 0 30px;text-transform:uppercase;letter-spacing:3px;font-weight:800;}
-  .section-title.magenta{color:var(--magenta);text-shadow:0 0 8px var(--magenta),0 0 22px rgba(255,45,149,.6);}
+  .section-title.magenta{color:var(--magenta);text-shadow:0 0 8px var(--magenta),0 0 22px color-mix(in srgb, ${accent} 60%, transparent);}
   .section-title.cyan{color:var(--cyan);text-shadow:0 0 8px var(--cyan),0 0 22px rgba(34,229,255,.6);}
   .section-script{text-align:center;font-family:'Yellowtail',cursive;font-size:clamp(2.2rem,7vw,3.2rem);margin:0 0 6px;}
 
   /* ===== COUNTDOWN ===== */
   .countdown{display:flex;gap:clamp(8px,2vw,18px);justify-content:center;flex-wrap:wrap;max-width:560px;margin:0 auto;}
-  .countdown>div{flex:1;min-width:70px;text-align:center;background:rgba(255,45,149,.08);border:1px solid rgba(34,229,255,.4);border-radius:16px;padding:clamp(12px,2vw,18px) 4px;box-shadow:0 0 20px rgba(34,229,255,.15), inset 0 0 20px rgba(255,45,149,.12);}
+  .countdown>div{flex:1;min-width:70px;text-align:center;background:color-mix(in srgb, ${accent} 8%, transparent);border:1px solid rgba(34,229,255,.4);border-radius:16px;padding:clamp(12px,2vw,18px) 4px;box-shadow:0 0 20px rgba(34,229,255,.15), inset 0 0 20px color-mix(in srgb, ${accent} 12%, transparent);}
   .cd-num{display:block;font-size:clamp(1.6rem,5vw,2.4rem);font-weight:800;color:#fff;text-shadow:0 0 10px var(--cyan),0 0 22px var(--cyan);}
   .cd-label{font-size:.65rem;text-transform:uppercase;letter-spacing:2px;color:#8fefff;}
 
   /* ===== CRONOGRAMA ===== */
   .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
-  .card{background:linear-gradient(160deg, rgba(255,45,149,.08), rgba(0,0,0,.3));border:1px solid rgba(34,229,255,.35);border-radius:20px;padding:24px;position:relative;overflow:hidden;}
-  .card::before{content:"";position:absolute;top:-40%;right:-30%;width:60%;height:140%;background:radial-gradient(circle, rgba(255,45,149,.16), transparent 65%);pointer-events:none;}
+  .card{background:linear-gradient(160deg, color-mix(in srgb, ${accent} 8%, transparent), rgba(0,0,0,.3));border:1px solid rgba(34,229,255,.35);border-radius:20px;padding:24px;position:relative;overflow:hidden;}
+  .card::before{content:"";position:absolute;top:-40%;right:-30%;width:60%;height:140%;background:radial-gradient(circle, color-mix(in srgb, ${accent} 16%, transparent), transparent 65%);pointer-events:none;}
   .card h3{margin:0 0 10px;text-transform:uppercase;letter-spacing:1.5px;font-size:1rem;color:#fff;display:flex;align-items:center;gap:8px;}
   .card p{margin:0;line-height:1.6;color:var(--ink-dim);font-size:.95rem;}
   .card a.mapa{display:inline-block;margin-top:10px;font-weight:700;color:var(--cyan);text-decoration:none;border-bottom:1px dashed var(--cyan);}
@@ -121,11 +123,11 @@ function render(data = {}) {
   .padres-line{margin-top:18px;color:var(--ink-dim);font-size:.85rem;letter-spacing:1px;text-transform:uppercase;}
 
   /* ===== DRESS CODE ===== */
-  .pill{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;background:rgba(255,45,149,.1);border:1px solid var(--magenta);color:#fff;font-weight:700;box-shadow:0 0 22px rgba(255,45,149,.35);}
+  .pill{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;background:color-mix(in srgb, ${accent} 10%, transparent);border:1px solid var(--magenta);color:#fff;font-weight:700;box-shadow:0 0 22px color-mix(in srgb, ${accent} 35%, transparent);}
 
   /* ===== GALLERY ===== */
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;}
-  .gallery-item{border-radius:16px;overflow:hidden;border:1px solid rgba(34,229,255,.4);box-shadow:0 0 18px rgba(255,45,149,.3);}
+  .gallery-item{border-radius:16px;overflow:hidden;border:1px solid rgba(34,229,255,.4);box-shadow:0 0 18px color-mix(in srgb, ${accent} 30%, transparent);}
   .gallery-item img{width:100%;height:180px;object-fit:cover;display:block;cursor:pointer;transition:transform .3s;}
   .gallery-item img:hover{transform:scale(1.06);}
   .lightbox{display:none;position:fixed;inset:0;background:rgba(5,2,10,.94);align-items:center;justify-content:center;z-index:50;padding:20px;}
@@ -138,7 +140,7 @@ function render(data = {}) {
   .rsvp-form label{font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px;color:#8fefff;}
   .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:inherit;padding:12px;border-radius:10px;border:1px solid rgba(34,229,255,.4);margin-top:6px;width:100%;background:rgba(255,255,255,.06);color:#fff;}
   .rsvp-form input::placeholder,.rsvp-form textarea::placeholder{color:#8f7bb0;}
-  .rsvp-form button{background:linear-gradient(90deg,var(--magenta),var(--violeta));color:#fff;border:0;padding:14px;border-radius:999px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 0 24px rgba(255,45,149,.5);}
+  .rsvp-form button{background:linear-gradient(90deg,var(--magenta),var(--violeta));color:#fff;border:0;padding:14px;border-radius:999px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 0 24px color-mix(in srgb, ${accent} 50%, transparent);}
   .rsvp-whatsapp{color:var(--cyan);font-size:.85rem;text-align:center;}
   .rsvp-status{font-weight:bold;color:#7CFFB2;text-align:center;}
 
@@ -153,12 +155,12 @@ function render(data = {}) {
     <div class="hero-overlay"></div>
     <div class="hero-deco">
       ${squiggle()}
-      <div class="star" style="top:6%;right:8%">${starIcon("#ff2d95", 46)}</div>
+      <div class="star" style="top:6%;right:8%">${starIcon(accent, 46)}</div>
       <div class="star" style="top:12%;left:6%">${starIcon("#22e5ff", 40)}</div>
       <div class="star" style="top:52%;left:4%">${boltIcon("#22e5ff", 40)}</div>
       <div class="star" style="top:48%;right:5%">${starIcon("#22e5ff", 44)}</div>
-      <div class="star" style="top:72%;left:8%">${starIcon("#ff2d95", 40)}</div>
-      <div class="star" style="top:78%;right:9%">${boltIcon("#ff2d95", 40)}</div>
+      <div class="star" style="top:72%;left:8%">${starIcon(accent, 40)}</div>
+      <div class="star" style="top:78%;right:9%">${boltIcon(accent, 40)}</div>
       ${dotsGrid("#22e5ff")}
     </div>
     <div class="hero-content">
@@ -172,7 +174,7 @@ function render(data = {}) {
       </div>
       <p class="hero-time">${esc(d.horaFiesta || d.horaCeremonia || "")} hs en adelante</p>
       <p class="hero-place">${esc(d.lugarFiesta)}</p>
-      <div class="hero-mic">${micIcon()}</div>
+      <div class="hero-mic">${micIcon(accent)}</div>
     </div>
   </div>
 
@@ -197,7 +199,7 @@ function render(data = {}) {
           <p>${d.horaCeremonia ? `Hora: <strong>${esc(d.horaCeremonia)}</strong><br>` : ""}${esc(d.lugarCeremonia)}</p>
         </div>` : ""}
         <div class="card">
-          <h3>${boltIcon("#ff2d95", 20)} Fiesta</h3>
+          <h3>${boltIcon(accent, 20)} Fiesta</h3>
           <p>${d.horaFiesta ? `Hora: <strong>${esc(d.horaFiesta)}</strong><br>` : ""}${esc(d.lugarFiesta)}</p>
           ${d.direccionMapa ? `<a class="mapa" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
         </div>
@@ -293,16 +295,16 @@ function dotsGrid(color) {
   return `<svg class="dots-corner" width="34" height="34" viewBox="0 0 34 34" style="opacity:.7">${dots.join("")}</svg>`;
 }
 
-function micIcon() {
+function micIcon(magentaColor) {
   return `<svg width="60" height="90" viewBox="0 0 60 90" style="filter:drop-shadow(0 0 5px #22e5ff) drop-shadow(0 0 12px #22e5ff)">
     <rect x="20" y="4" width="20" height="34" rx="10" fill="none" stroke="#22e5ff" stroke-width="2.2"/>
     <line x1="24" y1="12" x2="36" y2="12" stroke="#22e5ff" stroke-width="1.6"/>
     <line x1="24" y1="18" x2="36" y2="18" stroke="#22e5ff" stroke-width="1.6"/>
     <line x1="24" y1="24" x2="36" y2="24" stroke="#22e5ff" stroke-width="1.6"/>
     <line x1="24" y1="30" x2="36" y2="30" stroke="#22e5ff" stroke-width="1.6"/>
-    <path d="M12 34 a18 18 0 0 0 36 0" fill="none" stroke="#ff2d95" stroke-width="2.2" stroke-linecap="round"/>
-    <line x1="30" y1="52" x2="30" y2="66" stroke="#ff2d95" stroke-width="2.2"/>
-    <ellipse cx="30" cy="76" rx="18" ry="6" fill="none" stroke="#ff2d95" stroke-width="2.2"/>
+    <path d="M12 34 a18 18 0 0 0 36 0" fill="none" stroke="${magentaColor}" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="30" y1="52" x2="30" y2="66" stroke="${magentaColor}" stroke-width="2.2"/>
+    <ellipse cx="30" cy="76" rx="18" ry="6" fill="none" stroke="${magentaColor}" stroke-width="2.2"/>
   </svg>`;
 }
 

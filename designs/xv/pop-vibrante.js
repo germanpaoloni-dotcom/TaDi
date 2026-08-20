@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { xvSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "xv-pop-vibrante";
 
@@ -24,14 +25,14 @@ const sampleData = {
 // Motivos dibujados a mano en SVG inline: rosas de esquina, tiara, copas,
 // regalo, sobre y siluetas de vestimenta. Todo en tonos lavanda/fucsia,
 // sin dependencias externas.
-function roseCornerSvg(cls = "", flip = false) {
+function roseCornerSvg(cls = "", flip = false, accent = "#7c4a9e") {
   return `<svg class="${cls}${flip ? " flip" : ""}" viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <g opacity=".9">
       <path d="M2 6 C 40 2, 70 30, 60 60" stroke="#8fae7c" stroke-width="2" fill="none"/>
       <path d="M20 8 C 55 4, 75 26, 90 20" stroke="#8fae7c" stroke-width="2" fill="none"/>
-      <ellipse cx="30" cy="24" rx="13" ry="16" fill="#c79fe0" transform="rotate(-18 30 24)"/>
-      <ellipse cx="42" cy="14" rx="10" ry="13" fill="#b47fd1" transform="rotate(10 42 14)"/>
-      <circle cx="34" cy="20" r="8" fill="#8e4fb8"/>
+      <ellipse cx="30" cy="24" rx="13" ry="16" fill="color-mix(in srgb, ${accent}, white 55%)" transform="rotate(-18 30 24)"/>
+      <ellipse cx="42" cy="14" rx="10" ry="13" fill="color-mix(in srgb, ${accent}, white 40%)" transform="rotate(10 42 14)"/>
+      <circle cx="34" cy="20" r="8" fill="color-mix(in srgb, ${accent}, white 15%)"/>
       <ellipse cx="66" cy="18" rx="9" ry="11" fill="#f2a6c9" transform="rotate(-8 66 18)"/>
       <circle cx="66" cy="18" r="5" fill="#e8639f"/>
       <path d="M10 40 C 18 34, 26 36, 30 44 C 22 48, 12 46, 10 40 Z" fill="#7a9c68"/>
@@ -105,14 +106,15 @@ function dressCodeSvg(cls = "") {
   </svg>`;
 }
 
-function paperTexture() {
+function paperTexture(accent = "#7c4a9e") {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220"><rect width="220" height="220" fill="#faf6ef"/><g fill="#8e4fb8" opacity="0.035"><circle cx="20" cy="30" r="1.4"/><circle cx="110" cy="70" r="1.6"/><circle cx="180" cy="20" r="1.2"/><circle cx="60" cy="150" r="1.5"/><circle cx="160" cy="180" r="1.3"/><circle cx="200" cy="120" r="1.1"/></g></svg>`
+    `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220"><rect width="220" height="220" fill="#faf6ef"/><g fill="${accent}" opacity="0.035"><circle cx="20" cy="30" r="1.4"/><circle cx="110" cy="70" r="1.6"/><circle cx="180" cy="20" r="1.2"/><circle cx="60" cy="150" r="1.5"/><circle cx="160" cy="180" r="1.3"/><circle cx="200" cy="120" r="1.1"/></g></svg>`
   )}`;
 }
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#7c4a9e");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha, "cdpop");
   const gal = galleryWidget(d.galeria || [], "galpop");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -139,16 +141,16 @@ function render(data = {}) {
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Marcellus&family=Great+Vibes&display=swap" rel="stylesheet">
 <style>
   :root{
-    --lav-deep:#7c4a9e;
-    --lav:#a97fc7;
-    --lav-light:#e9dbf3;
+    --lav-deep:${accent};
+    --lav:color-mix(in srgb, ${accent}, white 35%);
+    --lav-light:color-mix(in srgb, ${accent}, white 85%);
     --pink:#e85fa0;
     --cream:#faf6ef;
     --ink:#3a3240;
   }
   *{box-sizing:border-box;}
   html,body{max-width:100%;overflow-x:hidden;}
-  body{margin:0;font-family:'Cormorant Garamond',serif;background:var(--cream) url('${paperTexture()}');color:var(--ink);line-height:1.6;}
+  body{margin:0;font-family:'Cormorant Garamond',serif;background:var(--cream) url('${paperTexture(accent)}');color:var(--ink);line-height:1.6;}
   h1,h2,.serif-caps{font-family:'Marcellus',serif;}
   .script{font-family:'Great Vibes',cursive;}
   .icon{color:var(--lav-deep);}
@@ -158,7 +160,7 @@ function render(data = {}) {
   .corner-bottom.flip{left:auto;right:0;transform:scaleY(-1) scaleX(-1);}
 
   section{position:relative;max-width:720px;margin:0 auto;padding:clamp(50px,10vw,80px) 24px;text-align:center;overflow:hidden;}
-  .section-tint{background:linear-gradient(180deg,rgba(169,127,199,.10),rgba(169,127,199,.02));}
+  .section-tint{background:linear-gradient(180deg,color-mix(in srgb, var(--lav) 10%, transparent),color-mix(in srgb, var(--lav) 2%, transparent));}
   .eyebrow{letter-spacing:3px;text-transform:uppercase;font-size:clamp(.75rem,2vw,.9rem);color:var(--lav-deep);font-family:'Marcellus',serif;}
   h2{
     font-size:clamp(1.1rem,2.8vw,1.5rem);color:var(--lav-deep);
@@ -173,7 +175,7 @@ function render(data = {}) {
   .hero h1.title{font-size:clamp(1.6rem,5vw,2.4rem);letter-spacing:5px;margin:6px 0 24px;}
   .frame{
     width:min(88%,340px);margin:0 auto;border-radius:4px 4px 60px 4px;overflow:hidden;
-    box-shadow:0 14px 30px rgba(124,74,158,.25);border:6px solid #fff;
+    box-shadow:0 14px 30px color-mix(in srgb, var(--lav-deep) 25%, transparent);border:6px solid #fff;
   }
   .frame img{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;}
   .name-script{font-size:clamp(2.2rem,7vw,3.4rem);color:var(--lav-deep);margin:22px 0 4px;}
@@ -193,7 +195,7 @@ function render(data = {}) {
   .countdown div{
     background:#fff;border:1px solid var(--lav-light);border-radius:10px;
     padding:clamp(8px,2vw,14px) clamp(10px,2.4vw,18px);min-width:64px;
-    box-shadow:0 4px 14px rgba(124,74,158,.14);
+    box-shadow:0 4px 14px color-mix(in srgb, var(--lav-deep) 14%, transparent);
   }
   .cd-num{font-family:'Marcellus',serif;font-size:clamp(1.4rem,4vw,2rem);color:var(--lav-deep);display:block;}
   .cd-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1.5px;color:#7a6f82;}
@@ -205,7 +207,7 @@ function render(data = {}) {
   .map-btn{
     display:inline-block;margin-top:16px;padding:9px 26px;border-radius:20px;
     background:var(--lav);color:#fff;text-decoration:none;letter-spacing:1px;
-    font-family:'Marcellus',serif;font-size:.85rem;box-shadow:0 6px 16px rgba(124,74,158,.3);
+    font-family:'Marcellus',serif;font-size:.85rem;box-shadow:0 6px 16px color-mix(in srgb, var(--lav-deep) 30%, transparent);
   }
 
   .feature-photo{position:relative;max-width:340px;margin:34px auto 0;}
@@ -215,7 +217,7 @@ function render(data = {}) {
   }
   .feature-photo img{
     position:relative;z-index:1;width:78%;margin:0 auto;display:block;border-radius:6px 6px 50px 6px;
-    box-shadow:0 16px 34px rgba(124,74,158,.28);border:6px solid #fff;aspect-ratio:3/4;object-fit:cover;
+    box-shadow:0 16px 34px color-mix(in srgb, var(--lav-deep) 28%, transparent);border:6px solid #fff;aspect-ratio:3/4;object-fit:cover;
   }
 
   .timeline{margin-top:34px;text-align:left;max-width:420px;margin-left:auto;margin-right:auto;}
@@ -233,7 +235,7 @@ function render(data = {}) {
   .gallery{
     display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:24px;
   }
-  .gallery-item{border-radius:6px;overflow:hidden;aspect-ratio:1/1;border:3px solid #fff;box-shadow:0 6px 16px rgba(124,74,158,.18);}
+  .gallery-item{border-radius:6px;overflow:hidden;aspect-ratio:1/1;border:3px solid #fff;box-shadow:0 6px 16px color-mix(in srgb, var(--lav-deep) 18%, transparent);}
   .gallery-item img{width:100%;height:100%;object-fit:cover;cursor:pointer;transition:transform .3s;display:block;}
   .gallery-item img:hover{transform:scale(1.06);}
   .lightbox{display:none;position:fixed;inset:0;background:rgba(58,50,64,.92);z-index:50;align-items:center;justify-content:center;cursor:zoom-out;}
@@ -267,7 +269,7 @@ function render(data = {}) {
 
   footer{
     position:relative;text-align:center;padding:clamp(50px,10vw,80px) 20px;
-    background:linear-gradient(180deg,rgba(169,127,199,.12),rgba(169,127,199,.22));
+    background:linear-gradient(180deg,color-mix(in srgb, var(--lav) 12%, transparent),color-mix(in srgb, var(--lav) 22%, transparent));
     overflow:hidden;
   }
   footer .script{font-size:clamp(2rem,6vw,2.8rem);color:var(--lav-deep);position:relative;z-index:1;}
@@ -275,8 +277,8 @@ function render(data = {}) {
 <body>
 
   <div class="hero" style="position:relative;">
-    ${roseCornerSvg("corner-top")}
-    ${roseCornerSvg("corner-top", true)}
+    ${roseCornerSvg("corner-top", false, accent)}
+    ${roseCornerSvg("corner-top", true, accent)}
     <p class="quote">&ldquo;${esc(d.mensaje)}&rdquo;</p>
     ${tiaraSvg("icon")}
     <h1 class="title">Mis XV Años</h1>
@@ -349,8 +351,8 @@ function render(data = {}) {
   </section>
 
   <footer>
-    ${roseCornerSvg("corner-bottom")}
-    ${roseCornerSvg("corner-bottom", true)}
+    ${roseCornerSvg("corner-bottom", false, accent)}
+    ${roseCornerSvg("corner-bottom", true, accent)}
     <p class="script">¡Te esperamos!</p>
   </footer>
 

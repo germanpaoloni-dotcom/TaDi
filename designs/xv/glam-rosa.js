@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { xvSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "xv-glam-rosa";
 
@@ -107,6 +108,7 @@ function sparkleSvg(cls = "") {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#c9536c");
   const targetISO = d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha;
   const cd = countdownWidget(targetISO, "cd-glam");
   const gal = galleryWidget(d.galeria || [], "gal-glam");
@@ -134,9 +136,9 @@ function render(data = {}) {
     --blush:#f7dde3;
     --blush-soft:#fbeef1;
     --ivory:#fffbfa;
-    --rose:#c9536c;
-    --rose-deep:#b23f58;
-    --rose-light:#e6aab8;
+    --rose:${accent};
+    --rose-deep:color-mix(in srgb, ${accent}, black 18%);
+    --rose-light:color-mix(in srgb, ${accent}, white 50%);
     --gold:#b6924f;
     --gold-light:#d9c396;
     --ink:#4a2f37;
@@ -173,7 +175,7 @@ function render(data = {}) {
     border:1px solid var(--gold-light);
     border-radius:38px 38px 90px 90px/38px 38px 60px 60px;
     padding:clamp(30px,7vw,50px) clamp(20px,6vw,40px) clamp(36px,8vw,54px);
-    box-shadow:0 18px 40px rgba(178,63,88,.12);
+    box-shadow:0 18px 40px color-mix(in srgb, var(--rose-deep) 12%, transparent);
   }
   .hero-card::before{
     content:"";position:absolute;inset:10px;
@@ -259,7 +261,7 @@ function render(data = {}) {
     max-width:340px;margin:0 auto 26px;background:var(--ivory);
     border:1px solid var(--gold-light);border-radius:20px;
     padding:26px 24px 30px;position:relative;
-    box-shadow:0 14px 30px rgba(178,63,88,.1);
+    box-shadow:0 14px 30px color-mix(in srgb, var(--rose-deep) 10%, transparent);
   }
   .detail-card::before{
     content:"";position:absolute;inset:7px;border:1px solid var(--rose-light);border-radius:14px;pointer-events:none;
@@ -288,7 +290,7 @@ function render(data = {}) {
     max-width:400px;margin:0 auto;background:var(--ivory);
     border:1px solid var(--gold-light);border-radius:20px;
     padding:30px 24px 34px;position:relative;
-    box-shadow:0 14px 30px rgba(178,63,88,.1);
+    box-shadow:0 14px 30px color-mix(in srgb, var(--rose-deep) 10%, transparent);
   }
   .rsvp-card::before{content:"";position:absolute;inset:7px;border:1px solid var(--rose-light);border-radius:14px;pointer-events:none;}
   .rsvp-card .envelope{width:70px;height:auto;color:var(--rose);margin:4px auto 10px;display:block;}
