@@ -36,12 +36,9 @@ footer.site{text-align:center;padding:34px;color:var(--muted);font-size:.8rem;bo
 .mega-hero-kicker{display:block;text-transform:uppercase;letter-spacing:3px;font-size:.72rem;color:var(--accent);margin-bottom:14px;}
 .mega-hero-title{font-size:5rem;font-weight:800;line-height:.95;margin:0;letter-spacing:-1px;overflow-wrap:break-word;}
 .mega-hero-title .dot{color:var(--accent);}
-.mega-hero-visual{position:relative;height:520px;width:420px;margin:0 auto;}
-.mega-hero-ring{position:absolute;width:190px;height:190px;border-radius:50%;border:22px solid var(--accent);top:40px;right:20px;opacity:.95;z-index:0;}
-.mega-hero-visual img{position:absolute;left:0;top:0;z-index:1;height:520px;width:300px;object-fit:cover;filter:contrast(1.05) saturate(.92) brightness(.99);
-  -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 6%, #000 90%, transparent 100%);
-  mask-image:linear-gradient(180deg, transparent 0%, #000 6%, #000 90%, transparent 100%);
-}
+.mega-hero-visual{position:relative;height:600px;width:420px;margin:0 auto;}
+.mega-hero-ring{position:absolute;width:210px;height:210px;border-radius:50%;border:22px solid var(--accent);top:6px;left:130px;opacity:.95;z-index:0;}
+.mega-hero-visual img{position:absolute;left:0;top:0;z-index:1;height:600px;width:390px;object-fit:contain;object-position:top center;filter:contrast(1.05) brightness(1.03) grayscale(1);}
 .mega-hero-info{display:flex;flex-direction:column;gap:34px;}
 .mega-hero-block h3{margin:0 0 8px;font-size:.95rem;font-weight:700;}
 .mega-hero-block p{margin:0;font-size:.82rem;color:var(--muted);line-height:1.6;}
@@ -61,9 +58,9 @@ footer.site{text-align:center;padding:34px;color:var(--muted);font-size:.8rem;bo
 /* single (non-carousel) hero band used on /categoria/:id */
 .mini-hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);padding:50px 40px;}
 .mini-hero .mega-hero-grid{min-height:420px;}
-.mini-hero .mega-hero-visual{height:400px;width:340px;}
-.mini-hero .mega-hero-visual img{height:400px;width:230px;}
-.mini-hero .mega-hero-ring{width:150px;height:150px;border-width:18px;top:30px;}
+.mini-hero .mega-hero-visual{height:400px;width:300px;}
+.mini-hero .mega-hero-visual img{height:400px;width:260px;}
+.mini-hero .mega-hero-ring{width:140px;height:140px;border-width:15px;top:4px;left:93px;}
 .mini-hero .mega-hero-title{font-size:3.4rem;}
 .mini-hero .mega-hero-ghost{font-size:6rem;}
 
@@ -143,8 +140,8 @@ footer.site{text-align:center;padding:34px;color:var(--muted);font-size:.8rem;bo
   header.site nav a{margin-left:0;padding:10px 4px;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.04);}
   .mega-hero-grid{grid-template-columns:1fr;gap:28px;text-align:center;}
   .mega-hero-visual{order:-1;height:320px;width:260px;}
-  .mega-hero-visual img{height:320px;width:190px;}
-  .mega-hero-ring{width:130px;height:130px;border-width:16px;top:20px;right:10px;}
+  .mega-hero-visual img{height:320px;width:208px;}
+  .mega-hero-ring{width:112px;height:112px;border-width:12px;top:3px;left:80px;}
   .mega-hero-slide{padding:40px 20px 30px;overflow:hidden;}
   .mega-hero-title{font-size:2.6rem;}
   .mini-hero .mega-hero-title{font-size:2.6rem;}
@@ -170,7 +167,7 @@ footer.site{text-align:center;padding:34px;color:var(--muted);font-size:.8rem;bo
   .mega-hero-title, .mini-hero .mega-hero-title{font-size:2.1rem;}
   .mega-hero-ghost, .mini-hero .mega-hero-ghost{font-size:2.6rem;}
   .mega-hero-visual{height:280px;width:220px;}
-  .mega-hero-visual img{height:280px;width:160px;}
-  .mega-hero-ring{width:110px;height:110px;border-width:14px;}
+  .mega-hero-visual img{height:280px;width:182px;}
+  .mega-hero-ring{width:98px;height:98px;border-width:10px;top:3px;left:68px;}
   .checkout-wrap{margin:30px auto;padding:24px;}
 }
