@@ -6,53 +6,70 @@ const id = "desp-tropical-fiesta";
 const sampleData = {
   nombre: "Euge",
   fecha: "2027-01-16",
-  hora: "17:00",
-  lugar: "Complejo La Bahía, Costa Esmeralda",
-  direccionMapa: "https://maps.google.com/?q=Complejo+La+Bahia+Costa+Esmeralda",
+  hora: "21:00",
+  lugar: "Terraza Bahía Rooftop, Costa Esmeralda",
+  direccionMapa: "https://maps.google.com/?q=Terraza+Bahia+Rooftop+Costa+Esmeralda",
   plan:
-    "Arrancamos a las 17 hs con recepción junto a la pileta del complejo (traigan protector solar y ganas de bailar). A las 20 hs, asado con barra libre de tragos tropicales y música en vivo. Después de la cena, DJ hasta que el cuerpo aguante, con juegos, desafíos y sorpresas para la festejada. No puede faltar la remera de la despedida, ¡así que confirmen su talle al anotarse!",
-  dressCode: "Total white o estampado tropical — nada de negro, ¡queremos playa y color!",
+    "Arrancamos a las 21 hs con tragos tropicales al pie de la pileta (usá tu look más brillante). A las 22:30, cena bajo las palmeras iluminadas con barra libre y música en vivo. Después, DJ hasta que salga el sol, con juegos, desafíos y sorpresas para la festejada. No puede faltar la remera de la despedida, ¡así que confirmá tu talle al anotarte!",
+  dressCode: "Tropical glam nocturno: brillos, flores y colores neón — nada de básicos, ¡queremos fiesta!",
   organizadores: "Male, Sole y las chicas del grupo",
   whatsapp: "5491133445566",
-  coverImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1519834785169-98be25ec3f84?w=1400&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80",
-    "https://images.unsplash.com/photo-1521405924368-64c5b84bec60?w=800&q=80",
     "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800&q=80",
     "https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=800&q=80",
+    "https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=800&q=80",
   ],
 };
 
-// Motivos tropicales dibujados a mano en SVG inline (sol, hojas de palmera,
-// olas) para no depender de ningún set de íconos externo.
-const sunSVG = `<svg class="motif motif-sun" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <circle cx="50" cy="50" r="19" fill="currentColor"/>
-  <g stroke="currentColor" stroke-width="4.5" stroke-linecap="round">
-    <line x1="50" y1="4" x2="50" y2="17"/>
-    <line x1="50" y1="83" x2="50" y2="96"/>
-    <line x1="4" y1="50" x2="17" y2="50"/>
-    <line x1="83" y1="50" x2="96" y2="50"/>
-    <line x1="17.5" y1="17.5" x2="26.5" y2="26.5"/>
-    <line x1="73.5" y1="73.5" x2="82.5" y2="82.5"/>
-    <line x1="82.5" y1="17.5" x2="73.5" y2="26.5"/>
-    <line x1="26.5" y1="73.5" x2="17.5" y2="82.5"/>
-  </g>
-</svg>`;
-
-function frondSVG(flip) {
+// Motivos tropicales dibujados a mano en SVG inline (hoja de palmera con
+// degradé neón, flor tropical, piña, pin y diamante decorativo) para no
+// depender de ningún set de íconos externo.
+function frondSVG(flip, uid) {
+  const gid = `frondGrad-${uid}`;
   return `<svg class="motif motif-frond${flip ? " flip" : ""}" viewBox="0 0 60 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M30 138 C 25 100, 30 58, 35 4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M32 20 C 8 13, -4 26, 1 41" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M32 42 C 6 37, -6 52, 0 68" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M32 64 C 8 61, -3 78, 3 94" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M33 25 C 57 17, 69 30, 64 45" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M33 47 C 58 41, 70 56, 63 72" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M33 69 C 56 66, 66 82, 59 96" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <defs>
+      <linearGradient id="${gid}" x1="0" y1="140" x2="60" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#ff2f9c"/>
+        <stop offset="1" stop-color="#1fe8d5"/>
+      </linearGradient>
+    </defs>
+    <g stroke="url(#${gid})">
+      <path d="M30 138 C 25 100, 30 58, 35 4" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M32 20 C 8 13, -4 26, 1 41" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M32 42 C 6 37, -6 52, 0 68" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M32 64 C 8 61, -3 78, 3 94" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M33 25 C 57 17, 69 30, 64 45" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M33 47 C 58 41, 70 56, 63 72" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M33 69 C 56 66, 66 82, 59 96" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
   </svg>`;
 }
 
-const squiggleSVG = `<svg class="squiggle" viewBox="0 0 120 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <path d="M2 9 C 12 -1, 22 19, 32 9 C 42 -1, 52 19, 62 9 C 72 -1, 82 19, 92 9 C 102 -1, 112 19, 118 9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+const hibiscusSVG = `<svg class="motif motif-flower" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="flowerGrad" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff2f9c"/>
+      <stop offset="1" stop-color="#e3c088"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#flowerGrad)">
+    <ellipse cx="30" cy="14" rx="9" ry="14"/>
+    <ellipse cx="30" cy="14" rx="9" ry="14" transform="rotate(72 30 30)"/>
+    <ellipse cx="30" cy="14" rx="9" ry="14" transform="rotate(144 30 30)"/>
+    <ellipse cx="30" cy="14" rx="9" ry="14" transform="rotate(216 30 30)"/>
+    <ellipse cx="30" cy="14" rx="9" ry="14" transform="rotate(288 30 30)"/>
+  </g>
+  <circle cx="30" cy="30" r="5" fill="#1fe8d5"/>
+</svg>`;
+
+const pineappleSVG = `<svg class="motif motif-pineapple" viewBox="0 0 40 56" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M8 44 C8 30 8 24 20 24 C32 24 32 30 32 44 C32 51 26 54 20 54 C14 54 8 51 8 44 Z" stroke="currentColor" stroke-width="2.2"/>
+  <path d="M12 30 C16 33 24 33 28 30 M11 37 C16 40 24 40 29 37 M12 44 C16 47 24 47 28 44" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M20 24 L20 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M20 14 C10 8 6 12 9 20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M20 14 C30 8 34 12 31 20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
 </svg>`;
 
 const pinSVG = `<svg class="motif motif-pin" viewBox="0 0 40 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -67,15 +84,15 @@ const glassSVG = `<svg class="motif motif-glass" viewBox="0 0 40 56" fill="none"
   <path d="M13 11 C 16 15, 24 15, 27 11" stroke="currentColor" stroke-width="2"/>
 </svg>`;
 
-// Divisor en forma de ola, hecho a mano con curvas Bézier: se usa entre
-// franjas de color para dar el efecto de playa/marea sin depender de
-// imágenes externas.
-function waveSep(prevColorVar, nextColorVar) {
-  return `<div class="wave-sep" style="background:${nextColorVar}">
-    <svg viewBox="0 0 1440 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="color:${prevColorVar}">
-      <path d="M0,40 C 220,92 380,2 600,46 C 820,90 980,8 1200,50 C 1320,72 1380,54 1440,44 L1440,100 L0,100 Z" fill="currentColor"/>
-    </svg>
-  </div>`;
+const diamondSVG = `<svg class="motif motif-diamond" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M4 9 L12 3 L20 9 L12 21 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M4 9 H20 M8.5 9 L12 21 M15.5 9 L12 21 M8.5 9 L12 3 M15.5 9 L12 3" stroke="currentColor" stroke-width="1"/>
+</svg>`;
+
+// Divisor elegante (línea degradé + diamante) usado entre título y
+// contenido de cada sección, en reemplazo de imágenes externas.
+function divider() {
+  return `<div class="divider"><span class="divider-line"></span>${diamondSVG}<span class="divider-line"></span></div>`;
 }
 
 function render(data = {}) {
@@ -97,165 +114,167 @@ function render(data = {}) {
 <title>Despedida de ${esc(d.nombre)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Marck+Script&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --coral:#ff6b4a;
-    --coral-dark:#e04b30;
-    --turquoise:#00c2b8;
-    --turquoise-dark:#009a92;
-    --yellow:#ffd23f;
-    --sand:#fffaf0;
-    --tq-soft:#e2f8f6;
-    --coral-soft:#ffe9e1;
-    --yellow-soft:#fff6d8;
-    --ink:#123c3c;
-    --ink-soft:#4a6b6a;
+    --bg-1:#170a2c;
+    --bg-2:#0d1f22;
+    --bg-3:#0a0416;
+    --magenta:#ff2f9c;
+    --magenta-dark:#c21a76;
+    --teal:#1fe8d5;
+    --teal-dark:#0fa89c;
+    --gold:#e3c088;
+    --cream:#f7ecd9;
+    --cream-soft:rgba(247,236,217,.7);
+    --panel:rgba(255,255,255,.045);
+    --panel-border:rgba(227,192,136,.35);
   }
   *{box-sizing:border-box;}
   html,body{max-width:100%;overflow-x:hidden;}
-  body{margin:0;font-family:'Poppins',system-ui,sans-serif;background:var(--sand);color:var(--ink);}
+  body{margin:0;font-family:'Poppins',system-ui,sans-serif;background:var(--bg-1);color:var(--cream);}
   img{max-width:100%;}
   a{color:inherit;}
-  h1,h2,h3{font-family:'Baloo 2',system-ui,sans-serif;}
+  h1,h2,h3{font-family:'Playfair Display',Georgia,serif;}
+  .script{font-family:'Marck Script',cursive;font-weight:400;}
 
   .motif{display:block;}
-  .motif-sun{width:clamp(46px,9vw,72px);height:auto;color:var(--yellow);}
-  .motif-sun.small{width:26px;flex:0 0 auto;}
-  .motif-frond{width:clamp(46px,10vw,84px);height:auto;color:#fff;opacity:.85;}
+  .motif-frond{width:clamp(58px,16vw,110px);height:auto;}
   .motif-frond.flip{transform:scaleX(-1);}
-  .motif-pin{width:30px;height:auto;color:var(--coral-dark);flex:0 0 auto;}
-  .motif-glass{width:28px;height:auto;color:var(--turquoise-dark);flex:0 0 auto;}
-  .squiggle{width:100px;height:14px;color:var(--yellow);}
+  .motif-flower{width:44px;height:auto;}
+  .motif-pineapple{width:30px;height:auto;color:var(--gold);flex:0 0 auto;}
+  .motif-pin{width:32px;height:auto;color:var(--gold);flex:0 0 auto;}
+  .motif-glass{width:28px;height:auto;color:var(--teal);flex:0 0 auto;}
+  .motif-diamond{width:14px;height:14px;color:var(--gold);flex:0 0 auto;}
+
+  .divider{display:flex;align-items:center;justify-content:center;gap:10px;max-width:220px;margin:0 auto 30px;}
+  .divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
 
   /* ---------- HERO ---------- */
-  .hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;}
+  .hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bg-3);padding:64px 16px;text-align:center;}
   .hero-bg{position:absolute;inset:0;background:url('${esc(d.coverImage)}') center/cover;}
-  .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(200deg,rgba(255,107,74,.55),rgba(0,194,184,.55) 55%,rgba(18,60,60,.75));}
-  .hero-corner{position:absolute;pointer-events:none;z-index:2;}
-  .hero-corner.tl{top:10px;left:6px;}
-  .hero-corner.tr{top:10px;right:6px;transform:scaleX(-1);}
-  .hero-sun{position:absolute;top:22px;right:22px;z-index:2;}
-  .hero-content{position:relative;z-index:2;color:#fff;text-align:center;max-width:640px;margin:0 auto;padding:120px 24px 64px;}
-  .eyebrow{letter-spacing:.4em;text-transform:uppercase;font-size:clamp(.68rem,1.8vw,.85rem);font-weight:600;color:var(--yellow);}
-  .hero-content h1{font-size:clamp(3rem,11vw,6rem);font-weight:800;margin:10px 0 6px;line-height:1;text-shadow:0 6px 24px rgba(0,0,0,.25);}
-  .hero-sub{font-size:clamp(.95rem,2.6vw,1.2rem);font-weight:500;opacity:.95;}
-  .hero-date{display:inline-block;margin-top:18px;padding:8px 22px;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.65);border-radius:999px;letter-spacing:.12em;text-transform:uppercase;font-size:clamp(.72rem,2vw,.85rem);backdrop-filter:blur(2px);}
+  .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(165deg,rgba(23,10,44,.72),rgba(6,3,16,.93) 65%);}
+  .hero-frond{position:absolute;z-index:1;opacity:.9;filter:drop-shadow(0 0 14px rgba(0,0,0,.5));}
+  .hero-frond.tl{top:-8px;left:-8px;}
+  .hero-frond.tr{top:-8px;right:-8px;transform:scaleX(-1);}
+  .hero-frond.bl{bottom:-8px;left:-8px;transform:scaleY(-1);}
+  .hero-frond.br{bottom:-8px;right:-8px;transform:scale(-1,-1);}
+  .hero-frame{position:relative;z-index:2;width:100%;max-width:460px;margin:0 auto;text-align:center;padding:clamp(36px,8vw,60px) clamp(22px,6vw,40px);border:1.5px solid var(--magenta);border-radius:6px;background:rgba(10,4,20,.35);box-shadow:0 0 0 6px rgba(255,47,156,.08), inset 0 0 40px rgba(255,47,156,.18), 0 0 60px rgba(31,232,213,.12);}
+  .hero-content{max-width:400px;margin:0 auto;text-align:center;}
+  .script-eyebrow{font-family:'Marck Script',cursive;font-size:clamp(1.6rem,5vw,2.1rem);color:var(--gold);margin:0 0 6px;}
+  .hero-content h1{font-size:clamp(2.6rem,10vw,4.1rem);font-weight:800;letter-spacing:.03em;margin:0 0 12px;line-height:1.02;color:var(--cream);text-shadow:0 0 24px rgba(255,47,156,.35);}
+  .hero-sub{font-size:clamp(.82rem,2.4vw,.98rem);letter-spacing:.06em;color:var(--cream-soft);margin:0 0 20px;}
+  .hero-date{display:inline-block;padding:9px 22px;border:1px solid var(--gold);border-radius:999px;letter-spacing:.14em;text-transform:uppercase;font-size:clamp(.66rem,1.9vw,.78rem);color:var(--gold);}
 
-  .wave-sep{width:100%;line-height:0;overflow:hidden;}
-  .wave-sep svg{display:block;width:100%;height:clamp(34px,7vw,78px);}
-
-  section{padding:64px 22px;text-align:center;}
+  section{padding:70px 22px;text-align:center;}
   .sec-inner{max-width:760px;margin:0 auto;}
-  h2{font-weight:700;font-size:clamp(1.6rem,5vw,2.3rem);margin:0 0 8px;color:var(--ink);}
-  .squiggle{margin:0 auto 26px;}
-  .kicker{letter-spacing:.28em;text-transform:uppercase;font-size:.72rem;font-weight:600;color:var(--turquoise-dark);margin-bottom:6px;}
+  .kicker{letter-spacing:.3em;text-transform:uppercase;font-size:.7rem;font-weight:600;color:var(--gold);margin-bottom:8px;}
+  h2{font-weight:700;font-size:clamp(1.7rem,5vw,2.4rem);margin:0 0 10px;color:var(--cream);}
+
+  .sec-a{background:var(--bg-1);}
+  .sec-b{background:var(--bg-2);}
 
   /* ---------- COUNTDOWN ---------- */
-  .sec-countdown{background:var(--sand);}
-  .countdown{display:flex;gap:clamp(10px,4vw,26px);justify-content:center;flex-wrap:wrap;margin-top:14px;}
-  .countdown div{display:flex;flex-direction:column;align-items:center;min-width:64px;background:#fff;border-radius:18px;padding:14px 10px;box-shadow:0 10px 24px rgba(18,60,60,.08);}
-  .cd-num{font-family:'Baloo 2',sans-serif;font-size:clamp(1.6rem,5vw,2.4rem);color:var(--coral-dark);line-height:1;}
-  .cd-label{font-size:.66rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-soft);margin-top:4px;}
+  .countdown{display:flex;gap:clamp(10px,4vw,22px);justify-content:center;flex-wrap:wrap;margin-top:14px;}
+  .countdown div{display:flex;flex-direction:column;align-items:center;min-width:64px;background:var(--panel);border:1px solid var(--panel-border);border-radius:14px;padding:14px 12px;}
+  .cd-num{font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.6rem,5vw,2.3rem);color:var(--magenta);line-height:1;}
+  .cd-label{font-size:.64rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--cream-soft);margin-top:5px;}
 
   /* ---------- PLAN ---------- */
-  .sec-plan{background:var(--tq-soft);}
   .plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;text-align:left;margin-top:10px;}
-  .plan-card{background:#fff;border-radius:22px;padding:28px 26px;box-shadow:0 12px 30px rgba(0,154,146,.12);}
+  .plan-card{background:var(--panel);border:1px solid var(--panel-border);border-radius:18px;padding:28px 26px;}
   .plan-card .head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
-  .plan-card h3{margin:0;font-size:1.15rem;color:var(--turquoise-dark);}
-  .plan-card p{margin:0;line-height:1.75;color:var(--ink-soft);font-size:.98rem;}
-  .plan-card.dress{background:linear-gradient(135deg,var(--coral),var(--coral-dark));color:#fff;}
-  .plan-card.dress h3{color:#fff;}
-  .plan-card.dress p{color:rgba(255,255,255,.92);}
+  .plan-card h3{margin:0;font-size:1.1rem;color:var(--teal);}
+  .plan-card p{margin:0;line-height:1.75;color:var(--cream-soft);font-size:.96rem;}
+  .plan-card.dress{background:linear-gradient(135deg,rgba(255,47,156,.16),rgba(31,232,213,.10));border-color:var(--magenta);}
+  .plan-card.dress h3{color:var(--magenta);}
 
   /* ---------- LUGAR ---------- */
-  .sec-lugar{background:var(--coral-soft);}
-  .lugar-card{display:inline-flex;flex-direction:column;align-items:center;gap:10px;background:#fff;border-radius:24px;padding:32px 34px;box-shadow:0 12px 30px rgba(224,75,48,.14);max-width:100%;}
-  .lugar-card .lugar-nombre{font-family:'Baloo 2',sans-serif;font-size:clamp(1.2rem,3.4vw,1.5rem);color:var(--ink);}
-  .lugar-card .lugar-hora{color:var(--ink-soft);font-size:.95rem;}
-  .maplink{display:inline-block;margin-top:8px;padding:10px 24px;background:var(--coral-dark);color:#fff !important;text-decoration:none;border-radius:999px;font-weight:600;font-size:.88rem;letter-spacing:.02em;}
+  .lugar-card{display:inline-flex;flex-direction:column;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--panel-border);border-radius:20px;padding:32px 34px;max-width:100%;}
+  .lugar-card .lugar-nombre{font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.15rem,3.4vw,1.45rem);color:var(--cream);}
+  .lugar-card .lugar-hora{color:var(--cream-soft);font-size:.92rem;}
+  .maplink{display:inline-block;margin-top:8px;padding:10px 24px;background:linear-gradient(90deg,var(--magenta),var(--teal-dark));color:#0a0416 !important;text-decoration:none;border-radius:999px;font-weight:700;font-size:.85rem;letter-spacing:.02em;}
 
   /* ---------- ORGANIZA ---------- */
-  .sec-organiza{background:var(--sand);}
-  .organiza-names{font-family:'Baloo 2',sans-serif;font-size:clamp(1.3rem,3.6vw,1.7rem);color:var(--coral-dark);margin-top:4px;}
+  .organiza-names{font-family:'Marck Script',cursive;font-size:clamp(1.7rem,5vw,2.3rem);color:var(--gold);margin-top:6px;}
 
   /* ---------- GALERIA ---------- */
-  .sec-gallery{background:var(--yellow-soft);}
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:12px;}
-  .gallery img{width:100%;height:170px;object-fit:cover;border-radius:16px;cursor:pointer;}
-  .lightbox{display:none;position:fixed;inset:0;background:rgba(18,60,60,.92);align-items:center;justify-content:center;z-index:50;}
+  .gallery-item{border-radius:14px;overflow:hidden;border:1px solid var(--panel-border);}
+  .gallery img{width:100%;height:170px;object-fit:cover;cursor:pointer;display:block;}
+  .lightbox{display:none;position:fixed;inset:0;background:rgba(6,3,16,.94);align-items:center;justify-content:center;z-index:50;}
   .lightbox.open{display:flex;}
   .lightbox img{max-width:90%;max-height:85%;border-radius:12px;}
-  .lightbox-close{position:absolute;top:20px;right:30px;color:#fff;font-size:2rem;cursor:pointer;}
+  .lightbox-close{position:absolute;top:20px;right:30px;color:var(--cream);font-size:2rem;cursor:pointer;}
 
   /* ---------- RSVP ---------- */
-  .sec-rsvp{background:linear-gradient(160deg,var(--turquoise),var(--turquoise-dark));color:#fff;}
-  .sec-rsvp h2, .sec-rsvp .kicker{color:#fff;}
-  .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:16px auto 0;text-align:left;background:#fff;border-radius:24px;padding:28px 26px;box-shadow:0 16px 34px rgba(0,0,0,.18);}
-  .rsvp-form label{font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:600;}
-  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:inherit;padding:11px 12px;border:1.5px solid #eadfca;border-radius:12px;margin-top:5px;width:100%;background:var(--sand);color:var(--ink);}
-  .rsvp-form button{background:var(--coral);color:#fff;border:0;padding:14px;border-radius:999px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;font-size:.88rem;font-weight:700;}
-  .rsvp-form button:hover{background:var(--coral-dark);}
-  .rsvp-whatsapp{font-size:.85rem;color:var(--turquoise-dark);text-align:center;text-decoration:none;font-weight:600;}
-  .rsvp-status{text-align:center;color:#2f9c65;font-weight:700;}
+  .sec-rsvp{background:var(--bg-3);}
+  .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:16px auto 0;text-align:left;background:var(--panel);border:1px solid var(--panel-border);border-radius:20px;padding:28px 26px;}
+  .rsvp-form label{font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;color:var(--cream-soft);font-weight:600;}
+  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:inherit;padding:11px 12px;border:1.5px solid var(--panel-border);border-radius:10px;margin-top:5px;width:100%;background:rgba(255,255,255,.05);color:var(--cream);}
+  .rsvp-form input::placeholder,.rsvp-form textarea::placeholder{color:rgba(247,236,217,.4);}
+  .rsvp-form button{background:linear-gradient(90deg,var(--magenta),var(--teal-dark));color:#0a0416;border:0;padding:14px;border-radius:999px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;font-size:.86rem;font-weight:700;}
+  .rsvp-form button:hover{filter:brightness(1.08);}
+  .rsvp-whatsapp{font-size:.85rem;color:var(--teal);text-align:center;text-decoration:none;font-weight:600;}
+  .rsvp-status{text-align:center;color:var(--teal);font-weight:700;}
 
   /* ---------- FOOTER ---------- */
-  footer{background:var(--ink);color:#fdf5e2;text-align:center;padding:48px 22px 40px;position:relative;overflow:hidden;}
-  footer .foot-motifs{display:flex;justify-content:center;gap:18px;margin-bottom:14px;}
-  footer p{margin:0;font-size:.9rem;opacity:.85;}
-  footer .brand{font-family:'Baloo 2',sans-serif;font-size:1.1rem;color:var(--yellow);margin-bottom:4px;}
+  footer{background:var(--bg-3);color:var(--cream-soft);text-align:center;padding:48px 22px 40px;position:relative;overflow:hidden;}
+  footer .foot-motifs{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin-bottom:14px;}
+  footer .foot-motifs .motif-frond{width:52px;}
+  footer p{margin:0;font-size:.88rem;}
+  footer .brand{font-family:'Marck Script',cursive;font-size:1.5rem;color:var(--gold);margin-bottom:6px;}
 </style></head>
 <body>
 
   <div class="hero">
     <div class="hero-bg"></div>
-    <div class="hero-corner tl">${frondSVG(false)}</div>
-    <div class="hero-corner tr">${frondSVG(false)}</div>
-    <div class="hero-sun">${sunSVG}</div>
-    <div class="hero-content">
-      <p class="eyebrow">Despedida de soltero/a</p>
-      <h1>${esc(d.nombre)}</h1>
-      <p class="hero-sub">¡Sol, playa y fiesta para despedir la soltería!</p>
-      ${fechaLarga ? `<div class="hero-date">${esc(fechaLarga)}${d.hora ? ` · ${esc(d.hora)} hs` : ""}</div>` : ""}
+    <div class="hero-frond tl">${frondSVG(false, "tl")}</div>
+    <div class="hero-frond tr">${frondSVG(false, "tr")}</div>
+    <div class="hero-frond bl">${frondSVG(false, "bl")}</div>
+    <div class="hero-frond br">${frondSVG(false, "br")}</div>
+    <div class="hero-frame">
+      <div class="hero-content">
+        <p class="script-eyebrow">Despedida de</p>
+        <h1>${esc(d.nombre)}</h1>
+        <p class="hero-sub">SOL, TRAGOS Y PURPURINA PARA DESPEDIR LA SOLTERÍA</p>
+        ${fechaLarga ? `<div class="hero-date">${esc(fechaLarga)}${d.hora ? ` · ${esc(d.hora)} hs` : ""}</div>` : ""}
+      </div>
     </div>
   </div>
-  ${waveSep("#fff", "var(--sand)")}
 
-  <section class="sec-countdown">
+  <section class="sec-a">
     <div class="sec-inner">
       <p class="kicker">Faltan solo</p>
-      <h2>Cuenta regresiva para la playa</h2>
-      ${squiggleSVG}
+      <h2>Cuenta regresiva</h2>
+      ${divider()}
       ${cd.html}
     </div>
   </section>
-  ${waveSep("var(--sand)", "var(--tq-soft)")}
 
-  <section class="sec-plan">
+  <section class="sec-b">
     <div class="sec-inner">
       <p class="kicker">Agenda del día</p>
       <h2>El plan</h2>
-      ${squiggleSVG}
+      ${divider()}
       <div class="plan-grid">
         <div class="plan-card">
           <div class="head">${glassSVG}<h3>Itinerario</h3></div>
           <p>${esc(d.plan)}</p>
         </div>
         <div class="plan-card dress">
-          <div class="head">${sunSVG.replace('class="motif motif-sun"', 'class="motif motif-sun small"')}<h3>Dress code</h3></div>
+          <div class="head">${hibiscusSVG}<h3>Dress code</h3></div>
           <p>${esc(d.dressCode)}</p>
         </div>
       </div>
     </div>
   </section>
-  ${waveSep("var(--tq-soft)", "var(--coral-soft)")}
 
-  <section class="sec-lugar">
+  <section class="sec-a">
     <div class="sec-inner">
       <p class="kicker">Punto de encuentro</p>
       <h2>¿Dónde nos juntamos?</h2>
-      ${squiggleSVG}
+      ${divider()}
       <div class="lugar-card">
         ${pinSVG}
         <span class="lugar-nombre">${esc(d.lugar)}</span>
@@ -264,38 +283,37 @@ function render(data = {}) {
       </div>
     </div>
   </section>
-  ${waveSep("var(--coral-soft)", "var(--sand)")}
 
-  <section class="sec-organiza">
+  <section class="sec-b">
     <div class="sec-inner">
       <p class="kicker">Con mucho amor</p>
       <h2>Organiza</h2>
-      ${squiggleSVG}
+      ${divider()}
+      ${pineappleSVG}
       <div class="organiza-names">${esc(d.organizadores)}</div>
     </div>
   </section>
-  ${waveSep("var(--sand)", "var(--yellow-soft)")}
 
-  <section class="sec-gallery">
+  <section class="sec-a">
     <div class="sec-inner">
       <p class="kicker">Previa</p>
       <h2>Momentos que nos esperan</h2>
-      ${squiggleSVG}
+      ${divider()}
       ${gal.html}
     </div>
   </section>
-  ${waveSep("var(--yellow-soft)", "var(--turquoise)")}
 
   <section class="sec-rsvp">
     <div class="sec-inner">
       <p class="kicker">Última llamada</p>
-      <h2>Confirmá tu lugar en la playa</h2>
+      <h2>Confirmá tu lugar en la fiesta</h2>
+      ${divider()}
       ${rsvp.html}
     </div>
   </section>
 
   <footer>
-    <div class="foot-motifs">${frondSVG(false)}${sunSVG}${frondSVG(true)}</div>
+    <div class="foot-motifs">${frondSVG(false, "fa")}${diamondSVG}${frondSVG(true, "fb")}</div>
     <p class="brand">Despedida de ${esc(d.nombre)}</p>
     <p>Organizado con cariño por ${esc(d.organizadores)}</p>
   </footer>
@@ -306,6 +324,6 @@ function render(data = {}) {
 
 module.exports = {
   id, category: "despedidas", name: "Tropical Fiesta",
-  summary: "Invitación playera y colorida en coral, turquesa y amarillo, con olas, sol y hojas de palmera dibujadas a mano para despedidas veraniegas.",
-  accent: "#ff6b4a", schema: despedidaSchema, sampleData, render,
+  summary: "Invitación tropical nocturna en magenta y turquesa neón sobre fondo oscuro, con hojas de palmera en degradé, flores y marco elegante dorado.",
+  accent: "#ff2f9c", accent2: "#1fe8d5", schema: despedidaSchema, sampleData, render,
 };

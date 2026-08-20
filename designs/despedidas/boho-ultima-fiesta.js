@@ -9,7 +9,7 @@ const sampleData = {
   hora: "18:30",
   lugar: "Quinta El Ombú, Ruta 6 km 42, Luján",
   direccionMapa: "https://maps.google.com/?q=Quinta+El+Ombu+Lujan",
-  plan: "Nos juntamos temprano para armar el fuego, picar algo rico al sol y brindar mientras cae la tarde. Después asado a las brasas, música en vivo, fogata y baile hasta que el cuerpo aguante. Última fiesta de solteras/os antes del gran sí, ¡así que vengan con toda la energía!",
+  plan: "Nos juntamos temprano para armar el pic-nic entre almohadones, alfombras kilim y luces cálidas. Picamos algo rico al sol, brindamos mientras cae la tarde y después seguimos con asado, música en vivo, fogata y baile hasta que el cuerpo aguante. Última fiesta de solteras antes del gran sí, ¡así que vengan con toda la energía!",
   dressCode: "Boho casual, colores tierra: terracota, mostaza, verde salvia y blanco crudo. Nada de tacos, el piso es de pasto.",
   organizadores: "Male, Flor y Justi",
   whatsapp: "5491133445566",
@@ -22,8 +22,10 @@ const sampleData = {
   ],
 };
 
-// Motivos boho dibujados a mano en SVG inline: arco de atardecer, hojas
+// Motivos boho dibujados a mano en SVG inline: arco, pampas/plumeros, hojas
 // orgánicas, luna y líneas sueltas. Sin depender de íconos externos.
+// Todos los <svg> llevan una clase con width/height explícitos en CSS
+// (nunca se dejan al tamaño intrínseco del navegador).
 function archSunSVG() {
   return `<svg class="motif motif-arch" viewBox="0 0 220 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path d="M10 150 V70 C10 25, 55 6, 110 6 C165 6, 210 25, 210 70 V150" stroke="currentColor" stroke-width="2.4"/>
@@ -39,6 +41,19 @@ function leafSVG(flip) {
     <path d="M30 30 C 22 34, 16 40, 14 48" stroke="currentColor" stroke-width="1" opacity=".7"/>
     <path d="M30 48 C 38 52, 44 58, 46 66" stroke="currentColor" stroke-width="1" opacity=".7"/>
     <path d="M30 66 C 22 70, 17 76, 16 82" stroke="currentColor" stroke-width="1" opacity=".7"/>
+  </svg>`;
+}
+
+// Plumero / pampas grass: varios tallos finos que abren en abanico, como los
+// jarrones con pampas de la referencia.
+function pampasSVG() {
+  const fronds = [-34, -22, -11, 0, 11, 22, 34].map((deg, i) => {
+    const bend = deg / 3;
+    return `<path d="M30 116 C ${30 + bend} 80, ${30 + deg * 1.1} 46, ${30 + deg * 1.6} 8" stroke="currentColor" stroke-width="${i === 3 ? 1.6 : 1.1}" opacity="${i === 3 ? 1 : 0.65}" stroke-linecap="round"/>`;
+  }).join("");
+  return `<svg class="motif motif-pampas" viewBox="0 0 60 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M30 116 V70" stroke="currentColor" stroke-width="2"/>
+    ${fronds}
   </svg>`;
 }
 
@@ -97,14 +112,16 @@ function render(data = {}) {
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Marcellus&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --terracota:#c9704f;
-    --terracota-dark:#a1583b;
+    --terracota:#b8623f;
+    --terracota-dark:#8f4a2f;
+    --mostaza:#d9a441;
     --salvia:#8a9a6b;
-    --salvia-dark:#6c7c50;
-    --crema:#f4ede0;
-    --crema2:#ece1cd;
-    --ink:#4a3b2f;
-    --ink-soft:#7a6a57;
+    --salvia-dark:#5f6f45;
+    --rattan:#c9a06a;
+    --crema:#f3ead9;
+    --crema2:#e6d8bf;
+    --ink:#4a3626;
+    --ink-soft:#7a6650;
   }
   *{box-sizing:border-box;}
   html,body{max-width:100%;overflow-x:hidden;}
@@ -117,43 +134,52 @@ function render(data = {}) {
   .motif-arch{width:100%;height:auto;color:var(--crema);}
   .motif-leaf{width:clamp(26px,6vw,40px);height:auto;color:var(--salvia);}
   .motif-leaf.flip{transform:scaleX(-1);}
+  .motif-pampas{width:clamp(30px,7vw,46px);height:auto;color:var(--rattan);}
   .motif-moon{width:clamp(22px,5vw,30px);height:auto;color:var(--terracota);flex:0 0 auto;}
   .motif-wave{width:clamp(50px,14vw,90px);height:14px;color:var(--terracota-dark);opacity:.6;flex:0 0 auto;}
   .motif-sunburst{width:clamp(34px,8vw,50px);height:auto;color:var(--terracota);}
   .divider{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 auto 26px;}
 
+  /* franja tejida estilo kilim: rayas diagonales de colores tierra */
+  .kilim{height:9px;width:100%;border-radius:5px;background-image:repeating-linear-gradient(45deg,var(--terracota) 0 7px,var(--mostaza) 7px 14px,var(--salvia) 14px 21px,var(--crema2) 21px 28px);opacity:.9;}
+
+  /* flecos tipo macramé: borde en zigzag */
+  .fringe{height:16px;width:100%;background-image:linear-gradient(135deg,var(--crema) 50%,transparent 50%),linear-gradient(225deg,var(--crema) 50%,transparent 50%);background-size:18px 18px;background-position:0 0,9px 0;background-repeat:repeat-x;}
+
   /* ---------- HERO ---------- */
-  .hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;justify-content:center;text-align:center;overflow:hidden;}
+  .hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;justify-content:center;text-align:center;overflow:hidden;background:var(--terracota-dark);}
   .hero-bg{position:absolute;inset:0;background:url('${esc(d.coverImage)}') center/cover;}
-  .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(74,59,47,.18) 0%,rgba(74,59,47,.15) 40%,rgba(41,30,22,.78) 100%);}
+  .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(74,54,38,.2) 0%,rgba(74,54,38,.18) 40%,rgba(41,26,17,.8) 100%);}
   .hero-arch{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(92vw,640px);z-index:1;pointer-events:none;}
-  .hero-content{position:relative;z-index:2;color:#fbf5ea;padding:0 24px clamp(48px,9vh,90px);max-width:600px;}
-  .hero-content .motif-leaf{color:#e9dcc4;margin:0 10px;}
+  .hero-content{position:relative;z-index:2;margin:0 auto;color:#fbf3e6;padding:0 24px clamp(48px,9vh,90px);max-width:600px;text-align:center;}
+  .hero-content .motif-pampas{color:#f0dcb8;margin:0 10px;}
   .hero-leaves{display:flex;justify-content:center;margin-bottom:10px;}
   .eyebrow{letter-spacing:.4em;text-transform:uppercase;font-size:clamp(.66rem,1.6vw,.78rem);opacity:.92;}
   .hero-content h1{font-size:clamp(2.8rem,9vw,5rem);margin:12px 0 8px;letter-spacing:1px;}
   .hero-content .sub{font-family:'Caveat',cursive;font-size:clamp(1.4rem,4vw,2rem);color:#f0d9c4;margin:0 0 14px;}
   .hero-date{letter-spacing:.25em;text-transform:uppercase;font-size:clamp(.72rem,2vw,.88rem);color:#f0d9c4;}
+  .hero-fringe{position:absolute;left:0;right:0;bottom:0;z-index:2;}
 
   section{max-width:760px;margin:0 auto;padding:clamp(50px,9vw,80px) 24px;text-align:center;position:relative;}
   h2{letter-spacing:2px;text-transform:uppercase;font-size:clamp(1.1rem,2.8vw,1.5rem);color:var(--terracota-dark);margin:0 0 30px;}
 
   /* ---------- COUNTDOWN ---------- */
   .countdown{display:flex;gap:clamp(14px,4vw,30px);justify-content:center;margin:10px 0 4px;flex-wrap:wrap;}
-  .countdown div{display:flex;flex-direction:column;min-width:60px;background:#fff8ee;border:1px solid var(--crema2);border-radius:14px;padding:14px 10px;box-shadow:0 4px 14px rgba(169,88,59,.08);}
+  .countdown div{display:flex;flex-direction:column;min-width:60px;background:#fff8ee;border:1px solid var(--crema2);border-radius:14px;padding:14px 10px;box-shadow:0 4px 14px rgba(143,74,47,.1);}
   .cd-num{font-family:'Marcellus',serif;font-size:clamp(1.6rem,4.4vw,2.3rem);color:var(--terracota-dark);}
   .cd-label{font-size:.66rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-soft);margin-top:2px;}
 
   /* ---------- PLAN / DRESS CODE ---------- */
   .plan-card{background:#fff8ee;border:1px solid var(--crema2);border-radius:22px;padding:clamp(28px,6vw,44px);position:relative;overflow:hidden;}
-  .plan-card::before{content:"";position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(201,112,79,.14),transparent 70%);}
-  .plan-text{font-size:clamp(1rem,2.4vw,1.15rem);line-height:1.85;color:var(--ink-soft);position:relative;z-index:1;}
+  .plan-card .kilim{position:absolute;top:0;left:0;border-radius:0;}
+  .plan-card::before{content:"";position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(184,98,63,.14),transparent 70%);}
+  .plan-text{font-size:clamp(1rem,2.4vw,1.15rem);line-height:1.85;color:var(--ink-soft);position:relative;z-index:1;margin-top:16px;}
   .dress-row{margin-top:26px;padding-top:22px;border-top:1px dashed var(--terracota);display:flex;flex-direction:column;gap:6px;align-items:center;position:relative;z-index:1;}
   .dress-label{letter-spacing:2px;text-transform:uppercase;font-size:.7rem;color:var(--salvia-dark);}
   .dress-text{font-family:'Caveat',cursive;font-size:clamp(1.3rem,3.4vw,1.6rem);color:var(--ink);max-width:460px;}
 
   /* ---------- LUGAR ---------- */
-  .lugar-card{display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .lugar-card{display:flex;flex-direction:column;align-items:center;gap:14px;background:#fff8ee;border:1px solid var(--crema2);border-radius:22px;padding:clamp(26px,6vw,40px);}
   .lugar-name{font-family:'Marcellus',serif;font-size:clamp(1.3rem,3.4vw,1.7rem);color:var(--ink);}
   .lugar-hora{font-size:.95rem;color:var(--ink-soft);}
   .maplink{display:inline-flex;align-items:center;gap:8px;margin-top:10px;color:#fff;background:var(--salvia-dark);text-decoration:none;padding:12px 26px;border-radius:999px;letter-spacing:.5px;font-size:.9rem;transition:background .2s;}
@@ -166,10 +192,10 @@ function render(data = {}) {
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:10px;}
   .gallery img{width:100%;height:170px;object-fit:cover;border-radius:16px;cursor:pointer;filter:saturate(1.05) sepia(.06);transition:transform .25s;}
   .gallery img:hover{transform:scale(1.03);}
-  .lightbox{display:none;position:fixed;inset:0;background:rgba(41,30,22,.92);align-items:center;justify-content:center;z-index:50;}
+  .lightbox{display:none;position:fixed;inset:0;background:rgba(41,26,17,.92);align-items:center;justify-content:center;z-index:50;}
   .lightbox.open{display:flex;}
   .lightbox img{max-width:90%;max-height:85%;border-radius:8px;}
-  .lightbox-close{position:absolute;top:20px;right:30px;color:#fbf5ea;font-size:2rem;cursor:pointer;}
+  .lightbox-close{position:absolute;top:20px;right:30px;color:#fbf3e6;font-size:2rem;cursor:pointer;}
 
   /* ---------- RSVP ---------- */
   .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:10px auto 0;text-align:left;}
@@ -180,7 +206,8 @@ function render(data = {}) {
   .rsvp-whatsapp{font-size:.85rem;color:var(--salvia-dark);text-align:center;text-decoration:none;}
   .rsvp-status{text-align:center;color:var(--salvia-dark);font-weight:600;}
 
-  footer{text-align:center;padding:44px 24px 56px;font-size:.85rem;color:var(--ink-soft);border-top:1px solid var(--crema2);}
+  footer{text-align:center;padding:44px 24px 56px;font-size:.85rem;color:var(--ink-soft);border-top:1px solid var(--crema2);position:relative;}
+  footer .kilim{position:absolute;top:0;left:0;}
   footer .motif-sunburst{margin:0 auto 12px;}
   footer .script-word{font-size:1.2rem;color:var(--terracota-dark);}
 </style></head>
@@ -190,12 +217,13 @@ function render(data = {}) {
     <div class="hero-bg"></div>
     <div class="hero-arch">${archSunSVG()}</div>
     <div class="hero-content">
-      <div class="hero-leaves">${leafSVG(false)}${leafSVG(true)}</div>
+      <div class="hero-leaves">${pampasSVG()}${leafSVG(false)}${leafSVG(true)}${pampasSVG()}</div>
       <p class="eyebrow">Última fiesta juntos</p>
       <h1>${esc(d.nombre)}</h1>
       <p class="sub script-word">antes del gran sí</p>
       ${fechaLarga ? `<p class="hero-date">${esc(fechaLarga)}${d.hora ? ` · ${esc(d.hora)} hs` : ""}</p>` : ""}
     </div>
+    <div class="hero-fringe fringe"></div>
   </div>
 
   <section>
@@ -208,6 +236,7 @@ function render(data = {}) {
     ${divider()}
     <h2>El plan</h2>
     <div class="plan-card">
+      <div class="kilim"></div>
       <p class="plan-text">${esc(d.plan)}</p>
       ${d.dressCode ? `
       <div class="dress-row">
@@ -247,6 +276,7 @@ function render(data = {}) {
   </section>
 
   <footer>
+    <div class="kilim"></div>
     ${sunburstSVG()}
     <p class="script-word">Nos vemos al atardecer ✧</p>
   </footer>
@@ -257,6 +287,6 @@ function render(data = {}) {
 
 module.exports = {
   id, category: "despedidas", name: "Boho Última Fiesta",
-  summary: "Invitación boho de atardecer en terracota, salvia y crema, con arcos y hojas dibujados a mano para la última fiesta juntos antes del gran día.",
-  accent: "#c9704f", schema: despedidaSchema, sampleData, render,
+  summary: "Invitación boho de pic-nic al atardecer en terracota, mostaza y salvia, con plumeros, arcos dibujados a mano y franjas tejidas estilo kilim para la última fiesta juntos antes del gran día.",
+  accent: "#b8623f", accent2: "#d9a441", schema: despedidaSchema, sampleData, render,
 };

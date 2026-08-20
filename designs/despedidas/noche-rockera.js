@@ -10,7 +10,7 @@ const sampleData = {
   lugar: "The Roxy Bar, Palermo",
   direccionMapa: "https://maps.google.com/?q=The+Roxy+Bar+Palermo+Buenos+Aires",
   plan: "Arrancamos con tragos y previa en el bar a las 22, después banda en vivo tocando covers de rock hasta la madrugada, y cerramos la noche bailando en la pista hasta que el cuerpo aguante. Última noche de libertad, así que vengan con pilas.",
-  dressCode: "De negro, se viene la fiesta. Accesorios de rock a piacere (tachas, cuero, lo que tengan).",
+  dressCode: "Total black. Tachas, cuero y accesorios de rock a piacere.",
   organizadores: "Male, Fede y el resto de la banda",
   whatsapp: "5491133445566",
   coverImage: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=80",
@@ -22,10 +22,11 @@ const sampleData = {
   ],
 };
 
-// Motivos de noche de bar/rock dibujados a mano en SVG inline, sin depender
-// de ningún ícono externo: guitarra eléctrica, vasos/copas, estrella y rayos
-// de luz de neón.
-const guitarSVG = `<svg class="motif motif-guitar" viewBox="0 0 60 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+// Motivos rockeros dibujados a mano en SVG inline, sin depender de íconos
+// externos: guitarra eléctrica, calavera, estrella, rayo y triángulo. Todos
+// llevan width/height explícitos (en el propio <svg> y reforzados por CSS)
+// para evitar que el navegador los infle a su tamaño intrínseco.
+const guitarSVG = `<svg class="motif motif-guitar" width="40" height="94" viewBox="0 0 60 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <rect x="27" y="2" width="6" height="56" rx="2" stroke="currentColor" stroke-width="2"/>
   <line x1="30" y1="6" x2="30" y2="52" stroke="currentColor" stroke-width="1"/>
   <circle cx="22" cy="10" r="2.4" stroke="currentColor" stroke-width="1.4"/>
@@ -38,36 +39,37 @@ const guitarSVG = `<svg class="motif motif-guitar" viewBox="0 0 60 140" fill="no
   <line x1="16" y1="78" x2="44" y2="78" stroke="currentColor" stroke-width="1"/>
 </svg>`;
 
-const cocktailSVG = `<svg class="motif motif-cocktail" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <path d="M6 8 H54 L30 40 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-  <line x1="30" y1="40" x2="30" y2="68" stroke="currentColor" stroke-width="2"/>
-  <line x1="14" y1="74" x2="46" y2="74" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-  <line x1="30" y1="68" x2="30" y2="74" stroke="currentColor" stroke-width="2"/>
-  <circle cx="24" cy="20" r="2.6" stroke="currentColor" stroke-width="1.4"/>
-  <path d="M40 12 L44 24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+const skullSVG = `<svg class="motif motif-skull" width="26" height="26" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M20 3 C10 3 4 10 4 19 C4 25 7 28 9 30 L9 34 C9 36 10.5 37 12 37 L14 37 L14 33 L16 33 L16 37 L24 37 L24 33 L26 33 L26 37 L28 37 C29.5 37 31 36 31 34 L31 30 C33 28 36 25 36 19 C36 10 30 3 20 3 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+  <circle cx="13.5" cy="18" r="3.4" stroke="currentColor" stroke-width="1.6"/>
+  <circle cx="26.5" cy="18" r="3.4" stroke="currentColor" stroke-width="1.6"/>
+  <path d="M20 20 L18 26 L22 26 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+  <path d="M14 29 L26 29" stroke="currentColor" stroke-width="1.4"/>
 </svg>`;
 
-const beerSVG = `<svg class="motif motif-beer" viewBox="0 0 56 70" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <path d="M10 14 H38 V58 C38 62, 34 64, 24 64 C14 64, 10 62, 10 58 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-  <path d="M38 22 H46 C50 22, 50 34, 46 34 H38" stroke="currentColor" stroke-width="2"/>
-  <path d="M10 14 C 10 6, 38 6, 38 14 C 38 20, 10 20, 10 14 Z" stroke="currentColor" stroke-width="2"/>
-  <line x1="16" y1="28" x2="16" y2="52" stroke="currentColor" stroke-width="1"/>
-  <line x1="24" y1="24" x2="24" y2="52" stroke="currentColor" stroke-width="1"/>
-</svg>`;
-
-const starSVG = `<svg class="motif motif-star" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+const starSVG = `<svg class="motif motif-star" width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <path d="M20 2 L23.6 15.2 L37 16.4 L26.6 25 L29.8 38 L20 30.4 L10.2 38 L13.4 25 L3 16.4 L16.4 15.2 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
 </svg>`;
 
 function boltSVG(cls) {
-  return `<svg class="motif motif-bolt ${cls}" viewBox="0 0 26 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  return `<svg class="motif motif-bolt ${cls}" width="18" height="32" viewBox="0 0 26 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path d="M16 2 L4 26 H13 L9 44 L23 18 H14 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
   </svg>`;
 }
 
-function divider() {
-  return `<div class="divider">${starSVG}<span class="divider-line"></span>${cocktailSVG}<span class="divider-line"></span>${starSVG}</div>`;
+function triangleSVG(cls) {
+  return `<svg class="motif motif-triangle ${cls}" width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <polygon points="2,2 18,10 2,18" fill="currentColor"/>
+  </svg>`;
 }
+
+function divider(alt) {
+  return `<div class="divider">${starSVG}<span class="divider-line"></span>${alt ? skullSVG : guitarSVG}<span class="divider-line"></span>${starSVG}</div>`;
+}
+
+const DIAS = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
+const MESES = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+const MESES_LARGO = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
@@ -75,155 +77,206 @@ function render(data = {}) {
   const gal = galleryWidget(d.galeria, "gal1");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
 
-  const fechaLarga = (() => {
-    if (!d.fecha) return "";
-    const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  let fechaLarga = "";
+  let diaAbbr = "";
+  let diaNum = "";
+  let mesAbbr = "";
+  if (d.fecha) {
     const [y, m, day] = String(d.fecha).split("-").map(Number);
-    if (!y || !m || !day) return d.fecha;
-    return `${day} de ${meses[m - 1]} de ${y}`;
-  })();
+    if (y && m && day) {
+      fechaLarga = `${day} de ${MESES_LARGO[m - 1]} de ${y}`;
+      const jsDate = new Date(Date.UTC(y, m - 1, day));
+      diaAbbr = DIAS[jsDate.getUTCDay()];
+      diaNum = String(day).padStart(2, "0");
+      mesAbbr = MESES[m - 1];
+    } else {
+      fechaLarga = d.fecha;
+    }
+  }
 
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Despedida de ${esc(d.nombre)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Permanent+Marker&family=Oswald:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0d0d0d;
-    --bg2:#161116;
-    --pink:#ff2d95;
-    --cyan:#00e5ff;
-    --ink:#f5f2f6;
-    --ink-soft:#c9bfd0;
+    --bg:#0a0908;
+    --bg2:#18101380;
+    --bg2-solid:#181013;
+    --pink:#ef1a78;
+    --cyan:#1fd0c9;
+    --ink:#f6f1f2;
+    --ink-soft:#cdb9c2;
   }
   *{box-sizing:border-box;}
   html,body{max-width:100%;overflow-x:hidden;}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Oswald',Arial,sans-serif;font-weight:300;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Oswald',Arial,sans-serif;font-weight:300;
+    background-image:
+      radial-gradient(circle at 12% 8%,rgba(239,26,120,.10),transparent 40%),
+      radial-gradient(circle at 90% 85%,rgba(31,208,201,.10),transparent 40%);
+  }
   img{max-width:100%;}
   h1,h2,.brand{font-family:'Bebas Neue',Impact,sans-serif;letter-spacing:2px;}
+  .script{font-family:'Permanent Marker',cursive;font-weight:400;}
 
-  .motif{color:var(--pink);}
-  .motif-guitar{width:clamp(30px,7vw,44px);height:auto;filter:drop-shadow(0 0 6px rgba(255,45,149,.7));}
-  .motif-cocktail{width:clamp(20px,5vw,28px);height:auto;color:var(--cyan);filter:drop-shadow(0 0 5px rgba(0,229,255,.7));}
-  .motif-beer{width:clamp(24px,6vw,34px);height:auto;color:var(--pink);filter:drop-shadow(0 0 5px rgba(255,45,149,.6));}
-  .motif-star{width:clamp(14px,3vw,18px);height:auto;color:var(--cyan);filter:drop-shadow(0 0 4px rgba(0,229,255,.8));}
-  .motif-bolt{width:clamp(16px,4vw,22px);height:auto;color:var(--cyan);filter:drop-shadow(0 0 5px rgba(0,229,255,.8));}
+  .motif{color:var(--pink);display:inline-block;}
+  .motif-guitar{width:34px;height:80px;filter:drop-shadow(0 0 6px rgba(239,26,120,.7));}
+  .motif-skull{width:24px;height:24px;color:var(--cyan);filter:drop-shadow(0 0 5px rgba(31,208,201,.7));}
+  .motif-star{width:15px;height:15px;color:var(--cyan);filter:drop-shadow(0 0 4px rgba(31,208,201,.8));}
+  .motif-bolt{width:16px;height:28px;color:var(--cyan);filter:drop-shadow(0 0 5px rgba(31,208,201,.8));}
+  .motif-triangle{width:14px;height:14px;color:var(--pink);}
 
-  .divider{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 auto 30px;}
+  .divider{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 auto 28px;}
   .divider-line{width:clamp(30px,10vw,70px);height:1px;background:linear-gradient(90deg,transparent,var(--pink),transparent);}
 
-  /* HERO */
-  .hero{position:relative;min-height:92vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:40px 20px;overflow:hidden;}
-  .hero-bg{position:absolute;inset:0;background:url('${esc(d.coverImage)}') center/cover;}
+  /* ===== HERO ===== */
+  .hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;background:#000;padding:26px 18px 40px;}
+  .hero-bg{position:absolute;inset:0;background:url('${esc(d.coverImage)}') center 20%/cover;filter:saturate(1.05) contrast(1.05);}
   .hero-bg::after{content:"";position:absolute;inset:0;background:
-      radial-gradient(circle at 20% 15%,rgba(255,45,149,.35),transparent 45%),
-      radial-gradient(circle at 85% 80%,rgba(0,229,255,.3),transparent 45%),
-      linear-gradient(180deg,rgba(13,13,13,.55) 0%,rgba(13,13,13,.75) 55%,rgba(13,13,13,.95) 100%);}
-  .hero-bolts{position:absolute;inset:0;pointer-events:none;}
-  .hero-bolts .motif-bolt{position:absolute;opacity:.55;}
-  .hero-bolts .b1{top:8%;left:8%;}
-  .hero-bolts .b2{top:14%;right:10%;transform:scaleX(-1);}
-  .hero-bolts .b3{bottom:10%;left:14%;}
-  .hero-content{position:relative;z-index:1;max-width:640px;}
-  .hero-content .motif-guitar{margin:0 auto 16px;}
-  .eyebrow{letter-spacing:.5em;text-transform:uppercase;font-size:clamp(.65rem,1.8vw,.85rem);color:var(--cyan);text-shadow:0 0 10px rgba(0,229,255,.8);}
-  .hero-content h1{font-size:clamp(3.4rem,14vw,7rem);margin:12px 0 6px;color:var(--pink);text-shadow:0 0 8px rgba(255,45,149,.9),0 0 26px rgba(255,45,149,.6),0 0 46px rgba(255,45,149,.4);}
-  .hero-sub{letter-spacing:.15em;text-transform:uppercase;font-size:clamp(.85rem,2.6vw,1.15rem);color:var(--ink-soft);margin:6px 0 18px;}
-  .hero-date{display:inline-block;letter-spacing:.25em;text-transform:uppercase;font-size:clamp(.78rem,2.2vw,1rem);color:var(--cyan);border:1px solid rgba(0,229,255,.6);padding:10px 22px;border-radius:999px;text-shadow:0 0 8px rgba(0,229,255,.7);box-shadow:0 0 16px rgba(0,229,255,.25) inset;}
+      linear-gradient(100deg,rgba(239,26,120,.55) 0%,rgba(239,26,120,.28) 18%,transparent 40%),
+      linear-gradient(260deg,rgba(31,208,201,.35) 0%,transparent 38%),
+      linear-gradient(180deg,rgba(6,4,5,.15) 0%,rgba(6,4,5,.55) 55%,rgba(6,4,5,.96) 96%);}
+  .hero-grain{position:absolute;inset:0;opacity:.5;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>");
+    background-size:160px 160px;}
+  .hero-badges{position:absolute;top:0;left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;padding:22px 18px;z-index:2;}
+  .badge-date{text-align:left;line-height:1;}
+  .badge-date .d-top{display:block;font-family:'Bebas Neue',Impact,sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--ink);}
+  .badge-date .d-mes{color:var(--pink);}
+  .badge-date .d-num{display:block;font-family:'Bebas Neue',Impact,sans-serif;font-size:3.2rem;color:var(--ink);text-shadow:0 0 14px rgba(239,26,120,.5);}
+  .badge-tag{text-align:right;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);line-height:1.5;text-shadow:0 0 8px rgba(31,208,201,.6);}
+  .badge-tag strong{display:block;color:var(--ink);font-size:.9rem;letter-spacing:3px;}
+  .hero-triangles .motif-triangle{position:absolute;z-index:2;opacity:.85;}
+  .tri-a{top:16%;left:46%;color:var(--pink);}
+  .tri-b{bottom:30%;right:8%;color:var(--cyan);transform:rotate(180deg);}
 
-  section{max-width:780px;margin:0 auto;padding:70px 24px;text-align:center;position:relative;}
-  h2{font-size:clamp(1.9rem,6vw,2.8rem);margin:0 0 26px;color:var(--cyan);text-shadow:0 0 6px rgba(0,229,255,.8),0 0 22px rgba(0,229,255,.4);}
+  .hero-content{position:relative;z-index:2;max-width:640px;margin:0 auto;text-align:center;width:100%;}
+  .hero-content .motif-guitar{margin:0 auto 10px;}
+  .eyebrow{letter-spacing:.4em;text-transform:uppercase;font-size:clamp(.62rem,1.8vw,.8rem);color:var(--cyan);text-shadow:0 0 10px rgba(31,208,201,.8);margin:0 0 6px;}
+  .hero-content h1{font-size:clamp(3.6rem,17vw,7.5rem);line-height:.92;margin:4px 0 0;color:var(--ink);
+    text-shadow:2px 2px 0 rgba(239,26,120,.9),-2px -2px 0 rgba(31,208,201,.4);}
+  .hero-script{font-size:clamp(2rem,9vw,3.4rem);color:var(--pink);margin:-4px 0 14px;transform:rotate(-4deg);
+    text-shadow:0 0 16px rgba(239,26,120,.6);border-bottom:3px solid var(--pink);display:inline-block;padding:0 6px 4px;}
+  .hero-date{display:inline-block;letter-spacing:.2em;text-transform:uppercase;font-size:clamp(.75rem,2.2vw,.95rem);color:var(--ink);border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.35);padding:9px 20px;border-radius:999px;backdrop-filter:blur(2px);}
+  .hero-date b{color:var(--cyan);font-weight:600;}
+
+  section{max-width:780px;margin:0 auto;padding:64px 22px;text-align:center;position:relative;}
+  h2{font-size:clamp(1.9rem,6vw,2.8rem);margin:0 0 24px;color:var(--ink);letter-spacing:2px;}
+  h2 span{color:var(--pink);}
+
+  /* INFO STRIP */
+  .info-strip{display:flex;align-items:stretch;justify-content:center;gap:0;flex-wrap:wrap;background:var(--bg2-solid);border:1px solid rgba(239,26,120,.3);border-radius:14px;overflow:hidden;}
+  .info-col{flex:1 1 220px;padding:26px 22px;text-align:center;}
+  .info-col + .info-col{border-top:1px solid rgba(239,26,120,.25);}
+  @media(min-width:520px){
+    .info-col + .info-col{border-top:0;border-left:1px solid rgba(239,26,120,.25);}
+  }
+  .info-label{display:block;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;}
+  .info-value{display:block;font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(1.15rem,3.4vw,1.5rem);letter-spacing:1px;color:var(--ink);line-height:1.3;}
 
   /* COUNTDOWN */
-  .countdown{display:flex;gap:clamp(10px,4vw,26px);justify-content:center;margin:8px 0 4px;flex-wrap:wrap;}
-  .countdown div{display:flex;flex-direction:column;min-width:64px;background:var(--bg2);border:1px solid rgba(255,45,149,.4);border-radius:10px;padding:14px 10px;box-shadow:0 0 18px rgba(255,45,149,.15);}
-  .cd-num{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(1.9rem,5vw,2.6rem);color:var(--pink);text-shadow:0 0 10px rgba(255,45,149,.8);}
-  .cd-label{font-size:.68rem;text-transform:uppercase;letter-spacing:2px;color:var(--ink-soft);margin-top:2px;}
+  .countdown{display:flex;gap:clamp(8px,4vw,22px);justify-content:center;margin:8px 0 4px;flex-wrap:wrap;}
+  .countdown div{display:flex;flex-direction:column;min-width:62px;background:var(--bg2-solid);border:1px solid rgba(239,26,120,.4);border-radius:10px;padding:14px 8px;box-shadow:0 0 18px rgba(239,26,120,.12);}
+  .cd-num{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(1.9rem,5vw,2.6rem);color:var(--pink);text-shadow:0 0 10px rgba(239,26,120,.7);}
+  .cd-label{font-size:.66rem;text-transform:uppercase;letter-spacing:2px;color:var(--ink-soft);margin-top:2px;}
 
   /* PLAN */
-  .plan-card{background:var(--bg2);border:1px solid rgba(0,229,255,.35);border-radius:16px;padding:34px 28px;text-align:left;box-shadow:0 0 26px rgba(0,229,255,.1);}
-  .plan-card p{line-height:1.85;color:var(--ink-soft);font-size:clamp(.98rem,2.2vw,1.1rem);margin:0 0 18px;}
-  .dresscode{display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
-  .dresscode .tag{background:rgba(255,45,149,.12);border:1px solid var(--pink);color:var(--pink);padding:8px 18px;border-radius:999px;letter-spacing:1px;text-transform:uppercase;font-size:.8rem;text-shadow:0 0 6px rgba(255,45,149,.5);}
+  .plan-card{background:var(--bg2-solid);border:1px solid rgba(31,208,201,.3);border-radius:14px;padding:32px 26px;text-align:left;box-shadow:0 0 26px rgba(31,208,201,.08);}
+  .plan-card p{line-height:1.85;color:var(--ink-soft);font-size:clamp(.98rem,2.2vw,1.1rem);margin:0;}
 
   /* LUGAR */
   .venue-card{display:flex;flex-direction:column;align-items:center;gap:10px;}
   .venue-name{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(1.6rem,5vw,2.3rem);color:var(--ink);letter-spacing:2px;}
-  .maplink{display:inline-block;margin-top:18px;color:var(--bg);background:var(--cyan);text-decoration:none;font-weight:600;letter-spacing:1px;padding:12px 26px;border-radius:999px;box-shadow:0 0 20px rgba(0,229,255,.5);text-transform:uppercase;font-size:.85rem;}
-  .maplink:hover{background:#7cf5ff;}
+  .maplink{display:inline-block;margin-top:16px;color:#0a0908;background:var(--cyan);text-decoration:none;font-weight:600;letter-spacing:1px;padding:12px 26px;border-radius:999px;box-shadow:0 0 20px rgba(31,208,201,.5);text-transform:uppercase;font-size:.85rem;}
+  .maplink:hover{background:#7cf5ef;}
+  .contact-box{margin-top:26px;border:1px dashed rgba(239,26,120,.6);border-radius:12px;padding:16px 24px;display:inline-flex;flex-direction:column;gap:6px;align-items:center;}
+  .contact-label{font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);}
+  .contact-value{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--ink);text-decoration:none;}
 
   /* ORGANIZA */
-  .organiza-names{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(1.7rem,5.5vw,2.4rem);color:var(--pink);text-shadow:0 0 10px rgba(255,45,149,.6);letter-spacing:2px;}
+  .organiza-names{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(1.7rem,5.5vw,2.4rem);color:var(--pink);text-shadow:0 0 10px rgba(239,26,120,.5);letter-spacing:2px;}
 
   /* GALLERY */
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:10px;}
-  .gallery img{width:100%;height:170px;object-fit:cover;border-radius:10px;cursor:pointer;border:1px solid rgba(255,45,149,.35);filter:saturate(1.15) contrast(1.05);transition:transform .2s ease;}
+  .gallery img{width:100%;height:170px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid rgba(239,26,120,.35);filter:saturate(1.15) contrast(1.05);transition:transform .2s ease;}
   .gallery img:hover{transform:scale(1.03);}
-  .lightbox{display:none;position:fixed;inset:0;background:rgba(5,5,8,.94);align-items:center;justify-content:center;z-index:50;}
+  .lightbox{display:none;position:fixed;inset:0;background:rgba(5,4,5,.94);align-items:center;justify-content:center;z-index:50;}
   .lightbox.open{display:flex;}
-  .lightbox img{max-width:90%;max-height:85%;border:2px solid var(--pink);border-radius:8px;box-shadow:0 0 40px rgba(255,45,149,.5);}
-  .lightbox-close{position:absolute;top:20px;right:30px;color:var(--cyan);font-size:2.2rem;cursor:pointer;text-shadow:0 0 10px rgba(0,229,255,.8);}
+  .lightbox img{max-width:90%;max-height:85%;border:2px solid var(--pink);border-radius:8px;box-shadow:0 0 40px rgba(239,26,120,.5);}
+  .lightbox-close{position:absolute;top:20px;right:30px;color:var(--cyan);font-size:2.2rem;cursor:pointer;text-shadow:0 0 10px rgba(31,208,201,.8);}
 
   /* RSVP */
   .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:10px auto 0;text-align:left;}
   .rsvp-form label{font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-soft);}
-  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:'Oswald',inherit;padding:11px;border:1px solid rgba(0,229,255,.4);border-radius:8px;margin-top:5px;width:100%;background:var(--bg2);color:var(--ink);}
-  .rsvp-form input:focus,.rsvp-form select:focus,.rsvp-form textarea:focus{outline:none;border-color:var(--pink);box-shadow:0 0 10px rgba(255,45,149,.4);}
-  .rsvp-form button{background:var(--pink);color:#0d0d0d;border:0;padding:14px;border-radius:999px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-size:.9rem;font-weight:600;box-shadow:0 0 22px rgba(255,45,149,.5);}
-  .rsvp-form button:hover{background:#ff5aad;}
-  .rsvp-whatsapp{font-size:.85rem;color:var(--cyan);text-align:center;text-decoration:none;text-shadow:0 0 6px rgba(0,229,255,.5);}
+  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:'Oswald',inherit;padding:11px;border:1px solid rgba(31,208,201,.4);border-radius:8px;margin-top:5px;width:100%;background:var(--bg2-solid);color:var(--ink);}
+  .rsvp-form input:focus,.rsvp-form select:focus,.rsvp-form textarea:focus{outline:none;border-color:var(--pink);box-shadow:0 0 10px rgba(239,26,120,.4);}
+  .rsvp-form button{background:var(--pink);color:#0a0908;border:0;padding:14px;border-radius:999px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-size:.9rem;font-weight:600;box-shadow:0 0 22px rgba(239,26,120,.5);}
+  .rsvp-form button:hover{background:#ff4d97;}
+  .rsvp-whatsapp{font-size:.85rem;color:var(--cyan);text-align:center;text-decoration:none;text-shadow:0 0 6px rgba(31,208,201,.5);}
   .rsvp-status{text-align:center;color:var(--cyan);font-weight:bold;}
 
-  footer{text-align:center;padding:50px 24px 60px;font-size:.85rem;color:var(--ink-soft);border-top:1px solid rgba(255,45,149,.25);letter-spacing:1px;}
-  footer .motif-star{margin:0 auto 14px;}
+  footer{text-align:center;padding:46px 22px 56px;font-size:.85rem;color:var(--ink-soft);border-top:1px solid rgba(239,26,120,.25);letter-spacing:1px;}
+  footer .motif-skull{margin:0 auto 14px;}
 </style></head>
 <body>
 
   <div class="hero">
     <div class="hero-bg"></div>
-    <div class="hero-bolts">
-      ${boltSVG("b1")}${boltSVG("b2")}${boltSVG("b3")}
+    <div class="hero-grain"></div>
+    <div class="hero-badges">
+      <div class="badge-date">
+        <span class="d-top">${diaAbbr}<span class="d-mes"> ${mesAbbr}</span></span>
+        ${diaNum ? `<span class="d-num">${diaNum}</span>` : ""}
+      </div>
+      <div class="badge-tag">Última<br>noche<br><strong>libre</strong></div>
     </div>
+    <div class="hero-triangles">${triangleSVG("tri-a")}${triangleSVG("tri-b")}</div>
     <div class="hero-content">
       ${guitarSVG}
-      <p class="eyebrow">Última noche de libertad</p>
+      <p class="eyebrow">Despedida de soltera/o</p>
       <h1>${esc(d.nombre)}</h1>
-      <p class="hero-sub">Se viene la despedida</p>
-      ${fechaLarga ? `<span class="hero-date">${esc(fechaLarga)} · ${esc(d.hora || "")} hs</span>` : ""}
+      <p class="hero-script script">¡se despide!</p><br>
+      ${d.hora ? `<span class="hero-date">Puertas <b>${esc(d.hora)} hs</b></span>` : ""}
     </div>
   </div>
 
   <section>
     ${divider()}
+    <h2>El <span>plan</span></h2>
+    <div class="plan-card"><p>${esc(d.plan)}</p></div>
+  </section>
+
+  <section>
+    ${divider(true)}
     <h2>Faltan</h2>
     ${cd.html}
+    ${fechaLarga ? `<p style="margin-top:18px;color:var(--ink-soft);letter-spacing:1px;">${esc(fechaLarga)}</p>` : ""}
   </section>
 
   <section>
     ${divider()}
-    <h2>El plan</h2>
-    <div class="plan-card">
-      <p>${esc(d.plan)}</p>
-      ${d.dressCode ? `<div class="dresscode"><span class="tag">${esc(d.dressCode)}</span></div>` : ""}
+    <div class="info-strip">
+      <div class="info-col">
+        <span class="info-label">Dress Code</span>
+        <span class="info-value">${esc(d.dressCode)}</span>
+      </div>
+      <div class="info-col">
+        <span class="info-label">Organiza</span>
+        <span class="info-value organiza-names">${esc(d.organizadores)}</span>
+      </div>
     </div>
   </section>
 
   <section>
-    ${divider()}
+    ${divider(true)}
     <h2>Dónde</h2>
     <div class="venue-card">
-      ${beerSVG}
       <span class="venue-name">${esc(d.lugar)}</span>
       ${d.direccionMapa ? `<a class="maplink" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
+      ${d.whatsapp ? `<div class="contact-box"><span class="contact-label">Consultas</span><a class="contact-value" href="https://wa.me/${esc(d.whatsapp)}" target="_blank" rel="noopener">WhatsApp →</a></div>` : ""}
     </div>
-  </section>
-
-  <section>
-    ${divider()}
-    <h2>Organiza</h2>
-    <p class="organiza-names">${esc(d.organizadores)}</p>
   </section>
 
   <section>
@@ -233,13 +286,13 @@ function render(data = {}) {
   </section>
 
   <section>
-    ${divider()}
+    ${divider(true)}
     <h2>Confirmá tu lugar</h2>
     ${rsvp.html}
   </section>
 
   <footer>
-    ${starSVG}
+    ${skullSVG}
     Nos vemos en la pista. Última noche de libertad de ${esc(d.nombre)}.
   </footer>
 
@@ -249,6 +302,6 @@ function render(data = {}) {
 
 module.exports = {
   id, category: "despedidas", name: "Noche Rockera",
-  summary: "Hero oscuro con luces de neón rosa y celeste, guitarras y tragos dibujados a mano: la despedida con energía de bar de rock.",
-  accent: "#ff2d95", schema: despedidaSchema, sampleData, render,
+  summary: "Poster de rock nocturno en negro, magenta y cian: foto full-bleed con textura grunge, tipografía impactante y acentos de guitarra y calavera.",
+  accent: "#ef1a78", accent2: "#1fd0c9", schema: despedidaSchema, sampleData, render,
 };

@@ -22,8 +22,10 @@ const sampleData = {
   ],
 };
 
-// Motivos de casino dibujados a mano en SVG inline: cartas, dados, fichas y
-// ases, sin depender de ningún ícono externo.
+// Motivos de casino dibujados a mano en SVG inline: cartas, dados y fichas,
+// sin depender de ningún ícono externo. El "cartel de luces" del hero se
+// resuelve aparte con CSS (radial-gradient a modo de foquitos), no con SVG,
+// para evitar cualquier problema de tamaño intrínseco.
 
 function cardSVG(rank, suit, extraClass) {
   const suits = {
@@ -32,8 +34,8 @@ function cardSVG(rank, suit, extraClass) {
     diamond: `<path d="M18 6 L27 20 L18 34 L9 20 Z" fill="currentColor"/>`,
     club: `<path d="M18 12 A5 5 0 1 1 13 19 A5 5 0 1 1 12 12 A5 5 0 1 1 24 12 A5 5 0 1 1 23 19 A5 5 0 1 1 18 12 Z" fill="currentColor"/><rect x="15.5" y="18" width="5" height="12" fill="currentColor"/>`,
   };
-  const color = suit === "heart" || suit === "diamond" ? "var(--red)" : "var(--ink-card)";
-  return `<svg class="motif motif-card${extraClass ? " " + extraClass : ""}" viewBox="0 0 62 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  const color = suit === "heart" || suit === "diamond" ? "var(--red-br)" : "var(--ink-card)";
+  return `<svg class="motif motif-card${extraClass ? " " + extraClass : ""}" viewBox="0 0 62 90" width="62" height="90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <rect x="1.5" y="1.5" width="59" height="87" rx="6" fill="#fbf5e6" stroke="var(--gold)" stroke-width="2"/>
     <rect x="5.5" y="5.5" width="51" height="79" rx="4" fill="none" stroke="var(--gold)" stroke-width="0.7" stroke-dasharray="2 3"/>
     <text x="9" y="20" font-family="Georgia,serif" font-size="15" fill="${color}" font-weight="bold">${rank}</text>
@@ -53,21 +55,21 @@ function diceSVG(extraClass, pipsA, pipsB) {
     5: [[9, 9], [27, 9], [18, 18], [9, 27], [27, 27]],
     6: [[9, 8], [27, 8], [9, 18], [27, 18], [9, 28], [27, 28]],
   };
-  const pips = (n) => pipPositions[n].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="var(--ink-card)"/>`).join("");
-  return `<svg class="motif motif-dice${extraClass ? " " + extraClass : ""}" viewBox="0 0 76 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  const pips = (n) => pipPositions[n].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="var(--red)"/>`).join("");
+  return `<svg class="motif motif-dice${extraClass ? " " + extraClass : ""}" viewBox="0 0 76 36" width="76" height="36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <g transform="rotate(-8 18 18)">
-      <rect x="1" y="1" width="34" height="34" rx="7" fill="#f6efe0" stroke="var(--red)" stroke-width="2"/>
+      <rect x="1" y="1" width="34" height="34" rx="7" fill="#fbf5e6" stroke="var(--red)" stroke-width="2"/>
       ${pips(pipsA)}
     </g>
     <g transform="translate(40,4) rotate(10 18 18)">
-      <rect x="1" y="1" width="34" height="34" rx="7" fill="#f6efe0" stroke="var(--red)" stroke-width="2"/>
+      <rect x="1" y="1" width="34" height="34" rx="7" fill="#fbf5e6" stroke="var(--red)" stroke-width="2"/>
       ${pips(pipsB)}
     </g>
   </svg>`;
 }
 
 function chipSVG(extraClass, color) {
-  return `<svg class="motif motif-chip${extraClass ? " " + extraClass : ""}" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  return `<svg class="motif motif-chip${extraClass ? " " + extraClass : ""}" viewBox="0 0 60 60" width="60" height="60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <circle cx="30" cy="30" r="27" fill="${color}" stroke="#fbf5e6" stroke-width="2.4" stroke-dasharray="6 5"/>
     <circle cx="30" cy="30" r="19" fill="none" stroke="#fbf5e6" stroke-width="1.6"/>
     <circle cx="30" cy="30" r="9" fill="none" stroke="#fbf5e6" stroke-width="1.6"/>
@@ -104,78 +106,96 @@ function render(data = {}) {
 <title>Despedida de ${esc(d.nombre)} — Noche de casino</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,600&family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --green:#0b3d2e;
-    --green-dk:#072a20;
+    --night:#070403;
+    --night-2:#1a0808;
+    --red:#8b1a1a;
+    --red-dk:#3d0a0a;
+    --red-br:#c62828;
     --gold:#d4af37;
     --gold-lt:#f3d878;
-    --red:#c62828;
+    --green:#0b3d2e;
     --ink-card:#1c1c1c;
     --cream:#f6efe0;
-    --night:#0a0a10;
   }
   *{box-sizing:border-box;}
   html,body{max-width:100%;overflow-x:hidden;}
-  body{margin:0;background:var(--night);color:var(--cream);font-family:'Poppins',sans-serif;}
+  body{margin:0;background:radial-gradient(ellipse at 50% 10%, var(--night-2) 0%, var(--night) 65%);color:var(--cream);font-family:'Poppins',sans-serif;}
   img{max-width:100%;}
 
-  .neon-font{font-family:'Bebas Neue',cursive;letter-spacing:3px;}
+  .script{font-family:'Dancing Script',cursive;}
+  .display{font-family:'Playfair Display',serif;font-weight:900;}
 
   .motif{display:inline-block;}
-  .motif-card{width:clamp(52px,10vw,86px);height:auto;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));}
-  .motif-dice{width:clamp(46px,9vw,72px);height:auto;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));}
-  .motif-chip{width:clamp(34px,7vw,52px);height:auto;filter:drop-shadow(0 3px 8px rgba(0,0,0,.5));}
+  .motif-card{width:clamp(50px,10vw,84px);height:auto;filter:drop-shadow(0 4px 10px rgba(0,0,0,.55));}
+  .motif-dice{width:clamp(44px,9vw,70px);height:auto;filter:drop-shadow(0 4px 10px rgba(0,0,0,.55));}
+  .motif-chip{width:clamp(34px,7vw,52px);height:auto;filter:drop-shadow(0 3px 8px rgba(0,0,0,.55));}
   .motif-chip.mini,.motif-dice.mini{width:clamp(24px,5vw,34px);}
 
   .divider{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 26px;}
   .divider-line{width:clamp(30px,10vw,80px);height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
 
   /* HERO */
-  .hero{position:relative;min-height:92vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:40px 20px;overflow:hidden;}
+  .hero{position:relative;min-height:92vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:56px 20px;overflow:hidden;}
   .hero-bg{position:absolute;inset:0;background:url('${esc(d.coverImage)}') center/cover;}
   .hero-bg::after{content:"";position:absolute;inset:0;background:
-    radial-gradient(circle at 50% 30%, rgba(11,61,46,.35), rgba(6,6,10,.88)),
-    linear-gradient(180deg, rgba(6,6,10,.35) 0%, rgba(6,6,10,.85) 100%);}
-  .hero-felt-border{position:absolute;inset:16px;border:2px solid var(--gold);border-radius:14px;box-shadow:0 0 22px rgba(212,175,55,.35), inset 0 0 22px rgba(212,175,55,.2);pointer-events:none;}
-  .hero-felt-border::before,.hero-felt-border::after{content:"";position:absolute;width:14px;height:14px;border:2px solid var(--gold);}
-  .hero-content{position:relative;z-index:1;max-width:640px;}
-  .hero-motifs{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
-  .eyebrow{letter-spacing:.4em;text-transform:uppercase;font-size:clamp(.7rem,1.8vw,.9rem);color:var(--gold-lt);margin:0 0 6px;}
-  .hero-content h1{font-family:'Bebas Neue',cursive;letter-spacing:5px;font-size:clamp(3.2rem,12vw,6.5rem);margin:6px 0;color:var(--gold-lt);text-shadow:0 0 18px rgba(212,175,55,.55), 0 0 40px rgba(198,40,40,.25);line-height:1;}
-  .hero-sub{font-size:clamp(.95rem,2.4vw,1.2rem);color:var(--cream);opacity:.92;margin:6px 0 4px;}
-  .hero-date{letter-spacing:.25em;text-transform:uppercase;font-size:clamp(.78rem,2vw,.95rem);color:var(--gold);margin-top:14px;border:1px solid var(--gold);display:inline-block;padding:8px 20px;border-radius:30px;background:rgba(11,61,46,.4);}
+    radial-gradient(circle at 50% 35%, rgba(139,26,26,.5), rgba(7,4,3,.92)),
+    linear-gradient(180deg, rgba(7,4,3,.4) 0%, rgba(7,4,3,.92) 100%);}
+  .hero-content{position:relative;z-index:1;max-width:600px;margin:0 auto;text-align:center;}
+
+  /* Cartel de luces (marquesina) sin SVG: foquitos con radial-gradient, tamaño explícito */
+  .marquee{position:relative;margin:0 auto;padding:clamp(26px,6vw,44px) clamp(18px,5vw,34px);border-radius:20px;
+    background:linear-gradient(160deg, var(--red) 0%, var(--red-dk) 100%);
+    border:2px solid var(--gold);
+    box-shadow:0 0 0 6px rgba(7,4,3,.55), 0 18px 40px rgba(0,0,0,.55), inset 0 0 40px rgba(0,0,0,.3);}
+  .bulbs-h{position:absolute;left:20px;right:20px;height:12px;background-image:radial-gradient(circle, var(--gold-lt) 3.4px, transparent 4px);background-size:20px 12px;background-repeat:repeat-x;background-position:center;filter:drop-shadow(0 0 3px var(--gold-lt));}
+  .bulbs-h.top{top:-7px;}
+  .bulbs-h.bottom{bottom:-7px;}
+  .bulbs-v{position:absolute;top:20px;bottom:20px;width:12px;background-image:radial-gradient(circle, var(--gold-lt) 3.4px, transparent 4px);background-size:12px 20px;background-repeat:repeat-y;background-position:center;filter:drop-shadow(0 0 3px var(--gold-lt));}
+  .bulbs-v.left{left:-7px;}
+  .bulbs-v.right{right:-7px;}
+
+  .hero-motifs{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
+  .script-name{font-size:clamp(1.6rem,6vw,2.4rem);color:var(--cream);margin:0;}
+  .casino-title{font-size:clamp(2.6rem,11vw,4.6rem);line-height:1.05;letter-spacing:1px;text-transform:uppercase;color:#fff;margin:6px 0 4px;text-shadow:0 2px 0 var(--gold), 0 0 26px rgba(212,175,55,.35);}
+  .hero-sub{font-size:clamp(.9rem,2.4vw,1.05rem);letter-spacing:.35em;text-transform:uppercase;color:var(--gold-lt);opacity:.95;margin:8px 0 0;}
+
+  .hero-invite{margin:26px auto 0;max-width:520px;font-family:'Playfair Display',serif;color:var(--cream);}
+  .hero-invite .lucky{display:block;font-weight:900;font-size:clamp(1.2rem,4vw,1.7rem);color:var(--gold-lt);margin-bottom:8px;letter-spacing:1px;}
+  .hero-invite .sub{display:block;font-size:clamp(.9rem,2.6vw,1.1rem);letter-spacing:2px;text-transform:uppercase;line-height:1.7;color:var(--cream);opacity:.92;}
+  .hero-date{letter-spacing:.25em;text-transform:uppercase;font-size:clamp(.75rem,2vw,.9rem);color:var(--night);background:var(--gold);display:inline-block;margin-top:20px;padding:9px 22px;border-radius:30px;font-weight:600;}
 
   section{max-width:820px;margin:0 auto;padding:64px 22px;text-align:center;position:relative;}
-  h2{font-family:'Bebas Neue',cursive;letter-spacing:4px;text-transform:uppercase;font-size:clamp(1.6rem,4.5vw,2.3rem);color:var(--gold-lt);margin:0 0 30px;text-shadow:0 0 12px rgba(212,175,55,.3);}
+  h2{font-family:'Playfair Display',serif;font-weight:900;letter-spacing:.5px;text-transform:uppercase;font-size:clamp(1.5rem,4.5vw,2.1rem);color:var(--gold-lt);margin:0 0 30px;text-shadow:0 0 12px rgba(212,175,55,.3);}
 
   /* COUNTDOWN */
-  .countdown-wrap{background:radial-gradient(ellipse at center, var(--green) 0%, var(--green-dk) 75%);border:2px solid var(--gold);border-radius:18px;padding:34px 20px;box-shadow:0 0 30px rgba(212,175,55,.25), inset 0 0 40px rgba(0,0,0,.4);}
+  .countdown-wrap{background:linear-gradient(160deg, var(--red) 0%, var(--red-dk) 80%);border:2px solid var(--gold);border-radius:18px;padding:34px 20px;box-shadow:0 0 30px rgba(212,175,55,.2), inset 0 0 40px rgba(0,0,0,.4);}
   .countdown{display:flex;gap:clamp(10px,4vw,26px);justify-content:center;flex-wrap:wrap;}
   .countdown div{display:flex;flex-direction:column;min-width:58px;}
-  .cd-num{font-family:'Bebas Neue',cursive;font-size:clamp(1.8rem,5vw,2.6rem);color:var(--gold-lt);text-shadow:0 0 10px rgba(212,175,55,.5);}
-  .cd-label{font-size:.66rem;text-transform:uppercase;letter-spacing:2px;color:var(--cream);opacity:.75;}
+  .cd-num{font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.8rem,5vw,2.6rem);color:var(--gold-lt);text-shadow:0 0 10px rgba(212,175,55,.5);}
+  .cd-label{font-size:.66rem;text-transform:uppercase;letter-spacing:2px;color:var(--cream);opacity:.8;}
 
   /* PLAN + DRESS CODE */
-  .felt-card{background:linear-gradient(160deg, var(--green) 0%, var(--green-dk) 100%);border:2px solid var(--gold);border-radius:16px;padding:clamp(24px,5vw,44px);box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 50px rgba(0,0,0,.25);position:relative;}
+  .felt-card{background:linear-gradient(160deg, var(--night-2) 0%, var(--night) 100%);border:2px solid var(--gold);border-radius:16px;padding:clamp(24px,5vw,44px);box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 50px rgba(139,26,26,.18);position:relative;}
   .felt-card::before{content:"";position:absolute;inset:8px;border:1px dashed rgba(212,175,55,.5);border-radius:10px;pointer-events:none;}
   .plan-text{font-size:clamp(1rem,2.4vw,1.15rem);line-height:1.85;color:var(--cream);opacity:.95;}
-  .dresscode{margin-top:26px;display:inline-flex;align-items:center;gap:10px;background:rgba(198,40,40,.18);border:1px solid var(--red);color:var(--gold-lt);padding:10px 22px;border-radius:30px;font-size:.92rem;letter-spacing:.5px;}
+  .dresscode{margin-top:26px;display:inline-flex;align-items:center;gap:10px;background:rgba(198,40,40,.2);border:1px solid var(--red-br);color:var(--gold-lt);padding:10px 22px;border-radius:30px;font-size:.92rem;letter-spacing:.5px;}
 
   /* LUGAR */
   .place-card{display:flex;flex-direction:column;gap:14px;align-items:center;}
-  .place-name{font-family:'Bebas Neue',cursive;font-size:clamp(1.4rem,4vw,1.9rem);letter-spacing:2px;color:var(--gold-lt);}
+  .place-name{font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.3rem,4vw,1.8rem);letter-spacing:.5px;color:var(--gold-lt);}
   .maplink{display:inline-block;margin-top:6px;color:var(--night);background:var(--gold);text-decoration:none;letter-spacing:1px;font-size:.85rem;font-weight:600;padding:12px 26px;border-radius:30px;transition:transform .15s;}
   .maplink:hover{transform:translateY(-2px);}
 
   /* ORGANIZA */
-  .organiza-names{font-size:clamp(1.2rem,3vw,1.6rem);color:var(--gold-lt);font-family:'Bebas Neue',cursive;letter-spacing:2px;}
+  .organiza-names{font-size:clamp(1.15rem,3vw,1.5rem);color:var(--gold-lt);font-family:'Playfair Display',serif;font-weight:700;letter-spacing:.5px;}
 
   /* GALLERY */
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:10px;}
   .gallery img{width:100%;height:170px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid var(--gold);filter:saturate(1.05) contrast(1.05);}
-  .lightbox{display:none;position:fixed;inset:0;background:rgba(5,5,8,.94);align-items:center;justify-content:center;z-index:50;}
+  .lightbox{display:none;position:fixed;inset:0;background:rgba(5,3,3,.94);align-items:center;justify-content:center;z-index:50;}
   .lightbox.open{display:flex;}
   .lightbox img{max-width:90%;max-height:85%;border:2px solid var(--gold);border-radius:8px;}
   .lightbox-close{position:absolute;top:20px;right:30px;color:var(--gold-lt);font-size:2rem;cursor:pointer;}
@@ -183,34 +203,46 @@ function render(data = {}) {
   /* RSVP */
   .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:10px auto 0;text-align:left;}
   .rsvp-form label{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--gold-lt);}
-  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:inherit;padding:11px;border:1px solid var(--gold);border-radius:8px;margin-top:5px;width:100%;background:#12120f;color:var(--cream);}
-  .rsvp-form button{background:var(--red);color:#fff;border:0;padding:14px;border-radius:30px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-size:.88rem;font-weight:600;box-shadow:0 6px 18px rgba(198,40,40,.4);}
+  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:inherit;padding:11px;border:1px solid var(--gold);border-radius:8px;margin-top:5px;width:100%;background:#140a0a;color:var(--cream);}
+  .rsvp-form button{background:var(--red-br);color:#fff;border:0;padding:14px;border-radius:30px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-size:.88rem;font-weight:600;box-shadow:0 6px 18px rgba(198,40,40,.4);}
   .rsvp-form button:hover{background:#a91f1f;}
   .rsvp-whatsapp{font-size:.85rem;color:var(--gold-lt);text-align:center;text-decoration:none;}
   .rsvp-status{text-align:center;color:var(--gold-lt);font-weight:bold;}
 
-  footer{text-align:center;padding:48px 24px 56px;font-size:.85rem;color:var(--cream);opacity:.7;border-top:1px solid rgba(212,175,55,.3);}
+  footer{text-align:center;padding:48px 24px 56px;font-size:.85rem;color:var(--cream);opacity:.75;border-top:1px solid rgba(212,175,55,.3);}
   footer .motif-chip{margin:0 auto 14px;}
 
   @media (max-width:480px){
     .hero-motifs{gap:8px;}
     .countdown{gap:10px;}
+    .bulbs-v{display:none;}
   }
 </style></head>
 <body>
 
   <div class="hero">
     <div class="hero-bg"></div>
-    <div class="hero-felt-border"></div>
     <div class="hero-content">
       <div class="hero-motifs">
         ${cardSVG("A", "spade")}
         ${diceSVG("", 6, 3)}
         ${cardSVG("K", "heart")}
       </div>
-      <p class="eyebrow">Última noche de solteria/o</p>
-      <h1>${esc(d.nombre)}</h1>
-      <p class="hero-sub">Se apuesta todo — noche de casino</p>
+
+      <div class="marquee">
+        <span class="bulbs-h top"></span>
+        <span class="bulbs-h bottom"></span>
+        <span class="bulbs-v left"></span>
+        <span class="bulbs-v right"></span>
+        <p class="script-name script">${esc(d.nombre)}</p>
+        <h1 class="casino-title display">Noche de<br>Casino</h1>
+        <p class="hero-sub">Se apuesta todo</p>
+      </div>
+
+      <p class="hero-invite">
+        <span class="lucky">¡Suerte echada!</span>
+        <span class="sub">Estás invitado/a a celebrar<br>la despedida de ${esc(d.nombre)}</span>
+      </p>
       ${fechaLarga ? `<p class="hero-date">${esc(fechaLarga)}</p>` : ""}
     </div>
   </div>
@@ -260,7 +292,7 @@ function render(data = {}) {
   </section>
 
   <footer>
-    ${chipSVG("", "var(--red)")}
+    ${chipSVG("", "var(--red-br)")}
     Que gane la banca del amor — nos vemos en la mesa de ${esc(d.nombre)}
   </footer>
 
@@ -270,6 +302,6 @@ function render(data = {}) {
 
 module.exports = {
   id, category: "despedidas", name: "Vegas Casino",
-  summary: "Noche de casino en Las Vegas con paño verde, dorado y neón rojo, cartas, dados y fichas dibujadas a mano.",
-  accent: "#d4af37", schema: despedidaSchema, sampleData, render,
+  summary: "Noche de casino en Las Vegas con cartel de luces, terciopelo rojo y dorado, cartas, dados y fichas dibujadas a mano.",
+  accent: "#8b1a1a", accent2: "#d4af37", schema: despedidaSchema, sampleData, render,
 };
