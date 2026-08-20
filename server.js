@@ -50,7 +50,7 @@ function layout({ title, body }) {
 <link rel="stylesheet" href="/static/css/site.css">
 </head><body>
 <header class="site">
-  <a class="brand" href="/" aria-label="TaDi — inicio"><img src="/static/img/logo/tadi-logo-dark-bg.svg" alt="TaDi" class="brand-logo"><span class="brand-tagline">Tarjetas Digitales</span></a>
+  <a class="brand" href="/" aria-label="TaDi — inicio"><img src="/static/img/logo/tadi-logo-light-bg.svg" alt="TaDi" class="brand-logo"><span class="brand-tagline">Tarjetas Digitales</span></a>
   <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
@@ -182,9 +182,10 @@ const TRUST_STRIP_HTML = `<div class="trust-strip">
 // (no navega a otra página) ----------
 function oriosPanelHTML(cat) {
   return `<button type="button" class="orios-panel" data-cat="${cat.id}" aria-label="Ver catálogo de ${cat.label}">
-    <span class="orios-panel-glow"></span>
-    <img src="${cat.heroImage}" alt="${cat.label}" loading="eager" fetchpriority="high">
-    <span class="orios-panel-label">${cat.label.replace(/ /g, "<br>")}<span class="dot">.</span></span>
+    <span class="orios-panel-photo">
+      <img src="${cat.heroImage}" alt="${cat.label}" loading="eager" fetchpriority="high">
+    </span>
+    <span class="orios-panel-label">${cat.label}<span class="dot">.</span></span>
     <span class="orios-panel-hint">Ver diseños →</span>
   </button>`;
 }
