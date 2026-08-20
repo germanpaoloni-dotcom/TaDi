@@ -9,80 +9,107 @@ const sampleData = {
   horaFiesta: "20:00", lugarFiesta: "Invernadero El Jardín Secreto, Escobar",
   direccionMapa: "https://maps.google.com/?q=El+Jardin+Secreto+Escobar",
   mensaje: "Entre flores y buenos deseos, queremos celebrar el comienzo de esta nueva etapa junto a las personas que más queremos. Nos encantaría que nos acompañen en este día tan especial.",
-  dressCode: "Elegante sport, tonos pastel",
+  dressCode: "Elegante, tonos tierra",
   alias: "novios.mp",
   whatsapp: "5491122334455",
-  coverImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&q=80",
-    "https://images.unsplash.com/photo-1509927083803-4bd519298ac4?w=800&q=80",
+    "https://images.unsplash.com/photo-1521543387237-06b2f9b578a2?w=800&q=80",
     "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800&q=80",
-    "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=80",
+    "https://images.unsplash.com/photo-1544078751-58fee2d8a03b?w=800&q=80",
   ],
 };
 
-// --- Motivos florales SVG dibujados a mano (inline, sin dependencias externas) ---
+// --- Ornamentos dibujados a mano en SVG (paleta vino/oliva/oro, inline sin dependencias) ---
 
-// Ramita con flor de acuarela simple, usada como divisor y decoración de esquina.
-function sprigSVG(w = 120, rotate = 0) {
-  return `<svg class="sprig" width="${w}" height="${Math.round(w * 0.55)}" viewBox="0 0 120 66" style="transform:rotate(${rotate}deg)" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4 60 C 30 40, 55 45, 116 10" fill="none" stroke="#7c9473" stroke-width="1.6" stroke-linecap="round"/>
-    <path d="M30 47 C 24 40, 20 34, 24 28" fill="none" stroke="#7c9473" stroke-width="1.3" stroke-linecap="round"/>
-    <path d="M46 40 C 42 32, 40 26, 46 20" fill="none" stroke="#7c9473" stroke-width="1.3" stroke-linecap="round"/>
-    <path d="M66 30 C 62 22, 62 16, 70 12" fill="none" stroke="#7c9473" stroke-width="1.3" stroke-linecap="round"/>
-    <g transform="translate(96,14)">
-      <circle cx="0" cy="0" r="7" fill="#e8b4bc" opacity=".85"/>
-      <circle cx="8" cy="4" r="6" fill="#e8b4bc" opacity=".7"/>
-      <circle cx="-2" cy="9" r="6" fill="#f3d3cf" opacity=".8"/>
-      <circle cx="4" cy="-6" r="5" fill="#f3d3cf" opacity=".7"/>
-      <circle cx="3" cy="2" r="3" fill="#c98a94"/>
+let _sealCounter = 0;
+
+// Sello de lacre dorado con las iniciales de los novios, como en tarjetería clásica.
+function waxSealSVG(size = 64, initials = "") {
+  _sealCounter++;
+  const gid = `goldGrad${_sealCounter}`;
+  return `<svg class="wax-seal" width="${size}" height="${size}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="${gid}" cx="35%" cy="30%" r="75%">
+        <stop offset="0%" stop-color="#ecd49a"/>
+        <stop offset="55%" stop-color="#b8923f"/>
+        <stop offset="100%" stop-color="#83621f"/>
+      </radialGradient>
+    </defs>
+    <circle cx="50" cy="50" r="45" fill="url(#${gid})"/>
+    <circle cx="50" cy="50" r="45" fill="none" stroke="#5f4415" stroke-width="1" stroke-dasharray="1.5 3.5" opacity=".6"/>
+    <circle cx="50" cy="50" r="37" fill="none" stroke="#5f4415" stroke-width=".7" opacity=".5"/>
+    <text x="50" y="60" font-family="'Playfair Display',serif" font-size="30" fill="#4a3510" text-anchor="middle">${esc(initials)}</text>
+  </svg>`;
+}
+
+// Flor de anturio estilizada (corazón oscuro con espádice dorado), motivo recurrente de la referencia.
+function anthuriumSVG(size = 46) {
+  return `<svg class="anthurium" width="${size}" height="${Math.round(size * 1.3)}" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
+    <path d="M30 8 C 10 8, 3 30, 12 47 C 18 59, 26 67, 30 76 C 34 67, 42 59, 48 47 C 57 30, 50 8, 30 8 Z" fill="#5c1f28"/>
+    <path d="M30 8 C 10 8, 3 30, 12 47 C 18 59, 26 67, 30 76 C 34 67, 42 59, 48 47 C 57 30, 50 8, 30 8 Z" fill="none" stroke="#38121a" stroke-width="1" opacity=".5"/>
+    <path d="M30 20 C 33 34, 29 52, 33 70" fill="none" stroke="#c9a227" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="33" cy="70" r="2.2" fill="#c9a227"/>
+    <path d="M14 8 C 8 22, 10 34, 16 44" fill="none" stroke="#6f7a52" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+  </svg>`;
+}
+
+// Ramita de hojas oliva usada como divisor entre secciones.
+function sprigSVG(w = 130, rotate = 0) {
+  return `<svg class="sprig" width="${w}" height="${Math.round(w * 0.5)}" viewBox="0 0 130 65" style="transform:rotate(${rotate}deg)" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4 58 C 32 40, 58 46, 124 8" fill="none" stroke="#6f7a52" stroke-width="1.5" stroke-linecap="round"/>
+    <g fill="#7f8a5f" opacity=".85">
+      <path d="M32 45 C 26 38, 24 30, 30 24 C 36 30, 34 38, 32 45 Z"/>
+      <path d="M56 34 C 50 27, 48 20, 54 14 C 60 20, 58 27, 56 34 Z"/>
+      <path d="M80 22 C 74 16, 73 9, 79 4 C 85 9, 83 16, 80 22 Z"/>
+    </g>
+    <g transform="translate(108,10)">
+      <circle cx="0" cy="0" r="6" fill="#8a2432" opacity=".85"/>
+      <circle cx="7" cy="4" r="5" fill="#b8923f" opacity=".8"/>
+      <circle cx="-2" cy="7" r="5" fill="#8a2432" opacity=".7"/>
     </g>
   </svg>`;
 }
 
-// Corona/arco floral de fondo para el hero: hojas y flores lineales estilo acuarela.
-function wreathSVG() {
-  return `<svg class="wreath" viewBox="0 0 800 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <g opacity="0.95">
-      <path d="M0 40 C 120 90, 220 10, 340 55 C 460 100, 560 15, 680 60 C 730 78, 780 55, 800 40" fill="none" stroke="#7c9473" stroke-width="2"/>
-      ${[40, 130, 230, 330, 430, 530, 630, 730].map((x, i) => `
-        <g transform="translate(${x},${34 + (i % 2 === 0 ? 26 : -6)}) rotate(${(i % 2 === 0 ? -18 : 18)})">
-          <path d="M0 0 C 6 -14, -4 -22, -14 -18" fill="#9db98f" opacity=".8"/>
-          <path d="M0 0 C -6 10, 4 18, 14 14" fill="#7c9473" opacity=".75"/>
-        </g>`).join("")}
-      ${[90, 260, 480, 650].map((x, i) => `
-        <g transform="translate(${x},${i % 2 === 0 ? 20 : 68})">
-          <circle cx="0" cy="0" r="9" fill="#e8b4bc" opacity=".8"/>
-          <circle cx="9" cy="5" r="7" fill="#f3d3cf" opacity=".75"/>
-          <circle cx="-6" cy="7" r="7" fill="#e8b4bc" opacity=".7"/>
-          <circle cx="2" cy="2" r="3.5" fill="#c98a94"/>
-        </g>`).join("")}
-    </g>
-  </svg>`;
-}
-
-// Flor suelta usada como icono/adorno pequeño (rsvp, regalo, dresscode).
-function blossomSVG(size = 34) {
-  return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-    <g fill="#e8b4bc">
-      <ellipse cx="20" cy="10" rx="7" ry="9" opacity=".85"/>
-      <ellipse cx="20" cy="30" rx="7" ry="9" opacity=".85"/>
-      <ellipse cx="10" cy="20" rx="9" ry="7" opacity=".85"/>
-      <ellipse cx="30" cy="20" rx="9" ry="7" opacity=".85"/>
-    </g>
-    <circle cx="20" cy="20" r="5" fill="#c98a94"/>
-  </svg>`;
-}
-
-// Hoja larga usada como separador de línea decorativa.
+// Filete decorativo con hojas y punto dorado central, usado como separador de línea.
 function leafDividerSVG() {
-  return `<svg class="leaf-divider" width="180" height="24" viewBox="0 0 180 24" xmlns="http://www.w3.org/2000/svg">
-    <path d="M2 12 C 60 2, 120 22, 178 12" fill="none" stroke="#7c9473" stroke-width="1.4"/>
-    <g fill="#9db98f">
-      <path d="M40 12 C 46 4, 54 4, 58 12 C 54 20, 46 20, 40 12 Z"/>
-      <path d="M120 12 C 126 4, 134 4, 138 12 C 134 20, 126 20, 120 12 Z"/>
+  return `<svg class="leaf-divider" width="180" height="22" viewBox="0 0 180 22" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 11 C 60 2, 120 20, 178 11" fill="none" stroke="#6f7a52" stroke-width="1.2"/>
+    <g fill="#7f8a5f">
+      <path d="M42 11 C 47 4, 55 4, 59 11 C 55 18, 47 18, 42 11 Z"/>
+      <path d="M121 11 C 126 4, 134 4, 138 11 C 134 18, 126 18, 121 11 Z"/>
     </g>
-    <circle cx="90" cy="12" r="4.5" fill="#e8b4bc"/>
+    <circle cx="90" cy="11" r="4" fill="#b8923f"/>
+  </svg>`;
+}
+
+// Icono floral pequeño en oro/vino para encabezar tarjetas (ceremonia, fiesta, etc).
+function goldBlossomSVG(size = 22) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#b8923f">
+      <ellipse cx="20" cy="10" rx="6.5" ry="8.5" opacity=".9"/>
+      <ellipse cx="20" cy="30" rx="6.5" ry="8.5" opacity=".9"/>
+      <ellipse cx="10" cy="20" rx="8.5" ry="6.5" opacity=".9"/>
+      <ellipse cx="30" cy="20" rx="8.5" ry="6.5" opacity=".9"/>
+    </g>
+    <circle cx="20" cy="20" r="4.5" fill="#5c1f28"/>
+  </svg>`;
+}
+
+// Textura de "papel de toile" muy sutil: mini escena botánica en vino sobre crudo, repetida como fondo.
+function toileTileSVG() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="260" height="260" viewBox="0 0 260 260">
+    <rect width="260" height="260" fill="#efe8d8"/>
+    <g fill="none" stroke="#3d1620" stroke-width="1" opacity="0.09">
+      <path d="M30 235 C 30 150, 62 120, 42 60 C 32 28, 52 8, 74 18"/>
+      <path d="M60 235 C 82 190, 70 150, 92 120 C 112 88, 100 48, 132 26"/>
+      <circle cx="72" cy="36" r="15"/>
+      <circle cx="128" cy="205" r="11"/>
+      <path d="M205 235 C 205 150, 235 120, 215 60 C 205 28, 225 8, 247 18"/>
+      <circle cx="222" cy="42" r="13"/>
+      <path d="M170 235 C 190 195, 178 160, 195 130" opacity=".7"/>
+    </g>
   </svg>`;
 }
 
@@ -91,163 +118,205 @@ function render(data = {}) {
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "17:00"}:00` : sampleData.fecha, "cdjardin");
   const gal = galleryWidget(d.galeria, "galjardin");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
+  const iniciales = `${(d.novia || "").charAt(0)}${(d.novio || "").charAt(0)}`.toUpperCase();
+  const toileURI = `data:image/svg+xml,${encodeURIComponent(toileTileSVG())}`;
 
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(d.novia)} &amp; ${esc(d.novio)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Mrs+Saint+Delafield&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --sage:#7c9473; --sage-dark:#5f7457; --blush:#e8b4bc; --cream:#faf6f0; --ink:#453f38;
+    --wine:#3d1620; --wine-deep:#2a0f16; --wine-light:#6b2632;
+    --olive:#6f7a52; --olive-dark:#565f3f;
+    --gold:#b8923f; --gold-light:#e2cd94;
+    --cream:#efe8d8; --paper:#fbf7ef; --ink:#3a2a20;
   }
   *{box-sizing:border-box;}
   html,body{max-width:100%;overflow-x:hidden;}
-  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Jost',sans-serif;font-weight:300;line-height:1.6;}
-  h1,h2,h3{font-family:'Playfair Display',serif;font-weight:400;color:var(--sage-dark);}
-  .script{font-family:'Great Vibes',cursive;color:var(--sage-dark);}
-  a{color:var(--sage-dark);}
-  section{max-width:820px;margin:0 auto;padding:clamp(36px,6vw,64px) clamp(18px,5vw,24px);text-align:center;}
+  body{margin:0;background:var(--cream) url('${toileURI}');background-size:260px 260px;color:var(--ink);font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.08rem;line-height:1.65;}
+  h1,h2,h3{font-family:'Playfair Display',serif;font-weight:500;color:var(--wine);margin:0;}
+  .script{font-family:'Mrs Saint Delafield',cursive;color:var(--wine);}
+  a{color:var(--wine);}
+  section{max-width:760px;margin:0 auto;padding:clamp(38px,6vw,68px) clamp(18px,5vw,26px);text-align:center;}
+
+  .eyebrow{letter-spacing:4px;text-transform:uppercase;font-size:.75rem;color:var(--olive-dark);font-family:'Cormorant Garamond',serif;font-weight:600;}
+  .eyebrow.on-dark{color:var(--gold-light);}
+  h2.section-title{font-size:clamp(1.5rem,4vw,2.1rem);letter-spacing:1px;margin:6px 0 20px;}
+  .divider-flor{display:flex;justify-content:center;margin:8px 0 4px;}
+  .sprig{max-width:100%;height:auto;}
+  .leaf-divider{max-width:100%;height:auto;margin:0 auto;display:block;}
 
   /* HERO */
-  .hero{position:relative;min-height:clamp(420px,80vh,640px);display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--sage);}
-  .hero-bg{position:absolute;inset:0;background:url('${esc(d.coverImage)}') center/cover;}
-  .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(94,110,80,.35),rgba(69,63,56,.55));}
-  .wreath{position:absolute;top:0;left:0;width:100%;height:auto;z-index:1;opacity:.9;}
-  .wreath.bottom{top:auto;bottom:0;transform:scaleY(-1);}
-  .hero-content{position:relative;z-index:2;color:#fff;text-align:center;padding:0 16px;}
-  .hero-content .kicker{letter-spacing:4px;text-transform:uppercase;font-size:clamp(.7rem,2vw,.85rem);opacity:.9;}
-  .hero-content h1{font-size:clamp(2.4rem,7vw,4.2rem);margin:14px 0;text-shadow:0 2px 18px rgba(0,0,0,.25);color:#fff;}
-  .hero-content .amp{font-family:'Great Vibes',cursive;font-size:1.1em;color:var(--blush);}
-  .hero-content .fecha-linda{font-size:clamp(1rem,3vw,1.3rem);letter-spacing:2px;}
+  .hero{position:relative;background:radial-gradient(120% 100% at 50% 0%,var(--wine-light),var(--wine) 55%,var(--wine-deep));padding:clamp(46px,8vw,80px) 18px clamp(56px,9vw,90px);text-align:center;overflow:hidden;}
+  .hero::before{content:"";position:absolute;inset:0;background:url('${toileURI}');background-size:260px 260px;opacity:.06;mix-blend-mode:screen;pointer-events:none;}
+  .hero-inner{position:relative;z-index:1;max-width:640px;margin:0 auto;}
+  .hero .eyebrow{color:var(--gold-light);}
+  .hero h1{font-size:clamp(2rem,7vw,3.4rem);letter-spacing:clamp(1px,.6vw,4px);text-transform:uppercase;color:var(--paper);margin:12px 0;}
+  .hero h1 .amp{font-family:'Mrs Saint Delafield',cursive;text-transform:none;font-size:1.3em;color:var(--gold-light);padding:0 .12em;display:inline-block;}
+  .hero-frame{width:min(78%,300px);aspect-ratio:4/5;margin:22px auto;border-radius:50% 50% 6px 6px/28% 28% 6px 6px;overflow:hidden;border:3px solid var(--gold);box-shadow:0 18px 40px rgba(0,0,0,.35);position:relative;}
+  .hero-frame img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92);}
+  .hero-seal{margin:-30px auto 0;position:relative;z-index:2;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));}
+  .hero .fecha-linda{margin-top:18px;font-size:clamp(1rem,3vw,1.2rem);letter-spacing:2px;color:var(--gold-light);text-transform:uppercase;font-family:'Cormorant Garamond',serif;font-weight:600;}
 
-  .divider-flor{display:flex;justify-content:center;margin:6px 0 18px;}
-  .sprig{max-width:100%;height:auto;}
-  .leaf-divider{max-width:100%;height:auto;margin:0 auto 22px;display:block;}
+  /* Tarjeta oscura tipo "itinerario/faltan" de la referencia */
+  .dark-card{background:linear-gradient(165deg,var(--wine-light),var(--wine) 60%,var(--wine-deep));border-radius:20px;padding:clamp(28px,5vw,46px) clamp(20px,5vw,36px);color:var(--paper);box-shadow:0 16px 34px rgba(61,22,32,.28);}
+  .dark-card h2,.dark-card h3{color:var(--paper);}
+  .dark-card p{color:var(--gold-light);}
 
-  .kicker-label{letter-spacing:3px;text-transform:uppercase;font-size:.75rem;color:var(--sage-dark);opacity:.8;}
-  .message{font-size:clamp(1.05rem,2.3vw,1.25rem);font-style:italic;color:var(--ink);max-width:620px;margin:0 auto;}
+  /* COUNTDOWN */
+  .countdown{display:flex;gap:clamp(8px,3vw,20px);justify-content:center;flex-wrap:wrap;margin:22px 0 0;}
+  .countdown div{display:flex;flex-direction:column;background:rgba(255,255,255,.06);border:1px solid rgba(226,205,148,.35);border-radius:14px;width:clamp(62px,16vw,84px);height:clamp(62px,16vw,84px);align-items:center;justify-content:center;}
+  .cd-num{font-family:'Playfair Display',serif;font-size:clamp(1.15rem,4vw,1.6rem);color:var(--gold-light);}
+  .cd-label{font-size:.6rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--paper);opacity:.75;margin-top:3px;}
 
-  .countdown{display:flex;gap:clamp(10px,4vw,28px);justify-content:center;flex-wrap:wrap;margin:26px 0 6px;}
-  .countdown div{display:flex;flex-direction:column;background:#fff;border-radius:50%;width:clamp(64px,16vw,84px);height:clamp(64px,16vw,84px);align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(124,148,115,.15);}
-  .cd-num{font-family:'Playfair Display',serif;font-size:clamp(1.2rem,4vw,1.7rem);color:var(--sage-dark);}
-  .cd-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--ink);opacity:.7;}
+  /* CITA / MENSAJE tipo papel rasgado */
+  .paper-card{background:var(--paper);max-width:560px;margin:0 auto;padding:30px clamp(20px,5vw,40px);border-radius:2px;position:relative;box-shadow:0 14px 30px rgba(61,22,32,.14);transform:rotate(-0.6deg);}
+  .paper-card::before,.paper-card::after{content:"";position:absolute;left:10%;right:10%;height:8px;background:repeating-linear-gradient(100deg,var(--cream) 0 6px,transparent 6px 10px);}
+  .paper-card::before{top:-4px;}
+  .paper-card::after{bottom:-4px;}
+  .message{font-size:clamp(1.05rem,2.3vw,1.3rem);font-style:italic;color:var(--wine);margin:0;}
 
   /* CRONOGRAMA */
-  .timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:clamp(14px,3vw,26px);margin-top:26px;text-align:left;}
-  .timeline .card{background:#fff;border-radius:18px;padding:26px 24px;position:relative;border:1px solid #eee0d8;box-shadow:0 8px 24px rgba(124,148,115,.08);}
-  .timeline .card h3{margin:0 0 10px;font-size:1.15rem;display:flex;align-items:center;gap:8px;}
-  .timeline .card p{margin:0;color:var(--ink);opacity:.85;}
-  .timeline .card .hora{color:var(--blush);font-weight:500;filter:brightness(.75);}
-  .map-link{display:inline-block;margin-top:24px;padding:10px 22px;border:1px solid var(--sage);border-radius:30px;text-decoration:none;font-size:.85rem;letter-spacing:.5px;transition:background .2s;}
-  .map-link:hover{background:var(--sage);color:#fff;}
+  .timeline{list-style:none;margin:26px 0 0;padding:0;text-align:left;display:flex;flex-direction:column;gap:0;position:relative;}
+  .timeline::before{content:"";position:absolute;left:20px;top:6px;bottom:6px;width:1px;background:rgba(226,205,148,.4);}
+  .timeline li{position:relative;padding:0 0 26px 52px;}
+  .timeline li:last-child{padding-bottom:0;}
+  .timeline li::before{content:"";position:absolute;left:14px;top:4px;width:13px;height:13px;border-radius:50%;background:var(--gold);border:2px solid var(--wine);}
+  .timeline .t-hora{font-family:'Playfair Display',serif;color:var(--gold-light);font-size:1.02rem;letter-spacing:.5px;}
+  .timeline .t-label{margin:2px 0 0;color:var(--paper);opacity:.92;}
+  .info-row{display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:center;margin-top:20px;text-align:left;}
+  .info-row .item{display:flex;align-items:center;gap:8px;color:var(--paper);}
+  .map-link{display:inline-block;margin-top:26px;padding:11px 26px;border:1px solid var(--gold);color:var(--gold-light);border-radius:30px;text-decoration:none;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;transition:background .2s,color .2s;}
+  .map-link:hover{background:var(--gold);color:var(--wine-deep);}
 
-  /* DRESS CODE + REGALO */
-  .pill-row{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:18px;}
-  .pill{background:#fff;border:1px solid #eee0d8;border-radius:16px;padding:22px 26px;max-width:320px;text-align:center;box-shadow:0 8px 24px rgba(124,148,115,.08);}
-  .pill h3{margin:8px 0 6px;font-size:1.05rem;}
-  .pill p{margin:0;opacity:.85;font-size:.95rem;}
-  .alias-box{display:inline-block;margin-top:8px;background:var(--cream);border:1px dashed var(--sage);border-radius:10px;padding:8px 16px;font-weight:500;color:var(--sage-dark);letter-spacing:.5px;}
+  /* DETALLES: dress code + regalo, tags estilo oliva con colgante dorado */
+  .pill-row{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;margin-top:10px;}
+  .pill{background:var(--paper);border-radius:16px;padding:28px 24px 22px;max-width:300px;flex:1 1 240px;text-align:center;box-shadow:0 12px 26px rgba(61,22,32,.12);position:relative;}
+  .pill .tag{display:inline-block;background:var(--olive);color:var(--cream);border-radius:10px;padding:6px 16px;font-size:.72rem;letter-spacing:1.6px;text-transform:uppercase;margin-bottom:14px;position:relative;}
+  .pill .tag::after{content:"";position:absolute;left:50%;bottom:-14px;width:2px;height:14px;background:var(--gold);transform:translateX(-50%);}
+  .pill h3{margin:6px 0 8px;font-size:1.15rem;}
+  .pill p{margin:0;opacity:.9;font-size:.98rem;}
+  .alias-box{display:inline-block;margin-top:12px;background:var(--cream);border:1px dashed var(--olive-dark);border-radius:10px;padding:8px 18px;font-weight:600;color:var(--wine);letter-spacing:.6px;font-family:'Playfair Display',serif;}
 
   /* GALERÍA */
-  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:22px;}
-  .gallery img{width:100%;height:clamp(120px,22vw,190px);object-fit:cover;border-radius:14px;cursor:pointer;box-shadow:0 6px 16px rgba(124,148,115,.15);}
-  .lightbox{display:none;position:fixed;inset:0;background:rgba(69,63,56,.92);align-items:center;justify-content:center;z-index:50;}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:24px;}
+  .gallery-item{position:relative;}
+  .gallery img{width:100%;height:clamp(120px,22vw,190px);object-fit:cover;border-radius:4px;cursor:pointer;border:3px solid var(--paper);box-shadow:0 10px 22px rgba(61,22,32,.18);}
+  .lightbox{display:none;position:fixed;inset:0;background:rgba(42,15,22,.94);align-items:center;justify-content:center;z-index:50;}
   .lightbox.open{display:flex;}
-  .lightbox img{max-width:92%;max-height:85%;border-radius:8px;}
-  .lightbox-close{position:absolute;top:20px;right:30px;color:#fff;font-size:2rem;cursor:pointer;}
+  .lightbox img{max-width:92%;max-height:85%;border-radius:6px;border:4px solid var(--gold);}
+  .lightbox-close{position:absolute;top:20px;right:30px;color:var(--gold-light);font-size:2rem;cursor:pointer;}
 
   /* RSVP */
-  .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:24px auto 0;text-align:left;}
-  .rsvp-form label{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--sage-dark);}
-  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:'Jost',sans-serif;padding:11px 12px;border:1px solid #e2d6cb;border-radius:10px;margin-top:5px;width:100%;background:#fff;}
-  .rsvp-form button{background:var(--sage);color:#fff;border:0;padding:13px;border-radius:30px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-size:.85rem;transition:background .2s;}
-  .rsvp-form button:hover{background:var(--sage-dark);}
-  .rsvp-whatsapp{font-size:.85rem;color:var(--sage-dark);text-align:center;text-decoration:underline;}
-  .rsvp-status{text-align:center;color:var(--sage-dark);font-weight:500;}
+  .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:26px auto 0;text-align:left;}
+  .rsvp-form label{font-size:.75rem;text-transform:uppercase;letter-spacing:1.3px;color:var(--olive-dark);font-weight:600;}
+  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:'Cormorant Garamond',serif;font-size:1rem;padding:11px 12px;border:1px solid #d8c9a8;border-radius:8px;margin-top:5px;width:100%;background:var(--paper);color:var(--ink);}
+  .rsvp-form input:focus,.rsvp-form select:focus,.rsvp-form textarea:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .rsvp-form button{background:var(--wine);color:var(--gold-light);border:0;padding:14px;border-radius:30px;letter-spacing:1.6px;text-transform:uppercase;cursor:pointer;font-size:.82rem;font-weight:600;transition:background .2s;}
+  .rsvp-form button:hover{background:var(--wine-light);}
+  .rsvp-whatsapp{display:block;margin-top:14px;font-size:.88rem;color:var(--olive-dark);text-align:center;text-decoration:underline;}
+  .rsvp-status{text-align:center;color:var(--wine);font-weight:600;margin-top:10px;}
 
-  footer{text-align:center;padding:44px 20px 36px;font-size:.85rem;color:var(--sage-dark);background:linear-gradient(180deg,transparent,rgba(124,148,115,.08));}
-  footer .script{font-size:1.6rem;display:block;margin-bottom:8px;}
+  footer{position:relative;text-align:center;padding:56px 20px 44px;color:var(--gold-light);background:linear-gradient(165deg,var(--wine-light),var(--wine) 60%,var(--wine-deep));overflow:hidden;}
+  footer::before{content:"";position:absolute;inset:0;background:url('${toileURI}');background-size:260px 260px;opacity:.06;mix-blend-mode:screen;pointer-events:none;}
+  footer .inner{position:relative;z-index:1;}
+  footer .script{font-size:clamp(2rem,6vw,2.6rem);display:block;margin-bottom:10px;color:var(--paper);}
+  footer p{margin:0;font-size:.92rem;opacity:.85;}
+  .corner-deco{display:flex;justify-content:center;margin-top:18px;opacity:.9;}
 </style></head>
 <body>
 
   <div class="hero">
-    <div class="hero-bg"></div>
-    ${wreathSVG()}
-    <div class="hero-content">
-      <div class="kicker">Nos casamos</div>
+    <div class="hero-inner">
+      <div class="eyebrow">Nos casamos</div>
       <h1>${esc(d.novia)} <span class="amp">&amp;</span> ${esc(d.novio)}</h1>
+      <div class="hero-frame"><img src="${esc(d.coverImage)}" alt="${esc(d.novia)} y ${esc(d.novio)}"></div>
+      <div class="hero-seal">${waxSealSVG(56, iniciales)}</div>
       <div class="fecha-linda">${fechaLarga(d.fecha)}</div>
     </div>
   </div>
 
   <section>
-    <div class="divider-flor">${sprigSVG(140, 0)}</div>
-    <p class="kicker-label">Cuenta regresiva</p>
-    <h2>Falta muy poquito</h2>
-    ${cd.html}
-  </section>
-
-  <section>
-    ${leafDividerSVG()}
-    <p class="message">${esc(d.mensaje)}</p>
-  </section>
-
-  <section>
-    <div class="divider-flor">${sprigSVG(140, 180)}</div>
-    <p class="kicker-label">Agenda del día</p>
-    <h2>Cronograma</h2>
-    <div class="timeline">
-      <div class="card">
-        <h3>${blossomSVG(22)} Ceremonia</h3>
-        <p class="hora">${esc(d.horaCeremonia)} hs</p>
-        <p>${esc(d.lugarCeremonia)}</p>
+    <div class="divider-flor">${sprigSVG(130, 0)}</div>
+    <p class="eyebrow">Ceremonia y recepción</p>
+    <h2 class="section-title">¿Dónde y cuándo?</h2>
+    <div class="dark-card">
+      <div class="info-row">
+        <div class="item">${goldBlossomSVG(20)} <div><strong>${esc(d.horaCeremonia)} hs</strong><br>${esc(d.lugarCeremonia)}</div></div>
       </div>
-      <div class="card">
-        <h3>${blossomSVG(22)} Fiesta</h3>
-        <p class="hora">${esc(d.horaFiesta)} hs</p>
-        <p>${esc(d.lugarFiesta)}</p>
-      </div>
+      ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
     </div>
-    ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
+  </section>
+
+  <section>
+    <p class="eyebrow">Agenda del día</p>
+    <h2 class="section-title">Itinerario</h2>
+    <div class="dark-card">
+      <ul class="timeline">
+        <li><div class="t-hora">${esc(d.horaCeremonia)} hs</div><p class="t-label">Ceremonia — ${esc(d.lugarCeremonia)}</p></li>
+        <li><div class="t-hora">${esc(d.horaFiesta)} hs</div><p class="t-label">Recepción y fiesta — ${esc(d.lugarFiesta)}</p></li>
+        <li><div class="t-hora">&hellip;</div><p class="t-label">¡A festejar hasta que el cuerpo aguante!</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Cuenta regresiva</p>
+    <h2 class="section-title">Faltan</h2>
+    <div class="dark-card">
+      ${cd.html}
+    </div>
   </section>
 
   <section>
     ${leafDividerSVG()}
-    <p class="kicker-label">Detalles</p>
+    <div class="paper-card">
+      <p class="message">${esc(d.mensaje)}</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="divider-flor">${sprigSVG(130, 180)}</div>
+    <p class="eyebrow">Detalles</p>
+    <h2 class="section-title">Para tener en cuenta</h2>
     <div class="pill-row">
       <div class="pill">
-        ${blossomSVG(30)}
-        <h3>Código de vestimenta</h3>
-        <p>${esc(d.dressCode)}</p>
+        <span class="tag">Código de vestimenta</span>
+        <h3>${esc(d.dressCode)}</h3>
+        <p>Les dejamos esta sugerencia de colores para acompañar la estética del día.</p>
       </div>
       <div class="pill">
-        ${blossomSVG(30)}
-        <h3>¿Un regalo?</h3>
-        <p>Si quieren hacernos un regalo, lo más lindo es un aporte para nuestra nueva vida juntos.</p>
+        <span class="tag">Sugerencia de regalos</span>
+        <h3>Un gesto con nosotros</h3>
+        <p>El mejor regalo es tu presencia, pero si querés tener un detalle, podés hacerlo por transferencia.</p>
         <div class="alias-box">Alias: ${esc(d.alias)}</div>
       </div>
     </div>
+    <div class="corner-deco">${anthuriumSVG(46)}</div>
   </section>
 
   <section>
-    <div class="divider-flor">${sprigSVG(140, 0)}</div>
-    <p class="kicker-label">Recuerdos</p>
-    <h2>Nuestra historia en fotos</h2>
+    <p class="eyebrow">Recuerdos</p>
+    <h2 class="section-title">Nuestra historia en fotos</h2>
     ${gal.html}
   </section>
 
   <section>
     ${leafDividerSVG()}
-    <p class="kicker-label">Por favor confirmá</p>
-    <h2>Confirmá tu asistencia</h2>
+    <p class="eyebrow">Por favor confirmá</p>
+    <h2 class="section-title">Confirmar asistencia</h2>
     ${rsvp.html}
   </section>
 
   <footer>
-    <span class="script">${esc(d.novia)} &amp; ${esc(d.novio)}</span>
-    Con todo nuestro cariño, gracias por ser parte de este día.
+    <div class="inner">
+      ${waxSealSVG(46, iniciales)}
+      <span class="script">${esc(d.novia)} &amp; ${esc(d.novio)}</span>
+      <p>Con todo nuestro cariño, gracias por ser parte de este día.</p>
+    </div>
   </footer>
 
   <script>${cd.script}${gal.script}${rsvp.script}</script>
@@ -264,6 +333,6 @@ function fechaLarga(fechaISO) {
 
 module.exports = {
   id, category: "bodas", name: "Romántica Jardín",
-  summary: "Flores acuareladas dibujadas a mano, tonos sage y blush, aire de invernadero — perfecta para una boda al aire libre.",
-  accent: "#7c9473", schema: bodaSchema, sampleData, render,
+  summary: "Paleta vino y oliva con acentos dorados, tarjetas de itinerario oscuras, sellos de lacre y anturios ilustrados — tono romántico de jardín otoñal inspirado en tarjetería clásica.",
+  accent: "#3d1620", accent2: "#6f7a52", schema: bodaSchema, sampleData, render,
 };

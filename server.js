@@ -219,7 +219,7 @@ function catalogPage(activeCat) {
 
 function cardHTML(d) {
   return `<div class="design-card">
-    <div class="swatch" style="background:${d.accent}">${d.name}</div>
+    <div class="swatch" style="background:linear-gradient(135deg, ${d.accent}, ${d.accent2 || d.accent})">${d.name}</div>
     <div class="body">
       <span class="cat-tag">${categories.find((c) => c.id === d.category).label}</span>
       <h3>${d.name}</h3>
