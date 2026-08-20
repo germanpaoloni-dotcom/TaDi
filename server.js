@@ -14,6 +14,14 @@ const PORT = process.env.PORT || 3000;
 // de entorno o el valor por defecto acá).
 const PRICE_ARS = Number(process.env.PRICE_ARS || 14900);
 
+// Datos legales del negocio para mostrar en el checkout (confianza + requisito
+// de facturación en Argentina). Se dejan vacíos por defecto para no mostrar
+// datos inventados: completar con las variables de entorno reales, o
+// directamente acá, antes de vender en producción.
+const BUSINESS_LEGAL_NAME = process.env.BUSINESS_LEGAL_NAME || "";
+const BUSINESS_CUIT = process.env.BUSINESS_CUIT || "";
+const SUPPORT_WHATSAPP = process.env.SUPPORT_WHATSAPP || ""; // ej: 5491122334455
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static(path.join(__dirname, "public")));
@@ -52,7 +60,10 @@ function layout({ title, body }) {
   </nav>
 </header>
 ${body}
-<footer class="site">TaDi — prototipo de demostración · Pagos con Mercado Pago · <a href="/como-funciona" style="color:inherit">Cómo funciona</a></footer>
+<footer class="site">
+  <div class="footer-links">TaDi · Pagos protegidos con Mercado Pago · <a href="/como-funciona">Cómo funciona</a> · <a href="/preguntas-frecuentes">Preguntas frecuentes</a> · <a href="/terminos">Términos</a> · <a href="/privacidad">Privacidad</a></div>
+  ${BUSINESS_LEGAL_NAME ? `<div class="footer-legal">${BUSINESS_LEGAL_NAME}${BUSINESS_CUIT ? ` · CUIT ${BUSINESS_CUIT}` : ""}</div>` : ""}
+</footer>
 <script>
   document.addEventListener('error', function(e){
     var t = e.target;
@@ -98,6 +109,7 @@ function heroSlideHTML(cat, index, isCarousel) {
         <span class="mega-hero-kicker">Invitaciones digitales</span>
         <h1 class="mega-hero-title">${cat.label.replace(/ /g, "<br>")}<span class="dot">.</span></h1>
         ${isCarousel ? `<a class="btn btn-primary mega-hero-cta" href="/categoria/${cat.id}">Elegí tu diseño</a>` : ""}
+        <a class="mega-hero-skip" href="#catalogo">Ver diseños y precios ↓</a>
       </div>
       <div class="mega-hero-visual">
         <div class="mega-hero-ring"></div>
@@ -212,16 +224,27 @@ function catalogPage(activeCat) {
   return layout({
     title: activeCat ? cats.find((c) => c.id === activeCat).label : "Catálogo",
     body: `${hero}
-    <div class="cat-filter">${catButtons}</div>
+    <div class="trust-strip">
+      <div><strong>🔒 Pago seguro</strong><span>Con Mercado Pago, en cuotas según tu banco</span></div>
+      <div><strong>✏️ Edición ilimitada</strong><span>Cambiá los datos las veces que quieras hasta el evento</span></div>
+      <div><strong>⚡ Entrega al instante</strong><span>Tu link queda listo apenas se acredita el pago</span></div>
+      <div><strong>🎨 Catálogo en crecimiento</strong><span>Sumamos diseños nuevos todos los meses</span></div>
+    </div>
+    <div class="cat-filter" id="catalogo">${catButtons}</div>
     ${sections}`,
   });
 }
 
 function cardHTML(d) {
+  const cat = categories.find((c) => c.id === d.category);
+  const isFlagship = cat.flagshipDesign === d.id;
   return `<div class="design-card">
-    <div class="swatch" style="background:linear-gradient(135deg, ${d.accent}, ${d.accent2 || d.accent})">${d.name}</div>
+    <div class="swatch" style="background:linear-gradient(135deg, ${d.accent}, ${d.accent2 || d.accent})">
+      ${isFlagship ? `<span class="badge-fav">★ Más elegido</span>` : ""}
+      ${d.name}
+    </div>
     <div class="body">
-      <span class="cat-tag">${categories.find((c) => c.id === d.category).label}</span>
+      <span class="cat-tag">${cat.label}</span>
       <h3>${d.name}</h3>
       <p>${d.summary}</p>
       <span class="price-tag">${money(PRICE_ARS)}</span>
@@ -289,8 +312,91 @@ app.get("/como-funciona", (req, res) => {
         </div>`).join("")}
     </div>
     <div class="tutorial-cta">
-      <p style="color:var(--muted);margin-bottom:16px">¿Ya pagaste y no encontrás tu link de edición? Escribinos y te ayudamos.</p>
+      <p style="color:var(--muted);margin-bottom:16px">¿Ya pagaste y no encontrás tu link de edición? Mirá las <a href="/preguntas-frecuentes">preguntas frecuentes</a> o escribinos y te ayudamos.</p>
       <a class="btn btn-outline" href="/">← Volver al catálogo</a>
+    </div>`,
+  }));
+});
+
+// ---------- PREGUNTAS FRECUENTES ----------
+app.get("/preguntas-frecuentes", (req, res) => {
+  const faqs = [
+    {
+      q: "¿Cuánto tardo en tener mi invitación lista?",
+      a: "Apenas se acredita el pago te llevamos directo al editor. Cargás los datos de tu evento y las fotos, y en minutos ya tenés el link para compartir con tus invitados.",
+    },
+    {
+      q: "¿Puedo editar los datos después de pagar?",
+      a: "Sí, las veces que quieras hasta el evento — no hay un único intento. Guardás cambios cuando quieras desde tu link privado de edición.",
+    },
+    {
+      q: `¿Hasta cuándo puedo editar mi invitación?`,
+      a: `La edición queda disponible hasta ${EDIT_GRACE_DAYS} días después de la fecha del evento que cargaste. Pasado ese plazo se bloquea, para que cada invitación se use para un solo evento — la página que ya compartiste con tus invitados sigue funcionando igual. Si tenés un evento nuevo, se compra una invitación nueva al precio normal (no hay reactivación con descuento).`,
+    },
+    {
+      q: "¿Qué pasa si mi evento se posterga?",
+      a: `Solo tenés que actualizar la fecha en el editor antes de que se cumplan los ${EDIT_GRACE_DAYS} días de gracia — el plazo de edición se recalcula con la fecha nueva.`,
+    },
+    {
+      q: "¿Es seguro pagar? ¿Puedo pagar en cuotas?",
+      a: "El pago se procesa por Mercado Pago — nosotros no vemos ni guardamos los datos de tu tarjeta. Las cuotas disponibles dependen de tu banco y las vas a ver en la pantalla de pago antes de confirmar.",
+    },
+    {
+      q: "¿Puedo cambiar de diseño después de comprar?",
+      a: "El diseño elegido queda asociado a esa compra. Si querés otro diseño, escribinos y lo vemos.",
+    },
+    {
+      q: "Ya pagué pero no encuentro mi link de edición, ¿qué hago?",
+      a: `Escribinos${SUPPORT_WHATSAPP ? ` por WhatsApp` : ""} contándonos con qué nombre o mail hiciste la compra y te lo recuperamos.`,
+    },
+  ];
+  res.send(layout({
+    title: "Preguntas frecuentes",
+    body: `<div class="tutorial-hero">
+      <span class="kicker">Ayuda</span>
+      <h1>Preguntas frecuentes</h1>
+    </div>
+    <div class="faq-list">
+      ${faqs.map((f) => `<div class="faq-item"><h3>${f.q}</h3><p>${f.a}</p></div>`).join("")}
+    </div>
+    <div class="tutorial-cta">
+      <p style="color:var(--muted);margin-bottom:16px">¿No encontraste tu respuesta?${SUPPORT_WHATSAPP ? ` <a href="https://wa.me/${SUPPORT_WHATSAPP}" target="_blank">Escribinos por WhatsApp</a>.` : " Escribinos y te ayudamos."}</p>
+      <a class="btn btn-outline" href="/">← Volver al catálogo</a>
+    </div>`,
+  }));
+});
+
+// ---------- LEGALES ----------
+app.get("/terminos", (req, res) => {
+  res.send(layout({
+    title: "Términos y condiciones",
+    body: `<div class="legal-wrap">
+      <h1>Términos y condiciones</h1>
+      <p>TaDi ofrece invitaciones digitales personalizables para eventos (bodas, quince años, bautismos, fiestas infantiles, eventos empresariales y despedidas de soltero/a). Al comprar una invitación, el comprador puede personalizar sus datos (textos, fechas, lugares, fotos) y compartir el link resultante con sus invitados.</p>
+      <h3>Edición y vigencia</h3>
+      <p>La invitación puede editarse sin límite de veces desde el link privado de edición hasta ${EDIT_GRACE_DAYS} días después de la fecha del evento cargada. Pasado ese plazo, la edición se bloquea automáticamente; la página pública ya compartida con los invitados permanece accesible. Cada invitación comprada corresponde a un único evento — usarla para un evento distinto requiere una nueva compra.</p>
+      <h3>Pagos</h3>
+      <p>Los pagos se procesan a través de Mercado Pago. TaDi no almacena datos de tarjetas ni medios de pago.</p>
+      <h3>Contenido cargado por el usuario</h3>
+      <p>El comprador es responsable de las fotos y textos que carga en su invitación, y declara contar con los derechos necesarios sobre ese contenido.</p>
+      <h3>Contacto</h3>
+      <p>Ante cualquier consulta sobre estos términos, escribinos${SUPPORT_WHATSAPP ? ` por WhatsApp` : ""}.</p>
+    </div>`,
+  }));
+});
+
+app.get("/privacidad", (req, res) => {
+  res.send(layout({
+    title: "Política de privacidad",
+    body: `<div class="legal-wrap">
+      <h1>Política de privacidad</h1>
+      <p>Esta política describe qué datos personales trata TaDi y con qué finalidad, en línea con la Ley 25.326 de Protección de los Datos Personales de Argentina.</p>
+      <h3>Datos que tratamos</h3>
+      <p>Del comprador: los datos que carga en el editor de su invitación (nombres, fecha, lugar, mensaje, fotos) y los datos de contacto necesarios para procesar el pago a través de Mercado Pago. De los invitados: los datos que ingresan voluntariamente en el formulario de confirmación de asistencia (RSVP) de cada invitación — nombre, cantidad de acompañantes, asistencia y mensaje opcional.</p>
+      <h3>Para qué los usamos</h3>
+      <p>Para generar y mostrar la invitación personalizada, procesar el pago y permitir que el comprador vea las confirmaciones de asistencia de sus propios invitados. No vendemos ni compartimos estos datos con terceros fuera de lo necesario para procesar el pago (Mercado Pago) y alojar el sitio.</p>
+      <h3>Derechos del titular de los datos</h3>
+      <p>Podés pedirnos acceder, corregir o eliminar tus datos escribiéndonos${SUPPORT_WHATSAPP ? ` por WhatsApp` : ""}. La Agencia de Acceso a la Información Pública, en su carácter de Órgano de Control de la Ley 25.326, tiene la atribución de atender denuncias y reclamos.</p>
     </div>`,
   }));
 });
@@ -319,6 +425,9 @@ app.get("/checkout/:designId", (req, res) => {
         <input type="hidden" name="designId" value="${design.id}">
         <button class="mp-btn" type="submit">🔒 Pagar con Mercado Pago</button>
       </form>
+      <p class="checkout-trust">Podés pagar con tarjeta, cuotas (según lo que ofrezca tu banco) o dinero en cuenta — Mercado Pago te muestra las opciones disponibles antes de confirmar. Pago 100% seguro, no vemos ni guardamos tu tarjeta.</p>
+      ${BUSINESS_LEGAL_NAME ? `<p class="checkout-trust">Vendido por ${BUSINESS_LEGAL_NAME}${BUSINESS_CUIT ? ` (CUIT ${BUSINESS_CUIT})` : ""}.</p>` : ""}
+      <p class="checkout-trust">¿Dudas antes de pagar? Mirá las <a href="/preguntas-frecuentes">preguntas frecuentes</a>${SUPPORT_WHATSAPP ? ` o <a href="https://wa.me/${SUPPORT_WHATSAPP}" target="_blank">escribinos por WhatsApp</a>` : ""}.</p>
       ${!mp.isConfigured() ? `<div class="demo-note">Modo demo: no hay credenciales de Mercado Pago cargadas, así que el pago se simula como aprobado al instante para que puedas probar todo el flujo. Para cobrar de verdad, cargá <code>MP_ACCESS_TOKEN</code> (ver README).</div>` : ""}
       <p style="margin-top:16px"><a href="/demo/${design.id}" target="_blank">← Ver el diseño antes de pagar</a></p>
     </div>`,
@@ -622,7 +731,7 @@ function lockedPage(order, design) {
     title: "Invitación vencida",
     body: `<div class="status-page">
       <h1>🔒 Esta invitación ya cumplió su ciclo</h1>
-      <p>Pasaron más de ${EDIT_GRACE_DAYS} días desde la fecha del evento, así que la edición quedó bloqueada para que cada invitación se use para un solo evento.</p>
+      <p>Pasaron más de ${EDIT_GRACE_DAYS} días desde la fecha del evento, así que la edición quedó bloqueada para que cada invitación se use para un solo evento. Más info en las <a href="/preguntas-frecuentes">preguntas frecuentes</a>.</p>
       <p>La página que ya compartiste con tus invitados sigue disponible: <a href="${publicUrl2}" target="_blank">${publicUrl2}</a></p>
       <p style="margin-top:24px">¿Tenés un evento nuevo? Podés comprar una invitación nueva (no hay reactivación con precio especial, es una compra normal):</p>
       <p><a class="btn btn-primary" href="/checkout/${design.id}">Comprar invitación nueva</a></p>
