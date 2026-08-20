@@ -15,8 +15,10 @@ a{color:var(--accent);}
 
 /* ---------- header / chrome ---------- */
 header.site{background:var(--bg);border-bottom:1px solid var(--line);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:30;}
-header.site .brand{display:flex;align-items:center;line-height:0;}
+header.site .brand{display:flex;align-items:center;gap:10px;line-height:0;text-decoration:none;}
 header.site .brand-logo{height:26px;width:auto;display:block;}
+header.site .brand-tagline{line-height:normal;font-size:.68rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);padding-left:10px;border-left:1px solid var(--line);white-space:nowrap;}
+@media (max-width:560px){ header.site .brand-tagline{display:none;} }
 header.site nav a{color:var(--muted);text-decoration:none;margin-left:22px;font-size:.78rem;text-transform:uppercase;letter-spacing:1.5px;transition:color .15s;}
 header.site nav a:hover, header.site nav a.active{color:var(--ink);}
 header.site .nav-toggle{display:none;flex-direction:column;justify-content:center;gap:5px;width:34px;height:34px;background:transparent;border:1px solid var(--line);border-radius:8px;cursor:pointer;padding:0;}
@@ -30,7 +32,39 @@ footer.site a:hover{color:var(--ink);}
 footer.site .footer-links{line-height:1.9;}
 footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spacing:.2px;}
 
-/* ---------- mega hero (portada) ---------- */
+/* ---------- home interactivo (6 categorías + modal) ---------- */
+.orios-home{display:flex;min-height:640px;border-bottom:1px solid var(--line);background:var(--bg-2);}
+.orios-panel{position:relative;flex:1;min-width:0;overflow:hidden;border-right:1px solid var(--line);background:transparent;border-top:0;border-bottom:0;border-left:0;padding:0;margin:0;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;font-family:inherit;}
+.orios-panel:last-child{border-right:0;}
+.orios-panel-glow{position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 65%,rgba(255,122,61,.55),transparent 70%);opacity:0;transition:opacity .3s ease;pointer-events:none;}
+.orios-panel:hover .orios-panel-glow, .orios-panel:focus-visible .orios-panel-glow{opacity:1;}
+.orios-panel img{position:relative;z-index:1;height:88%;max-height:560px;width:auto;max-width:96%;object-fit:contain;object-position:bottom;filter:saturate(.85) contrast(1.08) brightness(.98);transition:transform .35s cubic-bezier(.2,.8,.2,1);transform-origin:bottom center;}
+.orios-panel:hover img, .orios-panel:focus-visible img{transform:scale(1.08);}
+.orios-panel-label{position:absolute;top:28px;left:0;right:0;z-index:2;text-align:center;font-size:clamp(1rem,1.6vw,1.35rem);font-weight:800;line-height:1.15;color:var(--ink);padding:0 8px;letter-spacing:-.3px;}
+.orios-panel-label .dot{color:var(--accent);}
+
+.cat-modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(8,9,12,.78);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:24px;}
+.cat-modal-overlay.open{display:flex;}
+.cat-modal{position:relative;background:var(--bg);border:1px solid var(--line);border-radius:20px;max-width:1220px;width:100%;max-height:88vh;overflow:hidden;display:block;box-shadow:0 30px 80px -20px rgba(0,0,0,.6);}
+.cat-modal-close{position:absolute;top:16px;right:16px;z-index:5;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:rgba(10,11,14,.5);color:var(--ink);font-size:1.4rem;line-height:1;cursor:pointer;}
+.cat-modal-close:hover{border-color:var(--accent);color:var(--accent);}
+.cat-modal-panel{display:none;grid-template-columns:1.15fr .85fr;max-height:88vh;}
+.cat-modal-panel.active{display:grid;}
+.cat-modal-catalog{padding:36px 32px;overflow-y:auto;max-height:88vh;}
+.cat-modal-kicker{display:block;text-transform:uppercase;letter-spacing:2px;font-size:.68rem;color:var(--accent);margin-bottom:8px;}
+.cat-modal-title{margin:0 0 8px;font-size:1.7rem;}
+.cat-modal-title .dot{color:var(--accent);}
+.cat-modal-desc{margin:0 0 20px;color:var(--muted);font-size:.9rem;}
+.cat-modal-catalog .grid{max-width:none;margin:0;padding:0;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+.cat-modal-full-link{display:inline-block;margin-top:20px;font-size:.82rem;color:var(--muted);text-decoration:underline;}
+.cat-modal-visual{position:relative;min-height:420px;overflow:hidden;background:linear-gradient(180deg,#2c2f38 0%,var(--bg-2) 100%);}
+.cat-modal-visual .mega-hero-ring{top:40px;left:38%;}
+.cat-modal-visual img{position:absolute;right:0;bottom:0;height:94%;max-height:100%;width:auto;max-width:96%;object-fit:contain;object-position:bottom right;filter:saturate(.85) contrast(1.08) brightness(.98) drop-shadow(0 20px 18px rgba(0,0,0,.5));}
+.cat-modal-visual .mega-hero-info{max-width:220px;}
+.cat-modal-visual .mega-hero-info-left{left:24px;}
+.cat-modal-visual .mega-hero-info-right{right:24px;max-width:200px;}
+
+/* ---------- mega hero (portada de /categoria/:id) ---------- */
 .mega-hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);}
 .mega-hero-slide{display:none;position:relative;min-height:640px;background:linear-gradient(100deg,var(--bg-2) 0%,var(--bg-2) 42%,#2c2f38 48%,#2c2f38 100%);}
 .mega-hero-slide.active{display:block;}
@@ -79,9 +113,14 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 
 /* ---------- trust strip ---------- */
 .trust-strip{max-width:1180px;margin:0 auto;padding:26px 32px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
-.trust-strip > div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
-.trust-strip strong{display:block;font-size:.85rem;margin-bottom:4px;}
+.trust-strip > div{position:relative;background:linear-gradient(160deg,rgba(255,122,61,.16),rgba(255,122,61,.04));border:1px solid rgba(255,122,61,.28);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:14px;padding:16px 18px;box-shadow:0 8px 24px -12px rgba(255,122,61,.35);transition:transform .15s,border-color .15s;}
+.trust-strip > div:hover{transform:translateY(-2px);border-color:rgba(255,122,61,.5);}
+.trust-strip .trust-icon{display:block;font-size:1.25rem;margin-bottom:6px;}
+.trust-strip strong{display:block;font-size:.85rem;margin-bottom:4px;color:var(--ink);}
 .trust-strip span{display:block;font-size:.76rem;color:var(--muted);line-height:1.4;}
+.trust-strip .mp-chip{display:inline-flex;align-items:center;gap:3px;margin-top:8px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.9);color:#333;font-size:.68rem;font-weight:600;letter-spacing:.2px;}
+.trust-strip .mp-chip b{font-weight:800;color:#00299b;}
+.trust-strip .mp-chip b.mp-blue{color:#00b1ea;}
 
 /* ---------- catálogo ---------- */
 .section-head{max-width:1180px;margin:0 auto;padding:50px 32px 0;}
@@ -206,9 +245,27 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
   .tutorial-steps{padding:0 20px 50px;}
   .tutorial-step{grid-template-columns:1fr;padding:22px;}
   .tutorial-step .num{margin-bottom:4px;}
+
+  .orios-home{display:grid;grid-template-columns:1fr 1fr;min-height:0;}
+  .orios-panel{border-right:1px solid var(--line);border-bottom:1px solid var(--line);height:180px;align-items:center;}
+  .orios-panel:nth-child(2n){border-right:0;}
+  .orios-panel img{height:80%;max-height:150px;}
+  .orios-panel-label{top:10px;font-size:.88rem;}
+
+  .cat-modal{max-height:92vh;border-radius:14px;}
+  .cat-modal-panel{grid-template-columns:1fr;max-height:92vh;overflow-y:auto;}
+  .cat-modal-visual{order:-1;min-height:0;display:flex;flex-direction:column;align-items:center;padding:22px 20px 8px;overflow:visible;}
+  .cat-modal-visual img{position:relative;inset:auto;right:auto;bottom:auto;left:auto;transform:none;height:170px;max-height:170px;width:auto;margin:0 auto;}
+  .cat-modal-visual .mega-hero-ring{position:absolute;left:50%;transform:translateX(-50%);top:8px;width:96px;height:96px;border-width:9px;}
+  .cat-modal-visual .mega-hero-info{position:relative;left:auto;right:auto;bottom:auto;max-width:100%;width:100%;margin:8px 0 0;padding:10px 14px;background:var(--card);backdrop-filter:none;}
+  .cat-modal-catalog{padding:24px 20px;max-height:none;overflow-y:visible;}
+  .cat-modal-title{font-size:1.4rem;}
 }
 
 @media (max-width: 480px){
+  .orios-home{grid-template-columns:1fr;}
+  .orios-panel{border-right:0;height:150px;}
+  .orios-panel img{max-height:120px;}
   header.site{padding:16px 20px;}
   .mega-hero-title, .mini-hero .mega-hero-title{font-size:2.1rem;}
   .mega-hero-ghost, .mini-hero .mega-hero-ghost{font-size:2.6rem;}

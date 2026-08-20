@@ -50,7 +50,7 @@ function layout({ title, body }) {
 <link rel="stylesheet" href="/static/css/site.css">
 </head><body>
 <header class="site">
-  <a class="brand" href="/" aria-label="TaDi — inicio"><img src="/static/img/logo/tadi-logo-dark-bg.svg" alt="TaDi" class="brand-logo"></a>
+  <a class="brand" href="/" aria-label="TaDi — inicio"><img src="/static/img/logo/tadi-logo-dark-bg.svg" alt="TaDi" class="brand-logo"><span class="brand-tagline">Tarjetas Digitales</span></a>
   <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
@@ -134,42 +134,6 @@ function heroSlideHTML(cat, index, isCarousel) {
   </div>`;
 }
 
-function megaHeroHTML(cats) {
-  const slides = cats.map((c, i) => heroSlideHTML(c, i, true)).join("");
-  const dots = cats.map((c, i) => `<button class="${i === 0 ? "active" : ""}" data-i="${i}" aria-label="${c.label}"></button>`).join("");
-  return `<section class="mega-hero" id="megaHero">
-    ${slides}
-    <div class="mega-hero-controls">
-      <div class="mega-hero-progress">
-        <div class="mega-hero-bar"><div class="mega-hero-bar-fill" id="heroBarFill" style="width:${100 / cats.length}%"></div></div>
-        <span class="mega-hero-count" id="heroCount">01 / ${String(cats.length).padStart(2, "0")}</span>
-      </div>
-      <div class="mega-hero-dots" id="heroDots">${dots}</div>
-      <button class="mega-hero-arrow" id="heroNext" aria-label="Siguiente categoría">→</button>
-    </div>
-  </section>
-  <script>
-    (function(){
-      var total = ${cats.length};
-      var idx = 0;
-      var slides = document.querySelectorAll('#megaHero .mega-hero-slide');
-      var dots = document.querySelectorAll('#heroDots button');
-      var fill = document.getElementById('heroBarFill');
-      var count = document.getElementById('heroCount');
-      function show(i){
-        idx = (i + total) % total;
-        slides.forEach(function(s, si){ s.classList.toggle('active', si === idx); });
-        dots.forEach(function(d, di){ d.classList.toggle('active', di === idx); });
-        fill.style.width = (100 * (idx + 1) / total) + '%';
-        count.textContent = String(idx + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
-      }
-      document.getElementById('heroNext').addEventListener('click', function(){ show(idx + 1); });
-      dots.forEach(function(d, di){ d.addEventListener('click', function(){ show(di); }); });
-      if (total > 1) setInterval(function(){ show(idx + 1); }, 6000);
-    })();
-  </script>`;
-}
-
 function miniHeroHTML(cat, cats) {
   const nextCat = cats[(cats.findIndex((c) => c.id === cat.id) + 1) % cats.length];
   const idx = cats.findIndex((c) => c.id === cat.id);
@@ -187,51 +151,138 @@ function miniHeroHTML(cat, cats) {
 }
 
 // ---------- CATÁLOGO ----------
+// grilla de tarjetas de una categoría (se reutiliza en /categoria/:id y
+// dentro del modal de categoría del home interactivo).
+function categoryGridHTML(cat) {
+  const list2 = designsByCategory(cat.id);
+  if (list2.length === 0) {
+    return `<div class="grid"><div class="coming-soon" style="grid-column:1/-1;min-height:140px">
+      <strong>Muy pronto</strong>
+      <span>Estamos preparando los primeros diseños de ${cat.label.toLowerCase()}.</span>
+    </div></div>`;
+  }
+  return `<div class="grid">
+    ${list2.map(cardHTML).join("")}
+    <div class="coming-soon">
+      <strong>+ Nuevos diseños</strong>
+      <span>Sumamos diseños de ${cat.label.toLowerCase()} todos los meses.</span>
+    </div>
+  </div>`;
+}
+
+const TRUST_STRIP_HTML = `<div class="trust-strip">
+  <div><span class="trust-icon">🔒</span><strong>Pago seguro</strong><span>En cuotas según tu banco</span><span class="mp-chip">con <b>Mercado</b><b class="mp-blue">Pago</b></span></div>
+  <div><span class="trust-icon">✏️</span><strong>Edición ilimitada</strong><span>Cambiá los datos las veces que quieras hasta el evento</span></div>
+  <div><span class="trust-icon">⚡</span><strong>Entrega al instante</strong><span>Tu link queda listo apenas se acredita el pago</span></div>
+  <div><span class="trust-icon">🎨</span><strong>Catálogo en crecimiento</strong><span>Sumamos diseños nuevos todos los meses</span></div>
+</div>`;
+
+// ---------- HOME interactivo: 6 categorías lado a lado, hover con
+// ampliación + halo contenido, click abre modal con personaje + catálogo
+// (no navega a otra página) ----------
+function oriosPanelHTML(cat) {
+  return `<button type="button" class="orios-panel" data-cat="${cat.id}" aria-label="Ver catálogo de ${cat.label}">
+    <span class="orios-panel-glow"></span>
+    <img src="${cat.heroImage}" alt="${cat.label}" loading="lazy">
+    <span class="orios-panel-label">${cat.label.replace(/ /g, "<br>")}<span class="dot">.</span></span>
+  </button>`;
+}
+
+function oriosHomeHTML(cats) {
+  return `<section class="orios-home">
+    ${cats.map(oriosPanelHTML).join("")}
+  </section>`;
+}
+
+function categoryModalPanelHTML(cat) {
+  const flagship = cat.flagshipDesign ? getDesign(cat.flagshipDesign) : null;
+  return `<div class="cat-modal-panel" id="modal-panel-${cat.id}">
+    <div class="cat-modal-catalog">
+      <span class="cat-modal-kicker">${cat.label}</span>
+      <h2 class="cat-modal-title">${cat.label}<span class="dot">.</span></h2>
+      <p class="cat-modal-desc">${cat.description}</p>
+      ${categoryGridHTML(cat)}
+      <a class="cat-modal-full-link" href="/categoria/${cat.id}">Ver la página completa de ${cat.label.toLowerCase()} →</a>
+    </div>
+    <div class="cat-modal-visual">
+      <div class="mega-hero-ring"></div>
+      <img src="${cat.heroImage}" alt="${cat.label}">
+      <div class="mega-hero-info mega-hero-info-left">
+        <div class="mega-hero-block">
+          <h3>${cat.kicker}</h3>
+          <p>${cat.heroBody}</p>
+        </div>
+      </div>
+      ${flagship ? `<div class="mega-hero-info mega-hero-info-right">
+        <div class="mega-hero-block">
+          <h3>El diseño</h3>
+          <p>${flagship.summary}</p>
+          <a class="mega-hero-play" href="/demo/${flagship.id}" target="_blank" title="Ver demo">▶</a>
+        </div>
+      </div>` : ""}
+    </div>
+  </div>`;
+}
+
+function categoryModalsHTML(cats) {
+  return `<div class="cat-modal-overlay" id="catModalOverlay">
+    <div class="cat-modal" id="catModal">
+      <button type="button" class="cat-modal-close" id="catModalClose" aria-label="Cerrar">&times;</button>
+      ${cats.map(categoryModalPanelHTML).join("")}
+    </div>
+  </div>
+  <script>
+    (function(){
+      var overlay = document.getElementById('catModalOverlay');
+      var closeBtn = document.getElementById('catModalClose');
+      var panels = document.querySelectorAll('.orios-panel');
+      function open(id){
+        document.querySelectorAll('.cat-modal-panel').forEach(function(p){ p.classList.toggle('active', p.id === 'modal-panel-' + id); });
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      function close(){
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+      panels.forEach(function(p){ p.addEventListener('click', function(){ open(p.dataset.cat); }); });
+      closeBtn.addEventListener('click', close);
+      overlay.addEventListener('click', function(e){ if (e.target === overlay) close(); });
+      document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+    })();
+  </script>`;
+}
+
 function catalogPage(activeCat) {
   const cats = categories;
   const catButtons = [`<a href="/" class="${!activeCat ? "active" : ""}">Todos</a>`]
     .concat(cats.map((c) => `<a href="/categoria/${c.id}" class="${activeCat === c.id ? "active" : ""}">${c.label}</a>`))
     .join("");
 
-  const list = activeCat ? designs.filter((d) => d.category === activeCat) : designs;
-  const grouped = activeCat ? { [activeCat]: list } : Object.fromEntries(cats.map((c) => [c.id, designsByCategory(c.id)]));
+  // HOME (sin categoría activa): selector interactivo de 6 categorías +
+  // modal con personaje/catálogo — no se apilan las 6 grillas en la página.
+  if (!activeCat) {
+    return layout({
+      title: "Catálogo",
+      body: `${oriosHomeHTML(cats)}
+      ${TRUST_STRIP_HTML}
+      ${categoryModalsHTML(cats)}`,
+    });
+  }
 
-  let sections = "";
-  Object.entries(grouped).forEach(([catId, list2]) => {
-    const cat = cats.find((c) => c.id === catId);
-    sections += `<div class="section-head">
+  // Página de una categoría puntual (link directo, nav, footer, SEO):
+  // se mantiene el comportamiento existente (mini-hero + grilla).
+  const cat = cats.find((c) => c.id === activeCat);
+  return layout({
+    title: cat.label,
+    body: `${miniHeroHTML(cat, cats)}
+    ${TRUST_STRIP_HTML}
+    <div class="cat-filter" id="catalogo">${catButtons}</div>
+    <div class="section-head">
       <h2>${cat.label}</h2>
       <p>${cat.description}</p>
-    </div>`;
-    if (list2.length === 0) {
-      sections += `<div class="grid"><div class="coming-soon" style="grid-column:1/-1;min-height:140px">
-        <strong>Muy pronto</strong>
-        <span>Estamos preparando los primeros diseños de ${cat.label.toLowerCase()}.</span>
-      </div></div>`;
-    } else {
-      sections += `<div class="grid">
-        ${list2.map(cardHTML).join("")}
-        <div class="coming-soon">
-          <strong>+ Nuevos diseños</strong>
-          <span>Sumamos diseños de ${cat.label.toLowerCase()} todos los meses.</span>
-        </div>
-      </div>`;
-    }
-  });
-
-  const hero = activeCat ? miniHeroHTML(cats.find((c) => c.id === activeCat), cats) : megaHeroHTML(cats);
-
-  return layout({
-    title: activeCat ? cats.find((c) => c.id === activeCat).label : "Catálogo",
-    body: `${hero}
-    <div class="trust-strip">
-      <div><strong>🔒 Pago seguro</strong><span>Con Mercado Pago, en cuotas según tu banco</span></div>
-      <div><strong>✏️ Edición ilimitada</strong><span>Cambiá los datos las veces que quieras hasta el evento</span></div>
-      <div><strong>⚡ Entrega al instante</strong><span>Tu link queda listo apenas se acredita el pago</span></div>
-      <div><strong>🎨 Catálogo en crecimiento</strong><span>Sumamos diseños nuevos todos los meses</span></div>
     </div>
-    <div class="cat-filter" id="catalogo">${catButtons}</div>
-    ${sections}`,
+    ${categoryGridHTML(cat)}`,
   });
 }
 

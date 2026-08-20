@@ -36,16 +36,6 @@ const categories = [
     flagshipDesign: "inf-superheroes",
   },
   {
-    id: "bautismos",
-    label: "Bautismos",
-    description: "Invitaciones para bautismos y ceremonias religiosas.",
-    ghost: "BAUTISMOS",
-    kicker: "Para quién es",
-    heroBody: "Para la familia que quiere compartir un bautismo con una invitación cálida y sencilla: datos de la ceremonia, la fiesta después y confirmación de asistencia.",
-    heroImage: "/static/img/categorias/bautismos.png",
-    flagshipDesign: "bau-clasica-dorada",
-  },
-  {
     id: "empresariales",
     label: "Eventos empresariales",
     description: "Conferencias, lanzamientos y aniversarios de empresa.",
@@ -54,6 +44,16 @@ const categories = [
     heroBody: "Para la empresa que organiza una conferencia, un lanzamiento o un aniversario y necesita una invitación con agenda, oradores y registro de asistentes, con tu marca.",
     heroImage: "/static/img/categorias/empresariales.png",
     flagshipDesign: "emp-conferencia-corporativa",
+  },
+  {
+    id: "bautismos",
+    label: "Bautismos",
+    description: "Invitaciones para bautismos y ceremonias religiosas.",
+    ghost: "BAUTISMOS",
+    kicker: "Para quién es",
+    heroBody: "Para la familia que quiere compartir un bautismo con una invitación cálida y sencilla: datos de la ceremonia, la fiesta después y confirmación de asistencia.",
+    heroImage: "/static/img/categorias/bautismos.png",
+    flagshipDesign: "bau-clasica-dorada",
   },
   {
     id: "despedidas",
