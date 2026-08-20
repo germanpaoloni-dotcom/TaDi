@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { despedidaSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "desp-champagne-chic";
 
@@ -85,6 +86,7 @@ function divider() {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#c9a15a");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "17:00"}:00` : `${sampleData.fecha}T${sampleData.hora}:00`, "cd-champ");
   const gal = galleryWidget(d.galeria, "gal-champ");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -107,8 +109,8 @@ function render(data = {}) {
   :root{
     --blush:#f7e0d4;
     --blush-soft:#fbeee6;
-    --gold:#c9a15a;
-    --gold-deep:#a9814a;
+    --gold:${accent};
+    --gold-deep:color-mix(in srgb, ${accent}, black 20%);
     --ink:#2b2320;
     --ink-soft:#5a4c42;
     --cream:#fffaf5;
@@ -160,7 +162,7 @@ function render(data = {}) {
   .dresscode p{margin:0;font-size:.95rem;color:var(--ink-soft);}
 
   .venue-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px;text-align:left;margin-top:8px;}
-  .venue-card{background:#fff;border:1px solid var(--blush);box-shadow:0 6px 22px rgba(201,161,90,.12);padding:30px;border-radius:4px;text-align:center;}
+  .venue-card{background:#fff;border:1px solid var(--blush);box-shadow:0 6px 22px color-mix(in srgb, var(--gold) 12%, transparent);padding:30px;border-radius:4px;text-align:center;}
   .venue-card h3{margin:0 0 10px;font-weight:500;letter-spacing:1px;color:var(--gold-deep);font-size:1.15rem;}
   .venue-card p{margin:0;line-height:1.7;color:var(--ink-soft);}
   .maplink{display:inline-block;margin-top:20px;color:var(--gold-deep);text-decoration:none;border-bottom:1px solid var(--gold);letter-spacing:.5px;font-size:.9rem;}

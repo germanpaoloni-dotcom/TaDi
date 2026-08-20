@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { despedidaSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "desp-tropical-fiesta";
 
@@ -26,12 +27,12 @@ const sampleData = {
 // Motivos tropicales dibujados a mano en SVG inline (hoja de palmera con
 // degradé neón, flor tropical, piña, pin y diamante decorativo) para no
 // depender de ningún set de íconos externo.
-function frondSVG(flip, uid) {
+function frondSVG(flip, uid, accent) {
   const gid = `frondGrad-${uid}`;
   return `<svg class="motif motif-frond${flip ? " flip" : ""}" viewBox="0 0 60 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <defs>
       <linearGradient id="${gid}" x1="0" y1="140" x2="60" y2="0" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stop-color="#ff2f9c"/>
+        <stop offset="0" stop-color="${accent}"/>
         <stop offset="1" stop-color="#1fe8d5"/>
       </linearGradient>
     </defs>
@@ -47,10 +48,11 @@ function frondSVG(flip, uid) {
   </svg>`;
 }
 
-const hibiscusSVG = `<svg class="motif motif-flower" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+function hibiscusSVG(accent) {
+  return `<svg class="motif motif-flower" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <defs>
     <linearGradient id="flowerGrad" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ff2f9c"/>
+      <stop offset="0" stop-color="${accent}"/>
       <stop offset="1" stop-color="#e3c088"/>
     </linearGradient>
   </defs>
@@ -63,6 +65,7 @@ const hibiscusSVG = `<svg class="motif motif-flower" viewBox="0 0 60 60" fill="n
   </g>
   <circle cx="30" cy="30" r="5" fill="#1fe8d5"/>
 </svg>`;
+}
 
 const pineappleSVG = `<svg class="motif motif-pineapple" viewBox="0 0 40 56" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <path d="M8 44 C8 30 8 24 20 24 C32 24 32 30 32 44 C32 51 26 54 20 54 C14 54 8 51 8 44 Z" stroke="currentColor" stroke-width="2.2"/>
@@ -97,6 +100,7 @@ function divider() {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "dark", "#ff2f9c");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "20:00"}:00` : `${sampleData.fecha}T${sampleData.hora}:00`, "cdesp1");
   const gal = galleryWidget(d.galeria, "galesp1");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -120,8 +124,8 @@ function render(data = {}) {
     --bg-1:#170a2c;
     --bg-2:#0d1f22;
     --bg-3:#0a0416;
-    --magenta:#ff2f9c;
-    --magenta-dark:#c21a76;
+    --magenta:${accent};
+    --magenta-dark:color-mix(in srgb, ${accent}, black 25%);
     --teal:#1fe8d5;
     --teal-dark:#0fa89c;
     --gold:#e3c088;
@@ -159,10 +163,10 @@ function render(data = {}) {
   .hero-frond.tr{top:-8px;right:-8px;transform:scaleX(-1);}
   .hero-frond.bl{bottom:-8px;left:-8px;transform:scaleY(-1);}
   .hero-frond.br{bottom:-8px;right:-8px;transform:scale(-1,-1);}
-  .hero-frame{position:relative;z-index:2;width:100%;max-width:460px;margin:0 auto;text-align:center;padding:clamp(36px,8vw,60px) clamp(22px,6vw,40px);border:1.5px solid var(--magenta);border-radius:6px;background:rgba(10,4,20,.35);box-shadow:0 0 0 6px rgba(255,47,156,.08), inset 0 0 40px rgba(255,47,156,.18), 0 0 60px rgba(31,232,213,.12);}
+  .hero-frame{position:relative;z-index:2;width:100%;max-width:460px;margin:0 auto;text-align:center;padding:clamp(36px,8vw,60px) clamp(22px,6vw,40px);border:1.5px solid var(--magenta);border-radius:6px;background:rgba(10,4,20,.35);box-shadow:0 0 0 6px color-mix(in srgb, ${accent} 8%, transparent), inset 0 0 40px color-mix(in srgb, ${accent} 18%, transparent), 0 0 60px rgba(31,232,213,.12);}
   .hero-content{max-width:400px;margin:0 auto;text-align:center;}
   .script-eyebrow{font-family:'Marck Script',cursive;font-size:clamp(1.6rem,5vw,2.1rem);color:var(--gold);margin:0 0 6px;}
-  .hero-content h1{font-size:clamp(2.6rem,10vw,4.1rem);font-weight:800;letter-spacing:.03em;margin:0 0 12px;line-height:1.02;color:var(--cream);text-shadow:0 0 24px rgba(255,47,156,.35);}
+  .hero-content h1{font-size:clamp(2.6rem,10vw,4.1rem);font-weight:800;letter-spacing:.03em;margin:0 0 12px;line-height:1.02;color:var(--cream);text-shadow:0 0 24px color-mix(in srgb, ${accent} 35%, transparent);}
   .hero-sub{font-size:clamp(.82rem,2.4vw,.98rem);letter-spacing:.06em;color:var(--cream-soft);margin:0 0 20px;}
   .hero-date{display:inline-block;padding:9px 22px;border:1px solid var(--gold);border-radius:999px;letter-spacing:.14em;text-transform:uppercase;font-size:clamp(.66rem,1.9vw,.78rem);color:var(--gold);}
 
@@ -186,7 +190,7 @@ function render(data = {}) {
   .plan-card .head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
   .plan-card h3{margin:0;font-size:1.1rem;color:var(--teal);}
   .plan-card p{margin:0;line-height:1.75;color:var(--cream-soft);font-size:.96rem;}
-  .plan-card.dress{background:linear-gradient(135deg,rgba(255,47,156,.16),rgba(31,232,213,.10));border-color:var(--magenta);}
+  .plan-card.dress{background:linear-gradient(135deg,color-mix(in srgb, ${accent} 16%, transparent),rgba(31,232,213,.10));border-color:var(--magenta);}
   .plan-card.dress h3{color:var(--magenta);}
 
   /* ---------- LUGAR ---------- */
@@ -229,10 +233,10 @@ function render(data = {}) {
 
   <div class="hero">
     <div class="hero-bg"></div>
-    <div class="hero-frond tl">${frondSVG(false, "tl")}</div>
-    <div class="hero-frond tr">${frondSVG(false, "tr")}</div>
-    <div class="hero-frond bl">${frondSVG(false, "bl")}</div>
-    <div class="hero-frond br">${frondSVG(false, "br")}</div>
+    <div class="hero-frond tl">${frondSVG(false, "tl", accent)}</div>
+    <div class="hero-frond tr">${frondSVG(false, "tr", accent)}</div>
+    <div class="hero-frond bl">${frondSVG(false, "bl", accent)}</div>
+    <div class="hero-frond br">${frondSVG(false, "br", accent)}</div>
     <div class="hero-frame">
       <div class="hero-content">
         <p class="script-eyebrow">Despedida de</p>
@@ -263,7 +267,7 @@ function render(data = {}) {
           <p>${esc(d.plan)}</p>
         </div>
         <div class="plan-card dress">
-          <div class="head">${hibiscusSVG}<h3>Dress code</h3></div>
+          <div class="head">${hibiscusSVG(accent)}<h3>Dress code</h3></div>
           <p>${esc(d.dressCode)}</p>
         </div>
       </div>
@@ -313,7 +317,7 @@ function render(data = {}) {
   </section>
 
   <footer>
-    <div class="foot-motifs">${frondSVG(false, "fa")}${diamondSVG}${frondSVG(true, "fb")}</div>
+    <div class="foot-motifs">${frondSVG(false, "fa", accent)}${diamondSVG}${frondSVG(true, "fb", accent)}</div>
     <p class="brand">Despedida de ${esc(d.nombre)}</p>
     <p>Organizado con cariño por ${esc(d.organizadores)}</p>
   </footer>

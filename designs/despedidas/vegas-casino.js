@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { despedidaSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "desp-vegas-casino";
 
@@ -89,6 +90,7 @@ function neonDivider() {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "dark", "#d4af37");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "21:00"}:00` : `${sampleData.fecha}T21:00:00`, "cdvegas");
   const gal = galleryWidget(d.galeria, "galvegas");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -114,8 +116,8 @@ function render(data = {}) {
     --red:#8b1a1a;
     --red-dk:#3d0a0a;
     --red-br:#c62828;
-    --gold:#d4af37;
-    --gold-lt:#f3d878;
+    --gold:${accent};
+    --gold-lt:color-mix(in srgb, ${accent}, white 40%);
     --green:#0b3d2e;
     --ink-card:#1c1c1c;
     --cream:#f6efe0;
@@ -159,7 +161,7 @@ function render(data = {}) {
 
   .hero-motifs{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
   .script-name{font-size:clamp(1.6rem,6vw,2.4rem);color:var(--cream);margin:0;}
-  .casino-title{font-size:clamp(2.6rem,11vw,4.6rem);line-height:1.05;letter-spacing:1px;text-transform:uppercase;color:#fff;margin:6px 0 4px;text-shadow:0 2px 0 var(--gold), 0 0 26px rgba(212,175,55,.35);}
+  .casino-title{font-size:clamp(2.6rem,11vw,4.6rem);line-height:1.05;letter-spacing:1px;text-transform:uppercase;color:#fff;margin:6px 0 4px;text-shadow:0 2px 0 var(--gold), 0 0 26px color-mix(in srgb, ${accent} 35%, transparent);}
   .hero-sub{font-size:clamp(.9rem,2.4vw,1.05rem);letter-spacing:.35em;text-transform:uppercase;color:var(--gold-lt);opacity:.95;margin:8px 0 0;}
 
   .hero-invite{margin:26px auto 0;max-width:520px;font-family:'Playfair Display',serif;color:var(--cream);}
@@ -168,18 +170,18 @@ function render(data = {}) {
   .hero-date{letter-spacing:.25em;text-transform:uppercase;font-size:clamp(.75rem,2vw,.9rem);color:var(--night);background:var(--gold);display:inline-block;margin-top:20px;padding:9px 22px;border-radius:30px;font-weight:600;}
 
   section{max-width:820px;margin:0 auto;padding:64px 22px;text-align:center;position:relative;}
-  h2{font-family:'Playfair Display',serif;font-weight:900;letter-spacing:.5px;text-transform:uppercase;font-size:clamp(1.5rem,4.5vw,2.1rem);color:var(--gold-lt);margin:0 0 30px;text-shadow:0 0 12px rgba(212,175,55,.3);}
+  h2{font-family:'Playfair Display',serif;font-weight:900;letter-spacing:.5px;text-transform:uppercase;font-size:clamp(1.5rem,4.5vw,2.1rem);color:var(--gold-lt);margin:0 0 30px;text-shadow:0 0 12px color-mix(in srgb, ${accent} 30%, transparent);}
 
   /* COUNTDOWN */
-  .countdown-wrap{background:linear-gradient(160deg, var(--red) 0%, var(--red-dk) 80%);border:2px solid var(--gold);border-radius:18px;padding:34px 20px;box-shadow:0 0 30px rgba(212,175,55,.2), inset 0 0 40px rgba(0,0,0,.4);}
+  .countdown-wrap{background:linear-gradient(160deg, var(--red) 0%, var(--red-dk) 80%);border:2px solid var(--gold);border-radius:18px;padding:34px 20px;box-shadow:0 0 30px color-mix(in srgb, ${accent} 20%, transparent), inset 0 0 40px rgba(0,0,0,.4);}
   .countdown{display:flex;gap:clamp(10px,4vw,26px);justify-content:center;flex-wrap:wrap;}
   .countdown div{display:flex;flex-direction:column;min-width:58px;}
-  .cd-num{font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.8rem,5vw,2.6rem);color:var(--gold-lt);text-shadow:0 0 10px rgba(212,175,55,.5);}
+  .cd-num{font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.8rem,5vw,2.6rem);color:var(--gold-lt);text-shadow:0 0 10px color-mix(in srgb, ${accent} 50%, transparent);}
   .cd-label{font-size:.66rem;text-transform:uppercase;letter-spacing:2px;color:var(--cream);opacity:.8;}
 
   /* PLAN + DRESS CODE */
   .felt-card{background:linear-gradient(160deg, var(--night-2) 0%, var(--night) 100%);border:2px solid var(--gold);border-radius:16px;padding:clamp(24px,5vw,44px);box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 50px rgba(139,26,26,.18);position:relative;}
-  .felt-card::before{content:"";position:absolute;inset:8px;border:1px dashed rgba(212,175,55,.5);border-radius:10px;pointer-events:none;}
+  .felt-card::before{content:"";position:absolute;inset:8px;border:1px dashed color-mix(in srgb, ${accent} 50%, transparent);border-radius:10px;pointer-events:none;}
   .plan-text{font-size:clamp(1rem,2.4vw,1.15rem);line-height:1.85;color:var(--cream);opacity:.95;}
   .dresscode{margin-top:26px;display:inline-flex;align-items:center;gap:10px;background:rgba(198,40,40,.2);border:1px solid var(--red-br);color:var(--gold-lt);padding:10px 22px;border-radius:30px;font-size:.92rem;letter-spacing:.5px;}
 
@@ -209,7 +211,7 @@ function render(data = {}) {
   .rsvp-whatsapp{font-size:.85rem;color:var(--gold-lt);text-align:center;text-decoration:none;}
   .rsvp-status{text-align:center;color:var(--gold-lt);font-weight:bold;}
 
-  footer{text-align:center;padding:48px 24px 56px;font-size:.85rem;color:var(--cream);opacity:.75;border-top:1px solid rgba(212,175,55,.3);}
+  footer{text-align:center;padding:48px 24px 56px;font-size:.85rem;color:var(--cream);opacity:.75;border-top:1px solid color-mix(in srgb, ${accent} 30%, transparent);}
   footer .motif-chip{margin:0 auto 14px;}
 
   @media (max-width:480px){

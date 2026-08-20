@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { despedidaSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "desp-boho-ultima-fiesta";
 
@@ -92,6 +93,7 @@ function divider() {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#b8623f");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "19:00"}:00` : sampleData.fecha, "cd-boho");
   const gal = galleryWidget(d.galeria, "gal-boho");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -112,8 +114,8 @@ function render(data = {}) {
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Marcellus&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --terracota:#b8623f;
-    --terracota-dark:#8f4a2f;
+    --terracota:${accent};
+    --terracota-dark:color-mix(in srgb, ${accent}, black 20%);
     --mostaza:#d9a441;
     --salvia:#8a9a6b;
     --salvia-dark:#5f6f45;
@@ -165,14 +167,14 @@ function render(data = {}) {
 
   /* ---------- COUNTDOWN ---------- */
   .countdown{display:flex;gap:clamp(14px,4vw,30px);justify-content:center;margin:10px 0 4px;flex-wrap:wrap;}
-  .countdown div{display:flex;flex-direction:column;min-width:60px;background:#fff8ee;border:1px solid var(--crema2);border-radius:14px;padding:14px 10px;box-shadow:0 4px 14px rgba(143,74,47,.1);}
+  .countdown div{display:flex;flex-direction:column;min-width:60px;background:#fff8ee;border:1px solid var(--crema2);border-radius:14px;padding:14px 10px;box-shadow:0 4px 14px color-mix(in srgb, var(--terracota-dark) 10%, transparent);}
   .cd-num{font-family:'Marcellus',serif;font-size:clamp(1.6rem,4.4vw,2.3rem);color:var(--terracota-dark);}
   .cd-label{font-size:.66rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-soft);margin-top:2px;}
 
   /* ---------- PLAN / DRESS CODE ---------- */
   .plan-card{background:#fff8ee;border:1px solid var(--crema2);border-radius:22px;padding:clamp(28px,6vw,44px);position:relative;overflow:hidden;}
   .plan-card .kilim{position:absolute;top:0;left:0;border-radius:0;}
-  .plan-card::before{content:"";position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(184,98,63,.14),transparent 70%);}
+  .plan-card::before{content:"";position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb, var(--terracota) 14%, transparent),transparent 70%);}
   .plan-text{font-size:clamp(1rem,2.4vw,1.15rem);line-height:1.85;color:var(--ink-soft);position:relative;z-index:1;margin-top:16px;}
   .dress-row{margin-top:26px;padding-top:22px;border-top:1px dashed var(--terracota);display:flex;flex-direction:column;gap:6px;align-items:center;position:relative;z-index:1;}
   .dress-label{letter-spacing:2px;text-transform:uppercase;font-size:.7rem;color:var(--salvia-dark);}
