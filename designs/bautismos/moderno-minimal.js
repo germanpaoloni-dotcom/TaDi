@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { bautismoSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "bau-moderno-minimal";
 
@@ -39,6 +40,7 @@ function formatFechaLarga(fechaISO) {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#b9924e");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "11:00"}:00` : sampleData.fecha, "cdb1");
   const gal = galleryWidget(d.galeria, "galb1");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -57,8 +59,8 @@ function render(data = {}) {
     --ink:#4a4642;
     --muted:#9a9188;
     --line:#e7e0d6;
-    --gold:#b9924e;
-    --gold-soft:#e3cd9d;
+    --gold:${accent};
+    --gold-soft:color-mix(in srgb, ${accent}, white 50%);
     --blue:#a9c3d9;
     --blue-deep:#8fadc9;
   }

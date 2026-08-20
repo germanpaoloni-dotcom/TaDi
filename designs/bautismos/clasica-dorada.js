@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { bautismoSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "bau-clasica-dorada";
 
@@ -92,6 +93,7 @@ function divider() {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#b8934f");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "11:00"}:00` : sampleData.fecha, "cd1");
   const gal = galleryWidget(d.galeria, "gal1");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -120,9 +122,9 @@ function render(data = {}) {
 <title>Bautismo de ${esc(d.nombreChico)}</title>
 <style>
   :root{
-    --gold:#b8934f;
-    --gold-dark:#8c6a30;
-    --gold-light:#e4cd98;
+    --gold:${accent};
+    --gold-dark:color-mix(in srgb, ${accent}, black 25%);
+    --gold-light:color-mix(in srgb, ${accent}, white 45%);
     --blush:#e0aab8;
     --blush-dark:#cf8ea0;
     --cream:#faf3e6;
@@ -155,7 +157,7 @@ function render(data = {}) {
   .hero-title{font-size:clamp(2.1rem,7vw,3rem);color:var(--ink);margin:0 0 8px;font-weight:400;}
   .hero-name{font-size:clamp(2.6rem,9vw,4rem);color:var(--gold-dark);margin:2px 0 4px;line-height:1.05;}
 
-  .photo-frame{position:relative;max-width:320px;margin:26px auto 8px;border-radius:50% 50% 6px 6px/22% 22% 6px 6px;overflow:hidden;box-shadow:0 10px 26px rgba(140,106,48,.22);border:6px solid var(--paper);outline:1px solid var(--gold-light);}
+  .photo-frame{position:relative;max-width:320px;margin:26px auto 8px;border-radius:50% 50% 6px 6px/22% 22% 6px 6px;overflow:hidden;box-shadow:0 10px 26px color-mix(in srgb, var(--gold-dark) 22%, transparent);border:6px solid var(--paper);outline:1px solid var(--gold-light);}
   .photo-frame img{width:100%;height:360px;object-fit:cover;}
 
   .message{font-size:clamp(1rem,2.4vw,1.15rem);line-height:1.85;font-style:italic;color:var(--ink-soft);margin:22px auto 8px;max-width:480px;}
@@ -182,7 +184,7 @@ function render(data = {}) {
   .section-head .kicker h2{display:inline-block;border-bottom:1px solid var(--gold-light);padding-bottom:8px;}
 
   /* ---- Countdown / gran día ---- */
-  .diacard{background:var(--paper);border:1px solid var(--cream2);border-radius:6px;padding:30px 20px 26px;box-shadow:0 6px 22px rgba(140,106,48,.1);}
+  .diacard{background:var(--paper);border:1px solid var(--cream2);border-radius:6px;padding:30px 20px 26px;box-shadow:0 6px 22px color-mix(in srgb, var(--gold-dark) 10%, transparent);}
   .diacard .mesanio{text-transform:uppercase;letter-spacing:2px;font-size:1rem;color:var(--gold-dark);margin-bottom:18px;}
   .countdown{display:flex;gap:clamp(10px,4vw,26px);justify-content:center;flex-wrap:wrap;}
   .countdown div{display:flex;flex-direction:column;min-width:50px;}
@@ -191,7 +193,7 @@ function render(data = {}) {
 
   /* ---- Ubicación ---- */
   .timeline{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
-  .timeline .card{background:var(--paper);border:1px solid var(--cream2);box-shadow:0 4px 18px rgba(140,106,48,.09);padding:30px 26px;border-radius:6px;min-width:220px;flex:1 1 220px;max-width:280px;}
+  .timeline .card{background:var(--paper);border:1px solid var(--cream2);box-shadow:0 4px 18px color-mix(in srgb, var(--gold-dark) 9%, transparent);padding:30px 26px;border-radius:6px;min-width:220px;flex:1 1 220px;max-width:280px;}
   .timeline .card .ico{width:28px;height:28px;margin:0 auto 14px;color:var(--gold);}
   .timeline .card h3{margin:0 0 10px;color:var(--ink);font-weight:400;letter-spacing:.5px;font-size:1.02rem;}
   .timeline .card .hora{color:var(--gold-dark);font-weight:bold;font-size:.85rem;margin-bottom:6px;}

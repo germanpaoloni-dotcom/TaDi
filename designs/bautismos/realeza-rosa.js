@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { bautismoSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "bau-realeza-rosa";
 
@@ -26,6 +27,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#e7a9c2");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "13:00"}:00` : sampleData.fecha, "cd5");
   const gal = galleryWidget(d.galeria || [], "gal5");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -47,8 +49,8 @@ function render(data = {}) {
     --rosa-fondo:#fbe6ee;
     --rosa-fondo2:#f6d3e1;
     --crema:#fffaf6;
-    --rosa:#e7a9c2;
-    --rosa-fuerte:#c96f92;
+    --rosa:${accent};
+    --rosa-fuerte:color-mix(in srgb, ${accent}, black 20%);
     --dorado:#b98a63;
     --dorado-claro:#e3c9a8;
     --verde:#8a9b76;
@@ -76,8 +78,8 @@ function render(data = {}) {
     padding:clamp(40px,9vw,72px) 20px clamp(50px,9vw,80px);
     text-align:center;
     background:
-      radial-gradient(ellipse at top left, rgba(231,169,194,.55), transparent 55%),
-      radial-gradient(ellipse at bottom right, rgba(231,169,194,.45), transparent 55%),
+      radial-gradient(ellipse at top left, color-mix(in srgb, var(--rosa) 55%, transparent), transparent 55%),
+      radial-gradient(ellipse at bottom right, color-mix(in srgb, var(--rosa) 45%, transparent), transparent 55%),
       var(--rosa-fondo);
     overflow:hidden;
   }
@@ -122,7 +124,7 @@ function render(data = {}) {
     border:4px solid #fff;
     outline:1px solid var(--dorado-claro);
     outline-offset:6px;
-    box-shadow:0 8px 26px rgba(201,111,146,.3);
+    box-shadow:0 8px 26px color-mix(in srgb, var(--rosa-fuerte) 30%, transparent);
     position:relative;z-index:2;
   }
 
@@ -180,7 +182,7 @@ function render(data = {}) {
     border-radius:14px;
     padding:clamp(10px,2.5vw,16px) clamp(12px,3vw,20px);
     min-width:66px;
-    box-shadow:0 4px 14px rgba(201,111,146,.14);
+    box-shadow:0 4px 14px color-mix(in srgb, var(--rosa-fuerte) 14%, transparent);
   }
   .cd-num{display:block;font-family:'Cinzel',serif;font-size:clamp(1.3rem,4vw,1.9rem);color:var(--rosa-fuerte);font-weight:600;}
   .cd-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dorado);}
@@ -195,14 +197,14 @@ function render(data = {}) {
     border:1px solid rgba(185,138,99,.3);
     border-radius:16px;
     padding:16px 20px;
-    box-shadow:0 4px 14px rgba(201,111,146,.1);
+    box-shadow:0 4px 14px color-mix(in srgb, var(--rosa-fuerte) 10%, transparent);
   }
   .timeline .dot{
     flex:0 0 auto;width:38px;height:38px;border-radius:50%;
     background:linear-gradient(135deg,var(--rosa),var(--dorado-claro));
     display:flex;align-items:center;justify-content:center;
     font-size:1.05rem;color:#fff;
-    box-shadow:0 2px 8px rgba(201,111,146,.3);
+    box-shadow:0 2px 8px color-mix(in srgb, var(--rosa-fuerte) 30%, transparent);
   }
   .timeline .item h3{margin:0 0 2px;font-size:1.1rem;color:var(--rosa-fuerte);}
   .timeline .item p{margin:0;font-size:.95rem;color:var(--texto);}
@@ -225,7 +227,7 @@ function render(data = {}) {
     padding:24px 26px;
     min-width:210px;
     max-width:280px;
-    box-shadow:0 4px 14px rgba(201,111,146,.12);
+    box-shadow:0 4px 14px color-mix(in srgb, var(--rosa-fuerte) 12%, transparent);
   }
   .familia .card .icon{width:26px;height:26px;margin:0 auto 8px;color:var(--dorado);}
   .familia .card h3{
@@ -269,7 +271,7 @@ function render(data = {}) {
     border:0;color:#fff;font-weight:600;padding:13px;border-radius:10px;
     cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:.85rem;
     font-family:'Cinzel',serif;
-    box-shadow:0 6px 18px rgba(201,111,146,.4);
+    box-shadow:0 6px 18px color-mix(in srgb, var(--rosa-fuerte) 40%, transparent);
   }
   .rsvp-whatsapp{text-align:center;color:var(--dorado);font-size:.9rem;text-decoration:none;border-bottom:1px solid var(--dorado);align-self:center;padding-bottom:2px;}
   .rsvp-status{text-align:center;color:var(--verde);font-weight:600;margin:0;}
@@ -277,7 +279,7 @@ function render(data = {}) {
   footer{
     text-align:center;padding:40px 20px 50px;
     color:var(--dorado);font-size:1rem;font-style:italic;
-    background:linear-gradient(180deg,transparent,rgba(231,169,194,.25));
+    background:linear-gradient(180deg,transparent,color-mix(in srgb, var(--rosa) 25%, transparent));
   }
   footer .cross-mini{width:22px;height:22px;display:block;margin:0 auto 8px;color:var(--rosa-fuerte);}
 
@@ -296,13 +298,13 @@ function render(data = {}) {
 
     <div class="cross-wrap">
       <svg viewBox="0 0 100 140" width="160" height="224" role="img" aria-label="Cruz decorativa">
-        <rect x="40" y="8" width="20" height="124" rx="6" fill="#f3d3e0" stroke="#e7a9c2" stroke-width="1.5"/>
-        <rect x="14" y="42" width="72" height="20" rx="6" fill="#f3d3e0" stroke="#e7a9c2" stroke-width="1.5"/>
+        <rect x="40" y="8" width="20" height="124" rx="6" fill="#f3d3e0" stroke="var(--rosa)" stroke-width="1.5"/>
+        <rect x="14" y="42" width="72" height="20" rx="6" fill="#f3d3e0" stroke="var(--rosa)" stroke-width="1.5"/>
         <g fill="none" stroke="#8a9b76" stroke-width="2" stroke-linecap="round">
-          <path d="M50 24 C40 18, 34 26, 40 34 C46 40, 50 30, 50 24Z" fill="#e7a9c2" stroke="#c96f92"/>
-          <path d="M50 24 C60 18, 66 26, 60 34 C54 40, 50 30, 50 24Z" fill="#f6d3e1" stroke="#c96f92"/>
-          <path d="M30 50 C22 46, 18 54, 24 58 C30 62, 32 54, 30 50Z" fill="#e7a9c2" stroke="#c96f92"/>
-          <path d="M70 50 C78 46, 82 54, 76 58 C70 62, 68 54, 70 50Z" fill="#f6d3e1" stroke="#c96f92"/>
+          <path d="M50 24 C40 18, 34 26, 40 34 C46 40, 50 30, 50 24Z" fill="var(--rosa)" stroke="var(--rosa-fuerte)"/>
+          <path d="M50 24 C60 18, 66 26, 60 34 C54 40, 50 30, 50 24Z" fill="#f6d3e1" stroke="var(--rosa-fuerte)"/>
+          <path d="M30 50 C22 46, 18 54, 24 58 C30 62, 32 54, 30 50Z" fill="var(--rosa)" stroke="var(--rosa-fuerte)"/>
+          <path d="M70 50 C78 46, 82 54, 76 58 C70 62, 68 54, 70 50Z" fill="#f6d3e1" stroke="var(--rosa-fuerte)"/>
         </g>
       </svg>
     </div>

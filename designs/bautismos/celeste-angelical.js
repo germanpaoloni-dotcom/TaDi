@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { bautismoSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "bau-celeste-angelical";
 
@@ -52,6 +53,7 @@ function hydrangeaSvg(w, h) {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#7c93c4");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "11:00"}:00` : sampleData.fecha, "cd-cel");
   const gal = galleryWidget(d.galeria, "gal-cel");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -73,8 +75,8 @@ function render(data = {}) {
     --cream:#fbfaf7;
     --ink:#40506a;
     --ink-soft:#6b7a91;
-    --periwinkle:#7c93c4;
-    --periwinkle-dk:#5c74a6;
+    --periwinkle:${accent};
+    --periwinkle-dk:color-mix(in srgb, ${accent}, black 20%);
     --hydrangea:#a9c3ea;
     --sky:#e7eef9;
     --sage:#8ea88f;
@@ -240,7 +242,7 @@ function render(data = {}) {
     font-size:.78rem;
     letter-spacing:2px;
     text-transform:uppercase;
-    box-shadow:0 6px 16px rgba(92,116,166,.28);
+    box-shadow:0 6px 16px color-mix(in srgb, var(--periwinkle-dk) 28%, transparent);
   }
 
   /* ---------- countdown ---------- */
@@ -251,14 +253,14 @@ function render(data = {}) {
     border-radius:14px;
     padding:14px 16px;
     min-width:62px;
-    box-shadow:0 6px 16px rgba(124,147,196,.18);
+    box-shadow:0 6px 16px color-mix(in srgb, var(--periwinkle) 18%, transparent);
   }
   .cd-num{font-size:1.5rem;color:var(--periwinkle-dk);font-weight:bold;}
   .cd-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);}
 
   /* ---------- galería ---------- */
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;}
-  .gallery-item img{width:100%;height:150px;object-fit:cover;border-radius:10px;cursor:pointer;box-shadow:0 6px 14px rgba(124,147,196,.2);}
+  .gallery-item img{width:100%;height:150px;object-fit:cover;border-radius:10px;cursor:pointer;box-shadow:0 6px 14px color-mix(in srgb, var(--periwinkle) 20%, transparent);}
   .lightbox{display:none;position:fixed;inset:0;background:rgba(30,40,60,.92);align-items:center;justify-content:center;z-index:50;}
   .lightbox.open{display:flex;}
   .lightbox img{max-width:90%;max-height:85%;border-radius:8px;}

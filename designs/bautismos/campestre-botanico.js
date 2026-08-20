@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { bautismoSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "bau-campestre-botanico";
 
@@ -26,6 +27,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#b8935a");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "11:00"}:00` : sampleData.fecha, "cdbau");
   const gal = galleryWidget(d.galeria, "galbau");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -54,8 +56,8 @@ function render(data = {}) {
     --sage:#93a67e;
     --sage-dark:#5b6e46;
     --sage-pale:#eef2e6;
-    --gold:#b8935a;
-    --gold-dark:#8f6f3d;
+    --gold:${accent};
+    --gold-dark:color-mix(in srgb, ${accent}, black 24%);
     --cream:#fbf9f2;
     --ink:#4a4335;
   }
@@ -67,7 +69,7 @@ function render(data = {}) {
     background:var(--cream);
     background-image:
       radial-gradient(circle at 6% 8%, rgba(147,166,126,.16) 0, transparent 42%),
-      radial-gradient(circle at 96% 14%, rgba(184,147,90,.10) 0, transparent 38%),
+      radial-gradient(circle at 96% 14%, color-mix(in srgb, var(--gold) 10%, transparent) 0, transparent 38%),
       radial-gradient(circle at 90% 92%, rgba(147,166,126,.14) 0, transparent 42%);
     color:var(--ink);
     line-height:1.7;
