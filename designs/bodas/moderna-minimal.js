@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { bodaSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "boda-moderna-minimal";
 
@@ -45,6 +46,7 @@ const DIAS_ES = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES"
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#6d7a52");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "18:00"}:00` : sampleData.fecha, "cd3");
   const gal = galleryWidget(d.galeria, "gal3");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
@@ -73,9 +75,9 @@ function render(data = {}) {
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --olive:#6d7a52;
-    --olive-dark:#4a5236;
-    --olive-light:#a3af84;
+    --olive:${accent};
+    --olive-dark:color-mix(in srgb, ${accent}, black 33%);
+    --olive-light:color-mix(in srgb, ${accent}, white 35%);
     --sage-bg:#eef1e3;
     --cream:#fdfcf7;
     --ink:#3c3c2e;
@@ -130,7 +132,7 @@ function render(data = {}) {
 
   /* --- countdown --- */
   .countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
-  .countdown > div{background:#fff;border:1px solid var(--line);min-width:74px;padding:16px 8px;border-radius:3px;text-align:center;box-shadow:0 2px 8px rgba(74,82,54,.06);}
+  .countdown > div{background:#fff;border:1px solid var(--line);min-width:74px;padding:16px 8px;border-radius:3px;text-align:center;box-shadow:0 2px 8px color-mix(in srgb, var(--olive-dark) 6%, transparent);}
   .cd-num{display:block;font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,5vw,2.3rem);color:var(--olive-dark);font-weight:600;}
   .cd-label{font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:#8b8b73;}
 

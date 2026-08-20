@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { bodaSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "boda-romantica-jardin";
 
@@ -26,14 +27,14 @@ const sampleData = {
 let _sealCounter = 0;
 
 // Sello de lacre dorado con las iniciales de los novios, como en tarjetería clásica.
-function waxSealSVG(size = 64, initials = "") {
+function waxSealSVG(size = 64, initials = "", gold = "#b8923f") {
   _sealCounter++;
   const gid = `goldGrad${_sealCounter}`;
   return `<svg class="wax-seal" width="${size}" height="${size}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <radialGradient id="${gid}" cx="35%" cy="30%" r="75%">
         <stop offset="0%" stop-color="#ecd49a"/>
-        <stop offset="55%" stop-color="#b8923f"/>
+        <stop offset="55%" stop-color="${gold}"/>
         <stop offset="100%" stop-color="#83621f"/>
       </radialGradient>
     </defs>
@@ -56,7 +57,7 @@ function anthuriumSVG(size = 46) {
 }
 
 // Ramita de hojas oliva usada como divisor entre secciones.
-function sprigSVG(w = 130, rotate = 0) {
+function sprigSVG(w = 130, rotate = 0, gold = "#b8923f") {
   return `<svg class="sprig" width="${w}" height="${Math.round(w * 0.5)}" viewBox="0 0 130 65" style="transform:rotate(${rotate}deg)" xmlns="http://www.w3.org/2000/svg">
     <path d="M4 58 C 32 40, 58 46, 124 8" fill="none" stroke="#6f7a52" stroke-width="1.5" stroke-linecap="round"/>
     <g fill="#7f8a5f" opacity=".85">
@@ -66,28 +67,28 @@ function sprigSVG(w = 130, rotate = 0) {
     </g>
     <g transform="translate(108,10)">
       <circle cx="0" cy="0" r="6" fill="#8a2432" opacity=".85"/>
-      <circle cx="7" cy="4" r="5" fill="#b8923f" opacity=".8"/>
+      <circle cx="7" cy="4" r="5" fill="${gold}" opacity=".8"/>
       <circle cx="-2" cy="7" r="5" fill="#8a2432" opacity=".7"/>
     </g>
   </svg>`;
 }
 
 // Filete decorativo con hojas y punto dorado central, usado como separador de línea.
-function leafDividerSVG() {
+function leafDividerSVG(gold = "#b8923f") {
   return `<svg class="leaf-divider" width="180" height="22" viewBox="0 0 180 22" xmlns="http://www.w3.org/2000/svg">
     <path d="M2 11 C 60 2, 120 20, 178 11" fill="none" stroke="#6f7a52" stroke-width="1.2"/>
     <g fill="#7f8a5f">
       <path d="M42 11 C 47 4, 55 4, 59 11 C 55 18, 47 18, 42 11 Z"/>
       <path d="M121 11 C 126 4, 134 4, 138 11 C 134 18, 126 18, 121 11 Z"/>
     </g>
-    <circle cx="90" cy="11" r="4" fill="#b8923f"/>
+    <circle cx="90" cy="11" r="4" fill="${gold}"/>
   </svg>`;
 }
 
 // Icono floral pequeño en oro/vino para encabezar tarjetas (ceremonia, fiesta, etc).
-function goldBlossomSVG(size = 22) {
+function goldBlossomSVG(size = 22, gold = "#b8923f") {
   return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-    <g fill="#b8923f">
+    <g fill="${gold}">
       <ellipse cx="20" cy="10" rx="6.5" ry="8.5" opacity=".9"/>
       <ellipse cx="20" cy="30" rx="6.5" ry="8.5" opacity=".9"/>
       <ellipse cx="10" cy="20" rx="8.5" ry="6.5" opacity=".9"/>
@@ -115,6 +116,7 @@ function toileTileSVG() {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#b8923f");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "17:00"}:00` : sampleData.fecha, "cdjardin");
   const gal = galleryWidget(d.galeria, "galjardin");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
@@ -131,7 +133,7 @@ function render(data = {}) {
   :root{
     --wine:#3d1620; --wine-deep:#2a0f16; --wine-light:#6b2632;
     --olive:#6f7a52; --olive-dark:#565f3f;
-    --gold:#b8923f; --gold-light:#e2cd94;
+    --gold:${accent}; --gold-light:color-mix(in srgb, ${accent}, white 40%);
     --cream:#efe8d8; --paper:#fbf7ef; --ink:#3a2a20;
   }
   *{box-sizing:border-box;}
@@ -168,7 +170,7 @@ function render(data = {}) {
 
   /* COUNTDOWN */
   .countdown{display:flex;gap:clamp(8px,3vw,20px);justify-content:center;flex-wrap:wrap;margin:22px 0 0;}
-  .countdown div{display:flex;flex-direction:column;background:rgba(255,255,255,.06);border:1px solid rgba(226,205,148,.35);border-radius:14px;width:clamp(62px,16vw,84px);height:clamp(62px,16vw,84px);align-items:center;justify-content:center;}
+  .countdown div{display:flex;flex-direction:column;background:rgba(255,255,255,.06);border:1px solid color-mix(in srgb, var(--gold-light) 35%, transparent);border-radius:14px;width:clamp(62px,16vw,84px);height:clamp(62px,16vw,84px);align-items:center;justify-content:center;}
   .cd-num{font-family:'Playfair Display',serif;font-size:clamp(1.15rem,4vw,1.6rem);color:var(--gold-light);}
   .cd-label{font-size:.6rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--paper);opacity:.75;margin-top:3px;}
 
@@ -181,7 +183,7 @@ function render(data = {}) {
 
   /* CRONOGRAMA */
   .timeline{list-style:none;margin:26px 0 0;padding:0;text-align:left;display:flex;flex-direction:column;gap:0;position:relative;}
-  .timeline::before{content:"";position:absolute;left:20px;top:6px;bottom:6px;width:1px;background:rgba(226,205,148,.4);}
+  .timeline::before{content:"";position:absolute;left:20px;top:6px;bottom:6px;width:1px;background:color-mix(in srgb, var(--gold-light) 40%, transparent);}
   .timeline li{position:relative;padding:0 0 26px 52px;}
   .timeline li:last-child{padding-bottom:0;}
   .timeline li::before{content:"";position:absolute;left:14px;top:4px;width:13px;height:13px;border-radius:50%;background:var(--gold);border:2px solid var(--wine);}
@@ -234,18 +236,18 @@ function render(data = {}) {
       <div class="eyebrow">Nos casamos</div>
       <h1>${esc(d.novia)} <span class="amp">&amp;</span> ${esc(d.novio)}</h1>
       <div class="hero-frame"><img src="${esc(d.coverImage)}" alt="${esc(d.novia)} y ${esc(d.novio)}"></div>
-      <div class="hero-seal">${waxSealSVG(56, iniciales)}</div>
+      <div class="hero-seal">${waxSealSVG(56, iniciales, accent)}</div>
       <div class="fecha-linda">${fechaLarga(d.fecha)}</div>
     </div>
   </div>
 
   <section>
-    <div class="divider-flor">${sprigSVG(130, 0)}</div>
+    <div class="divider-flor">${sprigSVG(130, 0, accent)}</div>
     <p class="eyebrow">Ceremonia y recepción</p>
     <h2 class="section-title">¿Dónde y cuándo?</h2>
     <div class="dark-card">
       <div class="info-row">
-        <div class="item">${goldBlossomSVG(20)} <div><strong>${esc(d.horaCeremonia)} hs</strong><br>${esc(d.lugarCeremonia)}</div></div>
+        <div class="item">${goldBlossomSVG(20, accent)} <div><strong>${esc(d.horaCeremonia)} hs</strong><br>${esc(d.lugarCeremonia)}</div></div>
       </div>
       ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
     </div>
@@ -272,14 +274,14 @@ function render(data = {}) {
   </section>
 
   <section>
-    ${leafDividerSVG()}
+    ${leafDividerSVG(accent)}
     <div class="paper-card">
       <p class="message">${esc(d.mensaje)}</p>
     </div>
   </section>
 
   <section>
-    <div class="divider-flor">${sprigSVG(130, 180)}</div>
+    <div class="divider-flor">${sprigSVG(130, 180, accent)}</div>
     <p class="eyebrow">Detalles</p>
     <h2 class="section-title">Para tener en cuenta</h2>
     <div class="pill-row">
@@ -305,7 +307,7 @@ function render(data = {}) {
   </section>
 
   <section>
-    ${leafDividerSVG()}
+    ${leafDividerSVG(accent)}
     <p class="eyebrow">Por favor confirmá</p>
     <h2 class="section-title">Confirmar asistencia</h2>
     ${rsvp.html}
@@ -313,7 +315,7 @@ function render(data = {}) {
 
   <footer>
     <div class="inner">
-      ${waxSealSVG(46, iniciales)}
+      ${waxSealSVG(46, iniciales, accent)}
       <span class="script">${esc(d.novia)} &amp; ${esc(d.novio)}</span>
       <p>Con todo nuestro cariño, gracias por ser parte de este día.</p>
     </div>

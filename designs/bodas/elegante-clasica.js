@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { bodaSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "boda-elegante-clasica";
 
@@ -23,6 +24,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#c9a86a");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "18:00"}:00` : sampleData.fecha, "cd1");
   const gal = galleryWidget(d.galeria, "gal1");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
@@ -62,8 +64,8 @@ function render(data = {}) {
     --green-dark:#0f1a15;
     --green:#152621;
     --green-2:#1c332a;
-    --gold:#c9a86a;
-    --gold-light:#e6d2a2;
+    --gold:${accent};
+    --gold-light:color-mix(in srgb, ${accent}, white 40%);
     --cream:#f7f1e2;
     --cream-2:#efe6cf;
     --ink:#2a2620;
@@ -85,7 +87,7 @@ function render(data = {}) {
     background:
       radial-gradient(circle at 18% 8%, rgba(255,255,255,.05), transparent 42%),
       radial-gradient(circle at 85% 92%, rgba(255,255,255,.05), transparent 45%),
-      radial-gradient(circle at 60% 40%, rgba(201,168,106,.06), transparent 55%),
+      radial-gradient(circle at 60% 40%, color-mix(in srgb, ${accent} 6%, transparent), transparent 55%),
       linear-gradient(160deg, #16241d 0%, #0d1611 55%, #1a2b22 100%);
     color:var(--cream);
     overflow:hidden;
@@ -99,7 +101,7 @@ function render(data = {}) {
   }
   .hero::after{
     content:"";position:absolute;inset:14px;
-    border:1px solid rgba(201,168,106,.55);
+    border:1px solid color-mix(in srgb, ${accent} 55%, transparent);
     pointer-events:none;
   }
   .hero-content{position:relative;z-index:1;max-width:520px;}
@@ -203,7 +205,7 @@ function render(data = {}) {
 
   /* ---------- GALLERY (widget) ---------- */
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:10px;}
-  .gallery-item{border:1px solid rgba(201,168,106,.4);overflow:hidden;}
+  .gallery-item{border:1px solid color-mix(in srgb, ${accent} 40%, transparent);overflow:hidden;}
   .gallery img{width:100%;height:150px;object-fit:cover;display:block;cursor:pointer;filter:saturate(.95);transition:transform .4s ease;}
   .gallery img:hover{transform:scale(1.05);}
   .lightbox{display:none;position:fixed;inset:0;background:rgba(9,15,12,.94);align-items:center;justify-content:center;z-index:50;padding:20px;}
@@ -218,7 +220,7 @@ function render(data = {}) {
     font-family:'Jost',sans-serif;font-size:.95rem;
     background:rgba(247,241,226,.06);
     color:var(--cream);
-    padding:11px 12px;border:1px solid rgba(201,168,106,.5);
+    padding:11px 12px;border:1px solid color-mix(in srgb, ${accent} 50%, transparent);
     width:100%;
   }
   .rsvp-form input::placeholder,.rsvp-form textarea::placeholder{color:rgba(247,241,226,.45);}

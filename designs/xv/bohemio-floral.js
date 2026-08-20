@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { xvSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "xv-bohemio-floral";
 
@@ -63,6 +64,7 @@ function sprig(w = 70) {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#a9825a");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha, "cd5");
   const gal = galleryWidget(d.galeria, "gal5");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -87,7 +89,7 @@ function render(data = {}) {
 <style>
   :root{
     --cream:#fffaf3; --paper:#fdf5ea; --blush:#f4ddd2; --rose:#d9a988;
-    --gold:#a9825a; --sage:#8a9b6f; --brown:#4a3c32; --muted:#8a7a6c;
+    --gold:${accent}; --sage:#8a9b6f; --brown:#4a3c32; --muted:#8a7a6c;
     --beige:#f1e5d5; --line:#e5d6c6;
   }
   *{box-sizing:border-box;}

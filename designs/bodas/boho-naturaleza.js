@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { bodaSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "boda-boho-naturaleza";
 
@@ -54,6 +55,7 @@ function inicial(nombre) {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "dark", "#c9b790");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "18:00"}:00` : sampleData.fecha, "cdboho");
   const gal = galleryWidget(d.galeria, "galboho");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -67,7 +69,7 @@ function render(data = {}) {
 <style>
   :root{
     --olive:#4c5535; --olive-dark:#383f27; --tan:#c9b790; --tan-dark:#a68f68;
-    --cream:#f5efe1; --ink:#3c3524;
+    --cream:#f5efe1; --ink:#3c3524; --tan-accent:${accent};
   }
   *{box-sizing:border-box;}
   html,body{max-width:100%;overflow-x:hidden;}
@@ -82,16 +84,16 @@ function render(data = {}) {
   .wrap{max-width:720px;margin:0 auto;text-align:center;position:relative;}
 
   .kicker{text-transform:uppercase;letter-spacing:4px;font-size:clamp(.65rem,2vw,.78rem);opacity:.85;margin:0 0 10px;}
-  .band-olive .kicker,.band-olive-dark .kicker{color:var(--tan);}
+  .band-olive .kicker,.band-olive-dark .kicker{color:var(--tan-accent);}
   .band-tan .kicker{color:var(--olive-dark);}
 
-  .monogram{width:clamp(72px,18vw,96px);height:clamp(72px,18vw,96px);border:1px solid var(--tan);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:clamp(1.2rem,4vw,1.6rem);letter-spacing:1px;}
+  .monogram{width:clamp(72px,18vw,96px);height:clamp(72px,18vw,96px);border:1px solid var(--tan-accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:clamp(1.2rem,4vw,1.6rem);letter-spacing:1px;}
 
   .cover-wrap{background:var(--cream);padding:clamp(24px,5vw,44px) 20px 0;text-align:center;}
   .cover-photo{width:100%;max-width:520px;height:clamp(240px,44vw,400px);object-fit:cover;border-radius:6px 70px 6px 70px;box-shadow:0 14px 30px rgba(60,53,36,.18);}
 
   .names{font-size:clamp(2.4rem,7vw,3.8rem);margin:8px 0 4px;}
-  .fecha-grande{font-family:'Fraunces',serif;font-style:italic;font-size:clamp(1.6rem,5vw,2.4rem);letter-spacing:2px;margin:14px 0 4px;color:var(--tan);}
+  .fecha-grande{font-family:'Fraunces',serif;font-style:italic;font-size:clamp(1.6rem,5vw,2.4rem);letter-spacing:2px;margin:14px 0 4px;color:var(--tan-accent);}
   .lugar-chico{font-size:.95rem;letter-spacing:1px;text-transform:uppercase;opacity:.85;margin:0 0 18px;}
   .message{font-size:clamp(1rem,2.3vw,1.15rem);max-width:560px;margin:14px auto 0;line-height:1.85;}
 
@@ -115,7 +117,7 @@ function render(data = {}) {
   .cd-num{font-family:'Fraunces',serif;font-size:clamp(1.2rem,4vw,1.7rem);}
   .cd-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1px;opacity:.75;}
 
-  .alias-box{display:inline-block;margin-top:14px;border:1px dashed var(--tan);border-radius:10px;padding:10px 20px;font-family:'Fraunces',serif;letter-spacing:.5px;}
+  .alias-box{display:inline-block;margin-top:14px;border:1px dashed var(--tan-accent);border-radius:10px;padding:10px 20px;font-family:'Fraunces',serif;letter-spacing:.5px;}
 
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;max-width:720px;margin:26px auto 0;padding:0 4px;}
   .gallery img{width:100%;height:clamp(120px,22vw,190px);object-fit:cover;border-radius:6px 34px 6px 34px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.25);}
@@ -133,13 +135,13 @@ function render(data = {}) {
   .rsvp-status{text-align:center;color:var(--olive-dark);font-weight:500;}
 
   footer.band{text-align:center;font-size:.85rem;padding-top:60px;padding-bottom:50px;}
-  footer .script{font-family:'Fraunces',serif;font-style:italic;font-size:1.6rem;display:block;margin-bottom:10px;color:var(--tan);}
+  footer .script{font-family:'Fraunces',serif;font-style:italic;font-size:1.6rem;display:block;margin-bottom:10px;color:var(--tan-accent);}
 </style></head>
 <body>
 
   <div class="band band-olive">
     <div class="wrap">
-      ${branchSVG(120, "#c9b790")}
+      ${branchSVG(120, accent)}
       <div class="monogram">${inicial(d.novia)}<span class="amp">&amp;</span>${inicial(d.novio)}</div>
       <p class="kicker">Nos casamos</p>
     </div>
@@ -155,7 +157,7 @@ function render(data = {}) {
       <h1 class="names">${esc(d.novia)}<span class="amp"> &amp; </span>${esc(d.novio)}</h1>
       <p class="fecha-grande">${fechaCorta(d.fecha)}</p>
       <p class="lugar-chico">${esc(d.lugarFiesta || d.lugarCeremonia)}</p>
-      ${dividerSVG("#c9b790")}
+      ${dividerSVG(accent)}
       <p class="message">${esc(d.mensaje)}</p>
     </div>
   </div>
@@ -223,7 +225,7 @@ function render(data = {}) {
   <footer class="band band-olive-dark">
     <span class="script">${esc(d.novia)} &amp; ${esc(d.novio)}</span>
     Con todo nuestro cariño, gracias por ser parte de este día.
-    ${branchSVG(110, "#c9b790")}
+    ${branchSVG(110, accent)}
   </footer>
 
   <script>${cd.script}${gal.script}${rsvp.script}</script>

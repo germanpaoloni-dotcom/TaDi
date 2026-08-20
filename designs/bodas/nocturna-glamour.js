@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { bodaSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "boda-nocturna-glamour";
 
@@ -28,7 +29,6 @@ const sampleData = {
 // --- Paleta base (compartida entre el CSS y los SVG generados acá) ---
 const DEEP = "#0e1f18";   // negro-verdoso, fondo principal oscuro
 const DEEP2 = "#173328";  // verde esmeralda oscuro, tarjetas/paneles
-const EMER = "#2f5c46";   // verde esmeralda medio, líneas/bordes
 const CREAM = "#ddd2b8";  // beige/crema, fondo claro
 const CREAM2 = "#efe8d6"; // crema claro, tarjetas sobre crema
 const INK = "#152a20";    // verde muy oscuro, texto sobre crema
@@ -97,6 +97,7 @@ function tornEdgeSVG(fill, flip = false) {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const EMER = getPaletteColor(d.colorPalette, "dark", "#2f5c46"); // verde esmeralda medio, líneas/bordes
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "20:00"}:00` : sampleData.fecha, "cd1");
   const gal = galleryWidget(d.galeria, "gal1");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
