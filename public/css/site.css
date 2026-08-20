@@ -1,8 +1,8 @@
 :root{
-  --bg:#141318;
-  --bg-2:#1c1b22;
-  --card:#1f1e26;
-  --line:#33323c;
+  --bg:#20232a;
+  --bg-2:#171920;
+  --card:#282b33;
+  --line:#3a3d46;
   --ink:#f5f2ea;
   --muted:#a39ea8;
   --accent:#ff7a3d;
@@ -10,7 +10,7 @@
   --radius:16px;
 }
 *{box-sizing:border-box;}
-body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--ink);}
+body{margin:0;font-family:'Helvetica Neue',Arial,sans-serif;background:var(--bg-2) linear-gradient(180deg,#262931 0%,var(--bg-2) 640px);color:var(--ink);}
 a{color:var(--accent);}
 
 /* ---------- header / chrome ---------- */
@@ -84,7 +84,7 @@ footer.site{text-align:center;padding:34px;color:var(--muted);font-size:.8rem;bo
 .design-card p{margin:0;font-size:.85rem;color:var(--muted);flex:1;line-height:1.5;}
 .design-card .actions{display:flex;gap:8px;margin-top:8px;}
 .btn{display:inline-block;padding:11px 16px;border-radius:8px;text-decoration:none;font-size:.85rem;font-weight:600;text-align:center;border:1px solid transparent;cursor:pointer;}
-.btn-primary{background:var(--accent);color:#141318;}
+.btn-primary{background:var(--accent);color:var(--bg);}
 .btn-outline{background:transparent;border-color:var(--line);color:var(--ink);}
 .price-tag{font-weight:700;color:var(--accent-2);}
 .coming-soon{border:1px dashed var(--line);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--muted);text-align:center;padding:30px;min-height:220px;gap:6px;font-size:.85rem;}
@@ -111,7 +111,7 @@ footer.site{text-align:center;padding:34px;color:var(--muted);font-size:.8rem;bo
 .field textarea{min-height:70px;}
 .field small{color:var(--muted);font-size:.72rem;}
 .save-bar{position:sticky;bottom:0;background:var(--card);padding:12px 0;border-top:1px solid var(--line);}
-.save-btn{width:100%;background:var(--accent);color:#141318;border:0;padding:13px;border-radius:8px;font-weight:700;cursor:pointer;}
+.save-btn{width:100%;background:var(--accent);color:var(--bg);border:0;padding:13px;border-radius:8px;font-weight:700;cursor:pointer;}
 .link-box{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:.8rem;margin-top:10px;word-break:break-all;color:var(--muted);}
 .gallery-preview{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
 .gallery-preview img{width:50px;height:50px;object-fit:cover;border-radius:6px;}
