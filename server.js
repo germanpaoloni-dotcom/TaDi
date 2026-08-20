@@ -94,25 +94,28 @@ function heroSlideHTML(cat, index, isCarousel) {
   return `<div class="mega-hero-slide${index === 0 ? " active" : ""}" data-cat="${cat.id}">
     <div class="mega-hero-ghost">${cat.ghost}</div>
     <div class="mega-hero-grid">
-      <div>
+      <div class="mega-hero-text">
         <span class="mega-hero-kicker">Invitaciones digitales</span>
         <h1 class="mega-hero-title">${cat.label.replace(/ /g, "<br>")}<span class="dot">.</span></h1>
+        ${isCarousel ? `<a class="btn btn-primary mega-hero-cta" href="/categoria/${cat.id}">Elegí tu diseño</a>` : ""}
       </div>
       <div class="mega-hero-visual">
         <div class="mega-hero-ring"></div>
         <img src="${cat.heroImage}" alt="${cat.label}">
-      </div>
-      <div class="mega-hero-info">
-        <div class="mega-hero-block">
-          <h3>${cat.kicker}</h3>
-          <p>${cat.heroBody}</p>
+        <div class="mega-hero-info mega-hero-info-left">
+          <div class="mega-hero-block">
+            <h3>${cat.kicker}</h3>
+            <p>${cat.heroBody}</p>
+          </div>
         </div>
-        <div class="mega-hero-block">
-          <h3>El diseño</h3>
-          <p>${flagship ? flagship.summary : "Estamos preparando los primeros diseños de esta categoría."}</p>
-          ${flagship
-            ? `<a class="mega-hero-play" href="/demo/${flagship.id}" target="_blank" title="Ver demo">▶</a>`
-            : `<span class="mega-hero-play" style="opacity:.4;cursor:default" title="Muy pronto">▶</span>`}
+        <div class="mega-hero-info mega-hero-info-right">
+          <div class="mega-hero-block">
+            <h3>El diseño</h3>
+            <p>${flagship ? flagship.summary : "Estamos preparando los primeros diseños de esta categoría."}</p>
+            ${flagship
+              ? `<a class="mega-hero-play" href="/demo/${flagship.id}" target="_blank" title="Ver demo">▶</a>`
+              : `<span class="mega-hero-play" style="opacity:.4;cursor:default" title="Muy pronto">▶</span>`}
+          </div>
         </div>
       </div>
     </div>
