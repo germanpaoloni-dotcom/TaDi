@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { infantilSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "inf-superheroes";
 
@@ -24,6 +25,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#ffd400");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "17:00"}:00` : sampleData.fecha, "cd9");
   const gal = galleryWidget(d.galeria, "gal9");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -32,7 +34,7 @@ function render(data = {}) {
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>¡Súper cumple de ${esc(d.nombreChico)}!</title>
 <style>
-  :root{--red:#ed1c24;--blue:#1a3aad;--yellow:#ffd400;--ink:#0c1b3a;--paper:#fff8e6;}
+  :root{--red:#ed1c24;--blue:#1a3aad;--yellow:${accent};--ink:#0c1b3a;--paper:#fff8e6;}
   *{box-sizing:border-box;}
   html,body{overflow-x:hidden;}
   body{margin:0;font-family:'Segoe UI',Verdana,Arial,sans-serif;background:var(--paper);color:var(--ink);}

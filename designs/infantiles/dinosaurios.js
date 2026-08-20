@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { infantilSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "inf-dinosaurios";
 
@@ -24,6 +25,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#ff6b35");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "17:00"}:00` : sampleData.fecha, "cd-dino");
   const gal = galleryWidget(d.galeria, "gal-dino");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -36,8 +38,8 @@ function render(data = {}) {
     --jungle:#1f6b3a;
     --jungle-dk:#123f22;
     --leaf:#4caf50;
-    --lava:#ff6b35;
-    --lava-dk:#d84315;
+    --lava:${accent};
+    --lava-dk:color-mix(in srgb, ${accent}, black 18%);
     --sand:#fff4d6;
     --ink:#1c2b1e;
   }

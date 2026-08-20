@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { infantilSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "inf-princesas";
 
@@ -29,6 +30,7 @@ const CASTLE_TILE =
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#ff5fa2");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "16:00"}:00` : sampleData.fecha, "cd-princesa");
   const gal = galleryWidget(d.galeria, "gal-princesa");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -53,9 +55,9 @@ function render(data = {}) {
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;500;600;700&display=swap');
   :root{
-    --rose:#ff5fa2;
-    --rose-deep:#e0357f;
-    --rose-light:#ffe1f0;
+    --rose:${accent};
+    --rose-deep:color-mix(in srgb, ${accent}, black 20%);
+    --rose-light:color-mix(in srgb, ${accent}, white 80%);
     --gold:#d4af37;
     --gold-light:#f6e2a8;
     --cream:#fff7fb;
@@ -146,7 +148,7 @@ function render(data = {}) {
     background:linear-gradient(160deg,#fff,var(--rose-light));
     border:2px solid var(--gold);border-radius:16px;
     padding:14px 16px;min-width:70px;
-    box-shadow:0 6px 14px rgba(224,53,127,.15);
+    box-shadow:0 6px 14px color-mix(in srgb, var(--rose-deep) 15%, transparent);
   }
   .cd-num{display:block;font-size:1.8rem;font-weight:700;color:var(--rose-deep);}
   .cd-label{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--ink);}
@@ -157,14 +159,14 @@ function render(data = {}) {
     border:2px dashed var(--gold);
     border-radius:24px;
     padding:34px 26px;
-    box-shadow:0 10px 28px rgba(224,53,127,.1);
+    box-shadow:0 10px 28px color-mix(in srgb, var(--rose-deep) 10%, transparent);
   }
   .storycard p{font-size:1.05rem;line-height:1.7;margin:0;}
   .tematica{
     margin-top:20px;display:inline-block;
     background:linear-gradient(90deg,var(--rose),var(--rose-deep));
     color:#fff;padding:10px 22px;border-radius:30px;
-    font-weight:600;font-size:.9rem;box-shadow:0 6px 14px rgba(224,53,127,.3);
+    font-weight:600;font-size:.9rem;box-shadow:0 6px 14px color-mix(in srgb, var(--rose-deep) 30%, transparent);
   }
 
   .location-card{
@@ -203,7 +205,7 @@ function render(data = {}) {
     background:linear-gradient(90deg,var(--rose),var(--rose-deep));
     color:#fff;border:0;padding:13px;border-radius:30px;
     font-weight:700;letter-spacing:.5px;cursor:pointer;
-    box-shadow:0 8px 18px rgba(224,53,127,.35);
+    box-shadow:0 8px 18px color-mix(in srgb, var(--rose-deep) 35%, transparent);
   }
   .rsvp-whatsapp{font-size:.85rem;color:var(--gold);text-align:center;text-decoration:none;font-weight:600;}
   .rsvp-status{text-align:center;color:#3f9d5c;font-weight:700;}

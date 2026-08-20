@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { infantilSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "inf-espacial";
 
@@ -24,6 +25,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "dark", "#3ff0ff");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "17:00"}:00` : sampleData.fecha, "cd-esp");
   const gal = galleryWidget(d.galeria, "gal-esp");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -32,7 +34,7 @@ function render(data = {}) {
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Misión Espacial de ${esc(d.nombreChico)}</title>
 <style>
-  :root{--night:#080b24;--night2:#0f1440;--cyan:#3ff0ff;--purple:#a45bff;--yellow:#ffd23f;--pink:#ff5fa8;}
+  :root{--night:#080b24;--night2:#0f1440;--cyan:${accent};--purple:#a45bff;--yellow:#ffd23f;--pink:#ff5fa8;}
   *{box-sizing:border-box;}
   html,body{overflow-x:hidden;}
   body{
@@ -55,7 +57,7 @@ function render(data = {}) {
     color:#eaf0ff;
   }
   h1,h2,h3{font-family:'Trebuchet MS',Arial,sans-serif;}
-  .neon-cyan{color:var(--cyan);text-shadow:0 0 6px var(--cyan),0 0 18px rgba(63,240,255,.6);}
+  .neon-cyan{color:var(--cyan);text-shadow:0 0 6px var(--cyan),0 0 18px color-mix(in srgb, ${accent} 60%, transparent);}
   .neon-purple{color:var(--purple);text-shadow:0 0 6px var(--purple),0 0 18px rgba(164,91,255,.6);}
   .neon-yellow{color:var(--yellow);text-shadow:0 0 6px var(--yellow),0 0 16px rgba(255,210,63,.5);}
 
@@ -70,7 +72,7 @@ function render(data = {}) {
     padding:60px 20px 40px;
     background:
       radial-gradient(circle at 20% 15%, rgba(164,91,255,.35), transparent 45%),
-      radial-gradient(circle at 85% 75%, rgba(63,240,255,.28), transparent 45%),
+      radial-gradient(circle at 85% 75%, color-mix(in srgb, ${accent} 28%, transparent), transparent 45%),
       url('${esc(d.coverImage)}') center/cover;
   }
   .hero::before{
@@ -117,7 +119,7 @@ function render(data = {}) {
   }
   .planet{position:absolute;border-radius:50%;opacity:.55;filter:blur(0px);pointer-events:none;}
   .planet.p1{width:70px;height:70px;top:10px;left:6%;background:radial-gradient(circle at 35% 30%, #ff9fd1, var(--pink) 60%, #7a1f4a);box-shadow:0 0 30px rgba(255,95,168,.4);}
-  .planet.p2{width:46px;height:46px;bottom:0;right:8%;background:radial-gradient(circle at 35% 30%, #9fe9ff, var(--cyan) 60%, #0a5f6b);box-shadow:0 0 24px rgba(63,240,255,.4);}
+  .planet.p2{width:46px;height:46px;bottom:0;right:8%;background:radial-gradient(circle at 35% 30%, #9fe9ff, var(--cyan) 60%, #0a5f6b);box-shadow:0 0 24px color-mix(in srgb, ${accent} 40%, transparent);}
 
   .panel{
     background:linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
@@ -136,9 +138,9 @@ function render(data = {}) {
     border:1px solid var(--cyan);
     border-radius:12px;
     padding:12px 4px;
-    box-shadow:0 0 16px rgba(63,240,255,.35);
+    box-shadow:0 0 16px color-mix(in srgb, ${accent} 35%, transparent);
   }
-  .cd-num{display:block;font-size:1.8rem;font-weight:bold;color:var(--cyan);text-shadow:0 0 8px rgba(63,240,255,.8);}
+  .cd-num{display:block;font-size:1.8rem;font-weight:bold;color:var(--cyan);text-shadow:0 0 8px color-mix(in srgb, ${accent} 80%, transparent);}
   .cd-label{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:#a9b8ff;}
   .countdown-caption{margin-top:16px;font-size:.85rem;color:#a9b8ff;letter-spacing:1px;text-transform:uppercase;}
 
@@ -170,16 +172,16 @@ function render(data = {}) {
   .lugar-card a:hover{text-decoration:underline;}
 
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:10px;}
-  .gallery img{width:100%;height:150px;object-fit:cover;border-radius:14px;cursor:pointer;border:2px solid rgba(63,240,255,.4);}
+  .gallery img{width:100%;height:150px;object-fit:cover;border-radius:14px;cursor:pointer;border:2px solid color-mix(in srgb, ${accent} 40%, transparent);}
   .lightbox{display:none;position:fixed;inset:0;background:rgba(3,4,20,.94);align-items:center;justify-content:center;z-index:50;}
   .lightbox.open{display:flex;}
-  .lightbox img{max-width:90%;max-height:85%;border-radius:10px;box-shadow:0 0 40px rgba(63,240,255,.4);}
+  .lightbox img{max-width:90%;max-height:85%;border-radius:10px;box-shadow:0 0 40px color-mix(in srgb, ${accent} 40%, transparent);}
   .lightbox-close{position:absolute;top:20px;right:30px;color:#fff;font-size:2rem;cursor:pointer;}
 
   .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:0 auto;text-align:left;}
   .rsvp-form label{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:#a9b8ff;}
   .rsvp-form input,.rsvp-form select,.rsvp-form textarea{
-    font-family:inherit;padding:11px;border:1px solid rgba(63,240,255,.4);border-radius:10px;
+    font-family:inherit;padding:11px;border:1px solid color-mix(in srgb, ${accent} 40%, transparent);border-radius:10px;
     margin-top:5px;width:100%;background:rgba(8,11,36,.6);color:#fff;
   }
   .rsvp-form input::placeholder,.rsvp-form textarea::placeholder{color:#7c86b8;}

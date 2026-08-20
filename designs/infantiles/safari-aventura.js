@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { infantilSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "inf-safari-aventura";
 
@@ -24,6 +25,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "light", "#f2b33d");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "17:00"}:00` : sampleData.fecha, "cd-safari");
   const gal = galleryWidget(d.galeria, "gal-safari");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -39,7 +41,7 @@ function render(data = {}) {
     --khaki:#d8c491;
     --khaki-claro:#f3ecd8;
     --ocre:#c07d31;
-    --sol:#f2b33d;
+    --sol:${accent};
     --tinta:#25301f;
   }
   *{box-sizing:border-box;}
@@ -69,7 +71,7 @@ function render(data = {}) {
     text-align:center;
     padding:60px 18px 50px;
     background:
-      radial-gradient(circle at 15% 20%, rgba(242,179,61,.35), transparent 45%),
+      radial-gradient(circle at 15% 20%, color-mix(in srgb, ${accent} 35%, transparent), transparent 45%),
       radial-gradient(circle at 85% 75%, rgba(192,125,49,.35), transparent 50%),
       linear-gradient(160deg, rgba(20,35,15,.55), rgba(15,25,10,.75)),
       url('${esc(d.coverImage)}') center/cover;
