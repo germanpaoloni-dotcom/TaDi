@@ -15,7 +15,7 @@ const sampleData = {
   direccionMapa: "https://maps.google.com/?q=Estancia+La+Rosada+Pilar",
   mensaje: "Con el corazón lleno de alegría, queremos que nos acompañes a celebrar el bautismo de Renata, un día para agradecer y compartir en familia.",
   whatsapp: "5491100000022",
-  coverImage: "https://images.unsplash.com/photo-1476234251651-f353703a034d?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1544923246-77307dd654cb?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&q=80",
     "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",
@@ -30,161 +30,203 @@ function render(data = {}) {
   const gal = galleryWidget(d.galeria, "galbau");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
 
+  let diaSemana = "";
+  let diaNumero = "";
+  let mesAnio = "";
+  if (d.fecha) {
+    try {
+      const [y, m, day] = d.fecha.split("-").map(Number);
+      const dt = new Date(y, m - 1, day);
+      diaSemana = dt.toLocaleDateString("es-AR", { weekday: "long" });
+      diaNumero = String(dt.getDate());
+      mesAnio = dt.toLocaleDateString("es-AR", { month: "long", year: "numeric" });
+    } catch { diaSemana = ""; }
+  }
+
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bautismo de ${esc(d.nombreChico)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Great+Vibes&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --sage:#7c8b6f;
-    --sage-dark:#586b4d;
-    --terracota:#c07a54;
-    --terracota-dark:#a45f3d;
-    --kraft:#f2e9d8;
-    --kraft-dark:#e6d9bd;
+    --sage:#93a67e;
+    --sage-dark:#5b6e46;
+    --sage-pale:#eef2e6;
+    --gold:#b8935a;
+    --gold-dark:#8f6f3d;
+    --cream:#fbf9f2;
     --ink:#4a4335;
   }
   *{box-sizing:border-box;}
   html,body{max-width:100%;overflow-x:hidden;}
   body{
     margin:0;
-    font-family:Georgia,'Times New Roman',serif;
-    background:var(--kraft);
+    font-family:'EB Garamond',Georgia,serif;
+    background:var(--cream);
     background-image:
-      radial-gradient(circle at 8% 12%, rgba(124,139,111,.10) 0, transparent 40%),
-      radial-gradient(circle at 92% 88%, rgba(192,122,84,.10) 0, transparent 40%);
+      radial-gradient(circle at 6% 8%, rgba(147,166,126,.16) 0, transparent 42%),
+      radial-gradient(circle at 96% 14%, rgba(184,147,90,.10) 0, transparent 38%),
+      radial-gradient(circle at 90% 92%, rgba(147,166,126,.14) 0, transparent 42%);
     color:var(--ink);
-    line-height:1.6;
+    line-height:1.7;
+    font-size:17px;
   }
-  h1,h2,h3{font-family:'Palatino Linotype',Georgia,serif;font-weight:400;margin:0 0 10px;}
-  .wrap{max-width:880px;margin:0 auto;padding:0 20px;}
+  h1,h2,h3{font-family:'Cormorant Garamond',Georgia,serif;font-weight:500;margin:0 0 10px;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px;}
 
-  /* --- decorative leaf/twig SVG-in-CSS elements --- */
-  .leaf-divider{
-    display:flex;align-items:center;justify-content:center;gap:10px;
-    padding:18px 0;color:var(--sage);
+  /* --- ornaments (explicit sizes on every svg, per project rule) --- */
+  .cross-icon{width:34px;height:34px;color:var(--gold);margin:0 auto 14px;display:block;}
+  .divider{
+    display:flex;align-items:center;justify-content:center;gap:12px;
+    padding:8px 0 0;color:var(--sage-dark);
   }
-  .leaf-divider .line{flex:0 0 60px;height:1px;background:var(--sage);opacity:.5;}
-  .leaf-divider svg{width:26px;height:26px;flex:0 0 auto;}
+  .divider .line{flex:0 0 70px;height:1px;background:var(--sage);opacity:.55;}
+  .divider svg{width:22px;height:22px;flex:0 0 auto;}
 
-  .twig-corner{position:absolute;width:90px;height:90px;opacity:.35;pointer-events:none;}
-  .twig-corner.tl{top:10px;left:10px;transform:rotate(0deg);}
-  .twig-corner.br{bottom:10px;right:10px;transform:rotate(180deg);}
+  /* --- section shells --- */
+  section{padding:clamp(34px,6vw,60px) 0;position:relative;text-align:center;}
+  .section-title{
+    text-align:center;color:var(--sage-dark);
+    font-size:clamp(1.5rem,4.4vw,2rem);
+    font-style:italic;margin-bottom:6px;
+  }
+  .section-sub{
+    text-align:center;color:var(--gold-dark);
+    font-size:.72rem;text-transform:uppercase;letter-spacing:2.5px;
+    margin-bottom:28px;
+  }
+
+  .card{
+    background:#fffefb;
+    border:1px solid #e6ddc8;
+    border-radius:4px;
+    box-shadow:0 8px 24px rgba(91,110,70,.08);
+  }
 
   /* --- hero --- */
   .hero{
-    position:relative;
-    min-height:clamp(420px,70vh,640px);
-    display:flex;align-items:flex-end;justify-content:center;
-    background:linear-gradient(180deg,rgba(74,67,53,.05),rgba(74,67,53,.55)),
-      center/cover no-repeat;
-    text-align:center;padding:40px 20px;
-    border-bottom:6px double var(--sage);
+    background:var(--sage-pale);
+    padding:clamp(46px,9vw,80px) 20px clamp(40px,7vw,64px);
+    border-bottom:1px solid #dfe6d5;
   }
-  .hero-inner{position:relative;z-index:2;color:#fff;}
-  .kicker{
-    text-transform:uppercase;letter-spacing:4px;font-size:clamp(.65rem,2vw,.8rem);
-    color:#f1e9d5;margin-bottom:8px;
+  .hero .wrap{max-width:620px;margin:0 auto;text-align:center;}
+  .hero .kicker{
+    font-family:'EB Garamond',serif;font-style:italic;
+    color:var(--sage-dark);font-size:clamp(.85rem,2.4vw,1rem);
+    margin-bottom:6px;
   }
+  .hero .titulo{
+    font-family:'Cormorant Garamond',serif;font-weight:500;
+    text-transform:uppercase;letter-spacing:8px;
+    font-size:clamp(1.7rem,6vw,2.5rem);color:var(--gold-dark);
+    margin:0 0 6px;padding-left:8px;
+  }
+  .hero .subtitulo{color:#7a8a68;font-size:.9rem;margin-bottom:18px;}
   .hero h1{
-    font-size:clamp(2.2rem,7vw,3.6rem);
-    font-style:italic;
-    text-shadow:0 2px 10px rgba(0,0,0,.35);
+    font-family:'Great Vibes',cursive;font-weight:400;
+    font-size:clamp(2.6rem,10vw,4.4rem);
+    color:var(--sage-dark);
+    line-height:1.15;margin:6px 0 22px;
   }
-  .hero .sub{font-size:clamp(.85rem,2.5vw,1rem);color:#f1e9d5;margin-top:6px;}
-
-  /* --- section shells --- */
-  section{padding:clamp(36px,6vw,64px) 0;position:relative;}
-  .section-title{
-    text-align:center;color:var(--sage-dark);
-    font-size:clamp(1.4rem,4vw,1.9rem);
-    font-style:italic;margin-bottom:6px;
+  .hero .foto-frame{
+    width:clamp(140px,32vw,190px);height:clamp(140px,32vw,190px);
+    border-radius:50%;margin:0 auto 22px;
+    border:3px solid var(--gold);padding:5px;
+    box-shadow:0 8px 22px rgba(91,110,70,.18);
   }
-  .section-sub{text-align:center;color:#8a7d61;font-size:.9rem;margin-bottom:26px;}
-
-  .card{
-    background:#fffdf7;
-    border:1px solid var(--kraft-dark);
-    border-radius:4px;
-    box-shadow:0 8px 24px rgba(88,107,77,.08);
+  .hero .foto-frame img{
+    width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;
   }
+  .hero .fecha-linea{
+    display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;
+    font-size:clamp(.85rem,2.6vw,1rem);color:var(--ink);
+  }
+  .hero .fecha-linea .dia{font-style:italic;color:var(--sage-dark);}
+  .hero .fecha-linea .num{
+    font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,5vw,2.1rem);
+    color:var(--gold-dark);font-weight:600;
+  }
+  .hero .fecha-linea .sep{color:var(--sage);opacity:.6;}
+  .hero .fecha-linea .mes{text-transform:capitalize;color:var(--ink);}
 
   /* --- mensaje --- */
   .mensaje{
-    max-width:640px;margin:0 auto;text-align:center;
+    max-width:600px;margin:0 auto;text-align:center;
     font-size:clamp(1rem,2.6vw,1.2rem);
     font-style:italic;color:var(--ink);
     padding:0 10px;
   }
 
   /* --- countdown --- */
-  .countdown{display:flex;gap:clamp(10px,3vw,26px);justify-content:center;flex-wrap:wrap;}
+  .countdown{display:flex;gap:clamp(10px,3vw,24px);justify-content:center;flex-wrap:wrap;}
   .countdown > div{
-    background:#fffdf7;border:1px solid var(--kraft-dark);
+    background:#fffefb;border:1px solid #e6ddc8;
     border-radius:50%;
-    width:clamp(64px,16vw,92px);height:clamp(64px,16vw,92px);
+    width:clamp(62px,16vw,90px);height:clamp(62px,16vw,90px);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    box-shadow:0 6px 16px rgba(88,107,77,.12);
+    box-shadow:0 6px 16px rgba(91,110,70,.12);
   }
-  .cd-num{font-size:clamp(1.2rem,4vw,1.8rem);color:var(--terracota-dark);font-weight:bold;font-family:Georgia,serif;}
-  .cd-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--sage-dark);}
+  .cd-num{font-size:clamp(1.15rem,4vw,1.7rem);color:var(--gold-dark);font-weight:600;font-family:'Cormorant Garamond',serif;}
+  .cd-label{font-size:.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--sage-dark);}
 
-  /* --- cronograma --- */
+  /* --- timeline --- */
   .timeline{
-    max-width:640px;margin:0 auto;
-    display:flex;flex-direction:column;gap:0;
+    max-width:560px;margin:0 auto;
+    display:flex;flex-direction:column;gap:14px;
   }
   .timeline-item{
     display:flex;gap:18px;padding:20px 22px;
-    border-left:3px solid var(--sage);
+    text-align:left;
+    border-left:2px solid var(--sage);
     position:relative;margin-left:10px;
   }
   .timeline-item::before{
-    content:"";position:absolute;left:-9px;top:26px;
-    width:15px;height:15px;border-radius:50%;
-    background:var(--terracota);border:3px solid var(--kraft);
+    content:"";position:absolute;left:-7px;top:26px;
+    width:12px;height:12px;border-radius:50%;
+    background:var(--gold);border:2px solid var(--cream);
   }
-  .timeline-item + .timeline-item{margin-top:14px;}
   .timeline-time{
-    font-weight:bold;color:var(--terracota-dark);
-    min-width:64px;font-size:1rem;
+    font-weight:600;color:var(--gold-dark);
+    min-width:60px;font-size:1rem;font-family:'Cormorant Garamond',serif;
   }
-  .timeline-what strong{display:block;color:var(--sage-dark);font-size:1.05rem;margin-bottom:2px;}
+  .timeline-what strong{display:block;color:var(--sage-dark);font-size:1.05rem;margin-bottom:2px;font-family:'Cormorant Garamond',serif;font-weight:600;}
   .timeline-what span{color:#7a705c;font-size:.9rem;}
   .map-link{
-    display:inline-block;margin-top:18px;color:var(--terracota-dark);
-    text-decoration:none;border-bottom:1px dashed var(--terracota-dark);
+    display:inline-block;margin-top:18px;color:var(--gold-dark);
+    text-decoration:none;border-bottom:1px dashed var(--gold-dark);
     font-size:.9rem;
   }
-  .map-link-wrap{text-align:center;}
 
   /* --- padres y padrinos --- */
   .people{
-    display:flex;gap:22px;justify-content:center;flex-wrap:wrap;
-    max-width:700px;margin:0 auto;
+    display:flex;gap:20px;justify-content:center;flex-wrap:wrap;
+    max-width:680px;margin:0 auto;
   }
   .people .card{
-    flex:1 1 260px;max-width:320px;
+    flex:1 1 250px;max-width:310px;
     padding:26px 22px;text-align:center;
   }
   .people .card .tag{
-    text-transform:uppercase;letter-spacing:2px;font-size:.68rem;
-    color:var(--sage);margin-bottom:8px;
+    text-transform:uppercase;letter-spacing:2.5px;font-size:.66rem;
+    color:var(--gold-dark);margin-bottom:8px;
   }
-  .people .card .names{font-size:1.15rem;color:var(--ink);font-style:italic;}
+  .people .card .names{font-size:1.2rem;color:var(--sage-dark);font-style:italic;font-family:'Cormorant Garamond',serif;}
 
-  /* --- gallery (base styles reused from widget markup, restyled) --- */
+  /* --- gallery --- */
   .gallery{
     display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-    gap:12px;max-width:820px;margin:0 auto;padding:0 4px;
+    gap:12px;max-width:780px;margin:0 auto;padding:0 4px;
   }
   .gallery-item img{
     width:100%;height:180px;object-fit:cover;border-radius:6px;
-    cursor:pointer;border:1px solid var(--kraft-dark);
+    cursor:pointer;border:1px solid #e6ddc8;
     transition:transform .2s ease;
   }
   .gallery-item img:hover{transform:scale(1.02);}
   .lightbox{
-    display:none;position:fixed;inset:0;background:rgba(40,36,26,.92);
+    display:none;position:fixed;inset:0;background:rgba(35,42,26,.92);
     align-items:center;justify-content:center;z-index:60;
   }
   .lightbox.open{display:flex;}
@@ -194,48 +236,58 @@ function render(data = {}) {
   /* --- rsvp --- */
   .rsvp-form{
     display:flex;flex-direction:column;gap:14px;
-    max-width:400px;margin:0 auto;padding:28px 24px;
+    max-width:400px;margin:0 auto;padding:30px 26px;
     text-align:left;
   }
   .rsvp-form label{font-size:.8rem;color:var(--sage-dark);display:block;}
   .rsvp-form input,.rsvp-form select,.rsvp-form textarea{
-    font-family:inherit;padding:10px 12px;border:1px solid var(--kraft-dark);
-    border-radius:6px;margin-top:5px;width:100%;background:#fffdf7;color:var(--ink);
+    font-family:inherit;padding:10px 12px;border:1px solid #e6ddc8;
+    border-radius:6px;margin-top:5px;width:100%;background:#fffefb;color:var(--ink);
   }
   .rsvp-form input:focus,.rsvp-form select:focus,.rsvp-form textarea:focus{
     outline:1px solid var(--sage);border-color:var(--sage);
   }
   .rsvp-form button{
-    background:var(--terracota);color:#fff;border:0;padding:13px;
+    background:var(--gold-dark);color:#fff;border:0;padding:13px;
     border-radius:6px;cursor:pointer;font-size:1rem;letter-spacing:.5px;
     transition:background .2s ease;
   }
-  .rsvp-form button:hover{background:var(--terracota-dark);}
+  .rsvp-form button:hover{background:var(--sage-dark);}
   .rsvp-whatsapp{text-align:center;color:var(--sage-dark);font-size:.85rem;text-decoration:none;border-bottom:1px dashed var(--sage-dark);align-self:center;}
-  .rsvp-status{text-align:center;color:var(--sage-dark);font-weight:bold;}
+  .rsvp-status{text-align:center;color:var(--sage-dark);font-weight:600;}
 
   footer{
     text-align:center;padding:34px 20px;font-size:.85rem;color:#8a7d61;
-    border-top:1px solid var(--kraft-dark);
+    border-top:1px solid #e6ddc8;
   }
-  footer .fleuron{color:var(--sage);font-size:1.2rem;display:block;margin-bottom:6px;}
+  footer .fleuron{color:var(--gold);font-size:1.2rem;display:block;margin-bottom:6px;}
 
   @media (max-width:480px){
     .timeline-item{gap:10px;padding:16px 14px;}
     .people .card{padding:20px 16px;}
+    .hero .titulo{letter-spacing:5px;}
   }
 </style></head>
 <body>
 
-  <div class="hero" style="background-image:linear-gradient(180deg,rgba(74,67,53,.05),rgba(74,67,53,.6)), url('${esc(d.coverImage)}')">
-    <div class="hero-inner">
-      <div class="kicker">Bautismo</div>
+  <section class="hero">
+    <div class="wrap">
+      <svg class="cross-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M12 2v20M6 8h12"/>
+      </svg>
+      <p class="kicker">Tenemos el honor de invitarte al</p>
+      <p class="titulo">Bautizo</p>
+      <p class="subtitulo">de nuestro querido hijo</p>
       <h1>${esc(d.nombreChico)}</h1>
-      <div class="sub">${esc(d.fecha)}${d.lugarCeremonia ? " · " + esc(d.lugarCeremonia) : ""}</div>
+      <div class="foto-frame"><img src="${esc(d.coverImage)}" alt="${esc(d.nombreChico)}"></div>
+      <div class="fecha-linea">
+        <span class="dia">${esc(diaSemana || d.fecha)}</span>
+        ${diaNumero ? `<span class="sep">|</span><span class="num">${esc(diaNumero)}</span><span class="sep">|</span><span class="mes">${esc(mesAnio)}</span>` : ""}
+      </div>
     </div>
-  </div>
+  </section>
 
-  <div class="leaf-divider">
+  <div class="divider">
     <span class="line"></span>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 2C8 6 4 10 4 15a8 8 0 0016 0c0-5-4-9-8-13z"/>
@@ -250,10 +302,10 @@ function render(data = {}) {
     </div>
   </section>
 
-  <section style="background:rgba(124,139,111,.06)">
+  <section style="background:var(--sage-pale)">
     <div class="wrap">
       <h2 class="section-title">Cuenta regresiva</h2>
-      <p class="section-sub">Falta cada vez menos para celebrar juntos</p>
+      <p class="section-sub">Falta cada vez menos</p>
       ${cd.html}
     </div>
   </section>
@@ -279,11 +331,11 @@ function render(data = {}) {
           </div>
         </div>` : ""}
       </div>
-      ${d.direccionMapa ? `<div class="map-link-wrap"><a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a></div>` : ""}
+      ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
     </div>
   </section>
 
-  <section style="background:rgba(192,122,84,.06)">
+  <section style="background:var(--sage-pale)">
     <div class="wrap">
       <h2 class="section-title">Con el cariño de</h2>
       <p class="section-sub">Familia y padrinos</p>
@@ -308,7 +360,7 @@ function render(data = {}) {
     ${gal.html}
   </section>
 
-  <section style="background:rgba(124,139,111,.06)">
+  <section style="background:var(--sage-pale)">
     <div class="wrap">
       <h2 class="section-title">Confirmá tu asistencia</h2>
       <p class="section-sub">Nos encantaría contar con vos</p>
@@ -333,8 +385,9 @@ module.exports = {
   id,
   category: "bautismos",
   name: "Campestre Botánico",
-  summary: "Estética campestre en tonos verde salvia y terracota, con detalles botánicos ilustrados y papel tipo kraft.",
-  accent: "#7c8b6f",
+  summary: "Estética campestre romántica en verde salvia y dorado, con cruz minimal, foto enmarcada y tipografía caligráfica sobre fondo acuarela.",
+  accent: "#5b6e46",
+  accent2: "#b8935a",
   schema: bautismoSchema,
   sampleData,
   render,
