@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { empresarialSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "emp-networking-ejecutivo";
 
@@ -41,16 +42,22 @@ function parseLines(raw, fallback) {
 }
 
 // Icono decorativo: pequeño nodo de red (punto conectado) usado como bullet de "eyebrow"
-const NODE_ICON = `<svg class="node-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <line x1="2" y1="14" x2="9" y2="4" stroke="#dba846" stroke-width="1"/>
-  <line x1="9" y1="4" x2="16" y2="12" stroke="#dba846" stroke-width="1"/>
-  <circle cx="2" cy="14" r="1.6" fill="#dba846"/>
-  <circle cx="9" cy="4" r="1.6" fill="#dba846"/>
-  <circle cx="16" cy="12" r="1.6" fill="#dba846"/>
+function nodeIcon(color) {
+  return `<svg class="node-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <line x1="2" y1="14" x2="9" y2="4" stroke="${color}" stroke-width="1"/>
+  <line x1="9" y1="4" x2="16" y2="12" stroke="${color}" stroke-width="1"/>
+  <circle cx="2" cy="14" r="1.6" fill="${color}"/>
+  <circle cx="9" cy="4" r="1.6" fill="${color}"/>
+  <circle cx="16" cy="12" r="1.6" fill="${color}"/>
 </svg>`;
+}
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "dark", "#dba846");
+  const goldSoft = `color-mix(in srgb, ${accent}, white 35%)`;
+  const copper = `color-mix(in srgb, ${accent}, black 25%)`;
+  const NODE_ICON = nodeIcon(accent);
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "18:30"}:00` : sampleData.fecha, "cd-net");
   const gal = galleryWidget(d.galeria && d.galeria.length ? d.galeria : sampleData.galeria, "gal-net");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: false, withMenu: false, whatsapp: d.contacto });
@@ -67,9 +74,9 @@ function render(data = {}) {
 <style>
   :root{
     --ink:#0a0d17; --ink2:#121a2c; --ink3:#1a2338;
-    --gold:#dba846; --gold-soft:#f0cf8f; --copper:#a8672f;
+    --gold:${accent}; --gold-soft:${goldSoft}; --copper:${copper};
     --paper:#f6f1e6;
-    --line: rgba(219,168,70,.25);
+    --line: color-mix(in srgb, ${accent} 25%, transparent);
     --text-soft: rgba(245,240,230,.68);
   }
   *{box-sizing:border-box;}
@@ -92,6 +99,8 @@ function render(data = {}) {
   .hero-tag::before,.hero-tag::after{content:"";width:20px;height:1px;background:var(--gold);display:inline-block;}
   .hero h1{font-size:clamp(2rem,6.2vw,3.6rem);font-weight:700;margin:.4em 0 .12em;letter-spacing:.01em;text-transform:uppercase;line-height:1.08;}
   .hero-empresa{font-size:.92rem;color:var(--text-soft);font-weight:300;letter-spacing:.5px;}
+  .hero-logo-wrap{display:inline-flex;align-items:center;justify-content:center;background:#fff;border-radius:8px;padding:10px 18px;margin-top:6px;}
+  .hero-logo{display:block;max-height:32px;max-width:160px;width:auto;height:auto;}
   .hero-meta{margin-top:24px;display:flex;flex-wrap:wrap;gap:10px 26px;font-size:.85rem;color:#e6ddc8;justify-content:center;}
   .hero-meta span{display:flex;align-items:center;gap:8px;}
   .dot{width:5px;height:5px;background:var(--gold);border-radius:50%;display:inline-block;flex:none;}
@@ -149,7 +158,7 @@ function render(data = {}) {
   .rsvp-section{background:var(--ink2);}
   .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:420px;margin:26px auto 0;text-align:left;}
   .rsvp-form label{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:#b2a98e;}
-  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:'Inter',sans-serif;padding:11px 12px;border:1px solid var(--line);background:rgba(219,168,70,.05);color:var(--paper);margin-top:5px;width:100%;border-radius:2px;}
+  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:'Inter',sans-serif;padding:11px 12px;border:1px solid var(--line);background:color-mix(in srgb, ${accent} 5%, transparent);color:var(--paper);margin-top:5px;width:100%;border-radius:2px;}
   .rsvp-form input::placeholder,.rsvp-form textarea::placeholder{color:#736c58;}
   .rsvp-form button{background:var(--gold);color:var(--ink);border:0;padding:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;text-transform:uppercase;font-size:.82rem;}
   .rsvp-form button:hover{background:var(--gold-soft);}
@@ -165,7 +174,7 @@ function render(data = {}) {
     <div class="hero-bg"></div>
     <div class="hero-overlay"></div>
     <svg class="hero-net" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <g stroke="#dba846" stroke-width="0.6" stroke-opacity="0.75">
+      <g stroke="${accent}" stroke-width="0.6" stroke-opacity="0.75">
         <line x1="20" y1="120" x2="60" y2="60"/>
         <line x1="60" y1="60" x2="100" y2="30"/>
         <line x1="100" y1="30" x2="140" y2="55"/>
@@ -176,7 +185,7 @@ function render(data = {}) {
         <line x1="20" y1="120" x2="100" y2="90"/>
         <line x1="100" y1="90" x2="180" y2="110"/>
       </g>
-      <g fill="#f0cf8f">
+      <g fill="${goldSoft}">
         <circle cx="20" cy="120" r="2.4"/>
         <circle cx="60" cy="60" r="2.4"/>
         <circle cx="100" cy="30" r="3.2"/>
@@ -189,7 +198,7 @@ function render(data = {}) {
     <div class="hero-inner">
       <span class="hero-tag">Evento empresarial</span>
       <h1>${esc(d.nombreEvento)}</h1>
-      <div class="hero-empresa">${esc(d.empresa)}</div>
+      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : `<div class="hero-empresa">${esc(d.empresa)}</div>`}
       <div class="hero-meta">
         <span><i class="dot"></i>${esc(d.fecha)}</span>
         <span><i class="dot"></i>${esc(d.hora)} hs</span>
@@ -246,13 +255,13 @@ function render(data = {}) {
           <div class="dress-badge">Dress code: ${esc(d.dressCode)}</div>
         </div>
         <svg class="lugar-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" width="120" height="120">
-          <rect x="10" y="10" width="100" height="100" stroke="#dba846" stroke-opacity="0.3" stroke-width="1"/>
-          <g stroke="#dba846" stroke-width="0.8" stroke-opacity="0.85">
+          <rect x="10" y="10" width="100" height="100" stroke="${accent}" stroke-opacity="0.3" stroke-width="1"/>
+          <g stroke="${accent}" stroke-width="0.8" stroke-opacity="0.85">
             <line x1="30" y1="90" x2="55" y2="55"/>
             <line x1="55" y1="55" x2="85" y2="35"/>
             <line x1="55" y1="55" x2="80" y2="75"/>
           </g>
-          <g fill="#f0cf8f">
+          <g fill="${goldSoft}">
             <circle cx="30" cy="90" r="3"/>
             <circle cx="55" cy="55" r="3.6"/>
             <circle cx="85" cy="35" r="3"/>

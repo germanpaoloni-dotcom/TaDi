@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { empresarialSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "emp-gala-aniversario";
 
@@ -24,6 +25,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "dark", "#d9a441");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "20:00"}:00` : sampleData.fecha, "cd9");
   const gal = galleryWidget(d.galeria || [], "gal9");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.contacto });
@@ -54,8 +56,8 @@ function render(data = {}) {
   :root{
     --navy:#16232e;
     --navy2:#1e3242;
-    --gold:#d9a441;
-    --gold-dim:#b8863a;
+    --gold:${accent};
+    --gold-dim:color-mix(in srgb, ${accent}, black 20%);
     --cream:#f4efe4;
   }
   *{box-sizing:border-box;}
@@ -80,6 +82,11 @@ function render(data = {}) {
     letter-spacing:4px;text-transform:uppercase;font-size:.72rem;
     color:var(--gold);font-weight:600;margin-bottom:18px;
   }
+  .hero-logo-wrap{
+    display:inline-flex;align-items:center;justify-content:center;
+    background:#fff;border-radius:10px;padding:12px 20px;margin-bottom:18px;
+  }
+  .hero-logo{display:block;max-height:38px;max-width:170px;width:auto;height:auto;}
   header.hero .big-num{
     font-size:clamp(4.5rem,22vw,8.5rem);
     font-weight:800;
@@ -188,10 +195,10 @@ function render(data = {}) {
 <body>
 
   <header class="hero">
-    <svg class="ribbon" style="top:14%;left:8%;transform:rotate(-15deg);" viewBox="0 0 24 60" width="26" height="60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2c8 6 -6 12 2 18c8 6 -6 12 2 18c8 6 -6 12 2 18" stroke="#d9a441" stroke-width="4" stroke-linecap="round"/></svg>
-    <svg class="ribbon" style="top:60%;right:10%;transform:rotate(20deg);" viewBox="0 0 24 60" width="26" height="60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2c8 6 -6 12 2 18c8 6 -6 12 2 18c8 6 -6 12 2 18" stroke="#d9a441" stroke-width="4" stroke-linecap="round"/></svg>
+    <svg class="ribbon" style="top:14%;left:8%;transform:rotate(-15deg);" viewBox="0 0 24 60" width="26" height="60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2c8 6 -6 12 2 18c8 6 -6 12 2 18c8 6 -6 12 2 18" stroke="${accent}" stroke-width="4" stroke-linecap="round"/></svg>
+    <svg class="ribbon" style="top:60%;right:10%;transform:rotate(20deg);" viewBox="0 0 24 60" width="26" height="60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2c8 6 -6 12 2 18c8 6 -6 12 2 18c8 6 -6 12 2 18" stroke="${accent}" stroke-width="4" stroke-linecap="round"/></svg>
     <div class="content">
-      <div class="tag">${esc(d.empresa)}</div>
+      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : `<div class="tag">${esc(d.empresa)}</div>`}
       ${aniversarioNum ? `<p class="big-num">${esc(aniversarioNum)}</p>` : ""}
       <h1>${esc(d.nombreEvento)}</h1>
       <p class="desc">${esc(d.descripcion)}</p>

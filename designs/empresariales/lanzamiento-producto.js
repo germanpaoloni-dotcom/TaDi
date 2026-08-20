@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { empresarialSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "emp-lanzamiento-producto";
 
@@ -23,6 +24,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "dark", "#c9a15e");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "19:00"}:00` : sampleData.fecha, "cd8");
   const gal = galleryWidget(d.galeria, "gal8");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: false, withMenu: false, whatsapp: d.contacto });
@@ -49,7 +51,7 @@ function render(data = {}) {
     --wine:#3a0d1f;
     --wine2:#5c1230;
     --wine-deep:#260815;
-    --gold:#c9a15e;
+    --gold:${accent};
     --blush:#f0d8bb;
     --blush-dim:#d8b895;
   }
@@ -68,7 +70,7 @@ function render(data = {}) {
   .leaf-bl{bottom:0;left:-30px;width:170px;height:170px;}
   .frame{position:relative;max-width:760px;margin:0 auto;padding:0 18px;}
   .frame::before{
-    content:"";position:absolute;inset:14px;border:1px solid rgba(201,161,94,.55);pointer-events:none;z-index:0;
+    content:"";position:absolute;inset:14px;border:1px solid color-mix(in srgb, ${accent} 55%, transparent);pointer-events:none;z-index:0;
   }
 
   .hero{
@@ -78,6 +80,8 @@ function render(data = {}) {
   }
   .hero .powered{font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:var(--blush-dim);}
   .hero .brand{margin-top:6px;font-family:'Playfair Display',serif;font-weight:700;font-size:1.1rem;letter-spacing:.03em;color:var(--gold);}
+  .hero-logo-wrap{display:inline-flex;align-items:center;justify-content:center;background:#fff;border-radius:8px;padding:10px 18px;margin-top:6px;}
+  .hero-logo{display:block;max-height:34px;max-width:150px;width:auto;height:auto;}
   .hero h1{
     margin-top:22px;
     font-size:clamp(2.6rem,10vw,4.4rem);
@@ -102,14 +106,14 @@ function render(data = {}) {
   h2.title{font-size:clamp(1.5rem,5vw,2.1rem);color:var(--blush);}
 
   .divider{display:flex;align-items:center;gap:14px;max-width:420px;margin:22px auto;}
-  .divider span{flex:1;height:1px;background:rgba(201,161,94,.5);}
+  .divider span{flex:1;height:1px;background:color-mix(in srgb, ${accent} 50%, transparent);}
   .divider em{font-style:normal;color:var(--gold);font-size:1.3rem;}
 
   .date-row{
     display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:18px;margin:20px 0;
   }
   .date-col{flex:1 1 130px;text-align:center;}
-  .date-col .rule{height:1px;background:rgba(201,161,94,.5);margin-bottom:8px;}
+  .date-col .rule{height:1px;background:color-mix(in srgb, ${accent} 50%, transparent);margin-bottom:8px;}
   .date-col .lbl{font-family:'Playfair Display',serif;font-size:clamp(1.1rem,4vw,1.4rem);text-transform:uppercase;letter-spacing:.05em;color:var(--blush);}
   .date-col .sub{font-size:.9rem;color:var(--blush-dim);margin-top:4px;}
   .date-day{flex:0 0 auto;}
@@ -117,7 +121,7 @@ function render(data = {}) {
   .date-day .year{font-size:1rem;color:var(--blush-dim);}
 
   .countdown{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
-  .countdown div{border:1px solid rgba(201,161,94,.5);border-radius:6px;padding:12px 16px;min-width:64px;}
+  .countdown div{border:1px solid color-mix(in srgb, ${accent} 50%, transparent);border-radius:6px;padding:12px 16px;min-width:64px;}
   .cd-num{display:block;font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--blush);}
   .cd-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;color:var(--blush-dim);}
 
@@ -125,7 +129,7 @@ function render(data = {}) {
   .info-line strong{color:var(--blush);font-weight:600;}
 
   .agenda-list{list-style:none;margin:18px 0 0;padding:0;text-align:left;max-width:420px;margin-left:auto;margin-right:auto;}
-  .agenda-list li{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid rgba(201,161,94,.25);}
+  .agenda-list li{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid color-mix(in srgb, ${accent} 25%, transparent);}
   .agenda-list li:last-child{border-bottom:0;}
   .ag-time{flex:0 0 auto;color:var(--gold);font-family:'Playfair Display',serif;font-size:1rem;}
   .ag-text{color:var(--blush-dim);}
@@ -136,7 +140,7 @@ function render(data = {}) {
   .sp-role{display:block;font-size:.9rem;color:var(--blush-dim);margin-top:2px;}
 
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px;}
-  .gallery-item img{width:100%;height:150px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid rgba(201,161,94,.4);}
+  .gallery-item img{width:100%;height:150px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid color-mix(in srgb, ${accent} 40%, transparent);}
   .lightbox{display:none;position:fixed;inset:0;background:rgba(20,4,12,.94);align-items:center;justify-content:center;z-index:50;}
   .lightbox.open{display:flex;}
   .lightbox img{max-width:90%;max-height:85%;border:1px solid var(--gold);}
@@ -146,7 +150,7 @@ function render(data = {}) {
   .rsvp-form label{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--blush-dim);display:flex;flex-direction:column;gap:4px;}
   .rsvp-form input,.rsvp-form select,.rsvp-form textarea{
     font-family:'Cormorant Garamond',serif;font-size:1rem;padding:10px 12px;border-radius:4px;
-    border:1px solid rgba(201,161,94,.5);background:rgba(0,0,0,.18);color:var(--blush);
+    border:1px solid color-mix(in srgb, ${accent} 50%, transparent);background:rgba(0,0,0,.18);color:var(--blush);
   }
   .rsvp-form button{
     background:var(--gold);color:var(--wine-deep);border:0;padding:12px;border-radius:4px;
@@ -167,7 +171,7 @@ function render(data = {}) {
 <body>
   <div class="leaf leaf-tr" aria-hidden="true">
     <svg width="190" height="190" viewBox="0 0 190 190" xmlns="http://www.w3.org/2000/svg">
-      <g stroke="#c9a15e" stroke-width="1" fill="#7a1030" opacity=".8">
+      <g stroke="${accent}" stroke-width="1" fill="#7a1030" opacity=".8">
         <path d="M190 0 C150 20 120 55 110 100 C140 70 165 45 190 30 Z"/>
         <path d="M190 0 C160 35 140 70 135 115 C160 80 178 45 190 20 Z"/>
         <path d="M190 10 C170 45 158 80 158 120 C178 90 190 55 190 10 Z"/>
@@ -177,7 +181,7 @@ function render(data = {}) {
   </div>
   <div class="leaf leaf-bl" aria-hidden="true">
     <svg width="170" height="170" viewBox="0 0 170 170" xmlns="http://www.w3.org/2000/svg">
-      <g stroke="#c9a15e" stroke-width="1" fill="#7a1030" opacity=".8">
+      <g stroke="${accent}" stroke-width="1" fill="#7a1030" opacity=".8">
         <path d="M0 170 C40 150 70 115 80 70 C50 100 25 125 0 140 Z"/>
         <path d="M0 170 C30 135 50 100 55 55 C30 90 12 125 0 150 Z"/>
         <path d="M0 160 C20 125 32 90 32 50 C12 80 0 115 0 160 Z"/>
@@ -189,7 +193,7 @@ function render(data = {}) {
   <div class="frame">
     <div class="hero">
       <div class="powered">Powered by</div>
-      <div class="brand">${esc(d.empresa)}</div>
+      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : `<div class="brand">${esc(d.empresa)}</div>`}
       <h1>You're<br>Invited</h1>
       <p class="empresa-tag">Estamos a punto de lanzar <strong>${esc(d.nombreEvento)}</strong></p>
       <p class="desc">${esc(d.descripcion)}</p>

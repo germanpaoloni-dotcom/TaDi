@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { empresarialSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "emp-tech-summit";
 
@@ -40,6 +41,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "dark", "#5fe3ff");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "09:00"}:00` : sampleData.fecha, "cd-tech");
   const gal = galleryWidget(d.galeria || [], "gal-tech");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: false, withMenu: false, whatsapp: d.contacto });
@@ -58,7 +60,7 @@ function render(data = {}) {
     --navy:#0a1a42;
     --navy2:#0d2359;
     --blue:#1657d6;
-    --cyan:#5fe3ff;
+    --cyan:${accent};
     --card:#0a1638;
     --border:#1e3468;
     --text:#eef3ff;
@@ -98,7 +100,7 @@ function render(data = {}) {
   .hero-mesh{
     position:absolute; inset:0; z-index:-2;
     background:
-      radial-gradient(circle at 78% 22%, rgba(95,227,255,0.35), transparent 45%),
+      radial-gradient(circle at 78% 22%, color-mix(in srgb, ${accent} 35%, transparent), transparent 45%),
       radial-gradient(circle at 15% 85%, rgba(22,87,214,0.55), transparent 55%),
       linear-gradient(160deg, #030817 0%, #0a1a42 45%, #123a8f 100%);
   }
@@ -115,6 +117,8 @@ function render(data = {}) {
     text-transform:uppercase; letter-spacing:5px; font-size:.78rem;
     color:var(--text); font-weight:500; margin-bottom:10px; font-family:'Rajdhani',sans-serif;
   }
+  .hero-logo-wrap{display:inline-flex;align-items:center;justify-content:center;background:#fff;border-radius:10px;padding:11px 20px;margin-bottom:14px;}
+  .hero-logo{display:block;max-height:34px;max-width:170px;width:auto;height:auto;}
   .hero h1{
     font-size:clamp(2.1rem,7.5vw,4.2rem);
     margin:.05em 0;
@@ -135,7 +139,7 @@ function render(data = {}) {
     margin-top:26px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
   }
   .pill{
-    border:1px solid rgba(95,227,255,0.4); background:rgba(10,26,66,0.55);
+    border:1px solid color-mix(in srgb, ${accent} 40%, transparent); background:rgba(10,26,66,0.55);
     border-radius:999px; padding:8px 16px; font-size:.85rem; color:var(--text);
     backdrop-filter:blur(4px); font-family:'Inter',sans-serif;
   }
@@ -172,7 +176,7 @@ function render(data = {}) {
   .countdown{display:flex; gap:12px; flex-wrap:wrap; justify-content:center;}
   .countdown > div{
     flex:1; min-width:70px; text-align:center;
-    background:linear-gradient(160deg,rgba(22,87,214,0.25),rgba(95,227,255,0.08));
+    background:linear-gradient(160deg,rgba(22,87,214,0.25),color-mix(in srgb, ${accent} 8%, transparent));
     border:1px solid var(--border);
     border-radius:10px; padding:16px 8px;
   }
@@ -198,7 +202,7 @@ function render(data = {}) {
   .agenda-dot{
     position:absolute; left:calc(clamp(70px,15vw,100px) - 5px); top:22px;
     width:8px; height:8px; border-radius:50%;
-    background:var(--cyan); box-shadow:0 0 8px 2px rgba(95,227,255,0.7);
+    background:var(--cyan); box-shadow:0 0 8px 2px color-mix(in srgb, ${accent} 70%, transparent);
   }
 
   /* speakers */
@@ -219,7 +223,7 @@ function render(data = {}) {
 
   /* venue */
   .venue-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;}
-  .venue-item{border:1px solid var(--border); border-radius:12px; padding:16px; background:rgba(95,227,255,0.03);}
+  .venue-item{border:1px solid var(--border); border-radius:12px; padding:16px; background:color-mix(in srgb, ${accent} 3%, transparent);}
   .venue-item .label{font-size:.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--cyan); margin-bottom:6px; font-family:'Rajdhani',sans-serif;}
   .venue-item .value{font-size:.95rem; color:var(--text); font-family:'Inter',sans-serif;}
 
@@ -265,26 +269,26 @@ function render(data = {}) {
     <svg class="hero-circuit" width="800" height="600" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#5fe3ff" stop-opacity="0.55"/>
+          <stop offset="0%" stop-color="${accent}" stop-opacity="0.55"/>
           <stop offset="100%" stop-color="#1657d6" stop-opacity="0.15"/>
         </linearGradient>
       </defs>
       <g fill="none" stroke="url(#lineGrad)" stroke-width="1.5">
         <path d="M10 40 H140 V110 H300 V60 H420"/>
-        <circle cx="10" cy="40" r="5" fill="#5fe3ff" stroke="none"/>
-        <circle cx="140" cy="40" r="4" fill="#5fe3ff" stroke="none"/>
+        <circle cx="10" cy="40" r="5" fill="${accent}" stroke="none"/>
+        <circle cx="140" cy="40" r="4" fill="${accent}" stroke="none"/>
         <circle cx="300" cy="110" r="5" fill="#1657d6" stroke="none"/>
         <path d="M60 20 V90 H180"/>
-        <circle cx="60" cy="20" r="4" fill="#5fe3ff" stroke="none"/>
+        <circle cx="60" cy="20" r="4" fill="${accent}" stroke="none"/>
         <path d="M760 500 H620 V420 H480 V470 H360"/>
-        <circle cx="760" cy="500" r="5" fill="#5fe3ff" stroke="none"/>
+        <circle cx="760" cy="500" r="5" fill="${accent}" stroke="none"/>
         <circle cx="480" cy="420" r="4" fill="#1657d6" stroke="none"/>
-        <circle cx="360" cy="470" r="5" fill="#5fe3ff" stroke="none"/>
+        <circle cx="360" cy="470" r="5" fill="${accent}" stroke="none"/>
         <path d="M700 540 V590"/>
-        <circle cx="700" cy="540" r="4" fill="#5fe3ff" stroke="none"/>
+        <circle cx="700" cy="540" r="4" fill="${accent}" stroke="none"/>
       </g>
     </svg>
-    <div class="tag">We are the future</div>
+    ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : `<div class="tag">We are the future</div>`}
     <h1>${esc(d.nombreEvento)}</h1>
     <p class="year">${esc(d.empresa)}</p>
     <p class="sub">${esc(d.descripcion)}</p>

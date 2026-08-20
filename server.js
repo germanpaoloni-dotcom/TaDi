@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const { getDB, saveDB, uid } = require("./db");
 const { categories, designs, getDesign, designsByCategory } = require("./designs");
+const { PALETTES } = require("./designs/palettes");
 const mp = require("./mercadopago");
 
 const app = express();
@@ -580,13 +581,17 @@ app.post("/webhook/mercadopago", express.json(), async (req, res) => {
 });
 
 // ---------- EDITOR (post-pago) ----------
+function helpHTML(f) {
+  return f.help ? `<p class="field-help">${escapeHtml(f.help)}</p>` : "";
+}
+
 function fieldHTML(f, value) {
   const val = value ?? "";
   if (f.type === "textarea") {
-    return `<div class="field"><label>${f.label}${f.required ? " *" : ""}</label><textarea name="${f.name}">${escapeHtml(val)}</textarea></div>`;
+    return `<div class="field"><label>${f.label}${f.required ? " *" : ""}</label>${helpHTML(f)}<textarea name="${f.name}">${escapeHtml(val)}</textarea></div>`;
   }
   if (f.type === "image") {
-    return `<div class="field"><label>${f.label}</label>
+    return `<div class="field"><label>${f.label}</label>${helpHTML(f)}
       <input type="hidden" name="${f.name}" value="${escapeHtml(val)}" id="hidden-${f.name}">
       <input type="file" accept="image/*" data-target="${f.name}" class="single-upload">
       ${val ? `<div class="gallery-preview"><img src="${escapeHtml(val)}"></div>` : ""}
@@ -594,13 +599,27 @@ function fieldHTML(f, value) {
   }
   if (f.type === "images") {
     const arr = Array.isArray(value) ? value : [];
-    return `<div class="field"><label>${f.label}</label>
+    return `<div class="field"><label>${f.label}</label>${helpHTML(f)}
       <input type="hidden" name="${f.name}" value='${escapeHtml(JSON.stringify(arr))}' id="hidden-${f.name}">
       <input type="file" accept="image/*" multiple data-target="${f.name}" class="multi-upload">
       <div class="gallery-preview" id="preview-${f.name}">${arr.map((s) => `<img src="${escapeHtml(s)}">`).join("")}</div>
     </div>`;
   }
-  return `<div class="field"><label>${f.label}${f.required ? " *" : ""}</label><input type="${f.type}" name="${f.name}" value="${escapeHtml(val)}"></div>`;
+  if (f.type === "palette") {
+    const current = val || "original";
+    return `<div class="field"><label>${f.label}</label>${helpHTML(f)}
+      <div class="palette-picker">
+        ${PALETTES.map(
+          (p) => `<label class="palette-swatch">
+            <input type="radio" name="${f.name}" value="${p.id}"${p.id === current ? " checked" : ""}>
+            <span class="swatch-dot"${p.id === "original" ? ' style="background:linear-gradient(135deg,#fff,#ccc,#333)"' : ` style="background:linear-gradient(135deg,${p.dark},${p.light})"`}></span>
+            <span class="swatch-name">${p.name}</span>
+          </label>`
+        ).join("")}
+      </div>
+    </div>`;
+  }
+  return `<div class="field"><label>${f.label}${f.required ? " *" : ""}</label>${helpHTML(f)}<input type="${f.type}" name="${f.name}" value="${escapeHtml(val)}"></div>`;
 }
 
 function escapeHtml(s) {

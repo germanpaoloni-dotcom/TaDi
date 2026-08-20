@@ -1,5 +1,6 @@
 const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
 const { empresarialSchema } = require("../schemas");
+const { getPaletteColor } = require("../palettes");
 
 const id = "emp-conferencia-corporativa";
 
@@ -39,6 +40,7 @@ const sampleData = {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
+  const accent = getPaletteColor(d.colorPalette, "dark", "#9fb4c7");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "09:00"}:00` : sampleData.fecha, "cd-conf");
   const gal = galleryWidget(d.galeria || [], "gal-conf");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: false, withMenu: false, whatsapp: d.contacto });
@@ -59,8 +61,8 @@ function render(data = {}) {
     --navy2:#1c3347;
     --card:#132231;
     --border:#2a3f52;
-    --steel:#9fb4c7;
-    --steel-dim:#71889c;
+    --steel:${accent};
+    --steel-dim:color-mix(in srgb, ${accent}, black 28%);
     --text:#eef3f7;
     --muted:#8ea0b1;
   }
@@ -114,6 +116,12 @@ function render(data = {}) {
     color:var(--steel);
     margin-bottom:clamp(20px,5vw,40px);
   }
+  .hero-logo-wrap{
+    display:inline-flex; align-items:center; justify-content:center;
+    background:#fff; border-radius:10px; padding:14px 22px;
+    margin:0 auto clamp(20px,5vw,40px);
+  }
+  .hero-logo{display:block; max-height:42px; max-width:190px; width:auto; height:auto;}
   .hero-title{
     margin:0;
     font-weight:600;
@@ -260,7 +268,7 @@ function render(data = {}) {
     <div class="hero-bg"></div>
     <div class="hero-overlay"></div>
     <div class="hero-inner">
-      <div class="hero-mark">${esc(d.empresa)}</div>
+      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : `<div class="hero-mark">${esc(d.empresa)}</div>`}
       <h1 class="hero-title">${esc(d.nombreEvento)}</h1>
       <svg class="hero-divider" width="70" height="14" viewBox="0 0 70 14" xmlns="http://www.w3.org/2000/svg">
         <line x1="0" y1="7" x2="26" y2="7" stroke="#9fb4c7" stroke-width="1"/>

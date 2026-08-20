@@ -47,6 +47,13 @@ const empresarialSchema = [
   { name: "oradores", label: "Oradores (uno por línea: nombre - cargo)", type: "textarea" },
   { name: "dressCode", label: "Código de vestimenta", type: "text" },
   { name: "contacto", label: "Contacto / WhatsApp de registro", type: "text" },
+  {
+    name: "logo",
+    label: "Logo de tu empresa",
+    type: "image",
+    help: "Subilo en formato PNG con fondo transparente para que se vea prolijo sobre el diseño (no como un cuadrado blanco/de color). Si tu logo no tiene el fondo transparente, podés sacárselo gratis en remove.bg: subís la imagen, descargás el resultado en PNG y lo cargás acá.",
+  },
+  { name: "colorPalette", label: "Gama de colores", type: "palette" },
   { name: "coverImage", label: "Imagen de portada", type: "image" },
   { name: "galeria", label: "Galería / sponsors", type: "images" },
 ];
