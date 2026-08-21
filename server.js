@@ -277,7 +277,7 @@ function cardHTML(d) {
   return `<div class="design-card">
     <div class="swatch" style="background:linear-gradient(135deg, ${d.accent}, ${d.accent2 || d.accent})">
       ${isFlagship ? `<span class="badge-fav">★ Más elegido</span>` : ""}
-      ${d.name}
+      ${typeof d.cardPreview === "function" ? d.cardPreview(d) : d.name}
     </div>
     <div class="body">
       <span class="cat-tag">${cat.label}</span>

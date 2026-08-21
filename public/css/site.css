@@ -156,7 +156,18 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .design-card{background:var(--bg);border:0;border-radius:var(--radius);box-shadow:var(--nu-sm);overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;}
 .design-card:hover{transform:translateY(-4px);box-shadow:var(--nu-md);}
 .design-card .swatch{position:relative;height:130px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.05rem;text-align:center;padding:10px;}
-.badge-fav{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.85);backdrop-filter:blur(3px);color:var(--ink);font-size:.66rem;font-weight:700;letter-spacing:.4px;padding:5px 10px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.badge-fav{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.85);backdrop-filter:blur(3px);color:var(--ink);font-size:.66rem;font-weight:700;letter-spacing:.4px;padding:5px 10px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:2;}
+
+/* Preview de lujo (verde mármol + dorado) para las tarjetas del catálogo
+   que definen su propio cardPreview() en vez del gradiente genérico. */
+.swatch-luxe{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  background:linear-gradient(160deg,#16241d 0%,#0d1611 55%,#1a2b22 100%);overflow:hidden;}
+.swatch-luxe .corner-flourish{position:absolute;width:22px;height:22px;color:#c9a86a;opacity:.8;}
+.swatch-luxe .corner-flourish.cf-tl{top:8px;left:8px;}
+.swatch-luxe .corner-flourish.cf-br{bottom:8px;right:8px;transform:scale(-1,-1);}
+.swatch-luxe .swatch-mono{width:30px;height:30px;border-radius:50%;border:1px solid #c9a86a;display:flex;align-items:center;justify-content:center;font-family:Georgia,'Times New Roman',serif;font-size:.6rem;letter-spacing:1px;color:#e7d5ac;}
+.swatch-luxe .swatch-eyebrow{font-size:.5rem;letter-spacing:2.5px;text-transform:uppercase;color:#e7d5ac;}
+.swatch-luxe .swatch-name{font-family:Georgia,'Times New Roman',serif;font-size:1rem;color:#fdfaf3;font-weight:400;}
 .design-card .body{padding:20px;display:flex;flex-direction:column;gap:9px;flex:1;}
 .design-card .cat-tag{font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);}
 .design-card h3{margin:0;font-size:1.1rem;color:var(--ink);}
