@@ -21,10 +21,13 @@ const sampleData = {
   ],
 };
 
-// Ramita de eucalipto estilo acuarela, en SVG inline (sin ids, se puede repetir
-// varias veces en la misma página sin colisiones).
+// Ramita de eucalipto estilo acuarela + un hilo dorado fino que la acompaña,
+// en SVG inline (sin ids, se puede repetir varias veces en la misma página
+// sin colisiones). El hilo dorado es un detalle fijo (no depende de la
+// paleta elegida por el usuario), igual que el verde de las hojas.
 const EUCALYPTUS_BRANCH = `
 <svg viewBox="0 0 260 340" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <path d="M244 6 C 198 58 168 96 150 140" fill="none" stroke="#c9a86a" stroke-width="1" opacity="0.5"/>
   <path d="M232 16 C 194 64 152 96 122 148 C 92 198 70 250 40 302" fill="none" stroke="#7c8a5e" stroke-width="2" opacity="0.55"/>
   <g opacity="0.94">
     <g transform="translate(226,34) rotate(35)"><path d="M0,0 C14,-22 14,-52 0,-72 C-14,-52 -14,-22 0,0 Z" fill="#93a06d"/><path d="M0,-4 L0,-66" stroke="#5f6b45" stroke-width="1" opacity="0.5"/></g>
@@ -38,8 +41,42 @@ const EUCALYPTUS_BRANCH = `
   </g>
 </svg>`;
 
-const ICON_CHURCH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L12 6"/><path d="M9.5 4 L14.5 4"/><path d="M5 21 V11 L12 6 L19 11 V21"/><path d="M9 21 V15 H15 V21"/></svg>`;
-const ICON_TOAST = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4 H20 L12 13 V20"/><path d="M8 20 H16"/></svg>`;
+// Mancha abstracta tipo acuarela (arena/beige) con un hilo dorado fino que
+// la atraviesa — decoración de portada, no depende de la paleta elegida.
+const BLOB_DECO = `
+<svg viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <defs><filter id="blob-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+  <g filter="url(#blob-soft)">
+    <path d="M0,50 C40,15 95,2 140,28 C182,53 158,108 196,132 C224,150 255,128 280,150 C292,161 300,170 300,185 L300,0 L0,0 Z" fill="#e9dfca" opacity="0.9"/>
+    <path d="M0,105 C50,72 82,108 122,92 C162,76 174,118 214,108 C240,101 254,120 270,112 L300,118 L300,0 L0,0 Z" fill="#ded1b0" opacity="0.55"/>
+  </g>
+  <path d="M-6,60 C34,104 58,10 100,42 C136,69 158,14 196,4" fill="none" stroke="#c9a86a" stroke-width="1.3" opacity="0.85"/>
+</svg>`;
+
+// Pequeño ornamento tipo ramita curva (dos trazos que se abren desde un
+// punto) — se usa bajo títulos y entre el lugar y el botón de cada tarjeta
+// de itinerario, en reemplazo de íconos "de librería".
+const LEAF_SPRIG = `<svg class="leaf-sprig" viewBox="0 0 90 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M45 10 C36 3 27 3 18 10 C27 7 34 8.5 40 10" stroke="currentColor" stroke-width="1.1"/>
+  <path d="M45 10 C54 17 63 17 72 10 C63 13 56 11.5 50 10" stroke="currentColor" stroke-width="1.1"/>
+  <circle cx="45" cy="10" r="1.5" fill="currentColor"/>
+</svg>`;
+
+const DOT_DIVIDER = `<div class="dot-divider" aria-hidden="true"><span class="ln"></span><span class="dot"></span><span class="ln"></span></div>`;
+
+const GIFT_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <rect x="3.5" y="8.2" width="17" height="4" rx=".6"/>
+  <rect x="4.7" y="12.2" width="14.6" height="8.6" rx=".6"/>
+  <path d="M12 8.2 V20.8"/>
+  <path d="M12 8.2c-2.6 0-4-1.4-4-2.8 0-1.3 1-1.9 1.9-1.5 1.4.6 2.1 2.5 2.1 4.3Z"/>
+  <path d="M12 8.2c2.6 0 4-1.4 4-2.8 0-1.3-1-1.9-1.9-1.5-1.4.6-2.1 2.5-2.1 4.3Z"/>
+</svg>`;
+
+const RING_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <circle cx="12" cy="14.6" r="6"/>
+  <path d="M9 8.6 L12 3 L15 8.6"/>
+  <circle cx="12" cy="5.7" r="1.1" fill="currentColor" stroke="none"/>
+</svg>`;
 
 const MESES_ES = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
 const DIAS_ES = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
@@ -73,63 +110,76 @@ function render(data = {}) {
 <title>${esc(d.novia)} &amp; ${esc(d.novio)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --olive:${accent};
     --olive-dark:color-mix(in srgb, ${accent}, black 33%);
-    --olive-light:color-mix(in srgb, ${accent}, white 35%);
     --sage-bg:#eef1e3;
     --cream:#fdfcf7;
     --ink:#3c3c2e;
     --line:#dde0cd;
+    --gold:#c9a86a;
   }
   *{box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
   body{margin:0;overflow-x:hidden;font-family:'Montserrat',sans-serif;color:var(--ink);background:var(--cream);line-height:1.6;}
   a{color:inherit;}
-  .section{position:relative;max-width:640px;margin:0 auto;padding:56px 24px;overflow:hidden;}
+
+  /* --- franjas de fondo a todo el ancho, con el contenido centrado adentro.
+     Las decoraciones de esquina cuelgan del ".band" (ancho completo) en vez
+     del ".section" (acotado a 640px), para que lleguen hasta el borde real
+     de la pantalla como en las referencias, en vez de cortarse en la caja
+     de contenido. --- */
+  .band{width:100%;position:relative;overflow:hidden;}
+  .band.bg-sage{background:var(--sage-bg);}
+  .band.bg-cream{background:var(--cream);}
+  .section{position:relative;max-width:640px;margin:0 auto;padding:56px 24px;}
   .section.tight{padding-top:34px;padding-bottom:34px;}
-  .bg-sage{background:var(--sage-bg);}
-  .bg-cream{background:var(--cream);}
   .eyebrow{text-align:center;font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--olive);font-weight:600;margin:0 0 10px;}
   .section-title{text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(1.3rem,4vw,1.8rem);color:var(--olive-dark);margin:0 0 28px;}
+  .section-title.tight{margin-bottom:12px;}
 
-  /* --- decoración de hojas --- */
+  /* --- divisor lineal con punto central --- */
+  .dot-divider{display:flex;align-items:center;justify-content:center;gap:10px;width:130px;margin:0 auto 26px;position:relative;z-index:1;}
+  .dot-divider .ln{flex:1;height:1px;background:var(--olive);opacity:.5;}
+  .dot-divider .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex:none;}
+
+  .leaf-sprig{width:64px;height:15px;color:var(--olive);opacity:.85;}
+
+  /* --- decoración de hojas + mancha acuarela (cuelgan del .band, esquinas reales) --- */
   .leaf-deco{position:absolute;pointer-events:none;z-index:0;opacity:.95;}
   .leaf-deco svg{width:100%;height:100%;display:block;}
-  .leaf-tr{top:-18px;right:-30px;width:180px;height:230px;}
-  .leaf-tr-sm{top:-10px;right:-16px;width:120px;height:150px;}
-  .leaf-bl{bottom:-24px;left:-34px;width:170px;height:220px;transform:rotate(190deg) scaleX(-1);}
-  .leaf-br{bottom:-20px;right:-28px;width:150px;height:190px;transform:rotate(160deg);}
-  .leaf-tl{top:-16px;left:-28px;width:150px;height:190px;transform:rotate(-70deg) scaleX(-1);}
-
-  /* --- divisor tipo papel rasgado --- */
-  .torn{position:relative;width:100%;height:30px;margin:0;padding:0;z-index:1;}
-  .torn.into-sage{background:var(--sage-bg);clip-path:polygon(0% 100%,3% 30%,7% 85%,11% 20%,15% 75%,19% 15%,23% 70%,27% 10%,31% 60%,35% 15%,39% 75%,43% 20%,47% 65%,51% 5%,55% 55%,59% 20%,63% 70%,67% 10%,71% 60%,75% 15%,79% 75%,83% 25%,87% 65%,91% 5%,95% 55%,100% 20%,100% 100%);}
-  .torn.into-cream{background:var(--cream);clip-path:polygon(0% 0%,3% 70%,7% 15%,11% 80%,15% 25%,19% 85%,23% 30%,27% 90%,31% 40%,35% 85%,39% 25%,43% 80%,47% 35%,51% 95%,55% 45%,59% 80%,63% 30%,67% 90%,71% 40%,75% 85%,79% 25%,83% 75%,87% 35%,91% 95%,95% 45%,100% 80%,100% 0%);}
+  .leaf-tr{top:-14px;right:-14px;width:170px;height:220px;}
+  .leaf-tr-sm{top:-8px;right:-8px;width:110px;height:140px;}
+  .leaf-bl{bottom:-16px;left:-16px;width:160px;height:210px;transform:rotate(190deg) scaleX(-1);}
+  .leaf-br{bottom:-14px;right:-14px;width:140px;height:180px;transform:rotate(160deg);}
+  .leaf-tl{top:-12px;left:-12px;width:140px;height:180px;transform:rotate(-70deg) scaleX(-1);}
+  .blob-deco{position:absolute;top:-16px;left:-20px;width:420px;height:320px;z-index:0;pointer-events:none;opacity:.95;}
+  .blob-deco svg{width:100%;height:100%;display:block;}
 
   /* --- hero / portada --- */
-  .hero{padding-top:64px;padding-bottom:40px;}
-  .hero blockquote{margin:8px auto 30px;max-width:420px;text-align:center;font-size:.82rem;letter-spacing:1px;line-height:1.9;color:var(--olive-dark);font-style:normal;text-transform:uppercase;}
-  .monogram{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:16px;font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(2.6rem,9vw,3.6rem);color:var(--olive-dark);margin:10px 0 6px;}
-  .monogram .bar{width:1px;height:.85em;background:var(--olive-dark);display:inline-block;}
-  .monogram-label{text-align:center;font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--olive);}
+  .hero{padding-top:60px;padding-bottom:46px;}
+  .hero-inner{position:relative;z-index:1;max-width:460px;margin:0 auto;}
+  .hero blockquote{margin:8px auto 34px;max-width:400px;text-align:center;font-size:.82rem;letter-spacing:1px;line-height:1.9;color:var(--olive-dark);font-style:normal;text-transform:uppercase;}
+  .monogram{display:flex;align-items:center;justify-content:center;gap:18px;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(2.8rem,10vw,3.8rem);color:var(--olive-dark);margin:6px 0 22px;}
+  .monogram .bar{width:1px;height:.8em;background:var(--olive-dark);display:inline-block;opacity:.7;}
+  .monogram-label{text-align:center;font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--olive);margin:0;}
 
   /* --- foto de portada --- */
   .cover-photo{width:100%;height:min(70vw,460px);object-fit:cover;display:block;}
 
   /* --- nombres --- */
-  .names-intro{text-align:center;font-size:.78rem;letter-spacing:1px;color:#6b6b57;max-width:420px;margin:0 auto 24px;text-transform:uppercase;}
-  .names-script{position:relative;z-index:1;font-family:'Great Vibes',cursive;text-align:center;color:var(--olive-dark);line-height:1.05;}
-  .names-script .name{display:block;font-size:clamp(3rem,12vw,5rem);}
-  .names-script .amp{display:block;font-size:clamp(1.6rem,6vw,2.3rem);margin:.05em 0;color:var(--olive);}
-  .honor-text{text-align:center;max-width:380px;margin:22px auto 0;font-size:.85rem;color:#5a5a48;}
+  .names-intro{text-align:center;font-size:.78rem;letter-spacing:1px;color:#6b6b57;max-width:420px;margin:0 auto 24px;text-transform:uppercase;position:relative;z-index:1;}
+  .names-script{position:relative;z-index:1;font-family:'Cormorant Garamond',serif;font-weight:500;text-align:center;color:var(--olive-dark);line-height:1.05;}
+  .names-script .name{display:block;font-size:clamp(2.6rem,9vw,3.6rem);}
+  .names-script .amp{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:clamp(1.4rem,5vw,1.9rem);margin:.08em 0;color:var(--olive);}
+  .honor-text{text-align:center;max-width:380px;margin:0 auto;font-size:.85rem;color:#5a5a48;position:relative;z-index:1;}
 
-  .date-block{display:flex;align-items:center;justify-content:center;gap:16px;margin:26px auto 0;}
+  .month-label{text-align:center;letter-spacing:5px;font-size:.8rem;text-transform:uppercase;color:var(--olive);margin:32px 0 12px;position:relative;z-index:1;}
+  .date-block{display:flex;align-items:center;justify-content:center;gap:18px;margin:0 auto;position:relative;z-index:1;}
   .date-block .weekday,.date-block .year{font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--olive-dark);border-top:1px solid var(--olive);border-bottom:1px solid var(--olive);padding:8px 6px;white-space:nowrap;}
   .date-block .day{font-family:'Cormorant Garamond',serif;font-size:clamp(3.2rem,11vw,4.6rem);color:var(--olive-dark);line-height:1;}
-  .month-label{text-align:center;letter-spacing:5px;font-size:.8rem;text-transform:uppercase;color:var(--olive);margin:8px 0 0;}
 
   /* --- countdown --- */
   .countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
@@ -139,26 +189,15 @@ function render(data = {}) {
 
   /* --- detalle ceremonia / fiesta --- */
   .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;position:relative;z-index:1;}
-  .info-card{background:#fff;border:1px solid var(--line);border-radius:6px;padding:26px 20px;text-align:center;}
+  .info-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:28px 22px 24px;text-align:center;}
   .info-card .info-time{font-size:.72rem;letter-spacing:2px;color:var(--olive);text-transform:uppercase;}
   .info-card h3{margin:6px 0 2px;font-family:'Cormorant Garamond',serif;font-size:1.25rem;letter-spacing:1px;text-transform:uppercase;color:var(--olive-dark);}
-  .info-card p{margin:0 0 16px;font-size:.85rem;color:#666;font-style:italic;}
+  .info-card p{margin:0;font-size:.85rem;color:#666;font-style:italic;}
+  .info-card .leaf-sprig{margin:14px auto 16px;}
   .btn-map{display:inline-block;background:var(--olive-dark);color:#fff;text-decoration:none;font-size:.68rem;letter-spacing:2px;text-transform:uppercase;padding:12px 22px;border-radius:2px;}
   .btn-map:hover{background:var(--olive);}
-  .dress-note{text-align:center;margin-top:22px;font-size:.85rem;color:#5a5a48;position:relative;z-index:1;}
+  .dress-note{text-align:center;margin-top:30px;font-size:.85rem;color:#5a5a48;position:relative;z-index:1;}
   .dress-note strong{color:var(--olive-dark);}
-
-  /* --- timeline / itinerario --- */
-  .timeline{position:relative;z-index:1;max-width:420px;margin:34px auto 0;}
-  .timeline-item{position:relative;display:flex;gap:18px;padding-bottom:34px;}
-  .timeline-item:last-child{padding-bottom:0;}
-  .timeline-item:not(:last-child)::before{content:'';position:absolute;left:21px;top:44px;bottom:-34px;width:1px;background:var(--olive-light);}
-  .timeline-icon{width:44px;height:44px;flex:0 0 44px;border-radius:50%;background:var(--olive);color:#fff;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;}
-  .timeline-icon svg{width:20px;height:20px;}
-  .timeline-content{padding-top:4px;}
-  .timeline-time{font-size:.72rem;letter-spacing:1.5px;color:var(--olive-dark);font-weight:600;}
-  .timeline-place{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.1rem;color:var(--ink);margin-top:2px;}
-  .timeline-sub{font-size:.78rem;color:#777;margin-top:2px;}
 
   /* --- galería --- */
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;position:relative;z-index:1;}
@@ -170,15 +209,17 @@ function render(data = {}) {
   .lightbox img{max-width:90%;max-height:85%;border-radius:4px;}
   .lightbox-close{position:absolute;top:20px;right:30px;color:#fff;font-size:2rem;cursor:pointer;line-height:1;}
 
-  /* --- regalo / aviso adultos --- */
-  .extra-grid{display:flex;flex-direction:column;gap:34px;position:relative;z-index:1;}
-  .extra-item{text-align:center;max-width:420px;margin:0 auto;}
-  .extra-item .ico{font-size:1.6rem;margin-bottom:6px;}
-  .extra-item h4{margin:0 0 6px;font-family:'Cormorant Garamond',serif;font-size:1.1rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--olive-dark);}
+  /* --- regalo / aviso adultos: caja sage flotando sobre el fondo crema --- */
+  .gift-box{position:relative;z-index:1;background:var(--sage-bg);border-radius:16px;padding:44px 26px;}
+  .extra-grid{display:flex;flex-direction:column;gap:34px;}
+  .extra-item{text-align:center;max-width:400px;margin:0 auto;}
+  .extra-item .ico{width:26px;height:26px;margin:0 auto 8px;color:var(--olive-dark);}
+  .extra-item h4{margin:0 0 12px;font-family:'Montserrat',sans-serif;font-weight:600;font-size:.85rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--olive-dark);}
   .extra-item p{margin:0;font-size:.85rem;color:#5a5a48;}
-  .extra-item .alias-pill{display:inline-block;margin-top:8px;padding:8px 16px;border:1px solid var(--olive);border-radius:20px;font-size:.8rem;letter-spacing:1px;color:var(--olive-dark);}
+  .extra-item .alias-pill{display:inline-block;margin-top:12px;padding:8px 16px;border:1px solid var(--olive);border-radius:20px;font-size:.8rem;letter-spacing:1px;color:var(--olive-dark);}
 
   /* --- rsvp --- */
+  .rsvp-deadline{text-align:center;margin:0 0 6px;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--olive);position:relative;z-index:1;}
   .rsvp-form{display:flex;flex-direction:column;gap:14px;position:relative;z-index:1;max-width:420px;margin:0 auto;}
   .rsvp-form label{font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--olive-dark);display:flex;flex-direction:column;gap:6px;}
   .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:'Montserrat',sans-serif;font-size:.9rem;padding:11px 12px;border:1px solid var(--line);border-radius:3px;background:#fff;width:100%;color:var(--ink);}
@@ -195,127 +236,129 @@ function render(data = {}) {
   @media (max-width:420px){
     .section{padding-left:18px;padding-right:18px;}
     .leaf-tr{width:130px;height:170px;}
+    .blob-deco{width:230px;height:190px;top:-20px;left:-34px;}
+    .monogram{gap:12px;}
   }
 </style></head>
 <body>
 
   <!-- Portada -->
-  <section class="section hero bg-cream">
+  <div class="band bg-cream">
+    <div class="blob-deco" aria-hidden="true">${BLOB_DECO}</div>
     ${leaf("leaf-tr")}
-    <p class="eyebrow">Nos casamos</p>
-    ${d.mensaje ? `<blockquote>${esc(d.mensaje)}</blockquote>` : ""}
-    <div class="monogram"><span>${esc(inicialNovia)}</span><span class="bar"></span><span>${esc(inicialNovio)}</span></div>
-    <p class="monogram-label">Nuestra boda</p>
-  </section>
+    <section class="section hero">
+      <div class="hero-inner">
+        <p class="eyebrow">Nos casamos</p>
+        ${d.mensaje ? `<blockquote>${esc(d.mensaje)}</blockquote>` : ""}
+        <div class="monogram"><span>${esc(inicialNovia)}</span><span class="bar"></span><span>${esc(inicialNovio)}</span></div>
+        ${DOT_DIVIDER}
+        <p class="monogram-label">Nuestra boda</p>
+      </div>
+    </section>
+  </div>
 
   <img class="cover-photo" src="${esc(d.coverImage)}" alt="${esc(d.novia)} y ${esc(d.novio)}">
 
   <!-- Nombres -->
-  <section class="section bg-cream">
+  <div class="band bg-cream">
     ${leaf("leaf-br")}
-    <p class="names-intro">Con la bendición de Dios y de nuestras familias,<br>tenemos el honor de invitarte a celebrar</p>
-    <div class="names-script">
-      <span class="name">${esc(d.novia)}</span>
-      <span class="amp">&amp;</span>
-      <span class="name">${esc(d.novio)}</span>
-    </div>
-    <p class="honor-text">Nos encantaría contar con tu presencia en este día tan especial para nosotros.</p>
-    ${fechaObj ? `
-    <p class="month-label">${esc(mesLabel)}</p>
-    <div class="date-block">
-      <span class="weekday">${esc(diaSemana)}</span>
-      <span class="day">${esc(diaNum)}</span>
-      <span class="year">${esc(anioLabel)}</span>
-    </div>` : ""}
-  </section>
-
-  <div class="torn into-sage"></div>
+    <section class="section">
+      <p class="names-intro">Con la bendición de Dios y de nuestras familias,<br>tenemos el honor de invitarte a celebrar</p>
+      <div class="names-script">
+        <span class="name">${esc(d.novia)}</span>
+        <span class="amp">&amp;</span>
+        <span class="name">${esc(d.novio)}</span>
+      </div>
+      ${DOT_DIVIDER}
+      <p class="honor-text">Nos encantaría contar con tu presencia en este día tan especial para nosotros.</p>
+      ${fechaObj ? `
+      <p class="month-label">${esc(mesLabel)}</p>
+      <div class="date-block">
+        <span class="weekday">${esc(diaSemana)}</span>
+        <span class="day">${esc(diaNum)}</span>
+        <span class="year">${esc(anioLabel)}</span>
+      </div>` : ""}
+    </section>
+  </div>
 
   <!-- Cuenta regresiva -->
-  <section class="section bg-sage tight">
+  <div class="band bg-sage">
     ${leaf("leaf-tr-sm")}
-    <h2 class="section-title">Falta muy poco</h2>
-    ${cd.html}
-  </section>
+    <section class="section tight">
+      <h2 class="section-title">Falta muy poco</h2>
+      ${cd.html}
+    </section>
+  </div>
 
   <!-- Ceremonia y fiesta -->
-  <section class="section bg-sage">
-    <p class="eyebrow">Itinerario</p>
-    <h2 class="section-title">Celebremos juntos</h2>
-    <div class="info-grid">
-      ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="info-card">
-        ${d.horaCeremonia ? `<span class="info-time">${esc(d.horaCeremonia)}</span>` : ""}
-        <h3>Ceremonia</h3>
-        ${d.lugarCeremonia ? `<p>${esc(d.lugarCeremonia)}</p>` : ""}
-        ${d.direccionMapa ? `<a class="btn-map" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
+  ${(d.horaCeremonia || d.lugarCeremonia || d.horaFiesta || d.lugarFiesta || d.dressCode) ? `<div class="band bg-sage">
+    <section class="section">
+      <p class="eyebrow">Itinerario</p>
+      <h2 class="section-title tight">Celebremos juntos</h2>
+      ${DOT_DIVIDER}
+      ${(d.horaCeremonia || d.lugarCeremonia || d.horaFiesta || d.lugarFiesta) ? `<div class="info-grid">
+        ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="info-card">
+          ${d.horaCeremonia ? `<span class="info-time">${esc(d.horaCeremonia)}</span>` : ""}
+          <h3>Ceremonia</h3>
+          ${d.lugarCeremonia ? `<p>${esc(d.lugarCeremonia)}</p>` : ""}
+          ${LEAF_SPRIG}
+          ${d.direccionMapa ? `<a class="btn-map" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
+        </div>` : ""}
+        ${(d.horaFiesta || d.lugarFiesta) ? `<div class="info-card">
+          ${d.horaFiesta ? `<span class="info-time">${esc(d.horaFiesta)}</span>` : ""}
+          <h3>Fiesta</h3>
+          ${d.lugarFiesta ? `<p>${esc(d.lugarFiesta)}</p>` : ""}
+          ${LEAF_SPRIG}
+          ${d.direccionMapa ? `<a class="btn-map" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
+        </div>` : ""}
       </div>` : ""}
-      ${(d.horaFiesta || d.lugarFiesta) ? `<div class="info-card">
-        ${d.horaFiesta ? `<span class="info-time">${esc(d.horaFiesta)}</span>` : ""}
-        <h3>Fiesta</h3>
-        ${d.lugarFiesta ? `<p>${esc(d.lugarFiesta)}</p>` : ""}
-        ${d.direccionMapa ? `<a class="btn-map" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
-      </div>` : ""}
-    </div>
+      ${d.dressCode ? `<p class="dress-note">Código de vestimenta: <strong>${esc(d.dressCode)}</strong></p>` : ""}
+    </section>
+  </div>` : ""}
 
-    <div class="timeline">
-      ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="timeline-item">
-        <div class="timeline-icon">${ICON_CHURCH}</div>
-        <div class="timeline-content">
-          ${d.horaCeremonia ? `<div class="timeline-time">${esc(d.horaCeremonia)}</div>` : ""}
-          <div class="timeline-place">Ceremonia</div>
-          ${d.lugarCeremonia ? `<div class="timeline-sub">${esc(d.lugarCeremonia)}</div>` : ""}
-        </div>
-      </div>` : ""}
-      ${(d.horaFiesta || d.lugarFiesta) ? `<div class="timeline-item">
-        <div class="timeline-icon">${ICON_TOAST}</div>
-        <div class="timeline-content">
-          ${d.horaFiesta ? `<div class="timeline-time">${esc(d.horaFiesta)}</div>` : ""}
-          <div class="timeline-place">Recepción y fiesta</div>
-          ${d.lugarFiesta ? `<div class="timeline-sub">${esc(d.lugarFiesta)}</div>` : ""}
-        </div>
-      </div>` : ""}
-    </div>
-
-    ${d.dressCode ? `<p class="dress-note">Código de vestimenta: <strong>${esc(d.dressCode)}</strong></p>` : ""}
-  </section>
-
-  ${(d.galeria && d.galeria.length) ? `<div class="torn into-cream"></div>
-
-  <!-- Galería -->
-  <section class="section bg-cream">
+  ${(d.galeria && d.galeria.length) ? `<div class="band bg-cream">
     ${leaf("leaf-tl")}
-    <p class="eyebrow">Recuerdos</p>
-    <h2 class="section-title">Nuestros momentos</h2>
-    ${gal.html}
-  </section>` : ""}
+    <section class="section">
+      <p class="eyebrow">Recuerdos</p>
+      <h2 class="section-title tight">Nuestros momentos</h2>
+      ${DOT_DIVIDER}
+      ${gal.html}
+    </section>
+  </div>` : ""}
 
   <!-- Regalo y aviso -->
-  <section class="section bg-sage">
-    <div class="extra-grid">
-      <div class="extra-item">
-        <div class="ico">&#127873;</div>
-        <h4>Sugerencia de regalo</h4>
-        <p>Si desean hacernos un presente, nos harían muy felices ayudándonos a cumplir nuestros próximos sueños.</p>
-        ${d.alias ? `<span class="alias-pill">Alias: ${esc(d.alias)}</span>` : ""}
+  <div class="band bg-cream">
+    ${leaf("leaf-bl")}
+    <section class="section">
+      <div class="gift-box">
+        <div class="extra-grid">
+          <div class="extra-item">
+            <div class="ico">${GIFT_ICON}</div>
+            <h4>Sugerencia de regalo</h4>
+            <p>Si desean hacernos un presente, nos harían muy felices ayudándonos a cumplir nuestros próximos sueños.</p>
+            ${d.alias ? `<span class="alias-pill">Alias: ${esc(d.alias)}</span>` : ""}
+          </div>
+          <div class="extra-item">
+            <div class="ico">${RING_ICON}</div>
+            <h4>Sólo adultos</h4>
+            <p>Adoramos a tus hijos, pero creemos que esta noche merecen un rato para ustedes. ¡Gracias por entenderlo!</p>
+          </div>
+        </div>
       </div>
-      <div class="extra-item">
-        <div class="ico">&#128141;</div>
-        <h4>Sólo adultos</h4>
-        <p>Adoramos a tus hijos, pero creemos que esta noche merecen un rato para ustedes. ¡Gracias por entenderlo!</p>
-      </div>
-    </div>
-  </section>
-
-  <div class="torn into-cream"></div>
+    </section>
+  </div>
 
   <!-- RSVP -->
-  <section class="section bg-cream">
-    ${leaf("leaf-bl")}
-    <p class="eyebrow">Confirmación</p>
-    <h2 class="section-title">Contanos si nos acompañás</h2>
-    ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
-    ${rsvp.html}
-  </section>
+  <div class="band bg-cream">
+    ${leaf("leaf-br")}
+    <section class="section">
+      <p class="eyebrow">Confirmación</p>
+      <h2 class="section-title tight">Contanos si nos acompañás</h2>
+      <div style="display:flex;justify-content:center;position:relative;z-index:1;margin-bottom:26px;">${LEAF_SPRIG}</div>
+      ${rsvpDeadline ? `<p class="rsvp-deadline">Antes del ${esc(rsvpDeadline)}</p>` : ""}
+      ${rsvp.html}
+    </section>
+  </div>
 
   <footer>
     <span class="thanks">Gracias por ser parte de nuestra historia</span>
@@ -328,8 +371,27 @@ function render(data = {}) {
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;background:#fdfcf7;display:flex;align-items:center;justify-content:center;">
+    <div style="position:absolute;top:-22px;left:-30px;width:150px;height:120px;opacity:.95;">${BLOB_DECO}</div>
+    <div style="position:absolute;top:-14px;right:-20px;width:90px;height:110px;opacity:.95;transform:none;">${EUCALYPTUS_BRANCH}</div>
+    <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:5px;">
+      <span style="font-size:.5rem;letter-spacing:2.5px;text-transform:uppercase;color:#6d7a52;font-family:Georgia,'Times New Roman',serif;">Nos casamos</span>
+      <div style="display:flex;align-items:center;gap:7px;font-family:Georgia,'Times New Roman',serif;font-size:1.5rem;color:#3f4a2c;">
+        <span>${esc(sampleData.novia.charAt(0))}</span><span style="width:1px;height:.75em;background:#3f4a2c;opacity:.6;display:inline-block;"></span><span>${esc(sampleData.novio.charAt(0))}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;width:70px;">
+        <span style="flex:1;height:1px;background:#6d7a52;opacity:.5;"></span>
+        <span style="width:4px;height:4px;border-radius:50%;background:#c9a86a;flex:none;"></span>
+        <span style="flex:1;height:1px;background:#6d7a52;opacity:.5;"></span>
+      </div>
+      <span style="font-size:.72rem;letter-spacing:1px;color:#3f4a2c;font-family:Georgia,'Times New Roman',serif;">${esc(d.name)}</span>
+    </div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "bodas", name: "Moderna Minimal",
-  summary: "Paleta blanco y verde oliva con hojas de eucalipto en acuarela, monograma de iniciales, nombres en script y timeline de itinerario con íconos.",
-  accent: "#4a5236", accent2: "#eef1e3", schema: bodaSchema, sampleData, render,
+  summary: "Paleta blanco y verde oliva con hojas de eucalipto en acuarela, monograma de iniciales, nombres en serif y tarjetas de itinerario minimalistas.",
+  accent: "#4a5236", accent2: "#eef1e3", schema: bodaSchema, sampleData, render, cardPreview,
 };

@@ -114,6 +114,15 @@ function toileTileSVG() {
   </svg>`;
 }
 
+// Filete dorado fino y sinuoso para las esquinas del hero (como en la
+// tarjetería de referencia): una sola curva, currentColor para heredar el
+// color de acento vía CSS.
+function squiggleSVG() {
+  return `<svg class="corner-squiggle" viewBox="0 0 140 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M6 4C64 4 2 56 42 80C78 100 30 126 74 156" stroke="currentColor" stroke-width="1.1"/>
+  </svg>`;
+}
+
 function render(data = {}) {
   const d = { ...sampleData, ...data };
   const accent = getPaletteColor(d.colorPalette, "light", "#b8923f");
@@ -156,6 +165,17 @@ function render(data = {}) {
   .hero{position:relative;background:radial-gradient(120% 100% at 50% 0%,var(--wine-light),var(--wine) 55%,var(--wine-deep));padding:clamp(46px,8vw,80px) 18px clamp(56px,9vw,90px);text-align:center;overflow:hidden;}
   .hero::before{content:"";position:absolute;inset:0;background:url('${toileURI}');background-size:260px 260px;opacity:.06;mix-blend-mode:screen;pointer-events:none;}
   .hero-inner{position:relative;z-index:1;max-width:640px;margin:0 auto;}
+
+  /* Ornamentos de esquina del hero: filete dorado + ramita de rosa/hoja. */
+  .corner-squiggle{position:absolute;width:64px;height:74px;color:var(--gold);opacity:.55;pointer-events:none;z-index:1;}
+  @media(min-width:480px){.corner-squiggle{width:90px;height:104px;}}
+  .corner-squiggle.cs-tl{top:0;left:0;}
+  .corner-squiggle.cs-br{bottom:0;right:0;transform:rotate(180deg);}
+  .corner-sprig{position:absolute;pointer-events:none;z-index:1;opacity:.92;}
+  .corner-sprig .sprig{width:70px;}
+  @media(min-width:480px){.corner-sprig .sprig{width:96px;}}
+  .corner-sprig.cs-tr{top:12px;right:6px;}
+  .corner-sprig.cs-bl{bottom:12px;left:6px;transform:scale(-1,-1);}
   .hero .eyebrow{color:var(--gold-light);}
   .hero h1{font-size:clamp(2rem,7vw,3.4rem);letter-spacing:clamp(1px,.6vw,4px);text-transform:uppercase;color:var(--paper);margin:12px 0;}
   .hero h1 .amp{font-family:'Mrs Saint Delafield',cursive;text-transform:none;font-size:1.3em;color:var(--gold-light);padding:0 .12em;display:inline-block;}
@@ -165,9 +185,14 @@ function render(data = {}) {
   .hero .fecha-linda{margin-top:18px;font-size:clamp(1rem,3vw,1.2rem);letter-spacing:2px;color:var(--gold-light);text-transform:uppercase;font-family:'Cormorant Garamond',serif;font-weight:600;}
 
   /* Tarjeta oscura tipo "itinerario/faltan" de la referencia */
-  .dark-card{background:linear-gradient(165deg,var(--wine-light),var(--wine) 60%,var(--wine-deep));border-radius:20px;padding:clamp(28px,5vw,46px) clamp(20px,5vw,36px);color:var(--paper);box-shadow:0 16px 34px rgba(61,22,32,.28);}
+  .dark-card{position:relative;overflow:hidden;background:linear-gradient(165deg,var(--wine-light),var(--wine) 60%,var(--wine-deep));border-radius:20px;padding:clamp(28px,5vw,46px) clamp(20px,5vw,36px);color:var(--paper);box-shadow:0 16px 34px rgba(61,22,32,.28);text-align:left;}
   .dark-card h2,.dark-card h3{color:var(--paper);}
   .dark-card p{color:var(--gold-light);}
+  .dark-card .corner-squiggle{width:60px;height:80px;opacity:.4;}
+  .dark-card .corner-squiggle.cs-tl{top:-6px;left:-6px;}
+  .dark-card .corner-sprig{opacity:.85;}
+  .dark-card .corner-sprig .sprig{width:74px;}
+  .dark-card .corner-sprig.cs-br{bottom:-4px;right:-8px;}
 
   /* COUNTDOWN */
   .countdown{display:flex;gap:clamp(8px,3vw,20px);justify-content:center;flex-wrap:wrap;margin:22px 0 0;}
@@ -214,7 +239,17 @@ function render(data = {}) {
   .lightbox-close{position:absolute;top:20px;right:30px;color:var(--gold-light);font-size:2rem;cursor:pointer;}
 
   /* RSVP */
-  .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:26px auto 0;text-align:left;}
+  .rsvp-deadline{margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;color:var(--olive-dark);}
+  .rsvp-cols{display:grid;grid-template-columns:1fr 1px 1fr;gap:clamp(20px,4vw,44px);align-items:center;margin-top:30px;text-align:left;}
+  .rsvp-divider{align-self:stretch;background:linear-gradient(var(--cream) 0,var(--gold) 12%,var(--gold) 88%,var(--cream) 100%);opacity:.6;}
+  .rsvp-deco-col{display:flex;align-items:center;justify-content:center;color:var(--gold);}
+  .rsvp-deco-col .sprig{width:min(100%,180px);}
+  @media(max-width:640px){
+    .rsvp-cols{grid-template-columns:1fr;gap:8px;}
+    .rsvp-divider{display:none;}
+    .rsvp-deco-col{display:none;}
+  }
+  .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:0 auto;text-align:left;}
   .rsvp-form label{font-size:.75rem;text-transform:uppercase;letter-spacing:1.3px;color:var(--olive-dark);font-weight:600;}
   .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:'Cormorant Garamond',serif;font-size:1rem;padding:11px 12px;border:1px solid #d8c9a8;border-radius:8px;margin-top:5px;width:100%;background:var(--paper);color:var(--ink);}
   .rsvp-form input:focus,.rsvp-form select:focus,.rsvp-form textarea:focus{outline:2px solid var(--gold);border-color:var(--gold);}
@@ -233,6 +268,10 @@ function render(data = {}) {
 <body>
 
   <div class="hero">
+    ${squiggleSVG().replace('class="corner-squiggle"', 'class="corner-squiggle cs-tl"')}
+    ${squiggleSVG().replace('class="corner-squiggle"', 'class="corner-squiggle cs-br"')}
+    <div class="corner-sprig cs-tr">${sprigSVG(96, -20, accent)}</div>
+    <div class="corner-sprig cs-bl">${sprigSVG(96, -20, accent)}</div>
     <div class="hero-inner">
       <div class="eyebrow">Nos casamos</div>
       <h1>${esc(d.novia)} <span class="amp">&amp;</span> ${esc(d.novio)}</h1>
@@ -242,29 +281,33 @@ function render(data = {}) {
     </div>
   </div>
 
-  <section>
+  ${(d.horaCeremonia || d.lugarCeremonia || d.direccionMapa) ? `<section>
     <div class="divider-flor">${sprigSVG(130, 0, accent)}</div>
     <p class="eyebrow">Ceremonia y recepción</p>
     <h2 class="section-title">¿Dónde y cuándo?</h2>
     <div class="dark-card">
+      ${squiggleSVG().replace('class="corner-squiggle"', 'class="corner-squiggle cs-tl"')}
+      <div class="corner-sprig cs-br">${sprigSVG(74, -20, accent)}</div>
       ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="info-row">
         <div class="item">${goldBlossomSVG(20, accent)} <div>${d.horaCeremonia ? `<strong>${esc(d.horaCeremonia)} hs</strong>` : ""}${(d.horaCeremonia && d.lugarCeremonia) ? "<br>" : ""}${d.lugarCeremonia ? esc(d.lugarCeremonia) : ""}</div></div>
       </div>` : ""}
       ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
     </div>
-  </section>
+  </section>` : ""}
 
-  <section>
+  ${(d.horaCeremonia || d.lugarCeremonia || d.horaFiesta || d.lugarFiesta) ? `<section>
     <p class="eyebrow">Agenda del día</p>
     <h2 class="section-title">Itinerario</h2>
     <div class="dark-card">
+      ${squiggleSVG().replace('class="corner-squiggle"', 'class="corner-squiggle cs-tl"')}
+      <div class="corner-sprig cs-br">${sprigSVG(80, -20, accent)}</div>
       <ul class="timeline">
         ${(d.horaCeremonia || d.lugarCeremonia) ? `<li>${d.horaCeremonia ? `<div class="t-hora">${esc(d.horaCeremonia)} hs</div>` : ""}<p class="t-label">Ceremonia${d.lugarCeremonia ? ` — ${esc(d.lugarCeremonia)}` : ""}</p></li>` : ""}
         ${(d.horaFiesta || d.lugarFiesta) ? `<li>${d.horaFiesta ? `<div class="t-hora">${esc(d.horaFiesta)} hs</div>` : ""}<p class="t-label">Recepción y fiesta${d.lugarFiesta ? ` — ${esc(d.lugarFiesta)}` : ""}</p></li>` : ""}
         <li><div class="t-hora">&hellip;</div><p class="t-label">¡A festejar hasta que el cuerpo aguante!</p></li>
       </ul>
     </div>
-  </section>
+  </section>` : ""}
 
   <section>
     <p class="eyebrow">Cuenta regresiva</p>
@@ -307,12 +350,16 @@ function render(data = {}) {
     ${gal.html}
   </section>` : ""}
 
-  <section>
-    ${leafDividerSVG(accent)}
+  <section class="rsvp-section">
+    <div class="divider-flor">${sprigSVG(130, 0, accent)}</div>
     <p class="eyebrow">Por favor confirmá</p>
     <h2 class="section-title">Confirmar asistencia</h2>
-    ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
-    ${rsvp.html}
+    ${rsvpDeadline ? `<p class="rsvp-deadline">Antes del ${esc(rsvpDeadline)}</p>` : ""}
+    <div class="rsvp-cols">
+      <div class="rsvp-form-col">${rsvp.html}</div>
+      <div class="rsvp-divider" aria-hidden="true"></div>
+      <div class="rsvp-deco-col">${sprigSVG(150, 65, accent)}</div>
+    </div>
   </section>
 
   <footer>
@@ -335,8 +382,25 @@ function fechaLarga(fechaISO) {
   return `${dd} de ${meses[m - 1]} de ${y}`;
 }
 
+// Preview en miniatura para la grilla del catálogo (jardin_2.png): panel
+// vino con filete dorado sinuoso, ramita de rosa/hoja en la esquina y el
+// nombre del diseño centrado con un mini divisor de diamante debajo.
+// Solo estilos inline (site.css es compartido y no se toca acá).
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;background:linear-gradient(160deg,#6b2632 0%,#3d1620 55%,#2a0f16 100%);">
+    <svg style="position:absolute;top:0;left:0;width:56px;height:90px;opacity:.55;" viewBox="0 0 140 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M6 4C64 4 2 56 42 80C78 100 30 126 74 156" stroke="#d9b56a" stroke-width="1.3"/>
+    </svg>
+    <div style="position:absolute;top:2px;right:0;transform:scale(.55);transform-origin:top right;">${sprigSVG(120, -18, "#d9b56a")}</div>
+    <div style="position:relative;z-index:1;font-family:Georgia,'Times New Roman',serif;font-size:1.1rem;color:#fbf7ef;letter-spacing:.5px;text-align:center;padding:0 16px;">${esc(d.name)}</div>
+    <div style="position:relative;width:44px;height:1px;background:#d9b56a;">
+      <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.5rem;color:#d9b56a;">&#9670;</span>
+    </div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "bodas", name: "Romántica Jardín",
   summary: "Paleta vino y oliva con acentos dorados, tarjetas de itinerario oscuras, sellos de lacre y anturios ilustrados — tono romántico de jardín otoñal inspirado en tarjetería clásica.",
-  accent: "#3d1620", accent2: "#6f7a52", schema: bodaSchema, sampleData, render,
+  accent: "#3d1620", accent2: "#6f7a52", schema: bodaSchema, sampleData, render, cardPreview,
 };
