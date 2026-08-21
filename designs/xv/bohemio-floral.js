@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
 const { xvSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -68,6 +68,7 @@ function render(data = {}) {
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha, "cd5");
   const gal = galleryWidget(d.galeria, "gal5");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
   const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -287,6 +288,7 @@ function render(data = {}) {
     <div class="icon-circle">&#128172;</div>
     <div class="ev-label" style="font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.15em;text-transform:uppercase;">Confirmación</div>
     <p>Por favor confirma tu asistencia lo antes posible</p>
+    ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
     ${rsvp.html}
 
     ${d.dressCode ? `

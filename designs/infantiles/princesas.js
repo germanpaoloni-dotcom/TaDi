@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
 const { infantilSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -34,6 +34,7 @@ function render(data = {}) {
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "16:00"}:00` : sampleData.fecha, "cd-princesa");
   const gal = galleryWidget(d.galeria, "gal-princesa");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const sparkles = [
     { top: "12%", left: "8%", delay: "0s", size: "1.1rem" },
@@ -267,6 +268,7 @@ function render(data = {}) {
 
   <section>
     <h2 class="section-title">Confirmá tu asistencia<small>Te esperamos en el reino</small></h2>
+    ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
     ${rsvp.html}
   </section>
 

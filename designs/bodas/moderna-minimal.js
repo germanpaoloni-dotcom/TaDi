@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
 const { bodaSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -50,6 +50,7 @@ function render(data = {}) {
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "18:00"}:00` : sampleData.fecha, "cd3");
   const gal = galleryWidget(d.galeria, "gal3");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
+  const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   // Fecha formateada (server-side, sin depender de zona horaria del browser)
   let fechaObj = null;
@@ -312,6 +313,7 @@ function render(data = {}) {
     ${leaf("leaf-bl")}
     <p class="eyebrow">Confirmación</p>
     <h2 class="section-title">Contanos si nos acompañás</h2>
+    ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
     ${rsvp.html}
   </section>
 

@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
 const { empresarialSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -60,6 +60,7 @@ function render(data = {}) {
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "18:30"}:00` : sampleData.fecha, "cd-net");
   const gal = galleryWidget(d.galeria || [], "gal-net");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: false, withMenu: false, whatsapp: d.contacto });
+  const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const agendaItems = parseLines(d.agenda);
   const oradoresItems = parseLines(d.oradores);
@@ -296,6 +297,7 @@ function render(data = {}) {
       <div class="eyebrow">${NODE_ICON}Registro</div>
       <h2 class="title">Confirmá tu lugar</h2>
       <p class="lead">Los cupos son limitados. Completá el formulario o escribinos por WhatsApp para reservar tu registro.</p>
+      ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
       ${rsvp.html}
     </div>
   </section>

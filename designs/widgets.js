@@ -115,4 +115,19 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
   };
 }
 
-module.exports = { esc, countdownWidget, galleryWidget, rsvpWidget };
+const MESES_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+
+// Convierte una fecha "YYYY-MM-DD" en algo legible tipo "10 de abril",
+// para usar en frases como "Confirmá tu asistencia antes del 10 de abril".
+// Devuelve "" si la fecha no está cargada o no es válida (así el llamador
+// puede simplemente no mostrar nada).
+function formatFechaCorta(fechaISO) {
+  if (!fechaISO) return "";
+  const partes = String(fechaISO).split("-");
+  if (partes.length !== 3) return "";
+  const dt = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+  if (isNaN(dt.getTime())) return "";
+  return `${Number(partes[2])} de ${MESES_ES[dt.getMonth()]}`;
+}
+
+module.exports = { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta };

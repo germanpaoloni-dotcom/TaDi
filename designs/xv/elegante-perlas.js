@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
 const { xvSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -112,6 +112,7 @@ function render(data = {}) {
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha, "cd-perlas");
   const gal = galleryWidget(d.galeria || [], "gal-perlas");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
+  const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   let fechaLarga = "";
   let diaSemana = "";
@@ -362,6 +363,7 @@ function render(data = {}) {
     <div class="inner">
       ${crownSvg("icon")}
       <h2>Confirmá tu asistencia</h2>
+      ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
       ${rsvp.html}
     </div>
   </div>

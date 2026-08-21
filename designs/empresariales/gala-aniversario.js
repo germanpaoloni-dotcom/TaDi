@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
 const { empresarialSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -29,6 +29,7 @@ function render(data = {}) {
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "20:00"}:00` : sampleData.fecha, "cd9");
   const gal = galleryWidget(d.galeria || [], "gal9");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.contacto });
+  const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const agenda = String(d.agenda || "")
     .split("\n").map((l) => l.trim()).filter(Boolean)
@@ -238,6 +239,7 @@ function render(data = {}) {
 
   <section>
     <h2>Confirmá tu asistencia<span>Te esperamos para brindar juntos</span></h2>
+    ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
     ${rsvp.html}
   </section>
 

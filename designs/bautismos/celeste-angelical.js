@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
 const { bautismoSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -57,6 +57,7 @@ function render(data = {}) {
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "11:00"}:00` : sampleData.fecha, "cd-cel");
   const gal = galleryWidget(d.galeria, "gal-cel");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const fecha = d.fecha ? new Date(`${d.fecha}T00:00:00`) : null;
   const meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
@@ -392,6 +393,7 @@ function render(data = {}) {
     <div class="divider"></div>
     <h2>Confirmación</h2>
     <p class="invite-text" style="margin-top:-8px;">Agradecemos que confirmes tu asistencia lo antes posible.</p>
+    ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
     ${rsvp.html}
   </section>
 
