@@ -169,25 +169,25 @@ function render(data = {}) {
     </div>
   </section>
 
-  <section>
+  ${d.mensaje ? `<section>
     <h2>Mensaje de la Liga</h2>
     <div class="bubble">${esc(d.mensaje)}</div>
-  </section>
+  </section>` : ""}
 
   <section>
     <h2>¡Dónde es la misión!</h2>
     <div class="panel tilt-r loc-info">
-      <p><strong>${esc(d.fecha)}</strong> a las <strong>${esc(d.hora)}</strong> hs</p>
-      <p>${esc(d.lugar)}</p>
+      <p><strong>${esc(d.fecha)}</strong>${d.hora ? ` a las <strong>${esc(d.hora)}</strong> hs` : ""}</p>
+      ${d.lugar ? `<p>${esc(d.lugar)}</p>` : ""}
       ${d.tematica ? `<div style="text-align:center;margin-top:16px;"><span class="mission-label">Misión especial</span><p class="mission-text">${esc(d.tematica)}</p></div>` : ""}
       ${d.direccionMapa ? `<a class="btn-pow" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver mapa →</a>` : ""}
     </div>
   </section>
 
-  <section>
+  ${d.galeria && d.galeria.length ? `<section>
     <h2>Fotos de entrenamiento</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     <h2>Descubrí tu nombre de superhéroe</h2>

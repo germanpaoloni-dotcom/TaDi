@@ -289,6 +289,7 @@ function render(data = {}) {
     </div>
   </section>
 
+  ${d.mensaje ? `
   <div class="divider">
     <span class="line"></span>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
@@ -302,7 +303,7 @@ function render(data = {}) {
     <div class="wrap">
       <p class="mensaje">${esc(d.mensaje)}</p>
     </div>
-  </section>
+  </section>` : ""}
 
   <section style="background:var(--sage-pale)">
     <div class="wrap">
@@ -317,19 +318,20 @@ function render(data = {}) {
       <h2 class="section-title">Cuándo y dónde</h2>
       <p class="section-sub">Ceremonia y celebración</p>
       <div class="timeline">
+        ${d.horaCeremonia || d.lugarCeremonia ? `
         <div class="timeline-item">
-          <div class="timeline-time">${esc(d.horaCeremonia)}</div>
+          ${d.horaCeremonia ? `<div class="timeline-time">${esc(d.horaCeremonia)}</div>` : ""}
           <div class="timeline-what">
             <strong>Ceremonia</strong>
-            <span>${esc(d.lugarCeremonia)}</span>
+            ${d.lugarCeremonia ? `<span>${esc(d.lugarCeremonia)}</span>` : ""}
           </div>
-        </div>
+        </div>` : ""}
         ${d.horaFiesta || d.lugarFiesta ? `
         <div class="timeline-item">
-          <div class="timeline-time">${esc(d.horaFiesta)}</div>
+          ${d.horaFiesta ? `<div class="timeline-time">${esc(d.horaFiesta)}</div>` : ""}
           <div class="timeline-what">
             <strong>Celebración</strong>
-            <span>${esc(d.lugarFiesta)}</span>
+            ${d.lugarFiesta ? `<span>${esc(d.lugarFiesta)}</span>` : ""}
           </div>
         </div>` : ""}
       </div>
@@ -342,25 +344,26 @@ function render(data = {}) {
       <h2 class="section-title">Con el cariño de</h2>
       <p class="section-sub">Familia y padrinos</p>
       <div class="people">
-        <div class="card">
+        ${d.padres ? `<div class="card">
           <div class="tag">Papás</div>
           <div class="names">${esc(d.padres)}</div>
-        </div>
-        <div class="card">
+        </div>` : ""}
+        ${d.padrinos ? `<div class="card">
           <div class="tag">Padrinos</div>
           <div class="names">${esc(d.padrinos)}</div>
-        </div>
+        </div>` : ""}
       </div>
     </div>
   </section>
 
+  ${d.galeria && d.galeria.length ? `
   <section>
     <div class="wrap">
       <h2 class="section-title">Recuerdos</h2>
       <p class="section-sub">Un poco de nuestra historia</p>
     </div>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section style="background:var(--sage-pale)">
     <div class="wrap">

@@ -29,11 +29,12 @@ function render(data = {}) {
   const gal = galleryWidget(d.galeria, "gal8");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: false, withMenu: false, whatsapp: d.contacto });
 
-  const agendaItems = (d.agenda || "").split("\n").filter(Boolean).map((line) => {
+  const agendaLines = (d.agenda || "").split("\n").filter(Boolean);
+  const agendaItems = agendaLines.map((line) => {
     const [hora, ...rest] = line.split(" - ");
     const texto = rest.join(" - ").trim();
     return `<li><span class="ag-time">${esc(hora.trim())}</span><span class="ag-text">${esc(texto || hora.trim())}</span></li>`;
-  }).join("") || "<li><span class=\"ag-text\">Agenda a confirmar.</span></li>";
+  }).join("");
 
   const speakerItems = (d.oradores || "").split("\n").filter(Boolean).map((line) => {
     const [nombre, cargo] = line.split(" - ");
@@ -193,10 +194,10 @@ function render(data = {}) {
   <div class="frame">
     <div class="hero">
       <div class="powered">Powered by</div>
-      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : `<div class="brand">${esc(d.empresa)}</div>`}
+      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : (d.empresa ? `<div class="brand">${esc(d.empresa)}</div>` : "")}
       <h1>You're<br>Invited</h1>
       <p class="empresa-tag">Estamos a punto de lanzar <strong>${esc(d.nombreEvento)}</strong></p>
-      <p class="desc">${esc(d.descripcion)}</p>
+      ${d.descripcion ? `<p class="desc">${esc(d.descripcion)}</p>` : ""}
     </div>
 
     <section>
@@ -210,38 +211,38 @@ function render(data = {}) {
         <div class="date-col">
           <div class="rule"></div>
           <div class="lbl">${esc(d.fecha)}</div>
-          <div class="sub">${d.direccionMapa ? `<a href="${esc(d.direccionMapa)}" target="_blank">${esc(d.lugar)}</a>` : esc(d.lugar)}</div>
+          ${d.lugar ? `<div class="sub">${d.direccionMapa ? `<a href="${esc(d.direccionMapa)}" target="_blank">${esc(d.lugar)}</a>` : esc(d.lugar)}</div>` : ""}
         </div>
-        <div class="date-col date-day">
+        ${d.hora ? `<div class="date-col date-day">
           <div class="num">${esc(d.hora)}</div>
           <div class="year">Horario</div>
-        </div>
-        <div class="date-col">
+        </div>` : ""}
+        ${d.dressCode ? `<div class="date-col">
           <div class="rule"></div>
           <div class="lbl">Dress code</div>
           <div class="sub">${esc(d.dressCode)}</div>
-        </div>
+        </div>` : ""}
       </div>
       <div class="divider"><span></span><em>&#10058;</em><span></span></div>
       <p class="info-line">Tu presencia significa mucho para nosotros.<br>Sumate a celebrar este nuevo comienzo.</p>
     </section>
 
-    <section>
+    ${agendaLines.length ? `<section>
       <span class="kicker">Agenda del día</span>
       <ul class="agenda-list">
         ${agendaItems}
       </ul>
-    </section>
+    </section>` : ""}
 
     ${speakerItems ? `<section>
       <span class="kicker">Oradores</span>
       <div class="speakers">${speakerItems}</div>
     </section>` : ""}
 
-    <section>
+    ${d.galeria && d.galeria.length ? `<section>
       <span class="kicker">Adelanto</span>
       ${gal.html}
-    </section>
+    </section>` : ""}
 
     <section>
       <span class="kicker">Confirmá tu lugar</span>
@@ -250,7 +251,7 @@ function render(data = {}) {
 
     <footer>
       <div class="thanks">We can't wait to see you there!</div>
-      ${esc(d.empresa)} · Todos los derechos reservados
+      ${d.empresa ? `${esc(d.empresa)} · ` : ""}Todos los derechos reservados
     </footer>
   </div>
 

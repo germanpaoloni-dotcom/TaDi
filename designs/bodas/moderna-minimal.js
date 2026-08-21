@@ -202,7 +202,7 @@ function render(data = {}) {
   <section class="section hero bg-cream">
     ${leaf("leaf-tr")}
     <p class="eyebrow">Nos casamos</p>
-    <blockquote>${esc(d.mensaje)}</blockquote>
+    ${d.mensaje ? `<blockquote>${esc(d.mensaje)}</blockquote>` : ""}
     <div class="monogram"><span>${esc(inicialNovia)}</span><span class="bar"></span><span>${esc(inicialNovio)}</span></div>
     <p class="monogram-label">Nuestra boda</p>
   </section>
@@ -242,43 +242,43 @@ function render(data = {}) {
     <p class="eyebrow">Itinerario</p>
     <h2 class="section-title">Celebremos juntos</h2>
     <div class="info-grid">
-      <div class="info-card">
-        <span class="info-time">${esc(d.horaCeremonia)}</span>
+      ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="info-card">
+        ${d.horaCeremonia ? `<span class="info-time">${esc(d.horaCeremonia)}</span>` : ""}
         <h3>Ceremonia</h3>
-        <p>${esc(d.lugarCeremonia)}</p>
+        ${d.lugarCeremonia ? `<p>${esc(d.lugarCeremonia)}</p>` : ""}
         ${d.direccionMapa ? `<a class="btn-map" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
-      </div>
-      <div class="info-card">
-        <span class="info-time">${esc(d.horaFiesta)}</span>
+      </div>` : ""}
+      ${(d.horaFiesta || d.lugarFiesta) ? `<div class="info-card">
+        ${d.horaFiesta ? `<span class="info-time">${esc(d.horaFiesta)}</span>` : ""}
         <h3>Fiesta</h3>
-        <p>${esc(d.lugarFiesta)}</p>
+        ${d.lugarFiesta ? `<p>${esc(d.lugarFiesta)}</p>` : ""}
         ${d.direccionMapa ? `<a class="btn-map" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
-      </div>
+      </div>` : ""}
     </div>
 
     <div class="timeline">
-      <div class="timeline-item">
+      ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="timeline-item">
         <div class="timeline-icon">${ICON_CHURCH}</div>
         <div class="timeline-content">
-          <div class="timeline-time">${esc(d.horaCeremonia)}</div>
+          ${d.horaCeremonia ? `<div class="timeline-time">${esc(d.horaCeremonia)}</div>` : ""}
           <div class="timeline-place">Ceremonia</div>
-          <div class="timeline-sub">${esc(d.lugarCeremonia)}</div>
+          ${d.lugarCeremonia ? `<div class="timeline-sub">${esc(d.lugarCeremonia)}</div>` : ""}
         </div>
-      </div>
-      <div class="timeline-item">
+      </div>` : ""}
+      ${(d.horaFiesta || d.lugarFiesta) ? `<div class="timeline-item">
         <div class="timeline-icon">${ICON_TOAST}</div>
         <div class="timeline-content">
-          <div class="timeline-time">${esc(d.horaFiesta)}</div>
+          ${d.horaFiesta ? `<div class="timeline-time">${esc(d.horaFiesta)}</div>` : ""}
           <div class="timeline-place">Recepción y fiesta</div>
-          <div class="timeline-sub">${esc(d.lugarFiesta)}</div>
+          ${d.lugarFiesta ? `<div class="timeline-sub">${esc(d.lugarFiesta)}</div>` : ""}
         </div>
-      </div>
+      </div>` : ""}
     </div>
 
-    <p class="dress-note">Código de vestimenta: <strong>${esc(d.dressCode)}</strong></p>
+    ${d.dressCode ? `<p class="dress-note">Código de vestimenta: <strong>${esc(d.dressCode)}</strong></p>` : ""}
   </section>
 
-  <div class="torn into-cream"></div>
+  ${(d.galeria && d.galeria.length) ? `<div class="torn into-cream"></div>
 
   <!-- Galería -->
   <section class="section bg-cream">
@@ -286,7 +286,7 @@ function render(data = {}) {
     <p class="eyebrow">Recuerdos</p>
     <h2 class="section-title">Nuestros momentos</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <!-- Regalo y aviso -->
   <section class="section bg-sage">

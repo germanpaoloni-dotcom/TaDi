@@ -316,7 +316,7 @@ function render(data = {}) {
         <rect x="14" y="0" width="6" height="46" fill="var(--gold)"/>
         <rect x="0" y="12" width="34" height="6" fill="var(--gold)"/>
       </svg>
-      <p class="quote">${esc(d.mensaje)}</p>
+      ${d.mensaje ? `<p class="quote">${esc(d.mensaje)}</p>` : ""}
       <p class="kicker-script script">Mi Bautizo</p>
       <h1>${esc(d.nombreChico)}</h1>
 
@@ -336,7 +336,7 @@ function render(data = {}) {
         </div>
       </div>` : ""}
 
-      <div class="event-card">
+      ${d.horaCeremonia || d.lugarCeremonia ? `<div class="event-card">
         <svg class="event-icon" width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M15 2v6" stroke="var(--ink)" stroke-width="1.4"/>
           <path d="M11 5h8" stroke="var(--ink)" stroke-width="1.4"/>
@@ -344,11 +344,11 @@ function render(data = {}) {
           <path d="M15 15v13" stroke="var(--ink)" stroke-width="1.2"/>
           <path d="M4 28h22" stroke="var(--ink)" stroke-width="1.4"/>
         </svg>
-        <p class="event-time">${esc(d.horaCeremonia)}</p>
+        ${d.horaCeremonia ? `<p class="event-time">${esc(d.horaCeremonia)}</p>` : ""}
         <p class="event-name">Misa</p>
-        <p class="event-place">${esc(d.lugarCeremonia)}</p>
+        ${d.lugarCeremonia ? `<p class="event-place">${esc(d.lugarCeremonia)}</p>` : ""}
         ${d.direccionMapa ? `<a class="btn-ubicacion" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
-      </div>
+      </div>` : ""}
     </div>
   </section>
 
@@ -361,7 +361,7 @@ function render(data = {}) {
   <section>
     <div class="divider"></div>
     <h2>Celebración</h2>
-    <div class="event-card">
+    ${d.horaFiesta || d.lugarFiesta ? `<div class="event-card">
       <svg class="event-icon" width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M8 3l3 10a3 3 0 01-3 3 3 3 0 01-3-3z" fill="none" stroke="var(--ink)" stroke-width="1.3"/>
         <path d="M8 16v11" stroke="var(--ink)" stroke-width="1.3"/>
@@ -370,22 +370,23 @@ function render(data = {}) {
         <path d="M22 14v13" stroke="var(--ink)" stroke-width="1.3"/>
         <path d="M18 27h8" stroke="var(--ink)" stroke-width="1.3"/>
       </svg>
-      <p class="event-time">${esc(d.horaFiesta)}</p>
+      ${d.horaFiesta ? `<p class="event-time">${esc(d.horaFiesta)}</p>` : ""}
       <p class="event-name">Fiesta</p>
-      <p class="event-place">${esc(d.lugarFiesta)}</p>
+      ${d.lugarFiesta ? `<p class="event-place">${esc(d.lugarFiesta)}</p>` : ""}
       ${d.direccionMapa ? `<a class="btn-ubicacion" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
-    </div>
+    </div>` : ""}
     <div class="vestimenta">
       <h3>Vestimenta</h3>
       <p>Formal</p>
     </div>
   </section>
 
+  ${d.galeria && d.galeria.length ? `
   <section>
     <div class="divider"></div>
     <h2>Momentos</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     <div class="divider"></div>

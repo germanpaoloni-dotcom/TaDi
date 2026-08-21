@@ -594,7 +594,9 @@ function fieldHTML(f, value) {
     return `<div class="field"><label>${f.label}</label>${helpHTML(f)}
       <input type="hidden" name="${f.name}" value="${escapeHtml(val)}" id="hidden-${f.name}">
       <input type="file" accept="image/*" data-target="${f.name}" class="single-upload">
-      ${val ? `<div class="gallery-preview"><img src="${escapeHtml(val)}"></div>` : ""}
+      <div class="single-preview-row" id="preview-${f.name}" ${val ? "" : 'style="display:none"'}>
+        <div class="thumb"><img src="${escapeHtml(val)}"><button type="button" class="thumb-remove single-remove" data-target="${f.name}" title="Quitar imagen">✕</button></div>
+      </div>
     </div>`;
   }
   if (f.type === "images") {
@@ -602,7 +604,7 @@ function fieldHTML(f, value) {
     return `<div class="field"><label>${f.label}</label>${helpHTML(f)}
       <input type="hidden" name="${f.name}" value='${escapeHtml(JSON.stringify(arr))}' id="hidden-${f.name}">
       <input type="file" accept="image/*" multiple data-target="${f.name}" class="multi-upload">
-      <div class="gallery-preview" id="preview-${f.name}">${arr.map((s) => `<img src="${escapeHtml(s)}">`).join("")}</div>
+      <div class="gallery-preview" id="preview-${f.name}">${arr.map((s) => `<div class="thumb"><img src="${escapeHtml(s)}"><button type="button" class="thumb-remove" data-target="${f.name}" data-url="${escapeHtml(s)}" title="Quitar foto">✕</button></div>`).join("")}</div>
     </div>`;
   }
   if (f.type === "palette") {
@@ -702,6 +704,15 @@ app.get("/editar/:token", (req, res) => {
   });
 
   // subida de imágenes (portada / galería)
+  function thumbHTML(target, url){
+    const div = document.createElement('div'); div.className = 'thumb';
+    const img = document.createElement('img'); img.src = url;
+    const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'thumb-remove';
+    btn.dataset.target = target; btn.dataset.url = url; btn.title = 'Quitar foto'; btn.textContent = '✕';
+    div.appendChild(img); div.appendChild(btn);
+    return div;
+  }
+
   document.querySelectorAll('.single-upload').forEach(function(input){
     input.addEventListener('change', function(){
       if(!input.files[0]) return;
@@ -709,6 +720,16 @@ app.get("/editar/:token", (req, res) => {
       fetch('/api/upload/' + token, { method:'POST', body: fd })
         .then(r => r.json()).then(function(res){
           document.getElementById('hidden-' + input.dataset.target).value = res.url;
+          const preview = document.getElementById('preview-' + input.dataset.target);
+          preview.innerHTML = '';
+          const div = document.createElement('div'); div.className = 'thumb';
+          const img = document.createElement('img'); img.src = res.url;
+          const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'thumb-remove single-remove';
+          btn.dataset.target = input.dataset.target; btn.title = 'Quitar imagen'; btn.textContent = '✕';
+          div.appendChild(img); div.appendChild(btn);
+          preview.appendChild(div);
+          preview.style.display = '';
+          input.value = '';
           refreshPreview();
         });
     });
@@ -726,11 +747,32 @@ app.get("/editar/:token", (req, res) => {
           .then(r => r.json()).then(function(res){
             current.push(res.url);
             hidden.value = JSON.stringify(current);
-            const img = document.createElement('img'); img.src = res.url; preview.appendChild(img);
+            preview.appendChild(thumbHTML(input.dataset.target, res.url));
             pending--; if(pending === 0) refreshPreview();
           });
       });
+      input.value = '';
     });
+  });
+
+  // quitar imágenes ya subidas: click delegado, funciona tanto para las
+  // que ya estaban al cargar la página como para las subidas al vuelo.
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.thumb-remove');
+    if(!btn) return;
+    const target = btn.dataset.target;
+    const hidden = document.getElementById('hidden-' + target);
+    const preview = document.getElementById('preview-' + target);
+    if(btn.classList.contains('single-remove')){
+      hidden.value = '';
+      preview.innerHTML = '';
+      preview.style.display = 'none';
+    } else {
+      const current = JSON.parse(hidden.value || '[]').filter((u) => u !== btn.dataset.url);
+      hidden.value = JSON.stringify(current);
+      btn.closest('.thumb').remove();
+    }
+    refreshPreview();
   });
 </script>
 </body></html>`);

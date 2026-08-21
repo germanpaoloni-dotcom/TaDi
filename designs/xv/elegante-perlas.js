@@ -289,7 +289,7 @@ function render(data = {}) {
       <div class="photo-frame"><img src="${esc(d.coverImage)}" alt="${esc(d.nombre)}" loading="lazy"></div>
       <p class="name-script">${esc(d.nombre)}</p>
       <p class="blessing">Con la bendición de Dios y mis padres</p>
-      <p class="padres">${esc(d.padres)}</p>
+      ${d.padres ? `<p class="padres">${esc(d.padres)}</p>` : ""}
       <p class="invite-line">Les invito cordialmente a celebrar<strong>mis quince años</strong></p>
       ${d.fecha ? `<div class="date-block">
         <span class="line"></span>
@@ -314,32 +314,32 @@ function render(data = {}) {
       ${ornamentSvg("icon-ornament")}
       <h2>Cuándo y dónde</h2>
       <div class="timeline">
-        ${d.lugarCeremonia ? `<div class="node">
+        ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="node">
           <span class="badge">${iconChurchSvg()}</span>
           <strong>Ceremonia</strong>
-          <span class="hora">${esc(d.horaCeremonia)}</span>
-          <p>${esc(d.lugarCeremonia)}</p>
+          ${d.horaCeremonia ? `<span class="hora">${esc(d.horaCeremonia)}</span>` : ""}
+          ${d.lugarCeremonia ? `<p>${esc(d.lugarCeremonia)}</p>` : ""}
         </div>` : ""}
-        <div class="node">
+        ${(d.horaFiesta || d.lugarFiesta) ? `<div class="node">
           <span class="badge">${iconPartySvg()}</span>
           <strong>Fiesta</strong>
-          <span class="hora">${esc(d.horaFiesta)}</span>
-          <p>${esc(d.lugarFiesta)}</p>
-        </div>
+          ${d.horaFiesta ? `<span class="hora">${esc(d.horaFiesta)}</span>` : ""}
+          ${d.lugarFiesta ? `<p>${esc(d.lugarFiesta)}</p>` : ""}
+        </div>` : ""}
       </div>
       ${d.direccionMapa ? `<a class="btn-gold" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
     </div>
   </div>
 
-  <div class="card-section alt">
+  ${d.mensaje ? `<div class="card-section alt">
     <div class="inner">
       ${pearlRowSvg("icon-row")}
       <h2>Un mensaje para ustedes</h2>
       <p>${esc(d.mensaje)}</p>
     </div>
-  </div>
+  </div>` : ""}
 
-  <div class="card-section">
+  ${d.dressCode ? `<div class="card-section">
     <div class="inner">
       ${ornamentSvg("icon-ornament")}
       <h2>Vestimenta</h2>
@@ -348,15 +348,15 @@ function render(data = {}) {
         <p>${esc(d.dressCode)}</p>
       </div>
     </div>
-  </div>
+  </div>` : ""}
 
-  <div class="card-section alt">
+  ${(d.galeria && d.galeria.length) ? `<div class="card-section alt">
     <div class="inner">
       ${pearlRowSvg("icon-row")}
       <h2>Momentos</h2>
       ${gal.html}
     </div>
-  </div>
+  </div>` : ""}
 
   <div class="card-section">
     <div class="inner">

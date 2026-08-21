@@ -156,9 +156,9 @@ function render(data = {}) {
       <p class="kicker">Tenemos el placer de invitarlos a nuestra boda</p>
       <h1 class="names">${esc(d.novia)}<span class="amp"> &amp; </span>${esc(d.novio)}</h1>
       <p class="fecha-grande">${fechaCorta(d.fecha)}</p>
-      <p class="lugar-chico">${esc(d.lugarFiesta || d.lugarCeremonia)}</p>
-      ${dividerSVG(accent)}
-      <p class="message">${esc(d.mensaje)}</p>
+      ${(d.lugarFiesta || d.lugarCeremonia) ? `<p class="lugar-chico">${esc(d.lugarFiesta || d.lugarCeremonia)}</p>` : ""}
+      ${d.mensaje ? `${dividerSVG(accent)}
+      <p class="message">${esc(d.mensaje)}</p>` : ""}
     </div>
   </div>
 
@@ -167,14 +167,14 @@ function render(data = {}) {
       <p class="kicker">Itinerario</p>
       <h2>¿Cuándo y dónde?</h2>
       <div class="itinerary">
-        <div class="itin-row">
-          <span class="itin-time">${esc(d.horaCeremonia)} hs</span>
-          <div><strong>Ceremonia</strong><p>${esc(d.lugarCeremonia)}</p></div>
-        </div>
-        <div class="itin-row">
-          <span class="itin-time">${esc(d.horaFiesta)} hs</span>
-          <div><strong>Fiesta</strong><p>${esc(d.lugarFiesta)}</p></div>
-        </div>
+        ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="itin-row">
+          ${d.horaCeremonia ? `<span class="itin-time">${esc(d.horaCeremonia)} hs</span>` : ""}
+          <div><strong>Ceremonia</strong>${d.lugarCeremonia ? `<p>${esc(d.lugarCeremonia)}</p>` : ""}</div>
+        </div>` : ""}
+        ${(d.horaFiesta || d.lugarFiesta) ? `<div class="itin-row">
+          ${d.horaFiesta ? `<span class="itin-time">${esc(d.horaFiesta)} hs</span>` : ""}
+          <div><strong>Fiesta</strong>${d.lugarFiesta ? `<p>${esc(d.lugarFiesta)}</p>` : ""}</div>
+        </div>` : ""}
       </div>
       ${d.direccionMapa ? `<a class="pill-btn" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
     </div>
@@ -188,22 +188,22 @@ function render(data = {}) {
     </div>
   </div>
 
-  <div class="band band-tan">
+  ${d.dressCode ? `<div class="band band-tan">
     <div class="wrap">
       <p class="kicker">Dress code</p>
       <h2>${esc(d.dressCode)}</h2>
       ${dividerSVG("#4c5535")}
       <p style="max-width:460px;margin:0 auto;opacity:.85;">Vení cómodo, pensá en tonos tierra y calzado apto para arena y jardín.</p>
     </div>
-  </div>
+  </div>` : ""}
 
-  <div class="band band-olive">
+  ${(d.galeria && d.galeria.length) ? `<div class="band band-olive">
     <div class="wrap">
       <p class="kicker">Recuerdos</p>
       <h2>Galería</h2>
       ${gal.html}
     </div>
-  </div>
+  </div>` : ""}
 
   <div class="band band-tan">
     <div class="wrap">
@@ -213,14 +213,14 @@ function render(data = {}) {
     </div>
   </div>
 
-  <div class="band band-olive">
+  ${d.alias ? `<div class="band band-olive">
     <div class="wrap">
       <p class="kicker">Mesa de regalos</p>
       <h2>¿Un regalo?</h2>
       <p style="max-width:460px;margin:10px auto 0;opacity:.85;">Lo más lindo para nosotros es contar con ustedes, pero si quieren hacernos un presente, un aporte para nuestra nueva vida juntos nos llena de alegría.</p>
       <div class="alias-box">Alias: ${esc(d.alias)}</div>
     </div>
-  </div>
+  </div>` : ""}
 
   <footer class="band band-olive-dark">
     <span class="script">${esc(d.novia)} &amp; ${esc(d.novio)}</span>

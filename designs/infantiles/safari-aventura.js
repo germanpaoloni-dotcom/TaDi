@@ -285,28 +285,28 @@ function render(data = {}) {
     ${cd.html}
   </section>
 
-  <section>
+  ${d.mensaje || d.tematica ? `<section>
     <span class="section-badge">Mensaje</span>
     <h2>¡Te invitamos a explorar!</h2>
-    <p class="message">${esc(d.mensaje)}</p>
+    ${d.mensaje ? `<p class="message">${esc(d.mensaje)}</p>` : ""}
     ${d.tematica ? `<div class="tematica-card"><span class="ico">🎒</span><span>${esc(d.tematica)}</span></div>` : ""}
-  </section>
+  </section>` : ""}
 
   <section class="map-bg"><div class="inner">
     <span class="section-badge">Campamento base</span>
     <h2>¿Dónde es la aventura?</h2>
     <div class="map-card">
-      <p>📅 ${esc(d.fecha)} — 🕐 ${esc(d.hora)}</p>
-      <p class="lugar">📍 ${esc(d.lugar)}</p>
+      <p>📅 ${esc(d.fecha)}${d.hora ? ` — 🕐 ${esc(d.hora)}` : ""}</p>
+      ${d.lugar ? `<p class="lugar">📍 ${esc(d.lugar)}</p>` : ""}
       ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver mapa del territorio →</a>` : ""}
     </div>
   </div></section>
 
-  <section>
+  ${d.galeria && d.galeria.length ? `<section>
     <span class="section-badge">Galería</span>
     <h2>Fotos de la selva</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     <span class="section-badge">RSVP</span>

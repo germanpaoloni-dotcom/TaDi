@@ -343,7 +343,7 @@ function render(data = {}) {
       <p class="filiacion">Hijo${d.padres ? " de " + esc(d.padres) : ""}</p>
       <div class="datetime-row">
         <div class="dt-block">
-          <span class="dt-hora">${esc(d.horaCeremonia)}</span>
+          ${d.horaCeremonia ? `<span class="dt-hora">${esc(d.horaCeremonia)}</span>` : ""}
           <span class="dt-dia">${esc(f.diaSemana)}</span>
         </div>
         <div class="dt-divider"></div>
@@ -352,19 +352,19 @@ function render(data = {}) {
           <span class="dt-mes">de ${esc(f.mes)}</span>
         </div>
       </div>
-      <p class="lugar-ceremonia">${esc(d.lugarCeremonia)}</p>
+      ${d.lugarCeremonia ? `<p class="lugar-ceremonia">${esc(d.lugarCeremonia)}</p>` : ""}
     </div>
   </header>
 
-  <section>
+  ${d.horaFiesta || d.lugarFiesta ? `<section>
     <div class="wrap">
       <div class="fiesta-card">
-        <p class="fiesta-pretexto">Los esperamos a partir de las <strong>${esc(d.horaFiesta)}</strong> en</p>
-        <p class="fiesta-lugar">${esc(d.lugarFiesta)}</p>
+        ${d.horaFiesta ? `<p class="fiesta-pretexto">Los esperamos a partir de las <strong>${esc(d.horaFiesta)}</strong> en</p>` : ""}
+        ${d.lugarFiesta ? `<p class="fiesta-lugar">${esc(d.lugarFiesta)}</p>` : ""}
         ${d.direccionMapa ? `<a class="fiesta-map" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
       </div>
     </div>
-  </section>
+  </section>` : ""}
 
   <section>
     <div class="wrap">
@@ -377,16 +377,16 @@ function render(data = {}) {
     <div class="wrap">
       <p class="section-title">Padrinos</p>
       <div class="familia">
-        <div class="familia-card">
+        ${d.padres ? `<div class="familia-card">
           <span class="tag">Papás</span>
           <div class="familia-divider"></div>
           <div class="names">${esc(d.padres)}</div>
-        </div>
-        <div class="familia-card">
+        </div>` : ""}
+        ${d.padrinos ? `<div class="familia-card">
           <span class="tag">Padrinos</span>
           <div class="familia-divider"></div>
           <div class="names">${esc(d.padrinos)}</div>
-        </div>
+        </div>` : ""}
       </div>
     </div>
   </section>
@@ -402,9 +402,9 @@ function render(data = {}) {
 
   <section>
     <div class="wrap">
-      <p class="section-title">Momentos</p>
+      ${d.coverImage || (d.galeria && d.galeria.length) ? `<p class="section-title">Momentos</p>` : ""}
       ${d.coverImage ? `<div class="cover-frame"><img src="${esc(d.coverImage)}" alt="${esc(d.nombreChico)}"></div>` : ""}
-      ${gal.html}
+      ${d.galeria && d.galeria.length ? gal.html : ""}
     </div>
   </section>
 

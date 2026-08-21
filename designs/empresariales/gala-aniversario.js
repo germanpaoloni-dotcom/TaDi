@@ -198,10 +198,10 @@ function render(data = {}) {
     <svg class="ribbon" style="top:14%;left:8%;transform:rotate(-15deg);" viewBox="0 0 24 60" width="26" height="60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2c8 6 -6 12 2 18c8 6 -6 12 2 18c8 6 -6 12 2 18" stroke="${accent}" stroke-width="4" stroke-linecap="round"/></svg>
     <svg class="ribbon" style="top:60%;right:10%;transform:rotate(20deg);" viewBox="0 0 24 60" width="26" height="60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2c8 6 -6 12 2 18c8 6 -6 12 2 18c8 6 -6 12 2 18" stroke="${accent}" stroke-width="4" stroke-linecap="round"/></svg>
     <div class="content">
-      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : `<div class="tag">${esc(d.empresa)}</div>`}
+      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : (d.empresa ? `<div class="tag">${esc(d.empresa)}</div>` : "")}
       ${aniversarioNum ? `<p class="big-num">${esc(aniversarioNum)}</p>` : ""}
       <h1>${esc(d.nombreEvento)}</h1>
-      <p class="desc">${esc(d.descripcion)}</p>
+      ${d.descripcion ? `<p class="desc">${esc(d.descripcion)}</p>` : ""}
       <p class="script">¡Que vengan muchos años de conquistas!</p>
     </div>
   </header>
@@ -209,10 +209,9 @@ function render(data = {}) {
   <section>
     <h2>Cuenta regresiva<span>Faltan pocos días para celebrar</span></h2>
     ${cd.html}
-    <p class="info-line">📅 <strong>${esc(d.fecha)}</strong> · 🕗 <strong>${esc(d.hora)} hs</strong><br>📍 ${esc(d.lugar)}</p>
+    <p class="info-line">📅 <strong>${esc(d.fecha)}</strong>${d.hora ? ` · 🕗 <strong>${esc(d.hora)} hs</strong>` : ""}${d.lugar ? `<br>📍 ${esc(d.lugar)}` : ""}</p>
     ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
-    <br>
-    <span class="dresscode">Dress code: ${esc(d.dressCode)}</span>
+    ${d.dressCode ? `<br><span class="dresscode">Dress code: ${esc(d.dressCode)}</span>` : ""}
   </section>
 
   ${agenda.length ? `
@@ -231,10 +230,11 @@ function render(data = {}) {
     </div>
   </section>` : ""}
 
+  ${d.galeria && d.galeria.length ? `
   <section>
     <h2>Momentos de la empresa<span>20 años en imágenes</span></h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     <h2>Confirmá tu asistencia<span>Te esperamos para brindar juntos</span></h2>
@@ -242,7 +242,7 @@ function render(data = {}) {
   </section>
 
   <footer>
-    <div class="foot-brand">${esc(d.empresa)}</div>
+    ${d.empresa ? `<div class="foot-brand">${esc(d.empresa)}</div>` : ""}
     Gracias por acompañarnos en estos 20 años de historia.
   </footer>
 

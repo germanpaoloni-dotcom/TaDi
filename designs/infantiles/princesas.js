@@ -244,26 +244,26 @@ function render(data = {}) {
     ${cd.html}
   </section>
 
-  <section>
+  ${d.mensaje || d.tematica ? `<section>
     <div class="storycard">
-      <p>${esc(d.mensaje)}</p>
+      ${d.mensaje ? `<p>${esc(d.mensaje)}</p>` : ""}
       ${d.tematica ? `<span class="tematica">✨ ${esc(d.tematica)}</span>` : ""}
     </div>
-  </section>
+  </section>` : ""}
 
   <section>
     <h2 class="section-title">El castillo<small>Dónde es la fiesta</small></h2>
     <div class="location-card">
-      <p><strong>${esc(d.lugar)}</strong></p>
-      <p>${esc(d.fecha)} · ${esc(d.hora)} hs</p>
+      ${d.lugar ? `<p><strong>${esc(d.lugar)}</strong></p>` : ""}
+      <p>${esc(d.fecha)}${d.hora ? ` · ${esc(d.hora)} hs` : ""}</p>
       ${d.direccionMapa ? `<a class="map-btn" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación 🗺️</a>` : ""}
     </div>
   </section>
 
-  <section>
+  ${d.galeria && d.galeria.length ? `<section>
     <h2 class="section-title">Momentos mágicos<small>Galería</small></h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     <h2 class="section-title">Confirmá tu asistencia<small>Te esperamos en el reino</small></h2>

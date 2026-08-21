@@ -234,42 +234,46 @@ function render(data = {}) {
     ${cd.html}
   </section>
 
+  ${(d.plan || d.dressCode) ? `
   <section>
     ${divider()}
     <h2>El plan</h2>
     <div class="plan-card">
       <div class="kilim"></div>
-      <p class="plan-text">${esc(d.plan)}</p>
+      ${d.plan ? `<p class="plan-text">${esc(d.plan)}</p>` : ""}
       ${d.dressCode ? `
       <div class="dress-row">
         <span class="dress-label">Dress code</span>
         <span class="dress-text">${esc(d.dressCode)}</span>
       </div>` : ""}
     </div>
-  </section>
+  </section>` : ""}
 
+  ${(d.hora || d.lugar) ? `
   <section>
     ${divider()}
     <h2>Dónde nos juntamos</h2>
     <div class="lugar-card">
       ${sunburstSVG()}
-      <p class="lugar-name">${esc(d.lugar)}</p>
+      ${d.lugar ? `<p class="lugar-name">${esc(d.lugar)}</p>` : ""}
       ${d.hora ? `<p class="lugar-hora">Nos encontramos desde las ${esc(d.hora)} hs</p>` : ""}
       ${d.direccionMapa ? `<a class="maplink" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
     </div>
-  </section>
+  </section>` : ""}
 
+  ${d.organizadores ? `
   <section>
     ${divider()}
     <h2>Organiza</h2>
     <p class="organiza-text script-word">${esc(d.organizadores)}</p>
-  </section>
+  </section>` : ""}
 
+  ${(d.galeria && d.galeria.length) ? `
   <section>
     ${divider()}
     <h2>Momentos</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     ${divider()}

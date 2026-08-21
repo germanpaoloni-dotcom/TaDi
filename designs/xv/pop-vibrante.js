@@ -279,17 +279,17 @@ function render(data = {}) {
   <div class="hero" style="position:relative;">
     ${roseCornerSvg("corner-top", false, accent)}
     ${roseCornerSvg("corner-top", true, accent)}
-    <p class="quote">&ldquo;${esc(d.mensaje)}&rdquo;</p>
+    ${d.mensaje ? `<p class="quote">&ldquo;${esc(d.mensaje)}&rdquo;</p>` : ""}
     ${tiaraSvg("icon")}
     <h1 class="title">Mis XV Años</h1>
 
     <div class="frame"><img src="${esc(d.coverImage)}" alt="${esc(d.nombre)}"></div>
     <div class="name-script script">${esc(d.nombre)}</div>
 
-    <div class="parents">
+    ${d.padres ? `<div class="parents">
       <p>Con la compañía de mis padres:</p>
       <p><strong>${esc(d.padres)}</strong></p>
-    </div>
+    </div>` : ""}
 
     <div class="invite-line">
       <p>Te invito a celebrar con alegría este momento tan especial:</p>
@@ -310,31 +310,32 @@ function render(data = {}) {
 
   <section class="section-tint">
     ${cheersSvg("icon-md icon")}
-    <p class="place">${esc(d.horaFiesta)}<br><strong>${esc((d.lugarFiesta || "").toUpperCase())}</strong>${d.lugarCeremonia ? `<em>${esc(d.lugarCeremonia)}</em>` : ""}</p>
+    ${(d.horaFiesta || d.lugarFiesta || d.lugarCeremonia) ? `<p class="place">${d.horaFiesta ? `${esc(d.horaFiesta)}<br>` : ""}${d.lugarFiesta ? `<strong>${esc(d.lugarFiesta.toUpperCase())}</strong>` : ""}${d.lugarCeremonia ? `<em>${esc(d.lugarCeremonia)}</em>` : ""}</p>` : ""}
     ${d.direccionMapa ? `<a class="map-btn" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
 
     <div class="feature-photo"><img src="${esc((d.galeria && d.galeria[0]) || d.coverImage)}" alt="${esc(d.nombre)}"></div>
 
     <h2 style="margin-top:40px;">Itinerario de actividades</h2>
     <div class="timeline">
-      ${d.horaCeremonia && d.lugarCeremonia ? `<div class="timeline-item"><span class="t-hora">${esc(d.horaCeremonia)}</span><span class="t-label">Ceremonia</span></div>` : ""}
-      <div class="timeline-item"><span class="t-hora">${esc(d.horaFiesta)}</span><span class="t-label">Recepción</span></div>
+      ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="timeline-item"><span class="t-hora">${d.horaCeremonia ? esc(d.horaCeremonia) : "&nbsp;"}</span><span class="t-label">Ceremonia</span></div>` : ""}
+      ${(d.horaFiesta || d.lugarFiesta) ? `<div class="timeline-item"><span class="t-hora">${d.horaFiesta ? esc(d.horaFiesta) : "&nbsp;"}</span><span class="t-label">Recepción</span></div>` : ""}
       <div class="timeline-item"><span class="t-hora">&nbsp;</span><span class="t-label">Vals y baile</span></div>
       <div class="timeline-item"><span class="t-hora">&nbsp;</span><span class="t-label">Despedida</span></div>
     </div>
 
-    <div class="dresscode">
+    ${d.dressCode ? `<div class="dresscode">
       <h2>Código de vestimenta</h2>
       <div class="dresscode-icons">${dressCodeSvg()}</div>
       <p>${esc(d.dressCode)}</p>
-    </div>
+    </div>` : ""}
   </section>
 
+  ${(d.galeria && d.galeria.length) ? `
   <section>
     ${dividerSvg("icon-md icon")}
     <h2>Momentos</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section class="section-tint">
     ${giftSvg("icon-md icon")}

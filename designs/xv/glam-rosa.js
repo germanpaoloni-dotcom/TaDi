@@ -358,45 +358,49 @@ function render(data = {}) {
     ${cd.html}
   </section>
 
+  ${(d.mensaje || d.padres || (d.galeria && d.galeria.length)) ? `
   <section class="section-blush">
+    ${(d.mensaje || d.padres) ? `
     ${bowSvg("hero-divider icon")}
     <h2 class="title">Un mensaje para vos</h2>
     <div class="quote-card">
       ${bowSvg()}
-      <p>${esc(d.mensaje)}</p>
-      <p class="padres">${esc(d.padres)}</p>
-    </div>
-    ${gal.html}
-  </section>
+      ${d.mensaje ? `<p>${esc(d.mensaje)}</p>` : ""}
+      ${d.padres ? `<p class="padres">${esc(d.padres)}</p>` : ""}
+    </div>` : ""}
+    ${(d.galeria && d.galeria.length) ? gal.html : ""}
+  </section>` : ""}
 
   <section>
     <span class="eyebrow">Detalles</span>
 
-    ${d.lugarCeremonia ? `
+    ${(d.horaCeremonia || d.lugarCeremonia) ? `
     <div class="detail-card">
       ${bowSvg("ribbon icon")}
       <h3>Ceremonia</h3>
       ${glassesSvg("glass-icon")}
-      <p class="hora">${esc(d.horaCeremonia)}</p>
-      <p class="lugar">${esc(d.lugarCeremonia)}</p>
+      ${d.horaCeremonia ? `<p class="hora">${esc(d.horaCeremonia)}</p>` : ""}
+      ${d.lugarCeremonia ? `<p class="lugar">${esc(d.lugarCeremonia)}</p>` : ""}
       ${d.direccionMapa ? `<a class="cta" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
     </div>` : ""}
 
+    ${(d.horaFiesta || d.lugarFiesta) ? `
     <div class="detail-card">
       ${bowSvg("ribbon icon")}
       <h3>Recepción</h3>
       ${glassesSvg("glass-icon")}
-      <p class="hora">${esc(d.horaFiesta)}</p>
-      <p class="lugar">${esc(d.lugarFiesta)}</p>
+      ${d.horaFiesta ? `<p class="hora">${esc(d.horaFiesta)}</p>` : ""}
+      ${d.lugarFiesta ? `<p class="lugar">${esc(d.lugarFiesta)}</p>` : ""}
       ${d.direccionMapa ? `<a class="cta" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
-    </div>
+    </div>` : ""}
 
+    ${d.dressCode ? `
     <div class="detail-card">
       ${bowSvg("ribbon icon")}
       ${coupleSvg("couple-icon")}
       <p class="dresscode-label">Código de vestimenta</p>
       <p class="dresscode-value">${esc(d.dressCode)}</p>
-    </div>
+    </div>` : ""}
 
     <div class="rsvp-card">
       ${bowSvg("ribbon icon")}

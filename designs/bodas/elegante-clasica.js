@@ -272,38 +272,42 @@ function render(data = {}) {
     ${cd.html}
   </section>
 
-  <section>
+  ${d.mensaje ? `<section>
     <div class="divider-gold"></div>
     <p class="message">&ldquo;${esc(d.mensaje)}&rdquo;</p>
     <div class="divider-gold"></div>
-  </section>
+  </section>` : ""}
 
-  <section>
+  ${
+    (d.horaCeremonia || d.lugarCeremonia || d.horaFiesta || d.lugarFiesta || d.direccionMapa || d.dressCode)
+      ? `<section>
     <h2>El gran día</h2>
     <div class="divider-gold"></div>
-    <div class="timeline">
-      <div class="tl-card">
+    ${(d.horaCeremonia || d.lugarCeremonia || d.horaFiesta || d.lugarFiesta) ? `<div class="timeline">
+      ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="tl-card">
         <div class="tl-icon">&#128141;</div>
         <h3>Ceremonia</h3>
-        <p class="tl-time">${esc(d.horaCeremonia)}</p>
-        <p class="tl-place">${esc(d.lugarCeremonia)}</p>
-      </div>
-      <div class="tl-card">
+        ${d.horaCeremonia ? `<p class="tl-time">${esc(d.horaCeremonia)}</p>` : ""}
+        ${d.lugarCeremonia ? `<p class="tl-place">${esc(d.lugarCeremonia)}</p>` : ""}
+      </div>` : ""}
+      ${(d.horaFiesta || d.lugarFiesta) ? `<div class="tl-card">
         <div class="tl-icon">&#127866;</div>
         <h3>Fiesta</h3>
-        <p class="tl-time">${esc(d.horaFiesta)}</p>
-        <p class="tl-place">${esc(d.lugarFiesta)}</p>
-      </div>
-    </div>
+        ${d.horaFiesta ? `<p class="tl-time">${esc(d.horaFiesta)}</p>` : ""}
+        ${d.lugarFiesta ? `<p class="tl-place">${esc(d.lugarFiesta)}</p>` : ""}
+      </div>` : ""}
+    </div>` : ""}
     ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa &rarr;</a>` : ""}
-    <div class="dresscode"><span>Dress code</span><strong>${esc(d.dressCode)}</strong></div>
-  </section>
+    ${d.dressCode ? `<div class="dresscode"><span>Dress code</span><strong>${esc(d.dressCode)}</strong></div>` : ""}
+  </section>`
+      : ""
+  }
 
-  <section class="dark">
+  ${(d.galeria && d.galeria.length) ? `<section class="dark">
     <h2 class="on-dark">Momentos</h2>
     <div class="divider-gold"></div>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section class="dark">
     <h2 class="on-dark">RSVP</h2>
@@ -314,7 +318,7 @@ function render(data = {}) {
   <footer>
     <div class="monogram-mini">${esc(inicialNovia)}&amp;${esc(inicialNovio)}</div>
     <p class="thanks">Con amor, ${esc(d.novia)} &amp; ${esc(d.novio)}</p>
-    <p><span class="alias-label">Alias para regalo&nbsp;</span><span class="alias-value">${esc(d.alias)}</span></p>
+    ${d.alias ? `<p><span class="alias-label">Alias para regalo&nbsp;</span><span class="alias-value">${esc(d.alias)}</span></p>` : ""}
   </footer>
 
   <script>${cd.script}${gal.script}${rsvp.script}</script>

@@ -256,24 +256,28 @@ function render(data = {}) {
     </div>
   </section>
 
+  ${(d.plan || d.dressCode) ? `
   <section class="sec-b">
     <div class="sec-inner">
       <p class="kicker">Agenda del día</p>
       <h2>El plan</h2>
       ${divider()}
       <div class="plan-grid">
+        ${d.plan ? `
         <div class="plan-card">
           <div class="head">${glassSVG}<h3>Itinerario</h3></div>
           <p>${esc(d.plan)}</p>
-        </div>
+        </div>` : ""}
+        ${d.dressCode ? `
         <div class="plan-card dress">
           <div class="head">${hibiscusSVG(accent)}<h3>Dress code</h3></div>
           <p>${esc(d.dressCode)}</p>
-        </div>
+        </div>` : ""}
       </div>
     </div>
-  </section>
+  </section>` : ""}
 
+  ${(d.hora || d.lugar) ? `
   <section class="sec-a">
     <div class="sec-inner">
       <p class="kicker">Punto de encuentro</p>
@@ -281,13 +285,14 @@ function render(data = {}) {
       ${divider()}
       <div class="lugar-card">
         ${pinSVG}
-        <span class="lugar-nombre">${esc(d.lugar)}</span>
+        ${d.lugar ? `<span class="lugar-nombre">${esc(d.lugar)}</span>` : ""}
         ${d.hora ? `<span class="lugar-hora">Nos encontramos a las ${esc(d.hora)} hs</span>` : ""}
         ${d.direccionMapa ? `<a class="maplink" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
       </div>
     </div>
-  </section>
+  </section>` : ""}
 
+  ${d.organizadores ? `
   <section class="sec-b">
     <div class="sec-inner">
       <p class="kicker">Con mucho amor</p>
@@ -296,8 +301,9 @@ function render(data = {}) {
       ${pineappleSVG}
       <div class="organiza-names">${esc(d.organizadores)}</div>
     </div>
-  </section>
+  </section>` : ""}
 
+  ${(d.galeria && d.galeria.length) ? `
   <section class="sec-a">
     <div class="sec-inner">
       <p class="kicker">Previa</p>
@@ -305,7 +311,7 @@ function render(data = {}) {
       ${divider()}
       ${gal.html}
     </div>
-  </section>
+  </section>` : ""}
 
   <section class="sec-rsvp">
     <div class="sec-inner">
@@ -319,7 +325,7 @@ function render(data = {}) {
   <footer>
     <div class="foot-motifs">${frondSVG(false, "fa", accent)}${diamondSVG}${frondSVG(true, "fb", accent)}</div>
     <p class="brand">Despedida de ${esc(d.nombre)}</p>
-    <p>Organizado con cariño por ${esc(d.organizadores)}</p>
+    ${d.organizadores ? `<p>Organizado con cariño por ${esc(d.organizadores)}</p>` : ""}
   </footer>
 
   <script>${cd.script}${gal.script}${rsvp.script}</script>

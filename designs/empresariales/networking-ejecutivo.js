@@ -28,9 +28,8 @@ const sampleData = {
   ],
 };
 
-function parseLines(raw, fallback) {
-  const src = String(raw ?? "").trim() ? String(raw) : fallback;
-  return String(src)
+function parseLines(raw) {
+  return String(raw || "")
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean)
@@ -59,11 +58,11 @@ function render(data = {}) {
   const copper = `color-mix(in srgb, ${accent}, black 25%)`;
   const NODE_ICON = nodeIcon(accent);
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "18:30"}:00` : sampleData.fecha, "cd-net");
-  const gal = galleryWidget(d.galeria && d.galeria.length ? d.galeria : sampleData.galeria, "gal-net");
+  const gal = galleryWidget(d.galeria || [], "gal-net");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: false, withMenu: false, whatsapp: d.contacto });
 
-  const agendaItems = parseLines(d.agenda, sampleData.agenda);
-  const oradoresItems = parseLines(d.oradores, sampleData.oradores);
+  const agendaItems = parseLines(d.agenda);
+  const oradoresItems = parseLines(d.oradores);
 
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -198,11 +197,11 @@ function render(data = {}) {
     <div class="hero-inner">
       <span class="hero-tag">Evento empresarial</span>
       <h1>${esc(d.nombreEvento)}</h1>
-      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : `<div class="hero-empresa">${esc(d.empresa)}</div>`}
+      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : (d.empresa ? `<div class="hero-empresa">${esc(d.empresa)}</div>` : "")}
       <div class="hero-meta">
         <span><i class="dot"></i>${esc(d.fecha)}</span>
-        <span><i class="dot"></i>${esc(d.hora)} hs</span>
-        <span><i class="dot"></i>${esc(d.lugar)}</span>
+        ${d.hora ? `<span><i class="dot"></i>${esc(d.hora)} hs</span>` : ""}
+        ${d.lugar ? `<span><i class="dot"></i>${esc(d.lugar)}</span>` : ""}
       </div>
     </div>
   </div>
@@ -215,15 +214,21 @@ function render(data = {}) {
     </div>
   </section>
 
-  <section class="divider">
+  ${
+    d.descripcion
+      ? `<section class="divider">
     <div class="wrap">
       <div class="eyebrow">${NODE_ICON}Sobre el evento</div>
       <h2 class="title">Networking con propósito</h2>
       <p class="lead">${esc(d.descripcion)}</p>
     </div>
-  </section>
+  </section>`
+      : ""
+  }
 
-  <section class="divider">
+  ${
+    agendaItems.length
+      ? `<section class="divider">
     <div class="wrap">
       <div class="eyebrow">${NODE_ICON}Programa</div>
       <h2 class="title">Agenda del evento</h2>
@@ -231,9 +236,13 @@ function render(data = {}) {
         ${agendaItems.map(([hora, act]) => `<div class="agenda-item"><div class="agenda-time">${esc(hora)}</div><div class="agenda-desc">${esc(act)}</div></div>`).join("")}
       </div>
     </div>
-  </section>
+  </section>`
+      : ""
+  }
 
-  <section class="divider">
+  ${
+    oradoresItems.length
+      ? `<section class="divider">
     <div class="wrap">
       <div class="eyebrow">${NODE_ICON}Panel</div>
       <h2 class="title">Oradores</h2>
@@ -241,7 +250,9 @@ function render(data = {}) {
         ${oradoresItems.map(([nombre, cargo]) => `<div class="orador-card"><div class="orador-nombre">${esc(nombre)}</div><div class="orador-cargo">${esc(cargo)}</div></div>`).join("")}
       </div>
     </div>
-  </section>
+  </section>`
+      : ""
+  }
 
   <section class="divider">
     <div class="wrap">
@@ -249,10 +260,10 @@ function render(data = {}) {
       <h2 class="title">Dónde y cómo ir vestido</h2>
       <div class="lugar-box">
         <div class="lugar-info">
-          <p><strong>Lugar:</strong> ${esc(d.lugar)}</p>
-          <p><strong>Fecha:</strong> ${esc(d.fecha)} · ${esc(d.hora)} hs</p>
+          ${d.lugar ? `<p><strong>Lugar:</strong> ${esc(d.lugar)}</p>` : ""}
+          <p><strong>Fecha:</strong> ${esc(d.fecha)}${d.hora ? ` · ${esc(d.hora)} hs` : ""}</p>
           ${d.direccionMapa ? `<div><a class="maps-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa</a></div>` : ""}
-          <div class="dress-badge">Dress code: ${esc(d.dressCode)}</div>
+          ${d.dressCode ? `<div class="dress-badge">Dress code: ${esc(d.dressCode)}</div>` : ""}
         </div>
         <svg class="lugar-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" width="120" height="120">
           <rect x="10" y="10" width="100" height="100" stroke="${accent}" stroke-opacity="0.3" stroke-width="1"/>
@@ -289,7 +300,7 @@ function render(data = {}) {
     </div>
   </section>
 
-  <footer><strong>${esc(d.empresa)}</strong> · ${esc(d.nombreEvento)}</footer>
+  <footer>${d.empresa ? `<strong>${esc(d.empresa)}</strong> · ` : ""}${esc(d.nombreEvento)}</footer>
 
   <script>
     ${cd.script}${gal.script}${rsvp.script}

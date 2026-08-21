@@ -227,25 +227,25 @@ function render(data = {}) {
     </div>
   </section>
 
-  <section>
+  ${d.mensaje || d.tematica ? `<section>
     <h2 class="section-title neon-purple">La misión</h2>
-    <p class="message">${esc(d.mensaje)}</p>
+    ${d.mensaje ? `<p class="message">${esc(d.mensaje)}</p>` : ""}
     ${d.tematica ? `<div class="tematica-box">👨‍🚀 ${esc(d.tematica)}</div>` : ""}
-  </section>
+  </section>` : ""}
 
   <section>
     <h2 class="section-title neon-yellow">Base de lanzamiento</h2>
     <div class="panel lugar-card">
-      <span class="fecha-badge">${esc(d.fecha)} · ${esc(d.hora)} hs</span>
-      <p style="margin:6px 0 0;font-size:1.05rem;">${esc(d.lugar)}</p>
+      <span class="fecha-badge">${esc(d.fecha)}${d.hora ? ` · ${esc(d.hora)} hs` : ""}</span>
+      ${d.lugar ? `<p style="margin:6px 0 0;font-size:1.05rem;">${esc(d.lugar)}</p>` : ""}
       ${d.direccionMapa ? `<a href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">📍 Ver ubicación en el mapa →</a>` : ""}
     </div>
   </section>
 
-  <section>
+  ${d.galeria && d.galeria.length ? `<section>
     <h2 class="section-title neon-cyan">Fotos de la tripulación</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     <h2 class="section-title neon-purple">Confirmá tu asistencia</h2>

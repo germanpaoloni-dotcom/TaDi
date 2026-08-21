@@ -209,38 +209,42 @@ function render(data = {}) {
     ${cd.html}
   </section>
 
+  ${(d.plan || d.dressCode) ? `
   <section>
     <div class="plan-wrap">
       ${champagneSVG}
       <h2>El plan</h2>
-      <p class="plan-text">${esc(d.plan)}</p>
+      ${d.plan ? `<p class="plan-text">${esc(d.plan)}</p>` : ""}
       ${d.dressCode ? `<div class="dresscode"><span class="label">Dress code</span><p>${esc(d.dressCode)}</p></div>` : ""}
     </div>
-  </section>
+  </section>` : ""}
 
+  ${(d.lugar || d.hora || d.direccionMapa) ? `
   <section>
     ${divider()}
     <h2>Dónde nos encontramos</h2>
     <div class="venue-grid">
       <div class="venue-card">
-        <h3>${esc(d.lugar)}</h3>
+        ${d.lugar ? `<h3>${esc(d.lugar)}</h3>` : ""}
         <p>${d.hora ? `Nos juntamos a las ${esc(d.hora)} hs` : "Horario a confirmar"}</p>
         ${d.direccionMapa ? `<a class="maplink" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
       </div>
     </div>
-  </section>
+  </section>` : ""}
 
+  ${d.organizadores ? `
   <section>
     ${divider()}
     <h2>Organiza</h2>
     <p class="organiza">Con muchísimo amor<span class="script">${esc(d.organizadores)}</span></p>
-  </section>
+  </section>` : ""}
 
+  ${(d.galeria && d.galeria.length) ? `
   <section>
     ${divider()}
     <h2>Momentos</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     ${divider()}

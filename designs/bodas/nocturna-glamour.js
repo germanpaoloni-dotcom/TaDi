@@ -215,7 +215,7 @@ function render(data = {}) {
 
   <section class="on-cream">
     ${sprigSVG(50, ROSE_DARK)}
-    <p class="message">${esc(d.mensaje)}</p>
+    ${d.mensaje ? `<p class="message">${esc(d.mensaje)}</p>` : ""}
     ${fechaLarga ? `<p class="welcome-date">${esc(fechaLarga)}</p>` : ""}
   </section>
   <div class="torn-wrap">${tornEdgeSVG(DEEP2)}</div>
@@ -230,16 +230,16 @@ function render(data = {}) {
     <h2>Timing</h2>
     <p class="subtitle">Programa de la noche</p>
     <div class="timeline">
-      <div class="card">
+      ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="card">
         <h3>Ceremonia</h3>
-        <span class="hora">${esc(d.horaCeremonia)}</span>
-        <p>${esc(d.lugarCeremonia)}</p>
-      </div>
-      <div class="card">
+        ${d.horaCeremonia ? `<span class="hora">${esc(d.horaCeremonia)}</span>` : ""}
+        ${d.lugarCeremonia ? `<p>${esc(d.lugarCeremonia)}</p>` : ""}
+      </div>` : ""}
+      ${(d.horaFiesta || d.lugarFiesta) ? `<div class="card">
         <h3>Fiesta</h3>
-        <span class="hora">${esc(d.horaFiesta)}</span>
-        <p>${esc(d.lugarFiesta)}</p>
-      </div>
+        ${d.horaFiesta ? `<span class="hora">${esc(d.horaFiesta)}</span>` : ""}
+        ${d.lugarFiesta ? `<p>${esc(d.lugarFiesta)}</p>` : ""}
+      </div>` : ""}
     </div>
     ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
   </section>
@@ -255,7 +255,7 @@ function render(data = {}) {
       <span style="background:${CREAM}"></span>
       <span style="background:${ROSE_WHITE}"></span>
     </div>
-    <div><span class="badge-dresscode">${esc(d.dressCode)}</span></div>
+    ${d.dressCode ? `<div><span class="badge-dresscode">${esc(d.dressCode)}</span></div>` : ""}
   </section>
   <div class="torn-wrap">${tornEdgeSVG(CREAM)}</div>
 
@@ -264,17 +264,17 @@ function render(data = {}) {
     <p class="subtitle">Mesa de regalos</p>
     <div class="gift-box">
       <p>Si quieren acompañarnos con un regalo, lo más lindo es un aporte para nuestra nueva vida juntos.</p>
-      <p class="alias">Alias: ${esc(d.alias)}</p>
+      ${d.alias ? `<p class="alias">Alias: ${esc(d.alias)}</p>` : ""}
     </div>
   </section>
-  <div class="torn-wrap">${tornEdgeSVG(DEEP2)}</div>
+  ${(d.galeria && d.galeria.length) ? `<div class="torn-wrap">${tornEdgeSVG(DEEP2)}</div>
 
   <section class="on-dark">
     <h2>Momentos</h2>
     <p class="subtitle">Galería</p>
     ${gal.html}
   </section>
-  <div class="torn-wrap">${tornEdgeSVG(CREAM)}</div>
+  <div class="torn-wrap">${tornEdgeSVG(CREAM)}</div>` : ""}
 
   <section class="on-cream">
     <h2>Questionnaire</h2>

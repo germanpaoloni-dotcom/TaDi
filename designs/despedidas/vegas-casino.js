@@ -255,37 +255,41 @@ function render(data = {}) {
     <div class="countdown-wrap">${cd.html}</div>
   </section>
 
+  ${(d.plan || d.dressCode) ? `
   <section>
     ${neonDivider()}
     <h2>El plan</h2>
     <div class="felt-card">
-      <p class="plan-text">${esc(d.plan)}</p>
+      ${d.plan ? `<p class="plan-text">${esc(d.plan)}</p>` : ""}
       ${d.dressCode ? `<div class="dresscode">${chipSVG("mini", "var(--gold)")} ${esc(d.dressCode)}</div>` : ""}
     </div>
-  </section>
+  </section>` : ""}
 
+  ${(d.hora || d.lugar) ? `
   <section>
     ${neonDivider()}
     <h2>Dónde se juega</h2>
     <div class="place-card">
       ${diceSVG("", 4, 2)}
-      <p class="place-name">${esc(d.lugar)}</p>
+      ${d.lugar ? `<p class="place-name">${esc(d.lugar)}</p>` : ""}
       ${d.hora ? `<p style="opacity:.85;margin:0;">Encuentro ${esc(d.hora)} hs</p>` : ""}
       ${d.direccionMapa ? `<a class="maplink" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
     </div>
-  </section>
+  </section>` : ""}
 
+  ${d.organizadores ? `
   <section>
     ${neonDivider()}
     <h2>Organiza la banca</h2>
     <p class="organiza-names">${esc(d.organizadores)}</p>
-  </section>
+  </section>` : ""}
 
+  ${(d.galeria && d.galeria.length) ? `
   <section>
     ${neonDivider()}
     <h2>Fotos de la previa</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     ${neonDivider()}

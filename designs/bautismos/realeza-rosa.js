@@ -292,7 +292,7 @@ function render(data = {}) {
 <body>
 
   <div class="hero">
-    <p class="quote">&ldquo;${esc(d.mensaje)}&rdquo;</p>
+    ${d.mensaje ? `<p class="quote">&ldquo;${esc(d.mensaje)}&rdquo;</p>` : ""}
     <p class="kicker">Mi Bautizo</p>
     <h1>${esc(d.nombreChico)}</h1>
 
@@ -330,13 +330,13 @@ function render(data = {}) {
     <p class="panel-title">Cronograma</p>
     <p class="panel-heading">Dónde y cuándo</p>
     <div class="timeline">
-      ${d.lugarCeremonia ? `<div class="item">
+      ${d.horaCeremonia || d.lugarCeremonia ? `<div class="item">
         <div class="dot">&#10013;</div>
-        <div><h3>Misa</h3><p class="hora">${esc(d.horaCeremonia)} hs</p><p>${esc(d.lugarCeremonia)}</p></div>
+        <div><h3>Misa</h3>${d.horaCeremonia ? `<p class="hora">${esc(d.horaCeremonia)} hs</p>` : ""}${d.lugarCeremonia ? `<p>${esc(d.lugarCeremonia)}</p>` : ""}</div>
       </div>` : ""}
-      ${d.lugarFiesta ? `<div class="item">
+      ${d.horaFiesta || d.lugarFiesta ? `<div class="item">
         <div class="dot">&#127942;</div>
-        <div><h3>Recepción</h3><p class="hora">${esc(d.horaFiesta)} hs</p><p>${esc(d.lugarFiesta)}</p></div>
+        <div><h3>Recepción</h3>${d.horaFiesta ? `<p class="hora">${esc(d.horaFiesta)} hs</p>` : ""}${d.lugarFiesta ? `<p>${esc(d.lugarFiesta)}</p>` : ""}</div>
       </div>` : ""}
     </div>
     ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa &rarr;</a>` : ""}
@@ -346,22 +346,23 @@ function render(data = {}) {
     <p class="panel-title">Con todo el cariño</p>
     <p class="panel-heading">Padres y padrinos</p>
     <div class="familia">
-      <div class="card">
+      ${d.padres ? `<div class="card">
         <svg class="icon" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 18l1.5-9L9 12l3-7 3 7 3.5-3L20 18H4z"/></svg>
         <h3>Padres</h3><p>${esc(d.padres)}</p>
-      </div>
-      <div class="card">
+      </div>` : ""}
+      ${d.padrinos ? `<div class="card">
         <svg class="icon" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3c2 2.5 5 4 8 4-1 6-4 10-8 12-4-2-7-6-8-12 3 0 6-1.5 8-4Z"/></svg>
         <h3>Padrinos</h3><p>${esc(d.padrinos)}</p>
-      </div>
+      </div>` : ""}
     </div>
   </section>
 
+  ${d.galeria && d.galeria.length ? `
   <section>
     <p class="panel-title">Recuerdos</p>
     <p class="panel-heading">Galería</p>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section class="alt">
     <p class="panel-title">Nos encantaría contar con vos</p>

@@ -268,7 +268,7 @@ function render(data = {}) {
     <div class="hero-bg"></div>
     <div class="hero-overlay"></div>
     <div class="hero-inner">
-      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : `<div class="hero-mark">${esc(d.empresa)}</div>`}
+      ${d.logo ? `<div class="hero-logo-wrap"><img class="hero-logo" src="${esc(d.logo)}" alt="${esc(d.empresa)}"></div>` : (d.empresa ? `<div class="hero-mark">${esc(d.empresa)}</div>` : "")}
       <h1 class="hero-title">${esc(d.nombreEvento)}</h1>
       <svg class="hero-divider" width="70" height="14" viewBox="0 0 70 14" xmlns="http://www.w3.org/2000/svg">
         <line x1="0" y1="7" x2="26" y2="7" stroke="#9fb4c7" stroke-width="1"/>
@@ -276,9 +276,9 @@ function render(data = {}) {
         <line x1="34" y1="3" x2="34" y2="11" stroke="#9fb4c7" stroke-width="1"/>
         <line x1="44" y1="7" x2="70" y2="7" stroke="#9fb4c7" stroke-width="1"/>
       </svg>
-      <p class="hero-meta">${esc(d.fecha)} · ${esc(d.hora)} hs</p>
-      <p class="hero-meta sub">${esc(d.lugar)}</p>
-      <p class="hero-desc">${esc(d.descripcion)}</p>
+      <p class="hero-meta">${esc(d.fecha)}${d.hora ? ` · ${esc(d.hora)} hs` : ""}</p>
+      ${d.lugar ? `<p class="hero-meta sub">${esc(d.lugar)}</p>` : ""}
+      ${d.descripcion ? `<p class="hero-desc">${esc(d.descripcion)}</p>` : ""}
     </div>
   </section>
 
@@ -292,61 +292,65 @@ function render(data = {}) {
       </div>
     </div>
 
-    <div class="section">
+    ${
+      agenda.length
+        ? `<div class="section">
       <span class="eyebrow">Agenda</span>
       <h2 class="section-title">Programa del evento</h2>
       <div class="card">
         <div class="agenda-list">
-          ${
-            agenda.length
-              ? agenda
-                  .map(
-                    ([t, a]) =>
-                      `<div class="agenda-item"><div class="agenda-time">${esc(t)}</div><div class="agenda-activity">${esc(a)}</div></div>`
-                  )
-                  .join("")
-              : `<p>Agenda a confirmar.</p>`
-          }
+          ${agenda
+            .map(
+              ([t, a]) =>
+                `<div class="agenda-item"><div class="agenda-time">${esc(t)}</div><div class="agenda-activity">${esc(a)}</div></div>`
+            )
+            .join("")}
         </div>
       </div>
-    </div>
+    </div>`
+        : ""
+    }
 
-    <div class="section">
+    ${
+      oradores.length
+        ? `<div class="section">
       <span class="eyebrow">Oradores</span>
       <h2 class="section-title">Quiénes exponen</h2>
       <div class="speakers">
-        ${
-          oradores.length
-            ? oradores
-                .map(
-                  ([n, c]) =>
-                    `<div class="speaker"><div class="avatar">${esc((n || "?").trim().charAt(0).toUpperCase() || "?")}</div><strong>${esc(n)}</strong><span>${esc(c)}</span></div>`
-                )
-                .join("")
-            : `<p>Oradores a confirmar.</p>`
-        }
+        ${oradores
+          .map(
+            ([n, c]) =>
+              `<div class="speaker"><div class="avatar">${esc((n || "?").trim().charAt(0).toUpperCase() || "?")}</div><strong>${esc(n)}</strong><span>${esc(c)}</span></div>`
+          )
+          .join("")}
       </div>
-    </div>
+    </div>`
+        : ""
+    }
 
     <div class="section">
       <span class="eyebrow">Sede</span>
       <h2 class="section-title">Detalles del lugar</h2>
       <div class="venue-grid">
-        <div class="venue-item"><div class="label">Lugar</div><div class="value">${esc(d.lugar)}</div></div>
+        ${d.lugar ? `<div class="venue-item"><div class="label">Lugar</div><div class="value">${esc(d.lugar)}</div></div>` : ""}
         <div class="venue-item"><div class="label">Fecha</div><div class="value">${esc(d.fecha)}</div></div>
-        <div class="venue-item"><div class="label">Hora</div><div class="value">${esc(d.hora)} hs</div></div>
-        <div class="venue-item"><div class="label">Dress code</div><div class="value">${esc(d.dressCode)}</div></div>
+        ${d.hora ? `<div class="venue-item"><div class="label">Hora</div><div class="value">${esc(d.hora)} hs</div></div>` : ""}
+        ${d.dressCode ? `<div class="venue-item"><div class="label">Dress code</div><div class="value">${esc(d.dressCode)}</div></div>` : ""}
       </div>
       ${d.direccionMapa ? `<p style="margin-top:16px"><a href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a></p>` : ""}
     </div>
 
-    <div class="section">
+    ${
+      d.galeria && d.galeria.length
+        ? `<div class="section">
       <span class="eyebrow">Galería</span>
       <h2 class="section-title">Ediciones anteriores</h2>
       <div class="card">
         ${gal.html}
       </div>
-    </div>
+    </div>`
+        : ""
+    }
 
     <div class="section">
       <span class="eyebrow">Acceso</span>
@@ -368,7 +372,7 @@ function render(data = {}) {
   </div>
 
   <footer>
-    <div class="brand">${esc(d.empresa)}</div>
+    ${d.empresa ? `<div class="brand">${esc(d.empresa)}</div>` : ""}
     ${esc(d.nombreEvento)}
   </footer>
 

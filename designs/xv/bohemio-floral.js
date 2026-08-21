@@ -213,11 +213,11 @@ function render(data = {}) {
   </div>
 
   <section class="mensaje center">
-    <p>${esc(d.mensaje)}</p>
+    ${d.mensaje ? `<p>${esc(d.mensaje)}</p>` : ""}
     <div class="name-script script">${esc(d.nombre)}</div>
     <div class="padres-block">
-      <span>Con la bendición de Dios y mis padres</span>
-      <span class="names">${esc(d.padres)}</span>
+      ${d.padres ? `<span>Con la bendición de Dios y mis padres</span>
+      <span class="names">${esc(d.padres)}</span>` : ""}
       <span class="lbl">Tengo el honor de invitarte a celebrar</span>
       <b>Mis XV Años</b>
     </div>
@@ -229,38 +229,42 @@ function render(data = {}) {
       <span class="line"></span>
     </div>
 
+    ${(d.horaCeremonia || d.lugarCeremonia) ? `
     <div class="info-card">
       <div class="ev-label">Ceremonia</div>
-      <div class="ev-time">${esc(d.horaCeremonia)}</div>
-      <div class="ev-place">${esc(d.lugarCeremonia)}</div>
+      ${d.horaCeremonia ? `<div class="ev-time">${esc(d.horaCeremonia)}</div>` : ""}
+      ${d.lugarCeremonia ? `<div class="ev-place">${esc(d.lugarCeremonia)}</div>` : ""}
       <div class="ev-city">Los espero</div>
       ${mapaBtn}
-    </div>
+    </div>` : ""}
   </section>
 
+  ${(d.horaFiesta || d.lugarFiesta) ? `
   <section class="center">
     <div class="info-card">
       <div class="ev-label">Recepción</div>
-      <div class="ev-time">${esc(d.horaFiesta)}</div>
-      <div class="ev-place">${esc(d.lugarFiesta)}</div>
+      ${d.horaFiesta ? `<div class="ev-time">${esc(d.horaFiesta)}</div>` : ""}
+      ${d.lugarFiesta ? `<div class="ev-place">${esc(d.lugarFiesta)}</div>` : ""}
       ${mapaBtn}
     </div>
-  </section>
+  </section>` : ""}
 
   <div class="itinerary-wrap">
     <span class="floral bl" style="position:absolute;bottom:-10px;left:-18px;">${roseCluster({ w: 110, flop: true })}</span>
     <h2 class="section-title">Itinerario de actividades</h2>
     <div class="timeline">
+      ${(d.horaCeremonia || d.lugarCeremonia) ? `
       <div class="tl-item">
         <div class="ico">&#9962;</div>
-        <div class="txt"><b>Ceremonia</b><span>${esc(d.lugarCeremonia)}</span></div>
-        <div class="hora">${esc(d.horaCeremonia)}</div>
-      </div>
+        <div class="txt"><b>Ceremonia</b>${d.lugarCeremonia ? `<span>${esc(d.lugarCeremonia)}</span>` : ""}</div>
+        ${d.horaCeremonia ? `<div class="hora">${esc(d.horaCeremonia)}</div>` : ""}
+      </div>` : ""}
+      ${(d.horaFiesta || d.lugarFiesta) ? `
       <div class="tl-item">
         <div class="ico">&#127881;</div>
-        <div class="txt"><b>Recepción</b><span>${esc(d.lugarFiesta)}</span></div>
-        <div class="hora">${esc(d.horaFiesta)}</div>
-      </div>
+        <div class="txt"><b>Recepción</b>${d.lugarFiesta ? `<span>${esc(d.lugarFiesta)}</span>` : ""}</div>
+        ${d.horaFiesta ? `<div class="hora">${esc(d.horaFiesta)}</div>` : ""}
+      </div>` : ""}
       <div class="tl-item">
         <div class="ico">&#127942;</div>
         <div class="txt"><b>Baile y celebración</b><span>Toda la noche</span></div>
@@ -273,10 +277,11 @@ function render(data = {}) {
     ${cd.html}
   </section>
 
+  ${(d.galeria && d.galeria.length) ? `
   <section class="center">
     <h2 class="section-title">Momentos</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section class="confirm-wrap">
     <div class="icon-circle">&#128172;</div>
@@ -284,11 +289,12 @@ function render(data = {}) {
     <p>Por favor confirma tu asistencia lo antes posible</p>
     ${rsvp.html}
 
+    ${d.dressCode ? `
     <div class="dresscode">
       <div class="ico-row"><span>&#128085;</span><span>&#128090;</span></div>
       <div class="lbl">Vestimenta</div>
       <div class="val">${esc(d.dressCode)}</div>
-    </div>
+    </div>` : ""}
 
     <div class="te-esperamos script">¡Te esperamos!</div>
     <div class="divider">${sprig(90)}</div>

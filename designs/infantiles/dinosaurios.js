@@ -208,20 +208,20 @@ function render(data = {}) {
     ${cd.html}
   </section>
 
-  <section>
+  ${d.mensaje || d.tematica ? `<section>
     <span class="section-title alt">La invitación</span>
-    <div class="message-card">${esc(d.mensaje)}</div>
+    ${d.mensaje ? `<div class="message-card">${esc(d.mensaje)}</div>` : ""}
     ${d.tematica ? `<div class="tematica">🎨 ${esc(d.tematica)}</div>` : ""}
-  </section>
+  </section>` : ""}
 
-  <section>
+  ${d.lugar || d.hora || d.direccionMapa ? `<section>
     <span class="section-title">¿Dónde es la excursión?</span>
     <div class="info-card">
-      <h3>${esc(d.lugar)}</h3>
-      <p>🕐 ${esc(d.hora)} hs</p>
+      ${d.lugar ? `<h3>${esc(d.lugar)}</h3>` : ""}
+      ${d.hora ? `<p>🕐 ${esc(d.hora)} hs</p>` : ""}
       ${d.direccionMapa ? `<p><a href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a></p>` : ""}
     </div>
-  </section>
+  </section>` : ""}
 
   <section>
     <span class="section-title alt">Encontrá el huevo de dino 🥚</span>
@@ -232,10 +232,10 @@ function render(data = {}) {
     </div>
   </section>
 
-  <section>
+  ${d.galeria && d.galeria.length ? `<section>
     <span class="section-title">Momentos prehistóricos</span>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     <span class="section-title alt">Confirmá tu asistencia</span>

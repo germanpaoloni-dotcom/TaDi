@@ -236,18 +236,18 @@ function render(data = {}) {
 
       <div class="photo-frame"><img src="${esc(d.coverImage)}" alt="${esc(d.nombreChico)}"></div>
 
-      <p class="message">${esc(d.mensaje)}</p>
+      ${d.mensaje ? `<p class="message">${esc(d.mensaje)}</p>` : ""}
 
       <div class="familia">
         <p class="lead">Acompáñame en este día tan especial junto a:</p>
-        <div class="grupo">
+        ${d.padres ? `<div class="grupo">
           <span class="label">Mis padres</span>
           <span class="names">${esc(d.padres)}</span>
-        </div>
-        <div class="grupo">
+        </div>` : ""}
+        ${d.padrinos ? `<div class="grupo">
           <span class="label">Mis padrinos de bautizo</span>
           <span class="names">${esc(d.padrinos)}</span>
-        </div>
+        </div>` : ""}
       </div>
 
       <div class="festejar">
@@ -275,28 +275,29 @@ function render(data = {}) {
     ${divider()}
     <div class="section-head"><h2>¿Dónde será?</h2><p class="subtitle">Ubicación</p></div>
     <div class="timeline">
-      <div class="card">
+      ${d.horaCeremonia || d.lugarCeremonia ? `<div class="card">
         <svg class="ico" viewBox="0 0 24 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="28" height="28"><line x1="12" y1="1" x2="12" y2="39" stroke="currentColor" stroke-width="1.4"/><line x1="1" y1="13" x2="23" y2="13" stroke="currentColor" stroke-width="1.4"/></svg>
         <h3>Ceremonia religiosa</h3>
-        <p class="hora">${esc(d.horaCeremonia)} hs</p>
-        <p>${esc(d.lugarCeremonia)}</p>
+        ${d.horaCeremonia ? `<p class="hora">${esc(d.horaCeremonia)} hs</p>` : ""}
+        ${d.lugarCeremonia ? `<p>${esc(d.lugarCeremonia)}</p>` : ""}
         ${d.direccionMapa ? `<a class="maplink" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
-      </div>
-      <div class="card">
+      </div>` : ""}
+      ${d.horaFiesta || d.lugarFiesta ? `<div class="card">
         <svg class="ico" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="28" height="28"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.3"/><path d="M12 7v5l3.2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         <h3>Recepción</h3>
-        <p class="hora">${esc(d.horaFiesta)} hs</p>
-        <p>${esc(d.lugarFiesta)}</p>
+        ${d.horaFiesta ? `<p class="hora">${esc(d.horaFiesta)} hs</p>` : ""}
+        ${d.lugarFiesta ? `<p>${esc(d.lugarFiesta)}</p>` : ""}
         ${d.direccionMapa ? `<a class="maplink" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
-      </div>
+      </div>` : ""}
     </div>
   </section>
 
+  ${d.galeria && d.galeria.length ? `
   <section>
     ${divider()}
     <div class="section-head"><h2>Momentos</h2></div>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     ${divider()}
@@ -308,8 +309,8 @@ function render(data = {}) {
   <footer>
     ${crossSVG}
     <p>¡Esperamos contar con su presencia!</p>
-    <p>Con cariño,</p>
-    <p class="fam">${esc(d.padres)}</p>
+    ${d.padres ? `<p>Con cariño,</p>
+    <p class="fam">${esc(d.padres)}</p>` : ""}
   </footer>
 
   <script>${cd.script}${gal.script}${rsvp.script}</script>

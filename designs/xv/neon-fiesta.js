@@ -172,8 +172,8 @@ function render(data = {}) {
       <div class="date-row">
         <span>${esc(fp.weekday)}</span><span class="div">|</span><span class="big">${esc(fp.day)}</span><span class="div">|</span><span>${esc(fp.month)}</span>
       </div>
-      <p class="hero-time">${esc(d.horaFiesta || d.horaCeremonia || "")} hs en adelante</p>
-      <p class="hero-place">${esc(d.lugarFiesta)}</p>
+      ${(d.horaFiesta || d.horaCeremonia) ? `<p class="hero-time">${esc(d.horaFiesta || d.horaCeremonia)} hs en adelante</p>` : ""}
+      ${d.lugarFiesta ? `<p class="hero-place">${esc(d.lugarFiesta)}</p>` : ""}
       <div class="hero-mic">${micIcon(accent)}</div>
     </div>
   </div>
@@ -198,42 +198,46 @@ function render(data = {}) {
           <h3>${starIcon("#22e5ff", 20)} Ceremonia</h3>
           <p>${d.horaCeremonia ? `Hora: <strong>${esc(d.horaCeremonia)}</strong><br>` : ""}${esc(d.lugarCeremonia)}</p>
         </div>` : ""}
+        ${(d.horaFiesta || d.lugarFiesta) ? `
         <div class="card">
           <h3>${boltIcon(accent, 20)} Fiesta</h3>
           <p>${d.horaFiesta ? `Hora: <strong>${esc(d.horaFiesta)}</strong><br>` : ""}${esc(d.lugarFiesta)}</p>
           ${d.direccionMapa ? `<a class="mapa" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
-        </div>
+        </div>` : ""}
       </div>
     </div>
   </section>
 
   <!-- ===== MENSAJE / PADRES ===== -->
+  ${(d.mensaje || d.padres) ? `
   <section>
     <div class="section-inner">
-      <p class="section-script neon-script-cyan">Un mensaje</p>
+      ${d.mensaje ? `<p class="section-script neon-script-cyan">Un mensaje</p>
       <h2 class="section-title magenta">para vos</h2>
-      <p class="mensaje-box">${esc(d.mensaje)}</p>
+      <p class="mensaje-box">${esc(d.mensaje)}</p>` : ""}
       ${d.padres ? `<p class="center padres-line">Con el cariño de ${esc(d.padres)}</p>` : ""}
     </div>
-  </section>
+  </section>` : ""}
 
   <!-- ===== DRESS CODE ===== -->
+  ${d.dressCode ? `
   <section>
     <div class="section-inner center">
       <p class="section-script neon-script-magenta">Vení así</p>
       <h2 class="section-title cyan">dress code</h2>
       <div class="pill">${boltIcon("#22e5ff", 20)} ${esc(d.dressCode)}</div>
     </div>
-  </section>
+  </section>` : ""}
 
   <!-- ===== GALERÍA ===== -->
+  ${(d.galeria && d.galeria.length) ? `
   <section>
     <div class="section-inner">
       <p class="section-script neon-script-cyan">Momentos</p>
       <h2 class="section-title magenta">antes de la fiesta</h2>
       ${gal.html}
     </div>
-  </section>
+  </section>` : ""}
 
   <!-- ===== RSVP ===== -->
   <section>

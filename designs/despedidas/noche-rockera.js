@@ -244,11 +244,12 @@ function render(data = {}) {
     </div>
   </div>
 
+  ${d.plan ? `
   <section>
     ${divider()}
     <h2>El <span>plan</span></h2>
     <div class="plan-card"><p>${esc(d.plan)}</p></div>
-  </section>
+  </section>` : ""}
 
   <section>
     ${divider(true)}
@@ -257,35 +258,40 @@ function render(data = {}) {
     ${fechaLarga ? `<p style="margin-top:18px;color:var(--ink-soft);letter-spacing:1px;">${esc(fechaLarga)}</p>` : ""}
   </section>
 
+  ${(d.dressCode || d.organizadores) ? `
   <section>
     ${divider()}
     <div class="info-strip">
+      ${d.dressCode ? `
       <div class="info-col">
         <span class="info-label">Dress Code</span>
         <span class="info-value">${esc(d.dressCode)}</span>
-      </div>
+      </div>` : ""}
+      ${d.organizadores ? `
       <div class="info-col">
         <span class="info-label">Organiza</span>
         <span class="info-value organiza-names">${esc(d.organizadores)}</span>
-      </div>
+      </div>` : ""}
     </div>
-  </section>
+  </section>` : ""}
 
+  ${(d.lugar || d.direccionMapa || d.whatsapp) ? `
   <section>
     ${divider(true)}
     <h2>Dónde</h2>
     <div class="venue-card">
-      <span class="venue-name">${esc(d.lugar)}</span>
+      ${d.lugar ? `<span class="venue-name">${esc(d.lugar)}</span>` : ""}
       ${d.direccionMapa ? `<a class="maplink" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa →</a>` : ""}
       ${d.whatsapp ? `<div class="contact-box"><span class="contact-label">Consultas</span><a class="contact-value" href="https://wa.me/${esc(d.whatsapp)}" target="_blank" rel="noopener">WhatsApp →</a></div>` : ""}
     </div>
-  </section>
+  </section>` : ""}
 
+  ${(d.galeria && d.galeria.length) ? `
   <section>
     ${divider()}
     <h2>Momentos</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     ${divider(true)}

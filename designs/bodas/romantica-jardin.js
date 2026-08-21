@@ -246,9 +246,9 @@ function render(data = {}) {
     <p class="eyebrow">Ceremonia y recepción</p>
     <h2 class="section-title">¿Dónde y cuándo?</h2>
     <div class="dark-card">
-      <div class="info-row">
-        <div class="item">${goldBlossomSVG(20, accent)} <div><strong>${esc(d.horaCeremonia)} hs</strong><br>${esc(d.lugarCeremonia)}</div></div>
-      </div>
+      ${(d.horaCeremonia || d.lugarCeremonia) ? `<div class="info-row">
+        <div class="item">${goldBlossomSVG(20, accent)} <div>${d.horaCeremonia ? `<strong>${esc(d.horaCeremonia)} hs</strong>` : ""}${(d.horaCeremonia && d.lugarCeremonia) ? "<br>" : ""}${d.lugarCeremonia ? esc(d.lugarCeremonia) : ""}</div></div>
+      </div>` : ""}
       ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
     </div>
   </section>
@@ -258,8 +258,8 @@ function render(data = {}) {
     <h2 class="section-title">Itinerario</h2>
     <div class="dark-card">
       <ul class="timeline">
-        <li><div class="t-hora">${esc(d.horaCeremonia)} hs</div><p class="t-label">Ceremonia — ${esc(d.lugarCeremonia)}</p></li>
-        <li><div class="t-hora">${esc(d.horaFiesta)} hs</div><p class="t-label">Recepción y fiesta — ${esc(d.lugarFiesta)}</p></li>
+        ${(d.horaCeremonia || d.lugarCeremonia) ? `<li>${d.horaCeremonia ? `<div class="t-hora">${esc(d.horaCeremonia)} hs</div>` : ""}<p class="t-label">Ceremonia${d.lugarCeremonia ? ` — ${esc(d.lugarCeremonia)}` : ""}</p></li>` : ""}
+        ${(d.horaFiesta || d.lugarFiesta) ? `<li>${d.horaFiesta ? `<div class="t-hora">${esc(d.horaFiesta)} hs</div>` : ""}<p class="t-label">Recepción y fiesta${d.lugarFiesta ? ` — ${esc(d.lugarFiesta)}` : ""}</p></li>` : ""}
         <li><div class="t-hora">&hellip;</div><p class="t-label">¡A festejar hasta que el cuerpo aguante!</p></li>
       </ul>
     </div>
@@ -273,38 +273,38 @@ function render(data = {}) {
     </div>
   </section>
 
-  <section>
+  ${d.mensaje ? `<section>
     ${leafDividerSVG(accent)}
     <div class="paper-card">
       <p class="message">${esc(d.mensaje)}</p>
     </div>
-  </section>
+  </section>` : ""}
 
   <section>
     <div class="divider-flor">${sprigSVG(130, 180, accent)}</div>
     <p class="eyebrow">Detalles</p>
     <h2 class="section-title">Para tener en cuenta</h2>
     <div class="pill-row">
-      <div class="pill">
+      ${d.dressCode ? `<div class="pill">
         <span class="tag">Código de vestimenta</span>
         <h3>${esc(d.dressCode)}</h3>
         <p>Les dejamos esta sugerencia de colores para acompañar la estética del día.</p>
-      </div>
+      </div>` : ""}
       <div class="pill">
         <span class="tag">Sugerencia de regalos</span>
         <h3>Un gesto con nosotros</h3>
         <p>El mejor regalo es tu presencia, pero si querés tener un detalle, podés hacerlo por transferencia.</p>
-        <div class="alias-box">Alias: ${esc(d.alias)}</div>
+        ${d.alias ? `<div class="alias-box">Alias: ${esc(d.alias)}</div>` : ""}
       </div>
     </div>
     <div class="corner-deco">${anthuriumSVG(46)}</div>
   </section>
 
-  <section>
+  ${(d.galeria && d.galeria.length) ? `<section>
     <p class="eyebrow">Recuerdos</p>
     <h2 class="section-title">Nuestra historia en fotos</h2>
     ${gal.html}
-  </section>
+  </section>` : ""}
 
   <section>
     ${leafDividerSVG(accent)}
