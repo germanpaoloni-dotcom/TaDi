@@ -6,6 +6,7 @@ const { getDB, saveDB, uid } = require("./db");
 const { categories, designs, getDesign, designsByCategory } = require("./designs");
 const { PALETTES } = require("./designs/palettes");
 const mp = require("./mercadopago");
+const mailer = require("./mailer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,6 +51,42 @@ const upload = multer({
   }),
   limits: { fileSize: 8 * 1024 * 1024 },
 });
+
+// ---------- vista previa al compartir el link (WhatsApp, Facebook, etc.) ----------
+// WhatsApp arma la tarjeta de preview leyendo las etiquetas Open Graph
+// (og:title/og:description/og:image) del <head> del link. Cada diseño ya
+// arma su propio documento HTML completo (no pasa por layout()), así que en
+// vez de tocar los 30+ archivos de diseño, inyectamos estas etiquetas acá,
+// en el servidor, justo después de <head> (ese tag abre igual en todos los
+// diseños, así que el reemplazo es seguro). El título sale del propio
+// <title> que cada diseño ya define, así que funciona automáticamente con
+// diseños nuevos sin tener que acordarse de nada.
+function absoluteUrl(baseUrl, url) {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  return baseUrl.replace(/\/$/, "") + (url.startsWith("/") ? url : `/${url}`);
+}
+
+function injectOgTags(html, { baseUrl, url, image, description }) {
+  const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/i);
+  const title = titleMatch ? titleMatch[1].trim() : "TaDi — Invitación digital";
+  const desc = description || "Mirá la invitación y confirmá tu asistencia.";
+  const img = absoluteUrl(baseUrl, image);
+  const tags = `
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="${escapeHtml(title)}">
+    <meta property="og:description" content="${escapeHtml(desc)}">
+    ${img ? `<meta property="og:image" content="${escapeHtml(img)}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">` : ""}
+    <meta property="og:url" content="${escapeHtml(url)}">
+    <meta name="twitter:card" content="${img ? "summary_large_image" : "summary"}">
+    <meta name="twitter:title" content="${escapeHtml(title)}">
+    <meta name="twitter:description" content="${escapeHtml(desc)}">
+    ${img ? `<meta name="twitter:image" content="${escapeHtml(img)}">` : ""}
+  `;
+  return html.replace("<head>", "<head>" + tags);
+}
 
 function layout({ title, body }) {
   return `<!doctype html>
@@ -473,7 +510,14 @@ const DEMO_BACK_BUTTON = `<a href="/" onclick="if(window.history.length>1){histo
 app.get("/demo/:designId", (req, res) => {
   const design = getDesign(req.params.designId);
   if (!design) return res.status(404).send("Diseño no encontrado");
-  const html = design.render({ ...design.sampleData, __slug: "demo" });
+  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+  let html = design.render({ ...design.sampleData, __slug: "demo" });
+  html = injectOgTags(html, {
+    baseUrl,
+    url: `${baseUrl}/demo/${design.id}`,
+    image: design.sampleData.coverImage,
+    description: `Diseño "${design.name}" de TaDi — mirá cómo queda antes de elegirlo.`,
+  });
   res.send(html.replace("<body>", "<body>" + DEMO_BACK_BUTTON));
 });
 
@@ -492,6 +536,12 @@ app.get("/checkout/:designId", (req, res) => {
       <div class="checkout-row"><span>Incluye</span><strong>Edición ilimitada de datos + link para compartir</strong></div>
       <form method="POST" action="/api/orders">
         <input type="hidden" name="designId" value="${design.id}">
+        <div class="field" style="margin-bottom:16px;text-align:left;">
+          <label for="checkout-email">Tu email</label>
+          <input type="email" id="checkout-email" name="email" required placeholder="tu@email.com"
+            style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);font-family:inherit;font-size:1rem;">
+          <p class="field-help">Te mandamos el link de tu invitación acá también, como respaldo, para que no se pierda aunque cierres esta ventana.</p>
+        </div>
         <button class="mp-btn" type="submit">🔒 Pagar con Mercado Pago</button>
       </form>
       <p class="checkout-trust">Podés pagar con tarjeta, cuotas (según lo que ofrezca tu banco) o dinero en cuenta — Mercado Pago te muestra las opciones disponibles antes de confirmar. Pago 100% seguro, no vemos ni guardamos tu tarjeta.</p>
@@ -516,6 +566,7 @@ app.post("/api/orders", async (req, res) => {
     designId: design.id,
     amount: PRICE_ARS,
     status: "pending",
+    buyerEmail: (req.body.email || "").trim(),
     createdAt: new Date().toISOString(),
   };
   db.orders.push(order);
@@ -564,6 +615,38 @@ function markOrderPaid(order) {
   return ord;
 }
 
+// Manda el mail con el link de edición (respaldo por si se pierde la
+// pestaña) — se llama tanto desde la vuelta del checkout como desde el
+// webhook, así que se protege con ord.emailSent para no mandarlo dos veces
+// si ambos caminos terminan disparando para la misma orden.
+async function sendOrderEmail(order) {
+  if (order.emailSent || !order.buyerEmail) return;
+  const db = getDB();
+  const ord = db.orders.find((o) => o.id === order.id);
+  if (!ord || ord.emailSent) return;
+
+  const design = getDesign(ord.designId);
+  const baseUrl = process.env.PUBLIC_BASE_URL || "";
+  try {
+    const result = await mailer.sendInvitationLinkEmail({
+      to: ord.buyerEmail,
+      nombreEvento: design ? design.name : "",
+      designName: design ? design.name : "",
+      editUrl: `${baseUrl}/editar/${ord.editToken}`,
+      publicUrl: ord.publicSlug ? `${baseUrl}/invitacion/${ord.publicSlug}` : "",
+    });
+    // Si el mailer lo saltó (modo demo, sin SMTP configurado) no marcamos
+    // emailSent: así, si más adelante se configura SMTP en producción,
+    // esa misma orden puede recibir el mail real en el próximo intento.
+    if (!result || !result.skipped) {
+      ord.emailSent = true;
+      saveDB(db);
+    }
+  } catch (err) {
+    console.error("Error enviando mail con el link de la invitación:", err);
+  }
+}
+
 // vuelta exitosa desde Mercado Pago (o simulación en modo demo)
 app.get("/pago-exitoso", async (req, res) => {
   const db = getDB();
@@ -583,6 +666,7 @@ app.get("/pago-exitoso", async (req, res) => {
   }
 
   const paid = markOrderPaid(order);
+  sendOrderEmail(paid).catch(() => {}); // no bloquea la redirección si el mail tarda o falla
   res.redirect(`/editar/${paid.editToken}?bienvenida=1`);
 });
 
@@ -598,12 +682,22 @@ app.post("/webhook/mercadopago", express.json(), async (req, res) => {
   try {
     const paymentId = req.body?.data?.id || req.query["data.id"];
     if (paymentId && mp.isConfigured()) {
-      const status = await mp.getPaymentStatus(paymentId);
-      if (status === "approved") {
+      const { status, externalReference } = await mp.getPayment(paymentId);
+      if (status === "approved" && externalReference) {
         const db = getDB();
-        // external_reference viaja en el pago; en este prototipo lo
-        // recuperamos buscando la orden pendiente más reciente si hace
-        // falta, pero lo correcto es leerlo del payment obtenido arriba.
+        const order = db.orders.find((o) => o.id === externalReference);
+        // Si el comprador ya volvió por /pago-exitoso, la orden ya está
+        // "paid" y markOrderPaid es inofensivo de llamar de nuevo (solo
+        // refresca paidAt); sendOrderEmail se autoprotege con emailSent
+        // para no mandar el mail dos veces.
+        if (order) {
+          const paid = markOrderPaid(order);
+          await sendOrderEmail(paid).catch((err) =>
+            console.error("Error enviando mail desde el webhook:", err)
+          );
+        } else {
+          console.warn(`Webhook: no se encontró la orden ${externalReference} para el pago ${paymentId}`);
+        }
       }
     }
     res.sendStatus(200);
@@ -898,7 +992,15 @@ app.get("/invitacion/:slug", (req, res) => {
   const inv = db.invitations.find((i) => i.slug === req.params.slug);
   if (!inv) return res.status(404).send("Invitación no encontrada");
   const design = getDesign(inv.designId);
-  res.send(design.render({ ...inv.data, __slug: inv.slug }));
+  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+  let html = design.render({ ...inv.data, __slug: inv.slug });
+  html = injectOgTags(html, {
+    baseUrl,
+    url: `${baseUrl}/invitacion/${inv.slug}`,
+    image: inv.data.coverImage,
+    description: "Mirá la invitación y confirmá tu asistencia.",
+  });
+  res.send(html);
 });
 
 app.post("/api/invitacion/:slug/rsvp", (req, res) => {

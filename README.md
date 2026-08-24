@@ -65,20 +65,67 @@ sus diseños con el mismo patrón.
    (`mercadopago.js` ya tiene toda la integración escrita, incluida la
    verificación del pago contra la API antes de dar acceso al editor, y el
    webhook en `/webhook/mercadopago`).
-2. **Base de datos**: este prototipo guarda todo en `data/db.json` (un
+2. **Mails automáticos con el link de la invitación**: para que el link de
+   edición y el link público lleguen por mail apenas se paga (así no se
+   pierden si se cierra la pestaña), definir estas variables de entorno.
+   Está pensado para usar la cuenta `administracion@tadi.com.ar`, que vive
+   en Google Workspace:
+   ```
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=465
+   SMTP_USER=administracion@tadi.com.ar
+   SMTP_PASS=xxxxxxxxxxxxxxxx        (ver abajo cómo generarla)
+   SMTP_FROM=TaDi <administracion@tadi.com.ar>   (opcional)
+   ```
+   `SMTP_PASS` **no es la contraseña normal de la cuenta** — Google no deja
+   usarla desde apps externas. Hay que generar una "contraseña de
+   aplicación" de 16 letras:
+   1. Entrar a `administracion@tadi.com.ar` en [myaccount.google.com](https://myaccount.google.com).
+   2. Activar la **verificación en 2 pasos** si todavía no está activada
+      (es un requisito para poder generar contraseñas de aplicación).
+   3. Ir a [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords),
+      crear una nueva (nombre sugerido: "TaDi web") y copiar las 16 letras
+      que muestra — esa es la que va en `SMTP_PASS`.
+   4. Si esa cuenta es parte de un Workspace administrado y la opción de
+      contraseñas de aplicación no aparece, es porque el administrador del
+      Workspace las tiene deshabilitadas para el dominio — hay que
+      habilitarlas desde `admin.google.com` (Seguridad → Autenticación →
+      Contraseñas de aplicación) o, alternativamente, migrar el envío a la
+      API de Gmail con OAuth2 (requiere más configuración, no incluido en
+      este prototipo).
+
+   Sin estas variables cargadas, el sitio sigue funcionando exactamente
+   igual (modo demo): simplemente no se manda el mail de respaldo, pero el
+   comprador igual llega al editor por el link directo después de pagar.
+
+   El mail se dispara solo (no hace falta ningún paso manual) desde dos
+   lugares, para máxima confiabilidad: apenas el comprador vuelve del pago
+   exitoso, y también desde el webhook de Mercado Pago (`/webhook/mercadopago`)
+   por si el navegador del comprador no llega a completar esa vuelta. Un
+   flag interno (`emailSent`) evita que se mande dos veces por la misma
+   compra.
+3. **Vista previa al compartir por WhatsApp**: ya está resuelto sin
+   configuración adicional — el link público de cada invitación
+   (`/invitacion/:slug`) incluye las etiquetas `og:title`/`og:image`/etc.
+   necesarias para que WhatsApp (y Facebook, Twitter, etc.) muestren una
+   tarjeta con la foto de portada y el título del evento al pegar el link,
+   en vez de un link pelado. Usa automáticamente la foto de portada y el
+   nombre cargados en el editor, así que funciona para cualquier diseño sin
+   tocar nada por diseño nuevo que se agregue.
+4. **Base de datos**: este prototipo guarda todo en `data/db.json` (un
    archivo). Para producción conviene migrarlo a Postgres/MySQL/SQLite —
    las funciones `getDB()`/`saveDB()` de `db.js` son el único lugar que
    habría que reemplazar.
-3. **Imágenes**: hoy se guardan en `public/uploads`. Para producción
+5. **Imágenes**: hoy se guardan en `public/uploads`. Para producción
    conviene subirlas a un storage (S3, Cloudinary, etc.) en vez del disco
    del servidor.
-4. **Precio**: se controla con la variable de entorno `PRICE_ARS` (por
+6. **Precio**: se controla con la variable de entorno `PRICE_ARS` (por
    defecto $14.900, según la recomendación del informe de mercado adjunto).
    Se puede pasar a un esquema de 3 planes editando `checkout/:id` y el
    catálogo.
-5. **Hosting**: cualquier servicio que corra Node.js (Railway, Render,
+7. **Hosting**: cualquier servicio que corra Node.js (Railway, Render,
    Fly.io, un VPS, etc.) + un dominio propio.
-6. **Dominio del negocio**: registrar el dominio elegido y sumar RSVP por
+8. **Dominio del negocio**: registrar el dominio elegido y sumar RSVP por
    WhatsApp real (ya está contemplado en el esquema de cada diseño, campo
    `whatsapp`/`contacto`).
 

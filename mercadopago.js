@@ -60,4 +60,15 @@ async function getPaymentStatus(paymentId) {
   return result.status; // 'approved' | 'pending' | 'rejected' | ...
 }
 
-module.exports = { isConfigured, createPreference, getPaymentStatus };
+// Igual que getPaymentStatus, pero además devuelve el external_reference
+// (el orderId que le pasamos al crear la preferencia) — lo necesita el
+// webhook para saber a qué orden corresponde el pago, ya que la
+// notificación de Mercado Pago solo trae el id del pago, no la orden.
+async function getPayment(paymentId) {
+  const client = getClient();
+  const payment = new Payment(client);
+  const result = await payment.get({ id: paymentId });
+  return { status: result.status, externalReference: result.external_reference };
+}
+
+module.exports = { isConfigured, createPreference, getPaymentStatus, getPayment };
