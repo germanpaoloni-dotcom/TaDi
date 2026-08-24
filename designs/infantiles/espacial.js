@@ -195,6 +195,25 @@ function render(data = {}) {
   .rsvp-whatsapp{font-size:.85rem;color:var(--yellow);text-align:center;text-decoration:none;}
   .rsvp-status{text-align:center;color:var(--cyan);font-weight:bold;}
 
+  .generator input{
+    font-family:inherit;font-size:1rem;padding:11px 14px;
+    border:1px solid color-mix(in srgb, ${accent} 40%, transparent);border-radius:10px;
+    width:100%;margin-bottom:14px;background:rgba(8,11,36,.6);color:#fff;text-align:center;
+  }
+  .generator input::placeholder{color:#7c86b8;}
+  .generator input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 12px color-mix(in srgb, ${accent} 45%, transparent);}
+  .generator button{
+    width:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));
+    color:#fff;font-weight:bold;border:0;border-radius:10px;padding:13px;
+    text-transform:uppercase;letter-spacing:1px;cursor:pointer;
+    box-shadow:0 0 18px rgba(164,91,255,.5);
+  }
+  .generator-result{
+    margin-top:18px;text-align:center;font-size:1.3rem;font-weight:bold;
+    color:var(--cyan);text-shadow:0 0 8px color-mix(in srgb, ${accent} 80%, transparent);
+    min-height:1.4em;
+  }
+
   footer{
     text-align:center;padding:36px 20px;font-size:.85rem;color:#8b96c9;
     border-top:1px solid rgba(164,91,255,.25);
@@ -243,6 +262,15 @@ function render(data = {}) {
     </div>
   </section>
 
+  <section>
+    <h2 class="section-title neon-yellow">Descubrí tu nombre de astronauta</h2>
+    <div class="panel generator">
+      <input type="text" id="astroNameInput" placeholder="Escribí tu nombre..." value="${esc(d.nombreChico)}">
+      <button type="button" id="astroNameBtn">🚀 ¡Despegar!</button>
+      <p class="generator-result" id="astroNameResult"></p>
+    </div>
+  </section>
+
   ${d.galeria && d.galeria.length ? `<section>
     <h2 class="section-title neon-cyan">Fotos de la tripulación</h2>
     ${gal.html}
@@ -261,7 +289,25 @@ function render(data = {}) {
     <p>Cumpleaños espacial de ${esc(d.nombreChico)}</p>
   </footer>
 
-  <script>${cd.script}${gal.script}${rsvp.script}</script>
+  <script>
+    ${cd.script}${gal.script}${rsvp.script}
+    (function(){
+      var prefixes = ['Comandante','Capitana','Piloto','Teniente','Astro','Explorador','Almirante','Cadete'];
+      var suffixes = ['Nova','Cometa','Orión','Galaxia','Estelar','Cósmico','Meteoro','Andrómeda'];
+      var input = document.getElementById('astroNameInput');
+      var btn = document.getElementById('astroNameBtn');
+      var result = document.getElementById('astroNameResult');
+      if(!btn) return;
+      btn.addEventListener('click', function(){
+        var val = (input.value || '').trim() || 'Astronauta';
+        var seed = 0;
+        for (var i = 0; i < val.length; i++) seed += val.charCodeAt(i);
+        var p = prefixes[seed % prefixes.length];
+        var s = suffixes[(seed * 7 + val.length) % suffixes.length];
+        result.textContent = '🌌 ' + p + ' ' + s + ' 🌌';
+      });
+    })();
+  </script>
 ${tadiFooterWidget()}
 </body></html>`;
 }
@@ -285,6 +331,6 @@ function cardPreview(d) {
 
 module.exports = {
   id, category: "infantiles", name: "Misión Espacial",
-  summary: "Cumple temático de astronautas con fondo estrellado, acentos neón y cuenta regresiva de lanzamiento.",
+  summary: "Cumple temático de astronautas con fondo estrellado, acentos neón, cuenta regresiva de lanzamiento y un generador de nombre de astronauta.",
   accent: "#3ff0ff", schema: infantilSchema, sampleData, render, cardPreview,
 };

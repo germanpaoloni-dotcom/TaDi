@@ -195,6 +195,21 @@ function render(data = {}) {
   .lightbox img{max-width:90%;max-height:85%;border-radius:12px;}
   .lightbox-close{position:absolute;top:20px;right:26px;color:#fff;font-size:2.2rem;cursor:pointer;}
 
+  .generator input{
+    font-family:inherit;font-size:1rem;padding:11px 14px;border:2px solid var(--rose-light);
+    border-radius:30px;width:100%;margin-bottom:14px;background:#fffafd;text-align:center;
+  }
+  .generator input:focus{outline:none;border-color:var(--gold);}
+  .generator button{
+    width:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));
+    color:#5c3457;font-weight:700;border:0;border-radius:30px;padding:13px;
+    cursor:pointer;box-shadow:0 6px 14px rgba(212,175,55,.35);
+  }
+  .generator-result{
+    margin-top:18px;text-align:center;font-family:'Great Vibes',cursive;
+    font-size:1.8rem;color:var(--rose-deep);min-height:1.4em;
+  }
+
   .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:380px;margin:26px auto 0;text-align:left;}
   .rsvp-form label{font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--rose-deep);font-weight:600;}
   .rsvp-form input,.rsvp-form select,.rsvp-form textarea{
@@ -267,6 +282,15 @@ function render(data = {}) {
   </section>` : ""}
 
   <section>
+    <h2 class="section-title">Descubrí tu nombre de princesa<small>El hada madrina te espera</small></h2>
+    <div class="storycard generator">
+      <input type="text" id="princessNameInput" placeholder="Escribí tu nombre..." value="${esc(d.nombreChico)}">
+      <button type="button" id="princessNameBtn">✨ ¡Transformarme!</button>
+      <p class="generator-result" id="princessNameResult"></p>
+    </div>
+  </section>
+
+  <section>
     <h2 class="section-title">Confirmá tu asistencia<small>Te esperamos en el reino</small></h2>
     ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
     ${rsvp.html}
@@ -278,7 +302,25 @@ function render(data = {}) {
     <p>Con cariño, la familia de la princesa.</p>
   </footer>
 
-  <script>${cd.script}${gal.script}${rsvp.script}</script>
+  <script>
+    ${cd.script}${gal.script}${rsvp.script}
+    (function(){
+      var prefixes = ['Princesa','Reina','Hada','Duquesa','Condesa','Estrella','Lady','Dulce'];
+      var suffixes = ['Luna','Aurora','Jazmín','Cristal','Rosa','Estrellita','Perla','Encanto'];
+      var input = document.getElementById('princessNameInput');
+      var btn = document.getElementById('princessNameBtn');
+      var result = document.getElementById('princessNameResult');
+      if(!btn) return;
+      btn.addEventListener('click', function(){
+        var val = (input.value || '').trim() || 'Princesa';
+        var seed = 0;
+        for (var i = 0; i < val.length; i++) seed += val.charCodeAt(i);
+        var p = prefixes[seed % prefixes.length];
+        var s = suffixes[(seed * 7 + val.length) % suffixes.length];
+        result.textContent = '✨ ' + p + ' ' + s + ' ✨';
+      });
+    })();
+  </script>
 ${tadiFooterWidget()}
 </body></html>`;
 }

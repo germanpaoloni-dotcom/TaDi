@@ -255,6 +255,22 @@ function render(data = {}) {
   .rsvp-whatsapp{display:block;text-align:center;color:var(--selva);font-weight:bold;text-decoration:none;}
   .rsvp-status{text-align:center;color:var(--selva-oscura);font-weight:bold;}
 
+  /* ---- mini juego: encontrá el animal escondido ---- */
+  .safari-game{
+    background:linear-gradient(180deg,var(--selva),var(--selva-oscura));
+    border-radius:22px;padding:26px 22px;color:#fff;
+    max-width:520px;margin:0 auto;
+  }
+  .safari-game p{font-weight:bold;margin-top:0;}
+  .safari-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:340px;margin:16px auto 0;}
+  .safari-cell{
+    aspect-ratio:1;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.32);
+    border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-size:1.6rem;cursor:pointer;user-select:none;
+  }
+  .safari-cell.found{background:var(--khaki-claro);}
+  .safari-result{margin-top:14px;font-weight:900;color:var(--sol);min-height:1.2em;}
+
   footer{
     text-align:center;
     padding:34px 20px;
@@ -305,6 +321,16 @@ function render(data = {}) {
     </div>
   </div></section>
 
+  <section>
+    <span class="section-badge">Desafío de exploradores</span>
+    <h2>Encontrá el animal escondido 🦁</h2>
+    <div class="safari-game">
+      <p>Tocá las hojas hasta encontrar el animal que se esconde en la selva.</p>
+      <div class="safari-grid" id="safariGrid"></div>
+      <p class="safari-result" id="safariResult"></p>
+    </div>
+  </section>
+
   ${d.galeria && d.galeria.length ? `<section>
     <span class="section-badge">Galería</span>
     <h2>Fotos de la selva</h2>
@@ -323,7 +349,36 @@ function render(data = {}) {
     ¡Te esperamos para vivir la aventura, ${esc(d.nombreChico)}!
   </footer>
 
-  <script>${cd.script}${gal.script}${rsvp.script}</script>
+  <script>
+    ${cd.script}${gal.script}${rsvp.script}
+    (function(){
+      var grid = document.getElementById('safariGrid');
+      var result = document.getElementById('safariResult');
+      if(!grid) return;
+      var total = 12;
+      var animalIndex = Math.floor(Math.random() * total);
+      var found = false;
+      for(var i = 0; i < total; i++){
+        (function(i){
+          var cell = document.createElement('div');
+          cell.className = 'safari-cell';
+          cell.textContent = '🌿';
+          cell.addEventListener('click', function(){
+            if(found || cell.classList.contains('found')) return;
+            cell.classList.add('found');
+            if(i === animalIndex){
+              cell.textContent = '🦁';
+              found = true;
+              result.textContent = '¡Lo encontraste! Sos un gran explorador de la selva 🐘🎉';
+            } else {
+              cell.textContent = '🍃';
+            }
+          });
+          grid.appendChild(cell);
+        })(i);
+      }
+    })();
+  </script>
 ${tadiFooterWidget()}
 </body></html>`;
 }
@@ -340,6 +395,6 @@ function cardPreview(d) {
 
 module.exports = {
   id, category: "infantiles", name: "Safari Aventura",
-  summary: "Cumpleaños infantil con temática safari y selva, en verdes y ocres, con estética de expedición y mapa de aventura.",
+  summary: "Cumpleaños infantil con temática safari y selva, en verdes y ocres, con estética de expedición, mapa de aventura y un mini juego de buscar el animal escondido.",
   accent: "#4c7a3f", schema: infantilSchema, sampleData, render, cardPreview,
 };
