@@ -27,6 +27,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static(path.join(__dirname, "public")));
 
+// Cache-busting para site.css: el navegador (sobre todo Safari de iOS) puede
+// quedarse con una copia vieja del CSS en caché incluso después de un
+// despliegue nuevo. Le agregamos ?v=<fecha de modificación del archivo> al
+// link del stylesheet para que cada actualización real fuerce una URL
+// distinta y el navegador SIEMPRE traiga la versión actual.
+let CSS_VERSION = Date.now();
+try {
+  CSS_VERSION = fs.statSync(path.join(__dirname, "public", "css", "site.css")).mtimeMs;
+} catch {}
+const CSS_HREF = `/static/css/site.css?v=${CSS_VERSION}`;
+
 // --- subida de imágenes (portada / galería) ---
 const upload = multer({
   storage: multer.diskStorage({
@@ -48,7 +59,7 @@ function layout({ title, body }) {
 <link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/static/img/logo/tadi-favicon-16.png">
 <link rel="apple-touch-icon" href="/static/img/logo/tadi-favicon-180.png">
-<link rel="stylesheet" href="/static/css/site.css">
+<link rel="stylesheet" href="${CSS_HREF}">
 </head><body>
 <header class="site">
   <a class="brand" href="/" aria-label="TaDi — inicio"><img src="/static/img/logo/tadi-logo-light-bg.svg" alt="TaDi" class="brand-logo"><span class="brand-tagline">Tarjetas Digitales</span></a>
@@ -285,7 +296,7 @@ function cardHTML(d) {
       <p>${d.summary}</p>
       <span class="price-tag">${money(PRICE_ARS)}</span>
       <div class="actions">
-        <a class="btn btn-outline" href="/demo/${d.id}" target="_blank">Ver demo</a>
+        <a class="btn btn-outline" href="/demo/${d.id}">Ver demo</a>
         <a class="btn btn-primary" href="/checkout/${d.id}">Elegir</a>
       </div>
     </div>
@@ -437,11 +448,23 @@ app.get("/privacidad", (req, res) => {
   }));
 });
 
+// Botón flotante "← Volver" que se inyecta en la demo de cada diseño (ver
+// /demo/:designId más abajo). Vuelve a la página anterior (catálogo o
+// checkout, según desde dónde se haya abierto la demo) y, si no hay historial
+// previo (alguien entró directo a la URL), cae al catálogo. Estilos 100%
+// inline + botón propio (no depende de site.css ni del CSS del diseño) para
+// que se vea igual de bien arriba de cualquier tarjeta.
+const DEMO_BACK_BUTTON = `<a href="/" onclick="if(window.history.length>1){history.back();return false;}"
+  style="position:fixed;top:16px;left:16px;z-index:9999;display:inline-flex;align-items:center;gap:6px;
+  background:#fff;color:#222;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:.82rem;
+  font-weight:600;padding:9px 16px 9px 12px;border-radius:30px;box-shadow:0 3px 12px rgba(0,0,0,.22);">← Volver</a>`;
+
 // ---------- DEMO (preview con datos de ejemplo) ----------
 app.get("/demo/:designId", (req, res) => {
   const design = getDesign(req.params.designId);
   if (!design) return res.status(404).send("Diseño no encontrado");
-  res.send(design.render({ ...design.sampleData, __slug: "demo" }));
+  const html = design.render({ ...design.sampleData, __slug: "demo" });
+  res.send(html.replace("<body>", "<body>" + DEMO_BACK_BUTTON));
 });
 
 // ---------- CHECKOUT ----------
@@ -465,7 +488,7 @@ app.get("/checkout/:designId", (req, res) => {
       ${BUSINESS_LEGAL_NAME ? `<p class="checkout-trust">Vendido por ${BUSINESS_LEGAL_NAME}${BUSINESS_CUIT ? ` (CUIT ${BUSINESS_CUIT})` : ""}.</p>` : ""}
       <p class="checkout-trust">¿Dudas antes de pagar? Mirá las <a href="/preguntas-frecuentes">preguntas frecuentes</a>${SUPPORT_WHATSAPP ? ` o <a href="https://wa.me/${SUPPORT_WHATSAPP}" target="_blank">escribinos por WhatsApp</a>` : ""}.</p>
       ${!mp.isConfigured() ? `<div class="demo-note">Modo demo: no hay credenciales de Mercado Pago cargadas, así que el pago se simula como aprobado al instante para que puedas probar todo el flujo. Para cobrar de verdad, cargá <code>MP_ACCESS_TOKEN</code> (ver README).</div>` : ""}
-      <p style="margin-top:16px"><a href="/demo/${design.id}" target="_blank">← Ver el diseño antes de pagar</a></p>
+      <p style="margin-top:16px"><a href="/demo/${design.id}">← Ver el diseño antes de pagar</a></p>
     </div>`,
   }));
 });
@@ -646,7 +669,7 @@ app.get("/editar/:token", (req, res) => {
 <link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/static/img/logo/tadi-favicon-16.png">
 <link rel="apple-touch-icon" href="/static/img/logo/tadi-favicon-180.png">
-<link rel="stylesheet" href="/static/css/site.css"></head>
+<link rel="stylesheet" href="${CSS_HREF}"></head>
 <body>
 <div class="editor-wrap">
   <div class="editor-form-panel">
