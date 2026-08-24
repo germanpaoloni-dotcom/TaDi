@@ -58,7 +58,7 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 
 .cat-modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(30,32,38,.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:24px;}
 .cat-modal-overlay.open{display:flex;}
-.cat-modal{position:relative;background:var(--bg);border-radius:28px;max-width:1220px;width:100%;max-height:88vh;overflow:hidden;display:block;box-shadow:var(--nu-lg),0 30px 60px -20px rgba(30,32,38,.35);}
+.cat-modal{position:relative;background:var(--bg);border-radius:28px;max-width:1220px;width:100%;max-height:88vh;overflow:hidden;display:block;box-shadow:0 1px 2px rgba(30,32,38,.18);}
 .cat-modal-close{position:absolute;top:16px;right:16px;z-index:5;width:38px;height:38px;border-radius:50%;border:0;background:var(--bg);box-shadow:var(--nu-xs);color:var(--ink);font-size:1.3rem;line-height:1;cursor:pointer;}
 .cat-modal-close:hover{color:var(--accent-2);}
 .cat-modal-panel{display:none;grid-template-columns:1.15fr .85fr;max-height:88vh;}
@@ -275,12 +275,14 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
   .mega-hero-text{padding:28px 20px 6px;align-items:center;}
   .mega-hero-cta{align-self:center;}
   .mega-hero-skip{display:block;}
-  .mega-hero-visual{order:-1;height:auto;min-height:0;width:220px;margin:0 auto;overflow:visible;display:flex;flex-direction:column;align-items:center;}
+  .mega-hero-visual{order:-1;height:auto;min-height:0;width:220px;margin:0 auto;overflow:hidden;display:flex;flex-direction:column;align-items:center;}
   .mega-hero-visual::before{display:none;}
   .mega-hero-visual img{position:relative;inset:auto;right:auto;bottom:auto;height:220px;max-height:220px;width:auto;margin:0 auto;}
   .mega-hero-ring{width:96px;height:96px;top:3px;left:66px;}
   .mega-hero-ring::before,.mega-hero-ring::after{inset:9px;}
-  .mega-hero-info{position:relative;left:auto;right:auto;bottom:auto;max-width:100%;width:100%;margin:8px 0 0;background:var(--bg);border:0;box-shadow:var(--nu-xs);backdrop-filter:none;padding:10px 16px;box-sizing:border-box;}
+  /* En celular sacamos la tarjeta "Para quién es": pegada a la foto, en
+     pantallas chicas termina superpuesta con la grilla de diseños de abajo. */
+  .mega-hero-info{display:none;}
   .mega-hero-block p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
   .mega-hero-play{margin-top:6px;width:30px;height:30px;}
   .trust-strip{padding:18px 20px 0;}
@@ -311,11 +313,13 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 
   .cat-modal{max-height:92vh;border-radius:20px;}
   .cat-modal-panel{grid-template-columns:1fr;max-height:92vh;overflow-y:auto;}
-  .cat-modal-visual{order:-1;min-height:0;display:flex;flex-direction:column;align-items:center;padding:22px 20px 8px;overflow:visible;margin:12px;box-shadow:none;}
+  .cat-modal-visual{order:-1;min-height:0;height:auto;display:flex;flex-direction:column;align-items:center;padding:22px 20px 8px;overflow:hidden;margin:12px;box-shadow:none;}
   .cat-modal-visual img{position:relative;inset:auto;right:auto;bottom:auto;left:auto;transform:none;height:170px;max-height:170px;width:auto;margin:0 auto;}
   .cat-modal-visual .mega-hero-ring{position:absolute;left:50%;transform:translateX(-50%);top:8px;width:96px;height:96px;}
   .cat-modal-visual .mega-hero-ring::before,.cat-modal-visual .mega-hero-ring::after{inset:9px;}
-  .cat-modal-visual .mega-hero-info{position:relative;left:auto;right:auto;bottom:auto;max-width:100%;width:100%;margin:8px 0 0;padding:10px 14px;background:var(--bg);box-shadow:var(--nu-xs);backdrop-filter:none;}
+  /* En celular sacamos la tarjeta "Para quién es" del modal por la misma
+     razón que en la portada de categoría: se superpone con la grilla. */
+  .cat-modal-visual .mega-hero-info{display:none;}
   .cat-modal-catalog{padding:24px 20px;max-height:none;overflow-y:visible;}
   .cat-modal-title{font-size:1.4rem;}
 }
