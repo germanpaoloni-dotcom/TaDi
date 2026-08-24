@@ -34,17 +34,22 @@ function render(data = {}) {
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>¡Súper cumple de ${esc(d.nombreChico)}!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{--red:#ed1c24;--blue:#1a3aad;--yellow:${accent};--green:#3ecf4a;--ink:#0c1b3a;--paper:#f5f2e8;}
   *{box-sizing:border-box;}
   html,body{overflow-x:hidden;}
-  body{margin:0;font-family:'Segoe UI',Verdana,Arial,sans-serif;background:var(--paper);color:var(--ink);
-    background-image:radial-gradient(rgba(12,27,58,.16) 1.4px, transparent 1.6px);background-size:11px 11px;}
-  h1,h2,.comic-font{font-family:'Arial Black',Impact,'Franklin Gothic Bold',sans-serif;}
+  body{margin:0;font-family:'Poppins','Segoe UI',Verdana,Arial,sans-serif;background:var(--paper);color:var(--ink);
+    background-image:radial-gradient(rgba(12,27,58,.16) 1.4px, transparent 1.6px);background-size:11px 11px;
+    border:14px solid var(--ink);}
+  h1,h2,.comic-font,.burst,.caption-box,.mission-label,.age-impact .num,.age-impact .txt,.cd-num,.generator button{
+    font-family:'Bangers','Arial Black',Impact,'Franklin Gothic Bold',sans-serif;font-weight:400;letter-spacing:1.5px;}
 
   /* ---- Bursts de cómic (reutilizables) ---- */
   .burst{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;
-    font-weight:900;text-transform:uppercase;line-height:1;color:var(--ink);
+    font-weight:400;text-transform:uppercase;line-height:1;color:var(--ink);
     border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);
     clip-path:polygon(50% 0%,61% 18%,78% 6%,78% 26%,98% 20%,88% 38%,100% 50%,88% 62%,98% 80%,78% 74%,78% 94%,61% 82%,50% 100%,39% 82%,22% 94%,22% 74%,2% 80%,12% 62%,0% 50%,12% 38%,2% 20%,22% 26%,22% 6%,39% 18%);}
   .burst-red{background:var(--red);color:var(--yellow);}
@@ -55,7 +60,8 @@ function render(data = {}) {
   /* ---- Rayas de velocidad radiando desde una esquina (estilo puño impactando) ---- */
   .speedlines{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
   .speedlines::before{content:"";position:absolute;top:-40%;left:-30%;width:160%;height:180%;
-    background:repeating-conic-gradient(from -20deg at 20% 30%, rgba(12,27,58,.14) 0deg 2.2deg, transparent 2.2deg 9deg);}
+    background:repeating-conic-gradient(from -20deg at 50% 25%, var(--red) 0deg 2.2deg, transparent 2.2deg 9deg);
+    opacity:.22;}
 
   /* ---- Halftone dot cloud decorativa (como las nubes de puntos del cómic) ---- */
   .dot-cloud{position:absolute;border-radius:46% 54% 58% 42% / 50% 44% 56% 50%;
@@ -67,10 +73,11 @@ function render(data = {}) {
   .skyline svg{width:100%;height:100%;display:block;}
 
   /* ---- Hero: portada de historieta ---- */
-  .hero{position:relative;overflow:hidden;text-align:center;padding:22px 18px 0;}
+  .hero{position:relative;overflow:hidden;text-align:center;padding:22px 18px 0;
+    background:radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--yellow) 92%, #fff) 0%, var(--yellow) 55%, color-mix(in srgb, var(--yellow), black 8%) 100%);}
   .hero-top{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;max-width:720px;margin:0 auto;}
   .caption-box{background:#fff;border:4px solid var(--ink);border-radius:4px;box-shadow:5px 5px 0 var(--ink);
-    padding:8px 16px;font-weight:900;text-transform:uppercase;font-size:.78rem;letter-spacing:1px;
+    padding:8px 16px;font-weight:400;text-transform:uppercase;font-size:.9rem;letter-spacing:1px;
     transform:rotate(-2deg);text-align:left;}
   .hero-burst-1{width:96px;height:96px;font-size:.85rem;transform:rotate(-9deg);flex:0 0 auto;}
   .hero-burst-2{width:80px;height:80px;font-size:.72rem;transform:rotate(7deg);flex:0 0 auto;}
@@ -93,8 +100,8 @@ function render(data = {}) {
     border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
     transform:rotate(8deg);
     clip-path:polygon(50% 0%,58% 14%,72% 4%,74% 20%,90% 12%,86% 28%,100% 28%,92% 42%,100% 50%,88% 54%,96% 68%,80% 66%,82% 82%,68% 74%,64% 90%,50% 100%,36% 90%,32% 74%,18% 82%,20% 66%,4% 68%,12% 54%,0% 50%,8% 42%,0% 28%,14% 28%,10% 12%,26% 20%,28% 4%,42% 14%);}
-  .age-impact .num{font-size:2.6rem;font-weight:900;line-height:1;font-family:'Arial Black',Impact,sans-serif;}
-  .age-impact .txt{font-size:.56rem;text-transform:uppercase;font-weight:900;letter-spacing:.5px;}
+  .age-impact .num{font-size:2.8rem;font-weight:400;line-height:1;}
+  .age-impact .txt{font-size:.62rem;text-transform:uppercase;font-weight:400;letter-spacing:.5px;}
 
   .zigzag{height:16px;background-color:var(--ink);
     background-image:linear-gradient(135deg,var(--yellow) 25%,transparent 25%),linear-gradient(225deg,var(--yellow) 25%,transparent 25%);
@@ -117,8 +124,8 @@ function render(data = {}) {
   .bubble::after{content:"";position:absolute;left:62px;bottom:-22px;
     border-width:16px 16px 0 0;border-style:solid;border-color:#fff transparent transparent transparent;}
 
-  .mission-label{display:inline-block;background:var(--red);color:#fff;font-weight:900;
-    text-transform:uppercase;font-size:.8rem;letter-spacing:1px;padding:6px 14px;border-radius:8px;
+  .mission-label{display:inline-block;background:var(--red);color:#fff;font-weight:400;
+    text-transform:uppercase;font-size:.9rem;letter-spacing:1px;padding:6px 14px;border-radius:8px;
     border:3px solid var(--ink);margin-bottom:12px;}
   .mission-text{font-size:1.15rem;font-weight:700;}
 
@@ -126,7 +133,7 @@ function render(data = {}) {
   .countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
   .countdown div{background:var(--blue);color:#fff;border:4px solid var(--ink);border-radius:10px;
     min-width:64px;padding:10px 6px;text-align:center;box-shadow:4px 4px 0 var(--ink);}
-  .cd-num{display:block;font-size:1.6rem;font-weight:900;}
+  .cd-num{display:block;font-size:1.8rem;font-weight:400;}
   .cd-label{display:block;font-size:.62rem;text-transform:uppercase;letter-spacing:1px;}
 
   .loc-info p{font-size:1.05rem;margin:6px 0;text-align:center;}
@@ -150,7 +157,7 @@ function render(data = {}) {
   /* Generador de nombre de superhéroe */
   .generator input{font-family:inherit;font-size:1rem;padding:10px 12px;border:3px solid var(--ink);
     border-radius:8px;width:100%;margin-bottom:12px;}
-  .generator button{width:100%;background:var(--yellow);color:var(--ink);font-weight:900;
+  .generator button{width:100%;background:var(--yellow);color:var(--ink);font-weight:400;font-size:1.1rem;
     text-transform:uppercase;border:4px solid var(--ink);border-radius:10px;padding:12px;
     box-shadow:5px 5px 0 var(--ink);cursor:pointer;transition:transform .1s,box-shadow .1s;}
   .generator button:hover{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--ink);}
@@ -174,19 +181,23 @@ function render(data = {}) {
   footer p{margin:4px 0;font-size:.9rem;}
 
   /* ---- Bursts de esquina por sección ---- */
-  .corner-burst{position:absolute;width:60px;height:60px;font-weight:900;text-align:center;
-    display:flex;align-items:center;justify-content:center;line-height:1;font-size:.6rem;z-index:2;
+  .corner-burst{position:absolute;width:60px;height:60px;font-weight:400;text-align:center;
+    display:flex;align-items:center;justify-content:center;line-height:1;font-size:.7rem;z-index:2;
     top:-14px;pointer-events:none;}
   .corner-burst.left{left:-6px;transform:rotate(-11deg);}
   .corner-burst.right{right:-6px;transform:rotate(9deg);}
 
+  @media(max-width:600px){
+    body{border-width:8px;}
+  }
+
   @media(max-width:480px){
     .panel,.bubble{padding:20px 16px;}
-    .hero-burst-1{width:76px;height:76px;font-size:.68rem;}
-    .hero-burst-2{width:64px;height:64px;font-size:.58rem;}
+    .hero-burst-1{width:76px;height:76px;font-size:.78rem;}
+    .hero-burst-2{width:64px;height:64px;font-size:.68rem;}
     .age-impact{width:104px;height:104px;right:-8px;bottom:-22px;}
-    .age-impact .num{font-size:2.1rem;}
-    .corner-burst{width:46px;height:46px;font-size:.5rem;}
+    .age-impact .num{font-size:2.3rem;}
+    .corner-burst{width:46px;height:46px;font-size:.58rem;}
     .dot-cloud{display:none;}
   }
 </style></head>
@@ -303,8 +314,15 @@ function render(data = {}) {
   <script>
     ${cd.script}${gal.script}${rsvp.script}
     (function(){
-      var prefixes = ['Capitán','Súper','Increíble','Relámpago','Doctor','Comandante','Mega','Ultra'];
-      var suffixes = ['Rayo','Cometa','Trueno','Fénix','Tornado','Estrella','Halcón','Cohete'];
+      var prefixes = ['Capitán','Súper','Increíble','Doctor','Comandante','Mega','Ultra','Turbo',
+        'Fantástico','Asombroso','Poderoso','Invencible','Titán','Guardián','Centinela','Vengador',
+        'Justiciero','Fenómeno','Explosivo','Cósmico','Eléctrico','Vigilante','Veloz','Salvaje',
+        'Místico','Radiante','Temerario','Valiente','Heroico','Legendario','Imparable','Estelar',
+        'Galáctico','Supremo','Indomable'];
+      var suffixes = ['Rayo','Cometa','Trueno','Fénix','Tornado','Estrella','Halcón','Cohete',
+        'Tigre','Águila','Dragón','Pantera','Lobo','Cobra','Meteoro','Centella','Titanio','Fantasma',
+        'Vórtice','Huracán','Relámpago','Bólido','Escarabajo','Guepardo','Tempestad','Nova','Impacto',
+        'Puma','Corcel','Diamante','Sombra','Vendaval','Cristal','Fulgor','Zafiro'];
       var input = document.getElementById('heroNameInput');
       var btn = document.getElementById('heroNameBtn');
       var result = document.getElementById('heroNameResult');
@@ -313,6 +331,7 @@ function render(data = {}) {
         var val = (input.value || '').trim() || 'Héroe';
         var seed = 0;
         for (var i = 0; i < val.length; i++) seed += val.charCodeAt(i);
+        seed += Math.floor(Math.random() * 10000);
         var p = prefixes[seed % prefixes.length];
         var s = suffixes[(seed * 7 + val.length) % suffixes.length];
         result.textContent = '¡' + p + ' ' + s + '!';
