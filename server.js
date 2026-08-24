@@ -236,6 +236,16 @@ function categoryModalsHTML(cats) {
         document.querySelectorAll('.cat-modal-panel').forEach(function(p){ p.classList.toggle('active', p.id === 'modal-panel-' + id); });
         overlay.classList.add('open');
         document.body.style.overflow = 'hidden';
+        // Reseteamos el scroll: como los paneles quedan en el DOM y solo se
+        // ocultan con display:none, si el usuario los había scrolleado antes
+        // (por ejemplo viendo más diseños del catálogo), al reabrir el modal
+        // aparecía scrolleado y la foto de arriba quedaba tapada/cortada.
+        var activePanel = document.getElementById('modal-panel-' + id);
+        if (activePanel) activePanel.scrollTop = 0;
+        var catalogEl = activePanel ? activePanel.querySelector('.cat-modal-catalog') : null;
+        if (catalogEl) catalogEl.scrollTop = 0;
+        var modalEl = document.getElementById('catModal');
+        if (modalEl) modalEl.scrollTop = 0;
       }
       function close(){
         overlay.classList.remove('open');
