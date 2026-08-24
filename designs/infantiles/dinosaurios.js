@@ -65,6 +65,42 @@ function render(data = {}) {
   }
   .tracks span:nth-child(even){transform:translateY(10px);}
 
+  /* --- manada de dinos animados: banda decorativa --- */
+  @keyframes dino-bob{
+    0%,100%{transform:translateY(0) rotate(-2deg);}
+    50%{transform:translateY(-8px) rotate(2deg);}
+  }
+  .dino-parade{
+    display:flex;justify-content:center;align-items:flex-end;gap:22px;
+    padding:16px 10px 10px;background:var(--sand);flex-wrap:wrap;
+  }
+  .dino-parade span{
+    font-size:1.7rem;display:inline-block;
+    animation:dino-bob 2.4s ease-in-out infinite;
+    filter:drop-shadow(0 3px 0 rgba(0,0,0,.15));
+  }
+  .dino-parade span:nth-child(2n){animation-delay:.3s;}
+  .dino-parade span:nth-child(3n){animation-delay:.6s;}
+  .dino-parade span:nth-child(4n){animation-delay:.9s;}
+
+  .hero .roaming-dinos{
+    position:absolute;left:0;right:0;bottom:10px;
+    display:flex;justify-content:space-around;padding:0 12px;
+    pointer-events:none;
+  }
+  .hero .roaming-dinos span{
+    font-size:1.5rem;opacity:.9;
+    animation:dino-bob 2.6s ease-in-out infinite;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));
+  }
+  .hero .roaming-dinos span:nth-child(2n){animation-delay:.4s;}
+  .hero .roaming-dinos span:nth-child(3n){animation-delay:.8s;}
+
+  .message-card .extra-dino{
+    position:absolute;top:-18px;right:18px;font-size:1.8rem;
+    animation:dino-bob 2.2s ease-in-out infinite;animation-delay:.5s;
+  }
+
   /* --- hero --- */
   .hero{
     position:relative;
@@ -202,6 +238,7 @@ function render(data = {}) {
     <h1>${esc(d.nombreChico)}</h1>
     <div class="age-badge">${esc(d.edad)}</div>
     <p class="sub">Cumple ${esc(d.edad)} años y quiere festejarlo con toda la manada 🦖🌿</p>
+    <div class="roaming-dinos"><span>🦕</span><span>🦖</span><span>🦴</span><span>🥚</span><span>🦴</span><span>🦖</span></div>
   </div>
 
   <section>
@@ -211,9 +248,11 @@ function render(data = {}) {
 
   ${d.mensaje || d.tematica ? `<section>
     <span class="section-title alt">La invitación</span>
-    ${d.mensaje ? `<div class="message-card">${esc(d.mensaje)}</div>` : ""}
+    ${d.mensaje ? `<div class="message-card"><span class="extra-dino">🦖</span>${esc(d.mensaje)}</div>` : ""}
     ${d.tematica ? `<div class="tematica">🎨 ${esc(d.tematica)}</div>` : ""}
   </section>` : ""}
+
+  <div class="dino-parade"><span>🦕</span><span>🦖</span><span>🐊</span><span>🦴</span><span>🥚</span><span>🦖</span><span>🦕</span></div>
 
   ${d.lugar || d.hora || d.direccionMapa ? `<section>
     <span class="section-title">¿Dónde es la excursión?</span>

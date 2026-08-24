@@ -38,16 +38,21 @@ function render(data = {}) {
   :root{--red:#ed1c24;--blue:#1a3aad;--yellow:${accent};--ink:#0c1b3a;--paper:#fff8e6;}
   *{box-sizing:border-box;}
   html,body{overflow-x:hidden;}
-  body{margin:0;font-family:'Segoe UI',Verdana,Arial,sans-serif;background:var(--paper);color:var(--ink);}
+  body{margin:0;font-family:'Segoe UI',Verdana,Arial,sans-serif;background:var(--paper);color:var(--ink);
+    background-image:radial-gradient(rgba(12,27,58,.08) 1px, transparent 1.3px);background-size:13px 13px;}
   h1,h2,.comic-font{font-family:'Arial Black',Impact,'Franklin Gothic Bold',sans-serif;}
 
   /* ---- Hero ---- */
-  .hero{position:relative;overflow:hidden;text-align:center;color:#fff;padding:64px 18px 76px;
+  .hero{position:relative;overflow:hidden;text-align:center;color:#fff;padding:64px 18px 92px;
     background:linear-gradient(160deg,rgba(26,58,173,.88),rgba(12,27,58,.94)),url('${esc(d.coverImage)}') center/cover;}
   .hero::before{content:"";position:absolute;inset:0;pointer-events:none;
     background-image:repeating-radial-gradient(circle at center, rgba(255,255,255,.12) 0 2px, transparent 2px 34px);
     opacity:.6;}
+  .hero::after{content:"";position:absolute;inset:-30%;pointer-events:none;z-index:0;
+    background:repeating-conic-gradient(from 0deg, rgba(255,255,255,.07) 0deg 3deg, transparent 3deg 11deg);}
   .hero-content{position:relative;z-index:1;max-width:600px;margin:0 auto;}
+  .skyline{position:absolute;left:0;right:0;bottom:0;height:52px;z-index:1;pointer-events:none;}
+  .skyline svg{width:100%;height:100%;display:block;}
   .eyebrow{display:inline-block;background:var(--yellow);color:var(--ink);font-weight:900;
     text-transform:uppercase;letter-spacing:2px;font-size:.8rem;padding:6px 16px;border-radius:20px;
     border:3px solid var(--ink);transform:rotate(-3deg);box-shadow:3px 3px 0 var(--ink);}
@@ -63,10 +68,27 @@ function render(data = {}) {
     clip-path:polygon(50% 0%,63% 20%,88% 8%,82% 33%,100% 45%,78% 55%,88% 80%,62% 68%,50% 100%,38% 68%,12% 80%,22% 55%,0% 45%,18% 33%,12% 8%,37% 20%);
     z-index:1;}
   .pow1{width:88px;height:88px;font-size:.75rem;top:8%;left:4%;transform:rotate(-14deg);}
-  .pow2{width:70px;height:70px;font-size:.62rem;bottom:6%;right:5%;transform:rotate(10deg);}
+  .pow2{width:70px;height:70px;font-size:.62rem;bottom:14%;right:5%;transform:rotate(10deg);}
+  .pow3{width:64px;height:64px;font-size:.6rem;top:38%;left:8%;transform:rotate(8deg);
+    background:var(--red);color:var(--yellow);}
+
+  /* ---- Bursts de cómic decorativos por sección ---- */
+  .corner-burst{position:absolute;width:60px;height:60px;font-weight:900;text-align:center;
+    display:flex;align-items:center;justify-content:center;line-height:1;font-size:.6rem;
+    text-transform:uppercase;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);
+    z-index:2;pointer-events:none;
+    clip-path:polygon(50% 0%,63% 20%,88% 8%,82% 33%,100% 45%,78% 55%,88% 80%,62% 68%,50% 100%,38% 68%,12% 80%,22% 55%,0% 45%,18% 33%,12% 8%,37% 20%);}
+  .corner-burst.left{top:-14px;left:-6px;transform:rotate(-11deg);}
+  .corner-burst.right{top:-14px;right:-6px;transform:rotate(9deg);}
+  .burst-wham{background:var(--blue);color:#ffe066;}
+  .burst-zap{background:var(--yellow);color:#1f9d55;}
+  .burst-crash{background:var(--ink);color:var(--yellow);}
+  .burst-boom{background:var(--red);color:var(--yellow);}
+
+  /* ---- Skyline urbano (silueta de ciudad) ---- */
 
   /* ---- Layout ---- */
-  section{max-width:760px;margin:0 auto;padding:46px 18px;}
+  section{max-width:760px;margin:0 auto;padding:46px 18px;position:relative;}
   section h2{text-align:center;text-transform:uppercase;font-size:1.7rem;color:var(--red);
     -webkit-text-stroke:1px var(--ink);margin:0 0 22px;letter-spacing:1px;}
   .zigzag{height:16px;background-color:var(--ink);
@@ -144,7 +166,8 @@ function render(data = {}) {
   @media(max-width:480px){
     .panel,.bubble{padding:20px 16px;}
     .age-badge{width:100px;height:100px;font-size:2rem;}
-    .pow1,.pow2{display:none;}
+    .pow1,.pow2,.pow3{display:none;}
+    .corner-burst{width:46px;height:46px;font-size:.5rem;}
   }
 </style></head>
 <body>
@@ -152,6 +175,7 @@ function render(data = {}) {
   <div class="hero">
     <span class="pow pow1">¡POW!</span>
     <span class="pow pow2">¡ZAS!</span>
+    <span class="pow pow3">¡BAM!</span>
     <div class="hero-content">
       <span class="eyebrow">¡Alerta de súper cumple!</span>
       <h1>${esc(d.nombreChico)}</h1>
@@ -160,10 +184,40 @@ function render(data = {}) {
         <span class="age-text">¡Años cumplidos!</span>
       </div>
     </div>
+    <div class="skyline">
+      <svg viewBox="0 0 600 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="20" width="40" height="40" fill="#0c1b3a"/>
+        <rect x="42" y="8" width="26" height="52" fill="#0c1b3a"/>
+        <rect x="72" y="26" width="34" height="34" fill="#0c1b3a"/>
+        <rect x="110" y="0" width="30" height="60" fill="#0c1b3a"/>
+        <rect x="144" y="16" width="24" height="44" fill="#0c1b3a"/>
+        <rect x="172" y="30" width="46" height="30" fill="#0c1b3a"/>
+        <rect x="222" y="10" width="20" height="50" fill="#0c1b3a"/>
+        <rect x="246" y="24" width="30" height="36" fill="#0c1b3a"/>
+        <rect x="280" y="2" width="28" height="58" fill="#0c1b3a"/>
+        <rect x="312" y="22" width="36" height="38" fill="#0c1b3a"/>
+        <rect x="352" y="12" width="22" height="48" fill="#0c1b3a"/>
+        <rect x="378" y="30" width="40" height="30" fill="#0c1b3a"/>
+        <rect x="422" y="6" width="26" height="54" fill="#0c1b3a"/>
+        <rect x="452" y="24" width="32" height="36" fill="#0c1b3a"/>
+        <rect x="488" y="0" width="24" height="60" fill="#0c1b3a"/>
+        <rect x="516" y="18" width="30" height="42" fill="#0c1b3a"/>
+        <rect x="550" y="28" width="50" height="32" fill="#0c1b3a"/>
+        <g fill="#ffd400" opacity=".55">
+          <rect x="8" y="30" width="4" height="4"/><rect x="20" y="30" width="4" height="4"/><rect x="8" y="42" width="4" height="4"/>
+          <rect x="50" y="18" width="4" height="4"/><rect x="50" y="30" width="4" height="4"/><rect x="50" y="42" width="4" height="4"/>
+          <rect x="118" y="10" width="4" height="4"/><rect x="130" y="10" width="4" height="4"/><rect x="118" y="24" width="4" height="4"/>
+          <rect x="288" y="14" width="4" height="4"/><rect x="288" y="26" width="4" height="4"/><rect x="288" y="38" width="4" height="4"/>
+          <rect x="430" y="16" width="4" height="4"/><rect x="430" y="28" width="4" height="4"/><rect x="430" y="40" width="4" height="4"/>
+          <rect x="496" y="12" width="4" height="4"/><rect x="496" y="24" width="4" height="4"/><rect x="496" y="36" width="4" height="4"/>
+        </g>
+      </svg>
+    </div>
   </div>
   <div class="zigzag"></div>
 
   <section>
+    <span class="corner-burst left burst-zap">¡ZAP!</span>
     <h2>Cuenta regresiva para la misión</h2>
     <div class="panel tilt-l" style="margin:0 auto;">
       ${cd.html}
@@ -171,11 +225,13 @@ function render(data = {}) {
   </section>
 
   ${d.mensaje ? `<section>
+    <span class="corner-burst right burst-wham">¡WHAM!</span>
     <h2>Mensaje de la Liga</h2>
     <div class="bubble">${esc(d.mensaje)}</div>
   </section>` : ""}
 
   <section>
+    <span class="corner-burst left burst-crash">¡CRASH!</span>
     <h2>¡Dónde es la misión!</h2>
     <div class="panel tilt-r loc-info">
       <p><strong>${esc(d.fecha)}</strong>${d.hora ? ` a las <strong>${esc(d.hora)}</strong> hs` : ""}</p>
@@ -186,6 +242,7 @@ function render(data = {}) {
   </section>
 
   ${d.galeria && d.galeria.length ? `<section>
+    <span class="corner-burst right burst-boom">¡BOOM!</span>
     <h2>Fotos de entrenamiento</h2>
     ${gal.html}
   </section>` : ""}

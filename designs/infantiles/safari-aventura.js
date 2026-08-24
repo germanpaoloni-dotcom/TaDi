@@ -111,18 +111,19 @@ function render(data = {}) {
   }
   .hero-age{
     display:inline-flex;
-    align-items:baseline;
-    gap:10px;
+    flex-direction:column;
+    align-items:center;
+    gap:0;
     background:var(--sol);
     color:var(--tinta);
-    padding:10px 26px;
-    border-radius:60px;
+    padding:14px 30px 12px;
+    border-radius:28px;
     margin:14px 0 6px;
     box-shadow:0 6px 0 var(--ocre);
     transform:rotate(-2deg);
   }
-  .hero-age .num{font-size:2.8rem;font-weight:900;line-height:1;}
-  .hero-age .txt{font-size:.95rem;text-transform:uppercase;font-weight:bold;letter-spacing:1px;}
+  .hero-age .num{font-size:clamp(3.4rem,15vw,5.2rem);font-weight:900;line-height:1;}
+  .hero-age .txt{font-size:.95rem;text-transform:uppercase;font-weight:bold;letter-spacing:2px;margin-top:2px;}
   .hero-content p.tag{
     margin-top:14px;
     font-size:1.05rem;
@@ -265,7 +266,8 @@ function render(data = {}) {
 
   @media (max-width:480px){
     .hero-content h1{font-size:2rem;}
-    .hero-age .num{font-size:2.2rem;}
+    .hero-age{padding:12px 24px 10px;}
+    .hero-age .num{font-size:3.2rem;}
     .hero::before{font-size:1rem;letter-spacing:8px;}
   }
 </style></head>
@@ -274,7 +276,7 @@ function render(data = {}) {
   <div class="hero"><div class="hero-content">
     <span class="stamp">Expedición especial</span>
     <h1>${esc(d.nombreChico)}</h1>
-    <div class="hero-age"><span class="num">${esc(d.edad)}</span><span class="txt">años<br>de aventura</span></div>
+    <div class="hero-age"><span class="num">${esc(d.edad)}</span><span class="txt">años de aventura</span></div>
     <p class="tag">🦁 Safari en la Selva 🐘</p>
   </div></div>
 
