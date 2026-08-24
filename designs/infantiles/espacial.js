@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta, tadiFooterWidget } = require("../widgets");
 const { infantilSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -262,11 +262,29 @@ function render(data = {}) {
   </footer>
 
   <script>${cd.script}${gal.script}${rsvp.script}</script>
+${tadiFooterWidget()}
 </body></html>`;
+}
+
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    background:
+      radial-gradient(1.5px 1.5px at 15% 25%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 80% 20%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 30% 75%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 65% 60%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 90% 80%, #fff, transparent),
+      radial-gradient(circle at 20% 15%, rgba(164,91,255,.45), transparent 45%),
+      radial-gradient(circle at 85% 75%, rgba(63,240,255,.35), transparent 45%),
+      linear-gradient(180deg,#080b24,#0f1440 50%,#080b24);">
+    <span style="font-size:1.9rem;filter:drop-shadow(0 0 8px rgba(63,240,255,.6));">🚀</span>
+    <div style="font-size:1.15rem;font-weight:700;color:#fff;letter-spacing:.5px;">${esc(d.name)}</div>
+    <div style="font-size:.5rem;letter-spacing:3px;text-transform:uppercase;color:#3ff0ff;text-shadow:0 0 6px rgba(63,240,255,.7);">Misión espacial</div>
+  </div>`;
 }
 
 module.exports = {
   id, category: "infantiles", name: "Misión Espacial",
   summary: "Cumple temático de astronautas con fondo estrellado, acentos neón y cuenta regresiva de lanzamiento.",
-  accent: "#3ff0ff", schema: infantilSchema, sampleData, render,
+  accent: "#3ff0ff", schema: infantilSchema, sampleData, render, cardPreview,
 };

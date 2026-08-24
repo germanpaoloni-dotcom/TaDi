@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta, tadiFooterWidget } = require("../widgets");
 const { infantilSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -324,11 +324,22 @@ function render(data = {}) {
   </footer>
 
   <script>${cd.script}${gal.script}${rsvp.script}</script>
+${tadiFooterWidget()}
 </body></html>`;
+}
+
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    background:linear-gradient(160deg,#4c7a3f 0%,#2f4a2e 100%);">
+    <span style="position:absolute;top:8px;left:0;right:0;text-align:center;font-size:1rem;letter-spacing:10px;opacity:.5;">🌿🦁🌴</span>
+    <span style="font-size:2rem;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));">🐘</span>
+    <div style="font-family:Impact,'Arial Black',sans-serif;font-size:1.15rem;color:#fff;letter-spacing:1px;">${esc(d.name)}</div>
+    <div style="font-size:.5rem;letter-spacing:3px;text-transform:uppercase;color:#f2b33d;font-weight:700;">Expedición especial</div>
+  </div>`;
 }
 
 module.exports = {
   id, category: "infantiles", name: "Safari Aventura",
   summary: "Cumpleaños infantil con temática safari y selva, en verdes y ocres, con estética de expedición y mapa de aventura.",
-  accent: "#4c7a3f", schema: infantilSchema, sampleData, render,
+  accent: "#4c7a3f", schema: infantilSchema, sampleData, render, cardPreview,
 };

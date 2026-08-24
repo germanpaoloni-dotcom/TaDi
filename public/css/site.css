@@ -71,7 +71,8 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .cat-modal-catalog .grid{max-width:none;margin:0;padding:0;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
 .cat-modal-full-link{display:inline-block;margin-top:20px;font-size:.82rem;color:var(--muted);text-decoration:underline;}
 .cat-modal-visual{position:relative;min-height:420px;overflow:hidden;background:var(--bg);box-shadow:var(--nu-inset);margin:18px;border-radius:20px;}
-.cat-modal-visual .mega-hero-ring{top:40px;left:38%;}
+.cat-modal-visual .mega-hero-ring{top:40px;left:38%;box-shadow:none;}
+.cat-modal-visual .mega-hero-ring::before{box-shadow:none;}
 .cat-modal-visual img{position:absolute;right:0;bottom:0;height:94%;max-height:100%;width:auto;max-width:96%;object-fit:contain;object-position:bottom right;filter:saturate(.9) contrast(1.05);}
 .cat-modal-visual .mega-hero-info{max-width:220px;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.7);box-shadow:var(--nu-xs);backdrop-filter:blur(8px);color:var(--ink);}
 .cat-modal-visual .mega-hero-info-left{left:24px;}

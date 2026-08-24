@@ -115,6 +115,29 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
   };
 }
 
+// ---------- Zócalo de marca ("Tarjeta creada en: TaDi" + redes + web) ----------
+// Se muestra al pie de las 30 invitaciones, debajo del footer propio de cada
+// diseño. Es una barra neutra (fondo blanco) con estilos 100% inline para que
+// se vea igual de bien sin importar la paleta de cada tarjeta.
+// TADI_INSTAGRAM se completa con el @usuario real antes de entregar — hasta
+// entonces el widget no muestra el link de Instagram (evita mostrar un dato
+// inventado).
+const TADI_INSTAGRAM = ""; // ej: "tadi.invitaciones" (sin @)
+const TADI_WEBSITE = "tadi.com.ar";
+
+function tadiFooterWidget() {
+  return `<div style="background:#fff;padding:26px 20px 24px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
+    <p style="margin:0 0 12px;font-size:.68rem;letter-spacing:.6px;color:#9a9a9a;">Tarjeta creada en</p>
+    <a href="https://${TADI_WEBSITE}" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:12px;">
+      <img src="/static/img/logo/tadi-logo-light-bg.svg" alt="TaDi" style="height:20px;width:auto;display:block;">
+    </a>
+    <div style="display:flex;gap:16px;justify-content:center;align-items:center;flex-wrap:wrap;">
+      ${TADI_INSTAGRAM ? `<a href="https://instagram.com/${TADI_INSTAGRAM}" target="_blank" rel="noopener" style="color:#9a9a9a;font-size:.76rem;text-decoration:none;">📷 @${TADI_INSTAGRAM}</a>` : ""}
+      <a href="https://${TADI_WEBSITE}" target="_blank" rel="noopener" style="color:#9a9a9a;font-size:.76rem;text-decoration:none;">🌐 ${TADI_WEBSITE}</a>
+    </div>
+  </div>`;
+}
+
 const MESES_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
 // Convierte una fecha "YYYY-MM-DD" en algo legible tipo "10 de abril",
@@ -130,4 +153,4 @@ function formatFechaCorta(fechaISO) {
   return `${Number(partes[2])} de ${MESES_ES[dt.getMonth()]}`;
 }
 
-module.exports = { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta };
+module.exports = { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta, tadiFooterWidget };

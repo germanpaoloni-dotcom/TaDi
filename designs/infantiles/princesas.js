@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta, tadiFooterWidget } = require("../widgets");
 const { infantilSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -279,11 +279,22 @@ function render(data = {}) {
   </footer>
 
   <script>${cd.script}${gal.script}${rsvp.script}</script>
+${tadiFooterWidget()}
 </body></html>`;
+}
+
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    background:linear-gradient(160deg,#e0357f 0%,#a83570 55%,#7a2a6b 100%);">
+    <span style="position:absolute;top:8px;left:0;right:0;text-align:center;font-size:2.6rem;letter-spacing:8px;opacity:.5;">✦&nbsp;&nbsp;✦</span>
+    <span style="font-size:1.9rem;filter:drop-shadow(0 3px 4px rgba(0,0,0,.3));">👑</span>
+    <div style="font-family:'Great Vibes','Brush Script MT','Segoe Script',cursive;font-size:1.7rem;color:#fff;line-height:1;">${esc(d.name)}</div>
+    <div style="font-size:.5rem;letter-spacing:3px;text-transform:uppercase;color:#f6e2a8;font-weight:600;">Un cuento de hadas</div>
+  </div>`;
 }
 
 module.exports = {
   id, category: "infantiles", name: "Princesas",
   summary: "Fiesta temática de princesas con paleta rosa y dorado, borde de castillo, brillos animados y tipografía cursiva elegante.",
-  accent: "#e0357f", schema: infantilSchema, sampleData, render,
+  accent: "#e0357f", schema: infantilSchema, sampleData, render, cardPreview,
 };

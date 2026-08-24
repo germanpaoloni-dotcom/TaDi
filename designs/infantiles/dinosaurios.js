@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta, tadiFooterWidget } = require("../widgets");
 const { infantilSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -318,11 +318,23 @@ function render(data = {}) {
       }
     })();
   </script>
+${tadiFooterWidget()}
 </body></html>`;
+}
+
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    background:linear-gradient(160deg,#1f6b3a 0%,#123f22 100%);">
+    <span style="position:absolute;top:10px;left:14px;font-size:1rem;opacity:.6;">🐾</span>
+    <span style="position:absolute;bottom:12px;right:16px;font-size:1rem;opacity:.6;transform:rotate(12deg);">🐾</span>
+    <span style="font-size:2.1rem;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));">🦖</span>
+    <div style="font-family:Impact,'Arial Black',sans-serif;font-size:1.2rem;color:#fff;letter-spacing:1px;">${esc(d.name)}</div>
+    <div style="font-size:.5rem;letter-spacing:3px;text-transform:uppercase;color:#ff6b35;font-weight:700;">Fiesta jurásica</div>
+  </div>`;
 }
 
 module.exports = {
   id, category: "infantiles", name: "Dinosaurios",
   summary: "Fiesta jurásica con huellas de dino, cuenta regresiva rugiente y un mini juego de buscar el huevo escondido.",
-  accent: "#ff6b35", schema: infantilSchema, sampleData, render,
+  accent: "#ff6b35", schema: infantilSchema, sampleData, render, cardPreview,
 };

@@ -1,4 +1,4 @@
-const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta } = require("../widgets");
+const { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta, tadiFooterWidget } = require("../widgets");
 const { xvSchema } = require("../schemas");
 const { getPaletteColor } = require("../palettes");
 
@@ -439,6 +439,7 @@ function render(data = {}) {
   </footer>
 
   <script>${cd.script}${gal.script}${rsvp.script}</script>
+${tadiFooterWidget()}
 </body></html>`;
 }
 
