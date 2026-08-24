@@ -25,8 +25,9 @@ const sampleData = {
 };
 
 // Motivos "glam rosa" dibujados a mano en SVG inline (currentColor): moño,
-// rama floral de esquina, tiara, copas de brindis, siluetas de gala y un
-// sobre con moño. Sin dependencias externas.
+// rama floral de esquina, tiara con corazón, corazón para la fecha, arco
+// de texto para el título, copas de brindis, siluetas de gala y un sobre
+// con moño. Sin dependencias externas ni imágenes decorativas.
 function bowSvg(cls = "") {
   return `<svg class="${cls}" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path d="M30 20c-3-9-13-13-19-9-5 3-4 11 3 12 5 1 12-1 16-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/>
@@ -60,6 +61,23 @@ function tiaraSvg(cls = "") {
     <circle cx="154" cy="46" r="2.6" fill="currentColor"/>
     <circle cx="20" cy="60" r="2" fill="currentColor"/>
     <circle cx="180" cy="60" r="2" fill="currentColor"/>
+  </svg>`;
+}
+
+function heartSvg(cls = "") {
+  return `<svg class="${cls}" viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M50 82C50 82 6 54 6 24C6 8 20 2 32 6C42 9 48 18 50 26C52 18 58 9 68 6C80 2 94 8 94 24C94 54 50 82 50 82Z" stroke="currentColor" stroke-width="4.5" fill="none" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+// Título arqueado "MIS QUINCEAÑOS" con el "15" apoyado sobre la curva,
+// como en la referencia. archId debe ser único por render (se usa como
+// id del <path> que sirve de guía para el texto).
+function archSvg(archId) {
+  return `<svg class="hero-arch" viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><path id="${archId}" d="M14,108 C14,36 84,8 150,8 C216,8 286,36 286,108" fill="none"/></defs>
+    <text class="arch-text"><textPath href="#${archId}" startOffset="50%" text-anchor="middle">MIS QUINCEAÑOS</textPath></text>
+    <text class="arch-num" x="150" y="112" text-anchor="middle">15</text>
   </svg>`;
 }
 
@@ -114,6 +132,7 @@ function render(data = {}) {
   const gal = galleryWidget(d.galeria || [], "gal-glam");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
+  const archId = "arch-" + Math.random().toString(36).slice(2, 8);
 
   let diaSemana = "", diaNum = "", mesNombre = "";
   if (d.fecha) {
@@ -134,8 +153,8 @@ function render(data = {}) {
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Great+Vibes&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --blush:#f7dde3;
-    --blush-soft:#fbeef1;
+    --blush:#eec2c8;
+    --blush-soft:#f7dfe2;
     --ivory:#fffbfa;
     --rose:${accent};
     --rose-deep:color-mix(in srgb, ${accent}, black 18%);
@@ -146,36 +165,42 @@ function render(data = {}) {
   }
   *{box-sizing:border-box;}
   html,body{max-width:100%;overflow-x:hidden;}
-  body{margin:0;font-family:'Montserrat',sans-serif;background:var(--blush);color:var(--ink);line-height:1.65;}
+  body{margin:0;font-family:'Montserrat',sans-serif;color:var(--ink);line-height:1.65;
+    background:linear-gradient(180deg,#e3a9ad 0%,var(--blush) 14%,var(--blush) 100%);
+  }
   h1,h2,h3{font-family:'Playfair Display',serif;margin:0;}
   .script{font-family:'Great Vibes',cursive;line-height:1.2;}
   .icon{color:var(--rose-light);}
   .icon-gold{color:var(--gold);width:28px;height:28px;display:inline-block;}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 
-  section{max-width:720px;margin:0 auto;padding:clamp(36px,7vw,64px) 20px;text-align:center;position:relative;}
+  section{max-width:720px;margin:0 auto;padding:clamp(30px,7vw,58px) 20px;text-align:center;position:relative;}
   .eyebrow{
     font-family:'Great Vibes',cursive;color:var(--gold);
-    font-size:clamp(1.6rem,5vw,2.3rem);margin-bottom:6px;display:block;
+    font-size:clamp(1.6rem,5vw,2.3rem);margin-bottom:10px;display:block;
   }
-  h2.title{
-    color:var(--rose);text-transform:uppercase;letter-spacing:3px;
-    font-size:clamp(1rem,2.6vw,1.3rem);font-weight:600;margin-bottom:18px;
-  }
+
+  /* ---------- ORNAMENTO DE ESQUINA reutilizable ---------- */
+  .deco-corner{position:absolute;width:clamp(60px,18vw,110px);height:auto;color:var(--rose-light);opacity:.55;pointer-events:none;z-index:0;}
+  .deco-corner.tl{top:0;left:0;}
+  .deco-corner.tr{top:0;right:0;transform:scaleX(-1);}
+  .deco-corner.bl{bottom:0;left:0;transform:scaleY(-1);}
+  .deco-corner.br{bottom:0;right:0;transform:scale(-1,-1);}
 
   /* ---------- HERO ---------- */
   .hero-wrap{position:relative;padding:34px 16px 44px;}
-  .hero-wrap .corner{position:absolute;width:clamp(90px,26vw,150px);height:auto;}
-  .hero-wrap .corner.tl{top:2px;left:2px;}
-  .hero-wrap .corner.tr{top:2px;right:2px;transform:scaleX(-1);}
-  .hero-wrap .corner.bl{bottom:2px;left:2px;transform:scaleY(-1);}
-  .hero-wrap .corner.br{bottom:2px;right:2px;transform:scale(-1,-1);}
+  .hero-wrap .deco-corner{width:clamp(90px,26vw,150px);opacity:.9;}
+  .hero-wrap .deco-corner.tl{top:2px;left:2px;}
+  .hero-wrap .deco-corner.tr{top:2px;right:2px;}
+  .hero-wrap .deco-corner.bl{bottom:2px;left:2px;}
+  .hero-wrap .deco-corner.br{bottom:2px;right:2px;}
 
   .hero-card{
-    position:relative;z-index:1;max-width:520px;margin:0 auto;
+    position:relative;z-index:1;max-width:480px;margin:0 auto;
     background:var(--ivory);
     border:1px solid var(--gold-light);
     border-radius:38px 38px 90px 90px/38px 38px 60px 60px;
-    padding:clamp(30px,7vw,50px) clamp(20px,6vw,40px) clamp(36px,8vw,54px);
+    padding:clamp(26px,6vw,42px) clamp(18px,6vw,36px) clamp(34px,8vw,50px);
     box-shadow:0 18px 40px color-mix(in srgb, var(--rose-deep) 12%, transparent);
   }
   .hero-card::before{
@@ -184,71 +209,46 @@ function render(data = {}) {
     border-radius:32px 32px 80px 80px/32px 32px 52px 52px;
     pointer-events:none;
   }
-  .hero-num{
-    display:block;font-family:'Playfair Display',serif;font-weight:700;
-    font-size:clamp(1.4rem,4vw,1.9rem);color:var(--gold);
-    letter-spacing:1px;position:relative;
-  }
-  .hero-num span{font-size:clamp(2.6rem,8vw,3.4rem);vertical-align:middle;margin:0 4px;}
-  .hero-title{
-    font-size:clamp(1rem,3vw,1.25rem);letter-spacing:3px;text-transform:uppercase;
-    color:var(--rose);font-weight:600;margin-top:2px;
-  }
-  .hero-divider{width:clamp(120px,32vw,180px);height:auto;color:var(--rose-light);margin:14px auto;display:block;}
+  .hero-arch{width:100%;max-width:270px;height:auto;display:block;margin:0 auto;overflow:visible;position:relative;}
+  .arch-text{font-family:'Playfair Display',serif;font-weight:600;font-size:15px;letter-spacing:4px;fill:var(--rose-deep);}
+  .arch-num{font-family:'Playfair Display',serif;font-weight:700;font-size:70px;fill:var(--gold);}
+  .hero-divider{width:clamp(64px,18vw,92px);height:auto;color:var(--rose-light);margin:2px auto 10px;display:block;}
   .hero-name{
     font-family:'Great Vibes',cursive;color:var(--rose);
     font-size:clamp(2.6rem,10vw,4.2rem);margin:2px 0 10px;
   }
-  .hero-sub{color:var(--gold);font-weight:600;letter-spacing:.5px;font-size:clamp(.95rem,2.6vw,1.1rem);margin:0 0 18px;}
+  .hero-sub{color:var(--gold);font-weight:600;letter-spacing:.5px;font-size:clamp(.9rem,2.4vw,1.05rem);margin:0 0 20px;}
   .hero-date{
     display:inline-flex;align-items:center;gap:10px;
     color:var(--ink);text-transform:uppercase;letter-spacing:2px;font-weight:600;
     font-size:clamp(.7rem,2vw,.85rem);
   }
   .hero-date .badge{
-    width:clamp(38px,9vw,48px);height:clamp(38px,9vw,48px);border-radius:50%;
-    border:1.5px solid var(--rose-light);display:flex;align-items:center;justify-content:center;
-    font-family:'Playfair Display',serif;color:var(--rose);font-size:clamp(1rem,3vw,1.2rem);font-weight:700;
+    position:relative;display:inline-flex;align-items:center;justify-content:center;
+    width:clamp(38px,9vw,48px);height:clamp(34px,8vw,44px);
   }
-  .hero-tiara{width:clamp(160px,50vw,240px);height:auto;color:var(--rose-light);margin:22px auto 0;display:block;}
+  .hero-date .badge svg{position:absolute;inset:0;width:100%;height:100%;color:var(--rose);}
+  .hero-date .badge-num{position:relative;z-index:1;font-family:'Playfair Display',serif;font-weight:700;color:var(--rose-deep);font-size:clamp(.9rem,2.4vw,1.05rem);margin-top:-2px;}
+  .hero-tiara{width:clamp(150px,46vw,220px);height:auto;color:var(--rose-light);margin:22px auto 0;display:block;}
 
-  /* ---------- COUNTDOWN ---------- */
-  .countdown{
-    display:flex;justify-content:center;align-items:stretch;flex-wrap:wrap;
-    background:var(--ivory);border:1px solid var(--gold-light);border-radius:14px;
-    max-width:420px;margin:0 auto;padding:6px 4px;
+  /* ---------- FOTOS + MENSAJE ---------- */
+  .section-blush{background:linear-gradient(180deg,var(--blush-soft),transparent);display:flex;flex-direction:column;align-items:center;}
+  .photo-strip{display:flex;align-items:center;justify-content:center;gap:16px;margin:4px 0 32px;position:relative;z-index:1;}
+  .sidebar-label{
+    writing-mode:vertical-rl;transform:rotate(180deg);
+    font-family:'Playfair Display',serif;font-weight:600;letter-spacing:5px;text-transform:uppercase;
+    color:var(--rose);font-size:.78rem;white-space:nowrap;flex-shrink:0;
   }
-  .countdown > div{
-    flex:1;min-width:70px;padding:12px 10px;position:relative;
-  }
-  .countdown > div + div::before{
-    content:"";position:absolute;left:0;top:14%;bottom:14%;width:1px;background:var(--rose-light);
-  }
-  .cd-num{display:block;font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);font-size:clamp(1.5rem,5vw,2.1rem);}
-  .cd-label{display:block;margin-top:4px;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--rose);}
-
-  /* ---------- MENSAJE / GALERÍA ---------- */
-  .section-blush{background:linear-gradient(180deg,var(--blush-soft),transparent);}
-  .quote-card{
-    max-width:420px;margin:14px auto 0;background:var(--ivory);
-    border:1px dashed var(--rose-light);border-radius:16px;
-    padding:26px 24px;position:relative;
-  }
-  .quote-card svg{width:34px;height:auto;color:var(--rose);margin:0 auto 10px;display:block;}
-  .quote-card p{font-size:clamp(.95rem,2.4vw,1.05rem);color:var(--ink);margin:0 0 12px;font-style:italic;}
-  .quote-card .padres{font-family:'Great Vibes',cursive;color:var(--gold);font-size:clamp(1.4rem,4vw,1.7rem);font-style:normal;}
-
-  .gallery{
-    display:flex;flex-wrap:wrap;justify-content:center;gap:22px 16px;margin-top:28px;
-  }
+  .gallery{display:flex;flex-direction:column;align-items:center;gap:0;}
   .gallery-item{
-    background:var(--ivory);padding:10px 10px 26px;border-radius:3px;
-    box-shadow:0 10px 22px rgba(74,47,55,.14);width:150px;
-    transform:rotate(var(--r,0deg));
+    background:var(--ivory);padding:8px 8px 22px;border-radius:2px;
+    box-shadow:0 10px 20px rgba(74,47,55,.2);width:140px;margin-top:-30px;position:relative;
   }
-  .gallery-item:nth-child(odd){--r:-3deg;}
-  .gallery-item:nth-child(even){--r:2.5deg;}
-  .gallery-item img{width:100%;height:170px;object-fit:cover;cursor:pointer;display:block;}
+  .gallery-item:first-child{margin-top:0;z-index:2;}
+  .gallery-item:nth-child(2){z-index:1;}
+  .gallery-item:nth-child(odd){transform:rotate(-3deg);}
+  .gallery-item:nth-child(even){transform:rotate(2.5deg);}
+  .gallery-item img{width:100%;height:150px;object-fit:cover;cursor:pointer;display:block;}
   .lightbox{
     display:none;position:fixed;inset:0;background:rgba(74,47,55,.92);
     z-index:50;align-items:center;justify-content:center;cursor:zoom-out;
@@ -257,30 +257,61 @@ function render(data = {}) {
   .lightbox img{max-width:92vw;max-height:86vh;border-radius:6px;}
   .lightbox-close{position:absolute;top:18px;right:26px;color:var(--ivory);font-size:2rem;cursor:pointer;}
 
+  .quote-card{
+    max-width:320px;margin:0;background:var(--ivory);
+    border:1px dashed var(--rose-light);border-radius:16px;
+    padding:32px 22px 24px;position:relative;
+  }
+  .quote-card .ribbon{position:absolute;top:-15px;left:50%;transform:translateX(-50%);width:30px;height:auto;background:var(--blush-soft);padding:2px 8px;border-radius:8px;}
+  .quote-card p{font-size:clamp(.9rem,2.2vw,1rem);color:var(--rose-deep);margin:0 0 12px;font-style:italic;line-height:1.75;}
+  .quote-card .padres{font-family:'Great Vibes',cursive;color:var(--gold);font-size:clamp(1.3rem,3.6vw,1.6rem);font-style:normal;}
+
+  /* ---------- COUNTDOWN ---------- */
+  .countdown{
+    display:flex;justify-content:center;align-items:stretch;flex-wrap:wrap;
+    background:var(--ivory);border:1px solid var(--gold-light);border-radius:14px;
+    max-width:400px;margin:0 auto;padding:8px 6px;
+  }
+  .countdown > div{
+    flex:1;min-width:64px;padding:12px 8px;position:relative;
+  }
+  .countdown > div + div::before{
+    content:":";position:absolute;left:-4px;top:9px;
+    font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);
+    font-size:clamp(1.3rem,4vw,1.8rem);line-height:1;
+  }
+  .cd-num{display:block;font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);font-size:clamp(1.5rem,5vw,2.1rem);}
+  .cd-label{display:block;margin-top:4px;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--rose);}
+
   /* ---------- DETALLES: tarjetas ---------- */
   .detail-card{
-    max-width:340px;margin:0 auto 26px;background:var(--ivory);
+    max-width:320px;margin:0 auto 26px;background:var(--ivory);
     border:1px solid var(--gold-light);border-radius:20px;
-    padding:26px 24px 30px;position:relative;
+    padding:36px 24px 30px;position:relative;
     box-shadow:0 14px 30px color-mix(in srgb, var(--rose-deep) 10%, transparent);
   }
   .detail-card::before{
     content:"";position:absolute;inset:7px;border:1px solid var(--rose-light);border-radius:14px;pointer-events:none;
   }
-  .detail-card .ribbon{width:34px;height:auto;color:var(--rose);margin:0 auto 8px;display:block;}
-  .detail-card h3{
-    font-size:clamp(1.4rem,4vw,1.7rem);color:var(--ink);margin-bottom:6px;font-weight:600;
+  .detail-card .ribbon,.rsvp-card .ribbon{
+    position:absolute;top:-15px;left:50%;transform:translateX(-50%);
+    width:30px;height:auto;color:var(--rose);
+    background:var(--blush-soft);padding:2px 8px;border-radius:8px;display:block;
   }
-  .detail-card .glass-icon{width:90px;height:auto;color:var(--rose);margin:6px auto 10px;display:block;}
+  .detail-card h3{
+    font-family:'Great Vibes',cursive;font-weight:400;color:#2a2020;
+    font-size:clamp(1.6rem,4.4vw,2rem);margin-bottom:2px;
+  }
+  .detail-card .glass-icon{width:86px;height:auto;color:var(--rose);margin:8px auto 10px;display:block;}
   .detail-card .hora{color:var(--rose);font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.3rem,3.6vw,1.6rem);margin:4px 0;}
-  .detail-card .lugar{font-weight:600;color:var(--ink);margin-bottom:14px;}
+  .detail-card .lugar{font-weight:600;color:var(--ink);margin-bottom:16px;}
   .detail-card .cta{
     display:inline-block;background:var(--rose);color:var(--ivory);
     text-decoration:none;padding:10px 26px;border-radius:20px;
     text-transform:uppercase;letter-spacing:1.5px;font-size:.72rem;font-weight:700;
     border:1px solid var(--rose-deep);
   }
-  .detail-card .couple-icon{width:82px;height:auto;color:var(--rose);margin:4px auto 8px;display:block;}
+  .detail-card .couple-icon{width:78px;height:auto;color:var(--rose);margin:6px auto 8px;display:block;}
   .detail-card .dresscode-label{
     text-transform:uppercase;letter-spacing:1.5px;font-weight:700;color:var(--ink);font-size:1rem;margin-bottom:2px;
   }
@@ -288,14 +319,14 @@ function render(data = {}) {
 
   /* ---------- RSVP ---------- */
   .rsvp-card{
-    max-width:400px;margin:0 auto;background:var(--ivory);
+    max-width:380px;margin:0 auto;background:var(--ivory);
     border:1px solid var(--gold-light);border-radius:20px;
-    padding:30px 24px 34px;position:relative;
+    padding:36px 24px 34px;position:relative;
     box-shadow:0 14px 30px color-mix(in srgb, var(--rose-deep) 10%, transparent);
   }
   .rsvp-card::before{content:"";position:absolute;inset:7px;border:1px solid var(--rose-light);border-radius:14px;pointer-events:none;}
-  .rsvp-card .envelope{width:70px;height:auto;color:var(--rose);margin:4px auto 10px;display:block;}
-  .rsvp-card h3{font-family:'Great Vibes',cursive;color:var(--rose);font-size:clamp(1.8rem,5vw,2.3rem);font-weight:400;margin-bottom:8px;}
+  .rsvp-card .envelope{width:64px;height:auto;color:var(--rose);margin:6px auto 10px;display:block;}
+  .rsvp-card h3{font-family:'Great Vibes',cursive;color:var(--rose);font-size:clamp(1.8rem,5vw,2.3rem);font-weight:400;margin-bottom:4px;}
   .rsvp-card > p{font-size:.9rem;color:var(--ink);margin-bottom:14px;}
 
   .rsvp-form{display:flex;flex-direction:column;gap:14px;margin-top:6px;text-align:left;}
@@ -335,49 +366,52 @@ function render(data = {}) {
 <body>
 
   <div class="hero-wrap">
-    ${floralCornerSvg("corner tl icon")}
-    ${floralCornerSvg("corner tr icon")}
-    ${floralCornerSvg("corner bl icon")}
-    ${floralCornerSvg("corner br icon")}
+    ${floralCornerSvg("deco-corner tl")}
+    ${floralCornerSvg("deco-corner tr")}
+    ${floralCornerSvg("deco-corner bl")}
+    ${floralCornerSvg("deco-corner br")}
     <div class="hero-card">
-      <span class="hero-num"><span>15</span></span>
-      <p class="hero-title">Mis Quinceaños</p>
-      ${bowSvg("hero-divider icon")}
+      ${archSvg(archId)}
+      <span class="sr-only">Mis Quinceaños</span>
+      ${bowSvg("hero-divider")}
       <h1 class="hero-name">${esc(d.nombre)}</h1>
       <p class="hero-sub">Estás invitada a celebrar conmigo</p>
       <div class="hero-date">
         <span>${esc(diaSemana)}</span>
-        <span class="badge">${esc(diaNum)}</span>
+        <span class="badge">${heartSvg()}<span class="badge-num">${esc(diaNum)}</span></span>
         <span>${esc(mesNombre)}</span>
       </div>
-      ${tiaraSvg("hero-tiara icon")}
+      ${tiaraSvg("hero-tiara")}
     </div>
   </div>
 
-  <section>
-    <h2 class="title">Cuenta regresiva</h2>
-    ${cd.html}
-  </section>
-
   ${(d.mensaje || d.padres || (d.galeria && d.galeria.length)) ? `
   <section class="section-blush">
+    ${(d.galeria && d.galeria.length) ? `
+    <div class="photo-strip">
+      <div class="sidebar-label">Mis Quinceaños</div>
+      ${gal.html}
+    </div>` : ""}
     ${(d.mensaje || d.padres) ? `
-    ${bowSvg("hero-divider icon")}
-    <h2 class="title">Un mensaje para vos</h2>
     <div class="quote-card">
-      ${bowSvg()}
+      ${bowSvg("ribbon")}
       ${d.mensaje ? `<p>${esc(d.mensaje)}</p>` : ""}
       ${d.padres ? `<p class="padres">${esc(d.padres)}</p>` : ""}
     </div>` : ""}
-    ${(d.galeria && d.galeria.length) ? gal.html : ""}
   </section>` : ""}
 
   <section>
+    <span class="eyebrow">Faltan</span>
+    ${cd.html}
+  </section>
+
+  <section>
+    ${floralCornerSvg("deco-corner tr")}
     <span class="eyebrow">Detalles</span>
 
     ${(d.horaCeremonia || d.lugarCeremonia) ? `
     <div class="detail-card">
-      ${bowSvg("ribbon icon")}
+      ${bowSvg("ribbon")}
       <h3>Ceremonia</h3>
       ${glassesSvg("glass-icon")}
       ${d.horaCeremonia ? `<p class="hora">${esc(d.horaCeremonia)}</p>` : ""}
@@ -387,7 +421,7 @@ function render(data = {}) {
 
     ${(d.horaFiesta || d.lugarFiesta) ? `
     <div class="detail-card">
-      ${bowSvg("ribbon icon")}
+      ${bowSvg("ribbon")}
       <h3>Recepción</h3>
       ${glassesSvg("glass-icon")}
       ${d.horaFiesta ? `<p class="hora">${esc(d.horaFiesta)}</p>` : ""}
@@ -397,16 +431,16 @@ function render(data = {}) {
 
     ${d.dressCode ? `
     <div class="detail-card">
-      ${bowSvg("ribbon icon")}
+      ${bowSvg("ribbon")}
       ${coupleSvg("couple-icon")}
       <p class="dresscode-label">Código de vestimenta</p>
       <p class="dresscode-value">${esc(d.dressCode)}</p>
     </div>` : ""}
 
     <div class="rsvp-card">
-      ${bowSvg("ribbon icon")}
-      ${envelopeSvg("envelope")}
+      ${bowSvg("ribbon")}
       <h3>Confirmar asistencia</h3>
+      ${envelopeSvg("envelope")}
       <p>Esperamos contar con tu presencia en este día tan especial para mí.</p>
       ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
       ${rsvp.html}
@@ -426,8 +460,20 @@ function render(data = {}) {
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(160deg,#f3d3d8 0%,#e6b3b9 55%,#f3d3d8 100%);">
+    <svg viewBox="0 0 200 90" width="66" height="30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="color:#c9536c;opacity:.85;">
+      <path d="M14 78c0-30 6-46 14-46 6 0 6 14 12 14s8-24 20-24 12 22 20 22 10-30 20-30 12 30 20 30 14-22 20-22 6 24 12 24 14-16 14 46" stroke="currentColor" stroke-width="3.2" fill="none" stroke-linejoin="round"/>
+      <path d="M10 78h180" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+    </svg>
+    <div style="font-family:'Great Vibes','Brush Script MT','Segoe Script',cursive;font-size:1.55rem;color:#c9536c;line-height:1;">${esc(d.name)}</div>
+    <div style="font-size:.52rem;letter-spacing:3px;text-transform:uppercase;color:#a87a2f;font-family:Georgia,'Times New Roman',serif;font-weight:600;">Mis Quince Años</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "xv", name: "Glam Rosa",
   summary: "Frame floral en rosa y dorado, tiara y moños dibujados a mano, con tarjetas tipo souvenir para cada detalle.",
-  accent: "#c9536c", accent2: "#b6924f", schema: xvSchema, sampleData, render,
+  accent: "#c9536c", accent2: "#b6924f", schema: xvSchema, sampleData, render, cardPreview,
 };

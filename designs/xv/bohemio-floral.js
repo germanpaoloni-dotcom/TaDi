@@ -62,6 +62,34 @@ function sprig(w = 70) {
   </svg>`;
 }
 
+// Borde de "papel rasgado": recorta el rectángulo del elemento con dientes
+// irregulares arriba y abajo, para usarlo como divisor entre secciones de
+// distinto color de fondo (misma técnica que el clip-path de .photo-wrap,
+// aplicada acá a ambos bordes de la franja del itinerario).
+function tornClip(teeth = 16, amp = 6) {
+  const top = [];
+  for (let i = 0; i <= teeth; i++) {
+    const x = ((i / teeth) * 100).toFixed(2);
+    const y = i % 2 === 0 ? 0 : amp + (i % 3 === 0 ? 2 : 0);
+    top.push(`${x}% ${y}%`);
+  }
+  const bottom = [];
+  for (let i = teeth; i >= 0; i--) {
+    const x = ((i / teeth) * 100).toFixed(2);
+    const y = i % 2 === 0 ? 100 : 100 - amp - (i % 3 === 0 ? 2 : 0);
+    bottom.push(`${x}% ${y}%`);
+  }
+  return `polygon(${top.concat(bottom).join(",")})`;
+}
+
+// --- Iconos de línea dibujados a mano (badges del itinerario, vestimenta, confirmación) ---
+const churchIcon = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2.5l1.7 2M12 2.5v3M9 9h6M7 21V11l5-4 5 4v10M7 21h10M10 21v-5h4v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const plateIcon = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="7.6" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="12" r="3.3" stroke="currentColor" stroke-width="1.1"/></svg>`;
+const danceIcon = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="8.2" cy="5" r="1.6" fill="currentColor"/><circle cx="15.8" cy="5" r="1.6" fill="currentColor"/><path d="M8.2 8c-1.6 1-2.4 2.7-2 4.6l1 5.4M8.2 8c1 1 1.6 2.2 1.7 3.6M15.8 8c1.6 1 2.4 2.7 2 4.6l-1 5.4M15.8 8c-1 1-1.6 2.2-1.7 3.6M9.9 11.6c1.2 1 2.9 1 4.2-.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const suitIcon = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 4l4 3.2 4-3.2M6.5 21V8.3l2-2.3h1.7L12 9l1.8-3h1.7l2 2.3V21" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 9v12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>`;
+const dressIcon = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="4.2" r="1.5" stroke="currentColor" stroke-width="1"/><path d="M12 5.7v3.3M9.3 9h5.4l2.8 11.5H6.5L9.3 9z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>`;
+const waIcon = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3.2a8.8 8.8 0 00-7.5 13.4L3.2 20.8l4.4-1.4A8.8 8.8 0 1012 3.2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8.7 9.4c.3-.6.5-.6.8-.6h.5c.2 0 .3 0 .5.4.2.4.7 1.5.7 1.7s0 .3-.1.4c-.1.2-.3.3-.4.5-.2.1-.3.3-.1.5.2.4.8 1.3 1.7 2 1.2 1 2 1.2 2.3 1.4.2.1.4 0 .5-.1.2-.2.6-.6.7-.8.2-.2.3-.2.6-.1l1.5.7c.2.1.4.2.4.4 0 .4-.2 1.1-.5 1.4-.4.4-1.2.7-1.9.6-1.2-.1-2.9-.6-4.8-2.3-2.3-2-2.8-3.6-2.9-3.9-.1-.3-.5-1.1-.5-1.8 0-.8.4-1.2.6-1.4z" fill="currentColor"/></svg>`;
+
 function render(data = {}) {
   const d = { ...sampleData, ...data };
   const accent = getPaletteColor(d.colorPalette, "light", "#a9825a");
@@ -128,11 +156,12 @@ function render(data = {}) {
   .padres-block .lbl{text-transform:uppercase;letter-spacing:.2em;font-size:.68rem;color:var(--muted);display:block;margin-top:14px;}
   .padres-block .names{font-style:italic;color:var(--gold);font-weight:600;}
   .heart{color:var(--gold);font-size:1.3rem;margin:22px 0;}
-  .date-box{display:flex;align-items:center;justify-content:center;gap:14px;margin:18px 0 8px;font-family:'Poppins',sans-serif;}
-  .date-box .line{flex:1;max-width:60px;height:1px;background:var(--line);}
-  .date-box .dow, .date-box .yr{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
-  .date-box .day{font-size:2.6rem;color:var(--gold);font-family:'Playfair Display',serif;line-height:1;}
-  .month{font-family:'Poppins',sans-serif;text-transform:uppercase;letter-spacing:.3em;font-size:.85rem;color:var(--brown);text-align:center;margin-bottom:6px;}
+  .month{font-family:'Poppins',sans-serif;text-transform:uppercase;letter-spacing:.3em;font-size:.85rem;color:var(--brown);text-align:center;margin-bottom:14px;}
+  .date-box{display:flex;align-items:stretch;justify-content:center;margin:0 auto 8px;max-width:280px;border-top:1px solid var(--rose);border-bottom:1px solid var(--rose);padding:14px 0;}
+  .date-box .db-col{flex:1;position:relative;display:flex;align-items:center;justify-content:center;padding:0 10px;}
+  .date-box .db-col + .db-col::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:1px;background:var(--line);}
+  .date-box .dow, .date-box .yr{font-family:'Poppins',sans-serif;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
+  .date-box .day{font-size:2.5rem;color:var(--gold);font-family:'Playfair Display',serif;line-height:1;}
 
   /* INFO CARDS (ceremonia / recepcion) */
   .info-card{text-align:center;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:24px 20px;margin:18px 0;}
@@ -144,10 +173,12 @@ function render(data = {}) {
   .btn-outline:hover{background:var(--rose);color:#fff;}
 
   /* ITINERARIO */
-  .itinerary-wrap{background:var(--paper);position:relative;padding:44px 28px;}
-  .timeline{max-width:420px;margin:0 auto;display:flex;flex-direction:column;gap:26px;}
-  .tl-item{display:flex;align-items:center;gap:16px;font-family:'Poppins',sans-serif;}
-  .tl-item .ico{width:44px;height:44px;border-radius:50%;background:var(--cream);border:1px solid var(--rose);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+  .itinerary-wrap{background:var(--paper);position:relative;padding:64px 28px;}
+  .timeline{max-width:420px;margin:0 auto;display:flex;flex-direction:column;gap:26px;position:relative;}
+  .timeline::before{content:"";position:absolute;left:21px;top:22px;bottom:22px;border-left:2px dotted var(--rose);opacity:.7;}
+  .tl-item{display:flex;align-items:center;gap:16px;font-family:'Poppins',sans-serif;position:relative;}
+  .tl-item .ico{width:44px;height:44px;border-radius:50%;background:var(--paper);border:1px solid var(--rose);display:flex;align-items:center;justify-content:center;color:var(--rose);flex-shrink:0;position:relative;z-index:1;}
+  .tl-item .ico svg{width:20px;height:20px;}
   .tl-item .txt{flex:1;}
   .tl-item .txt b{display:block;letter-spacing:.15em;text-transform:uppercase;font-size:.85rem;color:var(--brown);}
   .tl-item .txt span{font-size:.8rem;color:var(--muted);}
@@ -161,7 +192,8 @@ function render(data = {}) {
 
   /* CONFIRMACION */
   .confirm-wrap{text-align:center;}
-  .confirm-wrap .icon-circle{width:56px;height:56px;border-radius:50%;background:var(--paper);border:1px solid var(--rose);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.5rem;color:var(--sage);}
+  .confirm-wrap .icon-circle{width:56px;height:56px;border-radius:50%;background:var(--paper);border:1px solid var(--rose);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--sage);}
+  .confirm-wrap .icon-circle svg{width:26px;height:26px;}
   .confirm-wrap p{font-family:'Poppins',sans-serif;font-size:.85rem;color:var(--muted);max-width:280px;margin:0 auto 20px;line-height:1.6;}
   .rsvp-form{display:flex;flex-direction:column;gap:12px;text-align:left;max-width:360px;margin:0 auto;font-family:'Poppins',sans-serif;}
   .rsvp-form label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
@@ -172,7 +204,8 @@ function render(data = {}) {
   .rsvp-status{font-weight:bold;color:var(--sage);font-family:'Poppins',sans-serif;font-size:.85rem;margin-top:10px;display:block;}
 
   .dresscode{margin-top:36px;}
-  .dresscode .ico-row{display:flex;justify-content:center;gap:22px;font-size:1.8rem;margin-bottom:8px;color:var(--rose);}
+  .dresscode .ico-row{display:flex;justify-content:center;gap:22px;margin-bottom:8px;color:var(--rose);}
+  .dresscode .ico-row svg{width:26px;height:26px;}
   .dresscode .lbl{font-family:'Poppins',sans-serif;letter-spacing:.2em;text-transform:uppercase;font-size:.75rem;color:var(--brown);font-weight:600;}
   .dresscode .val{font-family:'Poppins',sans-serif;letter-spacing:.1em;text-transform:uppercase;font-size:.8rem;color:var(--muted);margin-top:4px;}
   .te-esperamos{font-size:clamp(1.8rem,7vw,2.4rem);margin-top:34px;}
@@ -223,11 +256,11 @@ function render(data = {}) {
       <b>Mis XV Años</b>
     </div>
     <div class="heart">&#10084;</div>
-    <div class="month">${esc(mesNombre)} ${esc(String(anio))}</div>
+    <div class="month">${esc(mesNombre)}</div>
     <div class="date-box">
-      <span class="dow">${esc(diaSemana)}</span>
-      <span class="day">${esc(diaNum)}</span>
-      <span class="line"></span>
+      <div class="db-col"><span class="dow">${esc(diaSemana)}</span></div>
+      <div class="db-col"><span class="day">${esc(diaNum)}</span></div>
+      <div class="db-col"><span class="yr">${esc(String(anio))}</span></div>
     </div>
 
     ${(d.horaCeremonia || d.lugarCeremonia) ? `
@@ -250,24 +283,24 @@ function render(data = {}) {
     </div>
   </section>` : ""}
 
-  <div class="itinerary-wrap">
+  <div class="itinerary-wrap" style="clip-path:${tornClip(16, 6)}">
     <span class="floral bl" style="position:absolute;bottom:-10px;left:-18px;">${roseCluster({ w: 110, flop: true })}</span>
     <h2 class="section-title">Itinerario de actividades</h2>
     <div class="timeline">
       ${(d.horaCeremonia || d.lugarCeremonia) ? `
       <div class="tl-item">
-        <div class="ico">&#9962;</div>
+        <div class="ico">${churchIcon}</div>
         <div class="txt"><b>Ceremonia</b>${d.lugarCeremonia ? `<span>${esc(d.lugarCeremonia)}</span>` : ""}</div>
         ${d.horaCeremonia ? `<div class="hora">${esc(d.horaCeremonia)}</div>` : ""}
       </div>` : ""}
       ${(d.horaFiesta || d.lugarFiesta) ? `
       <div class="tl-item">
-        <div class="ico">&#127881;</div>
+        <div class="ico">${plateIcon}</div>
         <div class="txt"><b>Recepción</b>${d.lugarFiesta ? `<span>${esc(d.lugarFiesta)}</span>` : ""}</div>
         ${d.horaFiesta ? `<div class="hora">${esc(d.horaFiesta)}</div>` : ""}
       </div>` : ""}
       <div class="tl-item">
-        <div class="ico">&#127942;</div>
+        <div class="ico">${danceIcon}</div>
         <div class="txt"><b>Baile y celebración</b><span>Toda la noche</span></div>
       </div>
     </div>
@@ -285,7 +318,7 @@ function render(data = {}) {
   </section>` : ""}
 
   <section class="confirm-wrap">
-    <div class="icon-circle">&#128172;</div>
+    <div class="icon-circle">${waIcon}</div>
     <div class="ev-label" style="font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.15em;text-transform:uppercase;">Confirmación</div>
     <p>Por favor confirma tu asistencia lo antes posible</p>
     ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
@@ -293,7 +326,7 @@ function render(data = {}) {
 
     ${d.dressCode ? `
     <div class="dresscode">
-      <div class="ico-row"><span>&#128085;</span><span>&#128090;</span></div>
+      <div class="ico-row">${suitIcon}${dressIcon}</div>
       <div class="lbl">Vestimenta</div>
       <div class="val">${esc(d.dressCode)}</div>
     </div>` : ""}
@@ -311,8 +344,26 @@ ${cd.script}${gal.script}${rsvp.script}
 </body></html>`;
 }
 
+// Miniatura para la grilla del catálogo. Estilos 100% inline (no depende
+// de site.css) y sin las tipografías de Google Fonts del diseño real
+// (la página de catálogo no las carga), así que usamos stacks de
+// respaldo serif/cursive equivalentes.
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:linear-gradient(160deg,#f4ddd2 0%,#fdf5ea 55%,#fffaf3 100%);overflow:hidden;">
+    <span style="position:absolute;top:-16px;left:-16px;opacity:.9;">${roseCluster({ w: 60 })}</span>
+    <span style="position:absolute;bottom:-18px;right:-18px;opacity:.9;">${roseCluster({ w: 60, flip: true, flop: true })}</span>
+    <svg width="32" viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:relative;z-index:1;">
+      <path d="M8 50 L14 20 L32 38 L45 12 L60 34 L75 12 L88 38 L106 20 L112 50 Z" fill="none" stroke="#a9825a" stroke-width="4" stroke-linejoin="round"/>
+      <circle cx="60" cy="16" r="5" fill="#a9825a"/>
+      <line x1="8" y1="50" x2="112" y2="50" stroke="#a9825a" stroke-width="4"/>
+    </svg>
+    <span style="position:relative;z-index:1;font-family:Georgia,'Times New Roman',serif;font-size:.56rem;letter-spacing:3px;text-transform:uppercase;color:#a9825a;">Mis XV años</span>
+    <span style="position:relative;z-index:1;font-family:'Segoe Script','Brush Script MT',cursive,Georgia,serif;font-style:italic;font-size:1.55rem;color:#6b5a4a;">${esc(d.name)}</span>
+  </div>`;
+}
+
 module.exports = {
   id, category: "xv", name: "Bohemio Floral",
   summary: "Invitación boho romántica en tonos crema, blush y dorado, con rosas dibujadas a mano, tipografía caligráfica y bordes de papel rasgado.",
-  accent: "#a9825a", accent2: "#8a9b6f", schema: xvSchema, sampleData, render,
+  accent: "#a9825a", accent2: "#8a9b6f", schema: xvSchema, sampleData, render, cardPreview,
 };
