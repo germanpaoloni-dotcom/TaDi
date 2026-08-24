@@ -292,8 +292,14 @@ function render(data = {}) {
   <script>
     ${cd.script}${gal.script}${rsvp.script}
     (function(){
-      var prefixes = ['Comandante','Capitana','Piloto','Teniente','Astro','Explorador','Almirante','Cadete'];
-      var suffixes = ['Nova','Cometa','Orión','Galaxia','Estelar','Cósmico','Meteoro','Andrómeda'];
+      var prefixes = ['Comandante','Capitana','Piloto','Teniente','Astro','Explorador','Almirante','Cadete',
+        'Coronel','Sargento','Doctora','Ingeniera','Navegante','Guardiana','Científica','Aventurera',
+        'General','Mayor','Oficial','Especialista','Pionera','Intrépida','Valiente','Supremo',
+        'Legendario','Veloz','Audaz','Temerario','Heroico','Estelar'];
+      var suffixes = ['Nova','Cometa','Orión','Galaxia','Cósmico','Meteoro','Andrómeda','Nebulosa',
+        'Quásar','Pulsar','Satélite','Plutón','Neptuno','Saturno','Cosmos','Constelación','Eclipse',
+        'Meteorito','Asteroide','Cráter','Órbita','Zodiaco','Fulgor','Destello','Relámpago','Trueno',
+        'Impacto','Titán','Vórtice','Bólido'];
       var input = document.getElementById('astroNameInput');
       var btn = document.getElementById('astroNameBtn');
       var result = document.getElementById('astroNameResult');
@@ -302,6 +308,7 @@ function render(data = {}) {
         var val = (input.value || '').trim() || 'Astronauta';
         var seed = 0;
         for (var i = 0; i < val.length; i++) seed += val.charCodeAt(i);
+        seed += Math.floor(Math.random() * 10000);
         var p = prefixes[seed % prefixes.length];
         var s = suffixes[(seed * 7 + val.length) % suffixes.length];
         result.textContent = '🌌 ' + p + ' ' + s + ' 🌌';

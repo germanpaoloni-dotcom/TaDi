@@ -51,7 +51,7 @@ function render(data = {}) {
   .burst{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;
     font-weight:400;text-transform:uppercase;line-height:1;color:var(--ink);
     border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);
-    clip-path:polygon(50% 0%,61% 18%,78% 6%,78% 26%,98% 20%,88% 38%,100% 50%,88% 62%,98% 80%,78% 74%,78% 94%,61% 82%,50% 100%,39% 82%,22% 94%,22% 74%,2% 80%,12% 62%,0% 50%,12% 38%,2% 20%,22% 26%,22% 6%,39% 18%);}
+    clip-path:polygon(50.0% 0.0%,58.3% 19.1%,75.0% 6.7%,72.6% 27.4%,93.3% 25.0%,80.9% 41.7%,100.0% 50.0%,80.9% 58.3%,93.3% 75.0%,72.6% 72.6%,75.0% 93.3%,58.3% 80.9%,50.0% 100.0%,41.7% 80.9%,25.0% 93.3%,27.4% 72.6%,6.7% 75.0%,19.1% 58.3%,0.0% 50.0%,19.1% 41.7%,6.7% 25.0%,27.4% 27.4%,25.0% 6.7%,41.7% 19.1%);}
   .burst-red{background:var(--red);color:var(--yellow);}
   .burst-blue{background:var(--blue);color:var(--yellow);}
   .burst-yellow{background:var(--yellow);color:var(--red);}
@@ -95,13 +95,13 @@ function render(data = {}) {
     background-image:radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.3px);background-size:6px 6px;
     mix-blend-mode:overlay;opacity:.5;}
 
-  .age-impact{position:absolute;right:-16px;bottom:-30px;z-index:2;width:132px;height:132px;
-    background:var(--yellow);color:var(--red);border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);
-    border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  .age-impact{position:absolute;right:-26px;bottom:-38px;z-index:2;width:172px;height:172px;
+    background:var(--yellow);color:var(--red);border:5px solid var(--ink);box-shadow:6px 6px 0 var(--ink);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
     transform:rotate(8deg);
-    clip-path:polygon(50% 0%,58% 14%,72% 4%,74% 20%,90% 12%,86% 28%,100% 28%,92% 42%,100% 50%,88% 54%,96% 68%,80% 66%,82% 82%,68% 74%,64% 90%,50% 100%,36% 90%,32% 74%,18% 82%,20% 66%,4% 68%,12% 54%,0% 50%,8% 42%,0% 28%,14% 28%,10% 12%,26% 20%,28% 4%,42% 14%);}
-  .age-impact .num{font-size:2.8rem;font-weight:400;line-height:1;}
-  .age-impact .txt{font-size:.62rem;text-transform:uppercase;font-weight:400;letter-spacing:.5px;}
+    clip-path:polygon(50.0% 0.0%,58.5% 13.0%,71.7% 5.0%,73.7% 20.3%,89.1% 18.8%,84.2% 33.5%,98.7% 38.9%,88.0% 50.0%,98.7% 61.1%,84.2% 66.5%,89.1% 81.2%,73.7% 79.7%,71.7% 95.0%,58.5% 87.0%,50.0% 100.0%,41.5% 87.0%,28.3% 95.0%,26.3% 79.7%,10.9% 81.2%,15.8% 66.5%,1.3% 61.1%,12.0% 50.0%,1.3% 38.9%,15.8% 33.5%,10.9% 18.8%,26.3% 20.3%,28.3% 5.0%,41.5% 13.0%);}
+  .age-impact .num{font-size:3.6rem;font-weight:400;line-height:1;}
+  .age-impact .txt{font-size:.78rem;text-transform:uppercase;font-weight:400;letter-spacing:.5px;}
 
   .zigzag{height:16px;background-color:var(--ink);
     background-image:linear-gradient(135deg,var(--yellow) 25%,transparent 25%),linear-gradient(225deg,var(--yellow) 25%,transparent 25%);
@@ -343,14 +343,24 @@ ${tadiFooterWidget()}
 }
 
 function cardPreview(d) {
-  return `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;overflow:hidden;
-    background:#0c1b3a;background-image:radial-gradient(rgba(255,255,255,.22) 1.4px, transparent 1.6px);background-size:9px 9px;">
-    <span style="display:flex;align-items:center;justify-content:center;width:64px;height:64px;
-      background:#ed1c24;color:#ffd400;font-weight:900;text-transform:uppercase;font-family:'Arial Black',Impact,sans-serif;
-      font-size:.68rem;text-align:center;border:3px solid #fff;box-shadow:3px 3px 0 rgba(0,0,0,.35);transform:rotate(-8deg);
-      clip-path:polygon(50% 0%,61% 18%,78% 6%,78% 26%,98% 20%,88% 38%,100% 50%,88% 62%,98% 80%,78% 74%,78% 94%,61% 82%,50% 100%,39% 82%,22% 94%,22% 74%,2% 80%,12% 62%,0% 50%,12% 38%,2% 20%,22% 26%,22% 6%,39% 18%);">¡Pow!</span>
-    <span style="font-family:'Arial Black',Impact,sans-serif;font-size:1.15rem;
-      color:#fff;-webkit-text-stroke:1.5px #0c1b3a;paint-order:stroke fill;letter-spacing:1px;">Superhéroes</span>
+  return `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;overflow:hidden;
+    border:4px solid #0c1b3a;box-sizing:border-box;
+    background:
+      repeating-conic-gradient(from 10deg at 50% 38%, rgba(12,27,58,.16) 0deg 3deg, transparent 3deg 12deg),
+      radial-gradient(circle at 50% 32%, #ffe27a 0%, #ffd400 55%, #e6a800 100%);">
+    <span style="position:absolute;bottom:0;left:0;right:0;height:20px;
+      background-color:#0c1b3a;
+      -webkit-mask-image:linear-gradient(135deg,#000 25%,transparent 25%),linear-gradient(225deg,#000 25%,transparent 25%);
+      -webkit-mask-size:14px 14px;-webkit-mask-repeat:repeat-x;-webkit-mask-position:0 0;
+      mask-image:linear-gradient(135deg,#000 25%,transparent 25%),linear-gradient(225deg,#000 25%,transparent 25%);
+      mask-size:14px 14px;mask-repeat:repeat-x;mask-position:0 0;"></span>
+    <span style="display:flex;align-items:center;justify-content:center;width:60px;height:60px;
+      background:#ed1c24;color:#ffe27a;font-weight:900;text-transform:uppercase;font-family:'Arial Black',Impact,sans-serif;
+      font-size:.64rem;text-align:center;border:3px solid #0c1b3a;box-shadow:3px 3px 0 #0c1b3a;transform:rotate(-8deg);
+      clip-path:polygon(50.0% 0.0%,58.3% 19.1%,75.0% 6.7%,72.6% 27.4%,93.3% 25.0%,80.9% 41.7%,100.0% 50.0%,80.9% 58.3%,93.3% 75.0%,72.6% 72.6%,75.0% 93.3%,58.3% 80.9%,50.0% 100.0%,41.7% 80.9%,25.0% 93.3%,27.4% 72.6%,6.7% 75.0%,19.1% 58.3%,0.0% 50.0%,19.1% 41.7%,6.7% 25.0%,27.4% 27.4%,25.0% 6.7%,41.7% 19.1%);">¡Pow!</span>
+    <span style="font-family:'Arial Black',Impact,sans-serif;font-size:1.2rem;
+      color:#fff;-webkit-text-stroke:1.5px #0c1b3a;paint-order:stroke fill;letter-spacing:1px;
+      text-shadow:2px 2px 0 #ed1c24;">Superhéroes</span>
   </div>`;
 }
 

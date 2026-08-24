@@ -305,8 +305,14 @@ function render(data = {}) {
   <script>
     ${cd.script}${gal.script}${rsvp.script}
     (function(){
-      var prefixes = ['Princesa','Reina','Hada','Duquesa','Condesa','Estrella','Lady','Dulce'];
-      var suffixes = ['Luna','Aurora','Jazmín','Cristal','Rosa','Estrellita','Perla','Encanto'];
+      var prefixes = ['Princesa','Reina','Hada','Duquesa','Condesa','Estrella','Lady','Dulce',
+        'Real','Radiante','Encantada','Mágica','Brillante','Gentil','Noble','Graciosa','Soñadora',
+        'Bondadosa','Angelical','Preciosa','Divina','Luminosa','Serena','Tierna','Valiente',
+        'Coronada','Celestial','Adorada','Resplandeciente','Fabulosa'];
+      var suffixes = ['Luna','Aurora','Jazmín','Cristal','Rosa','Estrellita','Perla','Encanto',
+        'Violeta','Camelia','Melodía','Armonía','Esperanza','Dulzura','Ternura','Alegría','Bella',
+        'Flor','Nieve','Brisa','Alba','Rocío','Magnolia','Iris','Celeste','Dalia','Azucena',
+        'Primavera','Lirio','Gardenia'];
       var input = document.getElementById('princessNameInput');
       var btn = document.getElementById('princessNameBtn');
       var result = document.getElementById('princessNameResult');
@@ -315,6 +321,7 @@ function render(data = {}) {
         var val = (input.value || '').trim() || 'Princesa';
         var seed = 0;
         for (var i = 0; i < val.length; i++) seed += val.charCodeAt(i);
+        seed += Math.floor(Math.random() * 10000);
         var p = prefixes[seed % prefixes.length];
         var s = suffixes[(seed * 7 + val.length) % suffixes.length];
         result.textContent = '✨ ' + p + ' ' + s + ' ✨';
