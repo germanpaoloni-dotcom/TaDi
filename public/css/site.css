@@ -275,9 +275,11 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
   .mega-hero-text{padding:28px 20px 6px;align-items:center;}
   .mega-hero-cta{align-self:center;}
   .mega-hero-skip{display:block;}
-  .mega-hero-visual{order:-1;height:auto;min-height:0;width:220px;margin:0 auto;overflow:hidden;display:flex;flex-direction:column;align-items:center;}
+  .mega-hero-visual{order:-1;height:auto;min-height:236px;width:220px;margin:0 auto;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
   .mega-hero-visual::before{display:none;}
-  .mega-hero-visual img{position:relative;inset:auto;right:auto;bottom:auto;height:220px;max-height:220px;width:auto;margin:0 auto;}
+  .mega-hero-visual img{position:relative;inset:auto;right:auto;bottom:auto;
+    display:block;height:220px;width:220px;max-height:220px;max-width:220px;min-height:220px;min-width:220px;
+    object-fit:contain;object-position:center;margin:0 auto;flex-shrink:0;}
   .mega-hero-ring{width:96px;height:96px;top:3px;left:66px;}
   .mega-hero-ring::before,.mega-hero-ring::after{inset:9px;}
   /* En celular sacamos la tarjeta "Para quién es": pegada a la foto, en
@@ -313,8 +315,10 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 
   .cat-modal{max-height:92vh;border-radius:20px;}
   .cat-modal-panel{grid-template-columns:1fr;max-height:92vh;overflow-y:auto;}
-  .cat-modal-visual{order:-1;min-height:0;height:auto;display:flex;flex-direction:column;align-items:center;padding:22px 20px 8px;overflow:hidden;margin:12px;box-shadow:none;}
-  .cat-modal-visual img{position:relative;inset:auto;right:auto;bottom:auto;left:auto;transform:none;height:170px;max-height:170px;width:auto;margin:0 auto;}
+  .cat-modal-visual{order:-1;min-height:216px;height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 20px 8px;overflow:hidden;margin:12px;box-shadow:none;}
+  .cat-modal-visual img{position:relative;inset:auto;right:auto;bottom:auto;left:auto;transform:none;
+    display:block;height:170px;width:170px;max-height:170px;max-width:170px;min-height:170px;min-width:170px;
+    object-fit:contain;object-position:center;margin:0 auto;flex-shrink:0;}
   .cat-modal-visual .mega-hero-ring{position:absolute;left:50%;transform:translateX(-50%);top:8px;width:96px;height:96px;}
   .cat-modal-visual .mega-hero-ring::before,.cat-modal-visual .mega-hero-ring::after{inset:9px;}
   /* En celular sacamos la tarjeta "Para quién es" del modal por la misma
@@ -332,8 +336,9 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
   header.site{padding:16px 20px;}
   .mega-hero-title, .mini-hero .mega-hero-title{font-size:2.1rem;}
   .mega-hero-ghost, .mini-hero .mega-hero-ghost{font-size:2.6rem;}
-  .mega-hero-visual{width:220px;}
-  .mega-hero-visual img{height:280px;max-height:280px;width:auto;}
+  .mega-hero-visual{width:220px;min-height:296px;}
+  .mega-hero-visual img{display:block;height:280px;width:220px;max-height:280px;max-width:220px;min-height:280px;min-width:220px;
+    object-fit:contain;object-position:center;flex-shrink:0;}
   .mega-hero-ring{width:98px;height:98px;top:3px;left:68px;}
   .mega-hero-ring::before,.mega-hero-ring::after{inset:9px;}
   .checkout-wrap{margin:30px auto;padding:24px;}
