@@ -119,10 +119,7 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
 // Se muestra al pie de las 30 invitaciones, debajo del footer propio de cada
 // diseño. Es una barra neutra (fondo blanco) con estilos 100% inline para que
 // se vea igual de bien sin importar la paleta de cada tarjeta.
-// TADI_INSTAGRAM se completa con el @usuario real antes de entregar — hasta
-// entonces el widget no muestra el link de Instagram (evita mostrar un dato
-// inventado).
-const TADI_INSTAGRAM = ""; // ej: "tadi.invitaciones" (sin @)
+const TADI_INSTAGRAM = "tadi.tarjetas"; // sin @
 const TADI_WEBSITE = "tadi.com.ar";
 
 function tadiFooterWidget() {
