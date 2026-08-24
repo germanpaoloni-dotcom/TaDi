@@ -88,6 +88,7 @@ const designs = [
   require("./infantiles/safari-aventura"),
   require("./infantiles/espacial"),
   require("./infantiles/dinosaurios"),
+  require("./infantiles/futbol"),
   require("./bautismos/clasica-dorada"),
   require("./bautismos/celeste-angelical"),
   require("./bautismos/campestre-botanico"),
