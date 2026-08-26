@@ -793,9 +793,9 @@ app.get("/editar/:token", (req, res) => {
       🔒 Guardá este link para volver a editar cuando quieras:<br>
       <a href="/editar/${order.editToken}">${req.protocol}://${req.get("host")}/editar/${order.editToken}</a>
     </div>
-    <p style="text-align:center;margin-top:14px;">
-      <a href="/editar/${order.editToken}/cambiar-diseno" style="color:var(--muted);font-size:.85rem;text-decoration:underline;">🔄 ¿Te confundiste de diseño? Ver otros diseños y cambiar</a>
-    </p>
+    <a href="/editar/${order.editToken}/cambiar-diseno" class="btn btn-outline" style="display:block;width:100%;text-align:center;text-decoration:none;margin-top:16px;box-sizing:border-box;">
+      🔄 ¿Te confundiste de diseño? Cambiar diseño
+    </a>
   </div>
   <div class="editor-preview-panel">
     <iframe id="preview" src="/preview/${order.editToken}"></iframe>
