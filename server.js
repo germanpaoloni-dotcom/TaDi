@@ -784,6 +784,7 @@ app.get("/editar/:token", (req, res) => {
       ${design.schema.map((f) => fieldHTML(f, inv.data[f.name])).join("")}
       <div class="save-bar"><button class="save-btn" type="submit">Guardar cambios</button></div>
     </form>
+    ${req.query.disenoCambiado ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Listo! Cambiamos el diseño. Los datos que coincidían (fecha, lugar, fotos, etc.) se mantuvieron, revisá que esté todo como querés.</p>` : ""}
     <div class="link-box">
       🔗 Link para compartir con tus invitados:<br>
       <a href="${publicUrl}" target="_blank">${publicUrl}</a>
@@ -792,6 +793,9 @@ app.get("/editar/:token", (req, res) => {
       🔒 Guardá este link para volver a editar cuando quieras:<br>
       <a href="/editar/${order.editToken}">${req.protocol}://${req.get("host")}/editar/${order.editToken}</a>
     </div>
+    <p style="text-align:center;margin-top:14px;">
+      <a href="/editar/${order.editToken}/cambiar-diseno" style="color:var(--muted);font-size:.85rem;text-decoration:underline;">🔄 ¿Te confundiste de diseño? Ver otros diseños y cambiar</a>
+    </p>
   </div>
   <div class="editor-preview-panel">
     <iframe id="preview" src="/preview/${order.editToken}"></iframe>
@@ -903,6 +907,106 @@ app.get("/editar/:token", (req, res) => {
   });
 </script>
 </body></html>`);
+});
+
+// ---------- CAMBIAR DE DISEÑO (por si compraron uno equivocado) ----------
+// Deja elegir cualquier otro diseño del catálogo sin volver a pagar. Al
+// cambiar, se conserva todo lo que el comprador ya cargó cuyo campo se
+// llama igual en el nuevo esquema (fecha, lugar, mensaje, fotos, etc.) y
+// solo se completa con los valores de ejemplo lo que sea específico del
+// diseño nuevo — así no se pierde el trabajo ya hecho.
+function changeDesignPickerHTML(order, currentDesign) {
+  const sections = categories
+    .map((cat) => {
+      const opciones = designsByCategory(cat.id).filter((d) => d.id !== currentDesign.id);
+      if (!opciones.length) return "";
+      return `<section style="margin-bottom:34px;">
+        <h2 style="font-size:1.05rem;margin-bottom:14px;">${escapeHtml(cat.label)}</h2>
+        <div class="grid">
+          ${opciones
+            .map(
+              (d) => `<div class="design-card">
+            <div class="swatch" style="background:linear-gradient(135deg, ${d.accent}, ${d.accent2 || d.accent})">
+              ${typeof d.cardPreview === "function" ? d.cardPreview(d) : escapeHtml(d.name)}
+            </div>
+            <div class="body">
+              <span class="cat-tag">${escapeHtml(cat.label)}</span>
+              <h3>${escapeHtml(d.name)}</h3>
+              <p>${escapeHtml(d.summary)}</p>
+              <form method="POST" action="/editar/${order.editToken}/cambiar-diseno" style="margin-top:10px;">
+                <input type="hidden" name="designId" value="${escapeHtml(d.id)}">
+                <button type="submit" class="btn btn-primary" style="width:100%;">Elegir este diseño</button>
+              </form>
+            </div>
+          </div>`
+            )
+            .join("")}
+        </div>
+      </section>`;
+    })
+    .join("");
+
+  return `<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cambiar diseño · TaDi</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
+<link rel="stylesheet" href="${CSS_HREF}"></head>
+<body>
+<div style="max-width:1080px;margin:0 auto;padding:30px 20px 60px;">
+  <a href="/editar/${order.editToken}" style="color:var(--muted);font-size:.85rem;text-decoration:underline;">← Volver a mi invitación</a>
+  <h1 style="margin:14px 0 6px;">Elegí otro diseño</h1>
+  <p style="color:var(--muted);max-width:640px;margin:0 0 30px;">
+    Ya pagaste tu invitación, así que podés cambiar de diseño las veces que
+    quieras sin costo extra hasta que quedes conforme. Diseño actual:
+    <strong>${escapeHtml(currentDesign.name)}</strong>. Los datos que ya cargaste
+    (fecha, lugar, mensaje, fotos) se mantienen si el nuevo diseño usa el
+    mismo campo; el resto queda con los valores de ejemplo para que los
+    completes.
+  </p>
+  ${sections}
+</div>
+</body></html>`;
+}
+
+app.get("/editar/:token/cambiar-diseno", (req, res) => {
+  const db = getDB();
+  const order = db.orders.find((o) => o.editToken === req.params.token);
+  if (!order || order.status !== "paid") return res.status(404).send(layout({ title: "No encontrado", body: `<div class="status-page"><h1>Link no válido</h1><p>Este link de edición no existe o el pago todavía no fue confirmado.</p></div>` }));
+  const currentDesign = getDesign(order.designId);
+  const inv = db.invitations.find((i) => i.orderId === order.id);
+  if (isEditLocked(inv)) return res.send(lockedPage(order, currentDesign));
+  res.send(changeDesignPickerHTML(order, currentDesign));
+});
+
+app.post("/editar/:token/cambiar-diseno", (req, res) => {
+  const db = getDB();
+  const order = db.orders.find((o) => o.editToken === req.params.token);
+  if (!order || order.status !== "paid") return res.status(404).send("Orden no encontrada");
+  const inv = db.invitations.find((i) => i.orderId === order.id);
+  if (isEditLocked(inv)) return res.status(403).send("Invitación bloqueada");
+
+  const newDesign = getDesign(req.body.designId);
+  if (!newDesign) return res.status(404).send("Diseño no encontrado");
+
+  if (newDesign.id !== order.designId) {
+    // Merge: todo campo del diseño nuevo que ya existía con datos cargados
+    // (mismo nombre de campo, p.ej. "fecha", "lugar", "coverImage",
+    // "galeria") se conserva; el resto arranca con el sampleData del
+    // diseño nuevo.
+    const mergedData = { ...newDesign.sampleData };
+    Object.keys(mergedData).forEach((key) => {
+      if (inv.data[key] !== undefined && inv.data[key] !== "") {
+        mergedData[key] = inv.data[key];
+      }
+    });
+    order.designId = newDesign.id;
+    inv.designId = newDesign.id;
+    inv.data = mergedData;
+    inv.updatedAt = new Date().toISOString();
+    saveDB(db);
+  }
+
+  res.redirect(`/editar/${order.editToken}?disenoCambiado=1`);
 });
 
 app.post("/api/upload/:token", upload.single("imagen"), (req, res) => {
