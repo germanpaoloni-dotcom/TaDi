@@ -30,6 +30,12 @@ function getTransporter() {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      // Varios hostings (Render incluido) no tienen salida IPv6 habilitada:
+      // si no forzamos IPv4 acá, Node intenta conectar por IPv6 (porque
+      // smtp.gmail.com también publica un registro AAAA), la conexión
+      // nunca sale y termina en ENETUNREACH. Forzando family:4 se evita
+      // ese intento y conecta directo por IPv4.
+      family: 4,
     });
   }
   return transporter;
