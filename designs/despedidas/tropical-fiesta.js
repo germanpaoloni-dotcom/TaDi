@@ -335,8 +335,21 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(160deg, #1a0b2e 0%, #2d1150 100%);">
+    <svg viewBox="0 0 60 40" width="52" height="34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M30 36 C30 20 20 14 8 12 C16 22 22 30 30 36Z" fill="${d.accent2}" opacity=".85"/>
+      <path d="M30 36 C30 20 40 14 52 12 C44 22 38 30 30 36Z" fill="${d.accent}" opacity=".85"/>
+      <line x1="30" y1="36" x2="30" y2="14" stroke="#fff" stroke-width="1.2" opacity=".6"/>
+    </svg>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:1.1rem;color:#fff;line-height:1.1;">${esc(d.name)}</div>
+    <div style="font-family:'Segoe Script','Brush Script MT',cursive;font-size:1rem;color:${d.accent2};">última fiesta</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "despedidas", name: "Tropical Fiesta",
   summary: "Invitación tropical nocturna en magenta y turquesa neón sobre fondo oscuro, con hojas de palmera en degradé, flores y marco elegante dorado.",
-  accent: "#ff2f9c", accent2: "#1fe8d5", schema: despedidaSchema, sampleData, render,
+  accent: "#ff2f9c", accent2: "#1fe8d5", schema: despedidaSchema, sampleData, render, cardPreview,
 };

@@ -264,8 +264,22 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(160deg, #f0dcc0 0%, ${d.accent} 130%);">
+    <svg viewBox="0 0 50 50" width="30" height="30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M14 4h22l-4 20a7 7 0 01-14 0z" stroke="#fff" stroke-width="1.4"/>
+      <line x1="25" y1="30" x2="25" y2="42" stroke="#fff" stroke-width="1.4"/>
+      <line x1="16" y1="46" x2="34" y2="46" stroke="#fff" stroke-width="1.4"/>
+      <circle cx="20" cy="12" r="1.4" fill="#fff"/><circle cx="27" cy="9" r="1.2" fill="#fff"/><circle cx="24" cy="16" r="1" fill="#fff"/>
+    </svg>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.15rem;color:#5c4324;line-height:1.1;">${esc(d.name)}</div>
+    <div style="font-family:'Brush Script MT','Segoe Script',cursive;font-size:1rem;color:#8c6a30;">despedida</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "despedidas", name: "Champagne Chic",
   summary: "Despedida de soltera elegante en tonos champagne, blush y dorado, con copas, lazos y confeti dibujados a mano.",
-  accent: "#c9a15a", schema: despedidaSchema, sampleData, render,
+  accent: "#c9a15a", schema: despedidaSchema, sampleData, render, cardPreview,
 };

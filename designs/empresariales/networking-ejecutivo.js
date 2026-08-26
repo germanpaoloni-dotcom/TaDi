@@ -311,8 +311,25 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(160deg, ${d.accent2} 0%, #1c2130 100%);">
+    <svg viewBox="0 0 60 34" width="52" height="30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <line x1="10" y1="8" x2="30" y2="18" stroke="${d.accent}" stroke-width="1" opacity=".7"/>
+      <line x1="30" y1="18" x2="50" y2="8" stroke="${d.accent}" stroke-width="1" opacity=".7"/>
+      <line x1="10" y1="8" x2="30" y2="28" stroke="${d.accent}" stroke-width="1" opacity=".7"/>
+      <line x1="30" y1="28" x2="50" y2="8" stroke="${d.accent}" stroke-width="1" opacity=".7"/>
+      <line x1="10" y1="8" x2="50" y2="8" stroke="${d.accent}" stroke-width="1" opacity=".4"/>
+      <circle cx="10" cy="8" r="3" fill="${d.accent}"/><circle cx="50" cy="8" r="3" fill="${d.accent}"/>
+      <circle cx="30" cy="18" r="3.4" fill="${d.accent}"/><circle cx="30" cy="28" r="3" fill="${d.accent}"/>
+    </svg>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:1.05rem;color:#fdf6e6;line-height:1.1;">${esc(d.name)}</div>
+    <div style="font-size:.55rem;letter-spacing:2px;text-transform:uppercase;color:${d.accent};font-family:Arial,sans-serif;">Networking</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "empresariales", name: "Networking Ejecutivo",
   summary: "Estética corporativa nocturna en tinta azul-negra y dorado, con motivos de red/nodos conectados sobre skyline, para cócteles y encuentros de networking ejecutivo.",
-  accent: "#dba846", accent2: "#0a0d17", schema: empresarialSchema, sampleData, render,
+  accent: "#dba846", accent2: "#0a0d17", schema: empresarialSchema, sampleData, render, cardPreview,
 };

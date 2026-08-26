@@ -294,8 +294,24 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(160deg, ${d.accent2} 0%, ${d.accent} 100%);">
+    <svg viewBox="0 0 60 40" width="50" height="34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M18 36 C16 20 20 8 22 2" stroke="#fbf3e6" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M30 36 C28 18 30 6 30 1" stroke="#fbf3e6" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M42 36 C44 20 40 8 38 2" stroke="#fbf3e6" stroke-width="1.3" stroke-linecap="round"/>
+      <ellipse cx="22" cy="6" rx="3" ry="7" fill="#fbf3e6" opacity=".85" transform="rotate(-8 22 6)"/>
+      <ellipse cx="30" cy="4" rx="3" ry="7.5" fill="#fbf3e6" opacity=".85"/>
+      <ellipse cx="38" cy="6" rx="3" ry="7" fill="#fbf3e6" opacity=".85" transform="rotate(8 38 6)"/>
+    </svg>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.1rem;color:#fdf6ec;line-height:1.1;">${esc(d.name)}</div>
+    <div style="font-family:'Segoe Script','Brush Script MT',cursive;font-size:1rem;color:#fbe9d3;">última fiesta</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "despedidas", name: "Boho Última Fiesta",
   summary: "Invitación boho de pic-nic al atardecer en terracota, mostaza y salvia, con plumeros, arcos dibujados a mano y franjas tejidas estilo kilim para la última fiesta juntos antes del gran día.",
-  accent: "#b8623f", accent2: "#d9a441", schema: despedidaSchema, sampleData, render,
+  accent: "#b8623f", accent2: "#d9a441", schema: despedidaSchema, sampleData, render, cardPreview,
 };

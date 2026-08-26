@@ -253,8 +253,24 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(160deg, ${d.accent2} 0%, color-mix(in srgb, ${d.accent2}, black 20%) 100%);">
+    <svg viewBox="0 0 60 40" width="46" height="30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M8 34 C4 24 6 12 16 6" stroke="${d.accent}" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M52 34 C56 24 54 12 44 6" stroke="${d.accent}" stroke-width="1.4" stroke-linecap="round"/>
+      <ellipse cx="14" cy="12" rx="3.4" ry="2" fill="${d.accent}" transform="rotate(-30 14 12)"/>
+      <ellipse cx="10" cy="20" rx="3.4" ry="2" fill="${d.accent}" transform="rotate(-10 10 20)"/>
+      <ellipse cx="46" cy="12" rx="3.4" ry="2" fill="${d.accent}" transform="rotate(30 46 12)"/>
+      <ellipse cx="50" cy="20" rx="3.4" ry="2" fill="${d.accent}" transform="rotate(10 50 20)"/>
+    </svg>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:1.1rem;color:${d.accent};line-height:1.1;">${esc(d.name)}</div>
+    <div style="font-family:'Segoe Script','Brush Script MT',cursive;font-size:.95rem;color:#f0e2c0;">gala</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "empresariales", name: "Gala Aniversario",
   summary: "Gala corporativa en azul noche y dorado, con número de aniversario protagonista y línea de tiempo del evento.",
-  accent: "#d9a441", accent2: "#16232e", schema: empresarialSchema, sampleData, render,
+  accent: "#d9a441", accent2: "#16232e", schema: empresarialSchema, sampleData, render, cardPreview,
 };

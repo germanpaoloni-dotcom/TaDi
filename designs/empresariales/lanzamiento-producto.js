@@ -264,8 +264,19 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(160deg, ${d.accent2} 0%, color-mix(in srgb, ${d.accent2}, black 25%) 100%);">
+    <svg viewBox="0 0 40 40" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M20 2 L23 16 L38 20 L23 24 L20 38 L17 24 L2 20 L17 16 Z" fill="${d.accent}"/>
+    </svg>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:1.1rem;color:#fdf3e2;line-height:1.1;">${esc(d.name)}</div>
+    <div style="font-size:.55rem;letter-spacing:2.5px;text-transform:uppercase;color:${d.accent};font-family:Georgia,serif;">Lanzamiento</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "empresariales", name: "Lanzamiento de Producto",
   summary: "Invitación tipo tarjeta elegante en tonos vino y dorado, con hojas ornamentales y tipografía serif, ideal para el lanzamiento de un producto.",
-  accent: "#c9a15e", accent2: "#5c1230", schema: empresarialSchema, sampleData, render,
+  accent: "#c9a15e", accent2: "#5c1230", schema: empresarialSchema, sampleData, render, cardPreview,
 };

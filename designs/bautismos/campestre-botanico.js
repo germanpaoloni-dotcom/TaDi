@@ -389,6 +389,20 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    background:linear-gradient(160deg, ${d.accent} 0%, ${d.accent2} 100%);">
+    <svg viewBox="0 0 70 34" width="60" height="30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="opacity:.95;">
+      <ellipse cx="12" cy="17" rx="9" ry="4" fill="#e7ecdd" opacity=".8" transform="rotate(-24 12 17)"/>
+      <ellipse cx="58" cy="17" rx="9" ry="4" fill="#e7ecdd" opacity=".8" transform="rotate(24 58 17)"/>
+      <line x1="35" y1="2" x2="35" y2="32" stroke="#fdfbf4" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="26" y1="10" x2="44" y2="10" stroke="#fdfbf4" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:1.05rem;color:#fdfbf4;line-height:1.1;">${esc(d.name)}</div>
+    <div style="font-size:.5rem;letter-spacing:2.5px;text-transform:uppercase;color:#e7ecdd;font-family:Georgia,serif;">Bautismo</div>
+  </div>`;
+}
+
 module.exports = {
   id,
   category: "bautismos",
@@ -399,4 +413,5 @@ module.exports = {
   schema: bautismoSchema,
   sampleData,
   render,
+  cardPreview,
 };

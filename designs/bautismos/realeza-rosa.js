@@ -384,8 +384,22 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    background:radial-gradient(ellipse at top left, color-mix(in srgb, ${d.accent} 60%, transparent), transparent 55%), radial-gradient(ellipse at bottom right, color-mix(in srgb, ${d.accent} 45%, transparent), transparent 55%), #fbe6ee;">
+    <svg viewBox="0 0 100 70" width="58" height="40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="46" y="4" width="8" height="62" rx="3" fill="#f3d3e0" stroke="${d.accent}" stroke-width="1.2"/>
+      <rect x="20" y="20" width="60" height="10" rx="3" fill="#f3d3e0" stroke="${d.accent}" stroke-width="1.2"/>
+      <path d="M50 12 C42 7, 37 14, 42 20 C47 25, 50 16, 50 12Z" fill="${d.accent}" opacity=".85"/>
+      <path d="M50 12 C58 7, 63 14, 58 20 C53 25, 50 16, 50 12Z" fill="#f6d3e1" opacity=".85"/>
+    </svg>
+    <div style="font-family:'Segoe Script','Brush Script MT',cursive;font-size:1.35rem;color:color-mix(in srgb, ${d.accent}, black 20%);line-height:1;">${esc(d.name)}</div>
+    <div style="font-size:.5rem;letter-spacing:2.5px;text-transform:uppercase;color:${d.accent2};font-family:Georgia,serif;">Bautismo</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "bautismos", name: "Realeza Rosa",
   summary: "Bautismo estilo princesita: acuarela rosa, cruz florida, nombre en caligrafía y detalles dorados.",
-  accent: "#c96f92", accent2: "#b98a63", schema: bautismoSchema, sampleData, render,
+  accent: "#c96f92", accent2: "#b98a63", schema: bautismoSchema, sampleData, render, cardPreview,
 };

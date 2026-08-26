@@ -311,8 +311,23 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(160deg, #0d0d12 0%, #1a1420 100%);">
+    <svg viewBox="0 0 50 50" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="25" cy="20" r="12" fill="none" stroke="${d.accent}" stroke-width="1.6"/>
+      <circle cx="20" cy="18" r="2.4" fill="${d.accent}"/><circle cx="30" cy="18" r="2.4" fill="${d.accent2}"/>
+      <path d="M17 26 Q25 32 33 26" stroke="${d.accent2}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <line x1="16" y1="8" x2="12" y2="2" stroke="${d.accent}" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="34" y1="8" x2="38" y2="2" stroke="${d.accent2}" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <div style="font-family:'Arial Black',Impact,sans-serif;font-size:1.15rem;letter-spacing:1px;color:#fff;text-transform:uppercase;line-height:1.1;text-shadow:0 0 8px ${d.accent};">${esc(d.name)}</div>
+    <div style="font-family:'Segoe Script','Brush Script MT',cursive;font-size:.85rem;color:${d.accent2};letter-spacing:1px;">última noche</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "despedidas", name: "Noche Rockera",
   summary: "Poster de rock nocturno en negro, magenta y cian: foto full-bleed con textura grunge, tipografía impactante y acentos de guitarra y calavera.",
-  accent: "#ef1a78", accent2: "#1fd0c9", schema: despedidaSchema, sampleData, render,
+  accent: "#ef1a78", accent2: "#1fd0c9", schema: despedidaSchema, sampleData, render, cardPreview,
 };

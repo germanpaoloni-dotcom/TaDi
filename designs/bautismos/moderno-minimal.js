@@ -429,8 +429,20 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg, #f8f5f0 0%, #f8f5f0 55%, ${d.accent2} 150%);">
+    <div style="position:absolute;top:-14px;right:14px;width:26px;height:96px;border-radius:8px;background:linear-gradient(180deg, ${d.accent2}, color-mix(in srgb, ${d.accent2}, black 15%));filter:blur(1px);opacity:.55;"></div>
+    <div style="position:absolute;top:26px;right:-6px;width:64px;height:20px;border-radius:8px;background:linear-gradient(180deg, ${d.accent2}, color-mix(in srgb, ${d.accent2}, black 15%));filter:blur(1px);opacity:.55;"></div>
+    <div style="position:relative;z-index:1;text-align:center;padding:0 14px;">
+      <div style="font-family:'Segoe Script','Brush Script MT',cursive;font-size:1.5rem;color:${d.accent};line-height:1;">${esc(d.name)}</div>
+      <div style="font-size:.5rem;letter-spacing:3px;text-transform:uppercase;color:#8d8377;font-family:Arial,sans-serif;margin-top:6px;">Bautismo</div>
+    </div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "bautismos", name: "Moderno Minimal",
   summary: "Diseño editorial minimalista inspirado en acuarela: cruz celeste difuminada, nombre en caligrafía dorada y bloque en azul polvoriento para los datos de la celebración.",
-  accent: "#b9924e", accent2: "#a9c3d9", schema: bautismoSchema, sampleData, render,
+  accent: "#b9924e", accent2: "#a9c3d9", schema: bautismoSchema, sampleData, render, cardPreview,
 };

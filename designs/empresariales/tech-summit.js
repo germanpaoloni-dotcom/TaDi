@@ -405,6 +405,18 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(155deg, ${d.accent2} 0%, #0a1030 100%);">
+    <svg viewBox="0 0 60 30" width="52" height="26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M4 22h12v-8h10v-8h10v8h10v8h10" stroke="${d.accent}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="4" cy="22" r="2" fill="${d.accent}"/><circle cx="26" cy="6" r="2" fill="${d.accent}"/><circle cx="56" cy="22" r="2" fill="${d.accent}"/>
+    </svg>
+    <div style="font-family:Arial,sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:1rem;color:#fff;line-height:1.1;text-shadow:0 0 10px ${d.accent};">${esc(d.name)}</div>
+    <div style="font-size:.55rem;letter-spacing:2.5px;text-transform:uppercase;color:${d.accent};font-family:Arial,sans-serif;">Tech Summit</div>
+  </div>`;
+}
+
 module.exports = {
   id,
   category: "empresariales",
@@ -415,4 +427,5 @@ module.exports = {
   schema: empresarialSchema,
   sampleData,
   render,
+  cardPreview,
 };

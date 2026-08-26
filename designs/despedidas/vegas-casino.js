@@ -309,8 +309,24 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:radial-gradient(ellipse at 50% 0%, ${d.accent} 0%, #3a0a0a 70%);">
+    <svg viewBox="0 0 40 40" width="28" height="28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="2" y="2" width="36" height="36" rx="6" fill="#fdf6e3" stroke="${d.accent2}" stroke-width="1.6" transform="rotate(-8 20 20)"/>
+      <circle cx="13" cy="13" r="2.6" fill="${d.accent}" transform="rotate(-8 20 20)"/>
+      <circle cx="27" cy="13" r="2.6" fill="${d.accent}" transform="rotate(-8 20 20)"/>
+      <circle cx="20" cy="20" r="2.6" fill="${d.accent}" transform="rotate(-8 20 20)"/>
+      <circle cx="13" cy="27" r="2.6" fill="${d.accent}" transform="rotate(-8 20 20)"/>
+      <circle cx="27" cy="27" r="2.6" fill="${d.accent}" transform="rotate(-8 20 20)"/>
+    </svg>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:1.1rem;color:${d.accent2};line-height:1.1;">${esc(d.name)}</div>
+    <div style="font-family:'Segoe Script','Brush Script MT',cursive;font-size:1rem;color:#f3ded0;">despedida</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "despedidas", name: "Vegas Casino",
   summary: "Noche de casino en Las Vegas con cartel de luces, terciopelo rojo y dorado, cartas, dados y fichas dibujadas a mano.",
-  accent: "#8b1a1a", accent2: "#d4af37", schema: despedidaSchema, sampleData, render,
+  accent: "#8b1a1a", accent2: "#d4af37", schema: despedidaSchema, sampleData, render, cardPreview,
 };

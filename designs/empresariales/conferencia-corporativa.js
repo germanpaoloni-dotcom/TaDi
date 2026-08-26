@@ -383,6 +383,22 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(160deg, ${d.accent} 0%, color-mix(in srgb, ${d.accent}, black 20%) 100%);">
+    <svg viewBox="0 0 60 30" width="52" height="26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="4" y="14" width="8" height="14" fill="${d.accent2}" opacity=".55"/>
+      <rect x="15" y="8" width="8" height="20" fill="${d.accent2}" opacity=".75"/>
+      <rect x="26" y="16" width="8" height="12" fill="${d.accent2}" opacity=".55"/>
+      <rect x="37" y="4" width="8" height="24" fill="${d.accent2}" opacity=".9"/>
+      <rect x="48" y="12" width="8" height="16" fill="${d.accent2}" opacity=".65"/>
+      <path d="M2 30h56" stroke="${d.accent2}" stroke-width="1"/>
+    </svg>
+    <div style="font-family:'Arial Narrow',Arial,sans-serif;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;font-size:1rem;color:#fff;line-height:1.1;">${esc(d.name)}</div>
+    <div style="font-size:.55rem;letter-spacing:2px;text-transform:uppercase;color:${d.accent2};font-family:Arial,sans-serif;">Conferencia</div>
+  </div>`;
+}
+
 module.exports = {
   id,
   category: "empresariales",
@@ -393,4 +409,5 @@ module.exports = {
   schema: empresarialSchema,
   sampleData,
   render,
+  cardPreview,
 };

@@ -320,8 +320,27 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(155deg, ${d.accent} 0%, color-mix(in srgb, ${d.accent}, black 15%) 100%);">
+    <svg viewBox="0 0 60 90" width="30" height="45" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <line x1="30" y1="4" x2="30" y2="86" stroke="#f6e6c8" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="6" y1="28" x2="54" y2="28" stroke="#f6e6c8" stroke-width="1.8" stroke-linecap="round"/>
+      <g transform="translate(30 26)">
+        <ellipse cx="0" cy="-9" rx="5.5" ry="9" fill="${d.accent2}" opacity=".9"/>
+        <ellipse cx="0" cy="9" rx="5.5" ry="9" fill="${d.accent2}" opacity=".9"/>
+        <ellipse cx="-9" cy="0" rx="9" ry="5.5" fill="#cf8ea0" opacity=".85"/>
+        <ellipse cx="9" cy="0" rx="9" ry="5.5" fill="#cf8ea0" opacity=".85"/>
+        <circle cx="0" cy="0" r="4" fill="#f6e6c8"/>
+      </g>
+    </svg>
+    <div style="font-family:'Brush Script MT','Segoe Script',cursive;font-size:1.3rem;color:#fdf8ee;line-height:1;">${esc(d.name)}</div>
+    <div style="font-size:.5rem;letter-spacing:2.5px;text-transform:uppercase;color:#f0dcc0;font-family:Georgia,serif;">Bautismo</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "bautismos", name: "Clásica Dorada",
   summary: "Papel crema con ramas florales doradas y rosadas, cruz con flor, foto en marco de arco y detalles caligráficos: la clásica invitación de bautismo elegante.",
-  accent: "#8c6a30", accent2: "#e0aab8", schema: bautismoSchema, sampleData, render,
+  accent: "#8c6a30", accent2: "#e0aab8", schema: bautismoSchema, sampleData, render, cardPreview,
 };

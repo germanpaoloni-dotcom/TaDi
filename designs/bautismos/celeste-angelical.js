@@ -410,8 +410,24 @@ ${tadiFooterWidget()}
 </body></html>`;
 }
 
+function cardPreview(d) {
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    background:linear-gradient(160deg, ${d.accent} 0%, ${d.accent2} 120%);">
+    <svg viewBox="0 0 60 40" width="52" height="34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="#dce7f8">
+        <circle cx="14" cy="14" r="5"/><circle cx="22" cy="10" r="5"/><circle cx="30" cy="14" r="5"/>
+        <circle cx="10" cy="21" r="5"/><circle cx="18" cy="22" r="5.5"/><circle cx="26" cy="21" r="5"/>
+      </g>
+      <rect x="46" y="6" width="4" height="28" rx="1.5" fill="#fdf6e3"/>
+      <rect x="36" y="16" width="24" height="4" rx="1.5" fill="#fdf6e3"/>
+    </svg>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:#fff;line-height:1.1;letter-spacing:.3px;">${esc(d.name)}</div>
+    <div style="font-size:.5rem;letter-spacing:2.5px;text-transform:uppercase;color:#eef3fb;font-family:Georgia,serif;">Bautismo</div>
+  </div>`;
+}
+
 module.exports = {
   id, category: "bautismos", name: "Celeste Angelical",
   summary: "Blanco y celeste con hortensias delicadas, cruz dorada y tipografía clásica — inspirada en tarjetas de bautismo elegantes y luminosas.",
-  accent: "#5c74a6", accent2: "#c9a24d", schema: bautismoSchema, sampleData, render,
+  accent: "#5c74a6", accent2: "#c9a24d", schema: bautismoSchema, sampleData, render, cardPreview,
 };
