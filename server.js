@@ -466,7 +466,7 @@ app.get("/terminos", (req, res) => {
     title: "Términos y condiciones",
     body: `<div class="legal-wrap">
       <h1>Términos y condiciones</h1>
-      <p>TaDi ofrece invitaciones digitales personalizables para eventos (bodas, quince años, bautismos, fiestas infantiles, eventos empresariales y despedidas de soltero/a). Al comprar una invitación, el comprador puede personalizar sus datos (textos, fechas, lugares, fotos) y compartir el link resultante con sus invitados.</p>
+      <p>TaDi ofrece invitaciones digitales personalizables para eventos (bodas, quince años, bautismos, fiestas infantiles, cumpleaños y despedidas de soltero/a). Al comprar una invitación, el comprador puede personalizar sus datos (textos, fechas, lugares, fotos) y compartir el link resultante con sus invitados.</p>
       <h3>Edición y vigencia</h3>
       <p>La invitación puede editarse sin límite de veces desde el link privado de edición hasta ${EDIT_GRACE_DAYS} días después de la fecha del evento cargada. Pasado ese plazo, la edición se bloquea automáticamente; la página pública ya compartida con los invitados permanece accesible. Cada invitación comprada corresponde a un único evento — usarla para un evento distinto requiere una nueva compra.</p>
       <h3>Pagos</h3>

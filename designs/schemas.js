@@ -39,28 +39,20 @@ const xvSchema = [
   { name: "galeria", label: "Galería de fotos", type: "images" },
 ];
 
-const empresarialSchema = [
-  { name: "nombreEvento", label: "Nombre del evento", type: "text", required: true },
-  { name: "empresa", label: "Empresa organizadora", type: "text" },
-  { name: "fecha", label: "Fecha del evento", type: "date", required: true },
-  { name: "hora", label: "Hora de inicio", type: "time" },
-  { name: "lugar", label: "Lugar / sede", type: "text" },
+const cumpleanosSchema = [
+  { name: "nombre", label: "Nombre del cumpleañero/a", type: "text", required: true },
+  { name: "edad", label: "Edad que cumple (opcional)", type: "text" },
+  { name: "fecha", label: "Fecha de la fiesta", type: "date", required: true },
+  { name: "hora", label: "Hora", type: "time" },
+  { name: "lugar", label: "Lugar", type: "text" },
   { name: "direccionMapa", label: "Link de Google Maps", type: "url" },
-  { name: "descripcion", label: "Descripción del evento", type: "textarea" },
-  { name: "agenda", label: "Agenda (una línea por ítem: hora - actividad)", type: "textarea" },
-  { name: "oradores", label: "Oradores (uno por línea: nombre - cargo)", type: "textarea" },
-  { name: "dressCode", label: "Código de vestimenta", type: "text" },
-  { name: "contacto", label: "Contacto / WhatsApp de registro", type: "text" },
-  {
-    name: "logo",
-    label: "Logo de tu empresa",
-    type: "image",
-    help: "Subilo en formato PNG con fondo transparente para que se vea prolijo sobre el diseño (no como un cuadrado blanco/de color). Si tu logo no tiene el fondo transparente, podés sacárselo gratis en remove.bg: subís la imagen, descargás el resultado en PNG y lo cargás acá.",
-  },
+  { name: "mensaje", label: "Mensaje para los invitados", type: "textarea" },
+  { name: "dressCode", label: "Código de vestimenta (opcional)", type: "text" },
+  { name: "whatsapp", label: "WhatsApp para RSVP (código país + número)", type: "text" },
   { name: "fechaLimiteRSVP", label: "Fecha límite para confirmar asistencia", type: "date" },
   { name: "colorPalette", label: "Gama de colores", type: "palette" },
-  { name: "coverImage", label: "Imagen de portada", type: "image" },
-  { name: "galeria", label: "Galería / sponsors", type: "images" },
+  { name: "coverImage", label: "Foto de portada", type: "image" },
+  { name: "galeria", label: "Galería de fotos", type: "images" },
 ];
 
 const infantilSchema = [
@@ -113,4 +105,4 @@ const despedidaSchema = [
   { name: "galeria", label: "Galería de fotos", type: "images" },
 ];
 
-module.exports = { bodaSchema, xvSchema, empresarialSchema, infantilSchema, bautismoSchema, despedidaSchema };
+module.exports = { bodaSchema, xvSchema, cumpleanosSchema, infantilSchema, bautismoSchema, despedidaSchema };
