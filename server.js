@@ -219,8 +219,45 @@ const TRUST_STRIP_HTML = `<div class="trust-strip">
 // ---------- HOME interactivo: 6 categorías lado a lado, hover con
 // ampliación + halo contenido, click abre modal con personaje + catálogo
 // (no navega a otra página) ----------
+// Motivos de temporada dibujados a mano en SVG inline (sin depender de
+// ninguna imagen externa) para que el panel de Halloween/Navidad en el home
+// se sienta decorado para la fecha, sin romper el estilo neumórfico general
+// del resto de las categorías (el panel en sí sigue con el mismo fondo claro
+// y la misma sombra — sólo se agregan estos acentos alrededor de la foto).
+function oriosPanelDecorHTML(catId) {
+  // viewBox 180x180: mismo tamaño de la caja que centra el CSS sobre la
+  // foto circular de 132px (24px de margen alrededor) — así los motivos
+  // quedan pegados al círculo en vez de flotar sueltos por el panel.
+  if (catId === "halloween") {
+    return `<svg class="orios-panel-decor" viewBox="0 0 180 180" aria-hidden="true">
+      <path d="M20 30c4-5 10-5 12 0 2-5 8-6 10-1 3-5 9-4 10 1-4-1-6 2-6 2s4 1 4 4c-5 2-9-1-10-3-2 3-6 4-9 2 0 2-2 4-5 3 2-3 1-5 0-6-2 1-5 0-6-2z" fill="#2b2140" opacity=".85"/>
+      <path d="M148 26c4-5 9-5 11 0 2-4 7-5 9-1 3-4 8-3 9 1-4-1-5 2-5 2s3 1 4 3c-5 2-8-1-9-3-2 3-5 4-8 2 0 2-2 3-4 3 1-3 0-5 0-6-2 1-4 0-6-1z" fill="#2b2140" opacity=".85"/>
+      <path d="M160 12c-4 3-4 9 0 12 1-4 4-7 8-8-4-1-7-2-8-4z" fill="#ffb37a" opacity=".9"/>
+      <path d="M8 150v20M8 150h20M8 150l14 14" stroke="#e8672e" stroke-width="1.1" opacity=".5" fill="none"/>
+      <path d="M8 156a14 14 0 0 1 14 14" stroke="#e8672e" stroke-width="1.1" opacity=".5" fill="none"/>
+    </svg>`;
+  }
+  if (catId === "navidad") {
+    return `<svg class="orios-panel-decor" viewBox="0 0 180 180" aria-hidden="true">
+      <g stroke="#2f7a52" stroke-width="2.2" stroke-linecap="round" fill="none">
+        <path d="M16 172c4-13 3-24-3-33M16 172c-1-10 2-19 9-26"/>
+        <path d="M164 170c-4-12-3-23 3-32M164 170c1-9-2-18-9-25"/>
+      </g>
+      <g fill="#2f7a52">
+        <circle cx="12" cy="140" r="2.6"/><circle cx="9" cy="150" r="2"/>
+        <circle cx="168" cy="139" r="2.6"/><circle cx="171" cy="149" r="2"/>
+      </g>
+      <path d="M90 8l3.6 8.4L102 18l-6.8 6 2 8.6-8-5.2-8 5.2 2-8.6-6.8-6 8.4-1.6z" fill="#caa24a"/>
+      <path d="M152 20v8" stroke="#c94b4b" stroke-width="1.8"/>
+      <circle cx="152" cy="32" r="5" fill="#c94b4b"/>
+    </svg>`;
+  }
+  return "";
+}
+
 function oriosPanelHTML(cat) {
-  return `<button type="button" class="orios-panel" data-cat="${cat.id}" aria-label="Ver catálogo de ${cat.label}">
+  return `<button type="button" class="orios-panel orios-panel-${cat.id}" data-cat="${cat.id}" aria-label="Ver catálogo de ${cat.label}">
+    ${oriosPanelDecorHTML(cat.id)}
     <span class="orios-panel-photo">
       <img src="${cat.heroImage}" alt="${cat.label}" loading="eager" fetchpriority="high">
     </span>
