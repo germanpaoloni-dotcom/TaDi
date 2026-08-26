@@ -89,20 +89,50 @@ const bautismoSchema = [
   { name: "galeria", label: "Galería de fotos", type: "images" },
 ];
 
-const despedidaSchema = [
-  { name: "nombre", label: "Nombre de quien se despide de soltero/a", type: "text", required: true },
+const saveTheDateSchema = [
+  { name: "novia", label: "Nombre de la novia", type: "text", required: true },
+  { name: "novio", label: "Nombre del novio", type: "text", required: true },
+  { name: "fecha", label: "Fecha (aunque sea tentativa)", type: "date", required: true },
+  { name: "lugar", label: "Ciudad / lugar donde va a ser", type: "text" },
+  { name: "mensaje", label: "Mensaje corto para los invitados", type: "textarea" },
+  { name: "instagram", label: "Instagram del evento (opcional)", type: "text" },
+  { name: "whatsapp", label: "WhatsApp de contacto (opcional)", type: "text" },
+  { name: "colorPalette", label: "Gama de colores", type: "palette" },
+  { name: "coverImage", label: "Foto de portada", type: "image" },
+  { name: "galeria", label: "Galería de fotos (opcional)", type: "images" },
+];
+
+const halloweenSchema = [
+  { name: "nombre", label: "Nombre del cumpleañero/a o anfitrión/es", type: "text", required: true },
   { name: "fecha", label: "Fecha", type: "date", required: true },
-  { name: "hora", label: "Hora de encuentro", type: "time" },
-  { name: "lugar", label: "Lugar / punto de encuentro", type: "text" },
+  { name: "hora", label: "Hora", type: "time" },
+  { name: "lugar", label: "Lugar", type: "text" },
   { name: "direccionMapa", label: "Link de Google Maps", type: "url" },
-  { name: "plan", label: "El plan (qué van a hacer)", type: "textarea" },
-  { name: "dressCode", label: "Código de vestimenta / consigna", type: "text" },
-  { name: "organizadores", label: "Organiza (nombre de quien organiza)", type: "text" },
-  { name: "whatsapp", label: "WhatsApp para confirmar", type: "text" },
+  { name: "mensaje", label: "Mensaje para los invitados", type: "textarea" },
+  { name: "disfraz", label: "Consigna de disfraz (opcional)", type: "text" },
+  { name: "whatsapp", label: "WhatsApp para RSVP", type: "text" },
   { name: "fechaLimiteRSVP", label: "Fecha límite para confirmar asistencia", type: "date" },
   { name: "colorPalette", label: "Gama de colores", type: "palette" },
   { name: "coverImage", label: "Foto de portada", type: "image" },
   { name: "galeria", label: "Galería de fotos", type: "images" },
 ];
 
-module.exports = { bodaSchema, xvSchema, cumpleanosSchema, infantilSchema, bautismoSchema, despedidaSchema };
+const navidadSchema = [
+  { name: "nombre", label: "Nombre del festejo o anfitrión/es", type: "text", required: true },
+  { name: "fecha", label: "Fecha", type: "date", required: true },
+  { name: "hora", label: "Hora", type: "time" },
+  { name: "lugar", label: "Lugar", type: "text" },
+  { name: "direccionMapa", label: "Link de Google Maps", type: "url" },
+  { name: "mensaje", label: "Mensaje para los invitados", type: "textarea" },
+  { name: "amigoInvisible", label: "Amigo invisible / qué traer (opcional)", type: "text" },
+  { name: "whatsapp", label: "WhatsApp para RSVP", type: "text" },
+  { name: "fechaLimiteRSVP", label: "Fecha límite para confirmar asistencia", type: "date" },
+  { name: "colorPalette", label: "Gama de colores", type: "palette" },
+  { name: "coverImage", label: "Foto de portada", type: "image" },
+  { name: "galeria", label: "Galería de fotos", type: "images" },
+];
+
+module.exports = {
+  bodaSchema, xvSchema, cumpleanosSchema, infantilSchema, bautismoSchema,
+  saveTheDateSchema, halloweenSchema, navidadSchema,
+};

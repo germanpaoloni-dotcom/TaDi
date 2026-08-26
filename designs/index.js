@@ -4,6 +4,18 @@
 //    accent, schema, sampleData, render).
 // 2) agregarlo a la lista de abajo (o, si se prefiere, autocargar toda
 //    la carpeta con fs.readdirSync — se deja explícito por claridad).
+//
+// Orden de "categories": es el orden en que se muestran en el nav, el
+// home y el filtro del catálogo — se puede reordenar libremente, no
+// afecta nada más.
+//
+// Categorías de temporada (Halloween, Navidad): llevan un campo `season`
+// ({ startMonth, startDay, endMonth, endDay }) que las oculta del nav, el
+// home y el filtro del catálogo fuera de esas fechas — ver
+// `isCategoryInSeason` / `visibleCategories` más abajo. Por link directo
+// (o desde el picker de "cambiar diseño") siguen siendo accesibles todo
+// el año, para poder compartirlas de antemano o revisarlas en cualquier
+// momento.
 const categories = [
   {
     id: "bodas",
@@ -16,14 +28,14 @@ const categories = [
     flagshipDesign: "boda-elegante-clasica",
   },
   {
-    id: "xv",
-    label: "Quince Años",
-    description: "Invitaciones para quinceañeras.",
-    ghost: "MIS QUINCE",
+    id: "savethedate",
+    label: "Save the Date",
+    description: "El anticipo de la boda: la fecha agendada mientras llega la invitación formal.",
+    ghost: "ANOTALO",
     kicker: "Para quién es",
-    heroBody: "Para la quinceañera que quiere algo distinto a una tarjeta de cartulina: fotos, cuenta regresiva, música y una invitación que sus amigas van a querer abrir.",
-    heroImage: "/static/img/categorias/xv.png",
-    flagshipDesign: "xv-glam-rosa",
+    heroBody: "Para la pareja que ya tiene fecha y quiere avisar antes que nadie: un link lindo para agendar la fecha, mientras la invitación con todos los detalles llega más adelante.",
+    heroImage: "/static/img/categorias/savethedate.png",
+    flagshipDesign: "std-elegante-clasico",
   },
   {
     id: "infantiles",
@@ -34,6 +46,16 @@ const categories = [
     heroBody: "Para el cumpleaños de los más chicos: colores, personajes y una invitación tan divertida como la fiesta, con RSVP para que los papás confirmen fácil.",
     heroImage: "/static/img/categorias/infantiles.png",
     flagshipDesign: "inf-superheroes",
+  },
+  {
+    id: "xv",
+    label: "Quince Años",
+    description: "Invitaciones para quinceañeras.",
+    ghost: "MIS QUINCE",
+    kicker: "Para quién es",
+    heroBody: "Para la quinceañera que quiere algo distinto a una tarjeta de cartulina: fotos, cuenta regresiva, música y una invitación que sus amigas van a querer abrir.",
+    heroImage: "/static/img/categorias/xv.png",
+    flagshipDesign: "xv-glam-rosa",
   },
   {
     id: "cumpleanos",
@@ -56,16 +78,45 @@ const categories = [
     flagshipDesign: "bau-clasica-dorada",
   },
   {
-    id: "despedidas",
-    label: "Despedidas de Soltero/a",
-    description: "Invitaciones para despedidas de soltero y soltera.",
-    ghost: "LA ÚLTIMA",
+    id: "halloween",
+    label: "Halloween",
+    description: "Invitaciones para fiestas de Halloween.",
+    ghost: "TRICK OR TREAT",
     kicker: "Para quién es",
-    heroBody: "Para organizar la despedida sin grupo de WhatsApp interminable: una invitación con el plan, el lugar y confirmación de quién va, todo en un link.",
-    heroImage: "/static/img/categorias/despedidas.png",
-    flagshipDesign: "desp-tropical-fiesta",
+    heroBody: "Para la fiesta de Halloween que se festeja con disfraz obligatorio: una invitación con la onda justa de misterio y diversión, lista para compartir.",
+    heroImage: "/static/img/categorias/halloween.png",
+    flagshipDesign: "hall-noche-embrujada",
+    season: { startMonth: 10, startDay: 1, endMonth: 10, endDay: 31 },
+  },
+  {
+    id: "navidad",
+    label: "Navidad",
+    description: "Invitaciones para cenas y festejos de Navidad.",
+    ghost: "FELIZ NAVIDAD",
+    kicker: "Para quién es",
+    heroBody: "Para la cena de Navidad, el amigo invisible o el brindis de fin de año: una invitación cálida y festiva con todos los datos para que nadie falte.",
+    heroImage: "/static/img/categorias/navidad.png",
+    flagshipDesign: "nav-clasica-dorada",
+    season: { startMonth: 11, startDay: 25, endMonth: 12, endDay: 25 },
   },
 ];
+
+// true si la categoría está "en temporada" ahora mismo (o si no tiene
+// restricción de temporada, en cuyo caso siempre es visible).
+function isCategoryInSeason(cat, now = new Date()) {
+  if (!cat.season) return true;
+  const { startMonth, startDay, endMonth, endDay } = cat.season;
+  const cur = (now.getMonth() + 1) * 100 + now.getDate();
+  const start = startMonth * 100 + startDay;
+  const end = endMonth * 100 + endDay;
+  return start <= end ? cur >= start && cur <= end : cur >= start || cur <= end;
+}
+
+// Categorías a mostrar en nav / home / filtro del catálogo: todas las
+// que no tienen temporada, más las de temporada sólo cuando corresponde.
+function visibleCategories(now = new Date()) {
+  return categories.filter((c) => isCategoryInSeason(c, now));
+}
 
 const designs = [
   require("./bodas/elegante-clasica"),
@@ -73,6 +124,25 @@ const designs = [
   require("./bodas/moderna-minimal"),
   require("./bodas/romantica-jardin"),
   require("./bodas/nocturna-glamour"),
+  require("./bodas/art-deco-gatsby"),
+  require("./bodas/rustica-campo"),
+  require("./bodas/destino-playa"),
+  require("./bodas/invierno-nevado"),
+  require("./bodas/boho-desertica"),
+  require("./savethedate/elegante-clasico"),
+  require("./savethedate/boho-natural"),
+  require("./savethedate/art-deco"),
+  require("./savethedate/glamour-nocturno"),
+  require("./infantiles/superheroes"),
+  require("./infantiles/princesas"),
+  require("./infantiles/safari-aventura"),
+  require("./infantiles/espacial"),
+  require("./infantiles/dinosaurios"),
+  require("./infantiles/futbol"),
+  require("./infantiles/piratas-tesoro"),
+  require("./infantiles/unicornio-magico"),
+  require("./infantiles/circo-magico"),
+  require("./infantiles/granja-animalitos"),
   require("./xv/glam-rosa"),
   require("./xv/bohemio-floral"),
   require("./xv/pop-vibrante"),
@@ -84,22 +154,17 @@ const designs = [
   require("./cumpleanos/rooftop-nocturno"),
   require("./cumpleanos/tropical-sunset"),
   require("./cumpleanos/neon-y2k"),
-  require("./infantiles/superheroes"),
-  require("./infantiles/princesas"),
-  require("./infantiles/safari-aventura"),
-  require("./infantiles/espacial"),
-  require("./infantiles/dinosaurios"),
-  require("./infantiles/futbol"),
   require("./bautismos/clasica-dorada"),
   require("./bautismos/celeste-angelical"),
   require("./bautismos/campestre-botanico"),
   require("./bautismos/moderno-minimal"),
   require("./bautismos/realeza-rosa"),
-  require("./despedidas/tropical-fiesta"),
-  require("./despedidas/noche-rockera"),
-  require("./despedidas/vegas-casino"),
-  require("./despedidas/champagne-chic"),
-  require("./despedidas/boho-ultima-fiesta"),
+  require("./halloween/noche-embrujada"),
+  require("./halloween/dulce-o-truco"),
+  require("./halloween/cementerio-elegante"),
+  require("./navidad/clasica-dorada"),
+  require("./navidad/nordica-nevada"),
+  require("./navidad/luces-festivas"),
 ];
 
 function getDesign(id) {
@@ -110,4 +175,4 @@ function designsByCategory(catId) {
   return designs.filter((d) => d.category === catId);
 }
 
-module.exports = { categories, designs, getDesign, designsByCategory };
+module.exports = { categories, designs, getDesign, designsByCategory, isCategoryInSeason, visibleCategories };

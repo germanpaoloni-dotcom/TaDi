@@ -3,7 +3,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { getDB, saveDB, uid } = require("./db");
-const { categories, designs, getDesign, designsByCategory } = require("./designs");
+const { categories, designs, getDesign, designsByCategory, isCategoryInSeason, visibleCategories } = require("./designs");
 const { PALETTES } = require("./designs/palettes");
 const mp = require("./mercadopago");
 const mailer = require("./mailer");
@@ -105,7 +105,7 @@ function layout({ title, body }) {
   </button>
   <nav id="siteNav">
     <a href="/">Catálogo</a>
-    ${categories.map((c) => `<a href="/categoria/${c.id}">${c.label}</a>`).join("")}
+    ${visibleCategories().map((c) => `<a href="/categoria/${c.id}">${c.label}</a>`).join("")}
   </nav>
 </header>
 ${body}
@@ -297,25 +297,36 @@ function categoryModalsHTML(cats) {
 }
 
 function catalogPage(activeCat) {
-  const cats = categories;
+  // Categorías visibles en el nav/home/filtro: todas menos las de
+  // temporada (Halloween, Navidad) fuera de fecha. Si se está viendo
+  // justo una categoría de temporada por link directo fuera de fecha, se
+  // la suma igual a la lista para que el mini-hero y el filtro no se
+  // rompan (aunque no aparezca en el resto del sitio).
+  const visible = visibleCategories();
+  const cats = activeCat && !visible.find((c) => c.id === activeCat)
+    ? visible.concat(categories.filter((c) => c.id === activeCat))
+    : visible;
+
   const catButtons = [`<a href="/" class="${!activeCat ? "active" : ""}">Todos</a>`]
     .concat(cats.map((c) => `<a href="/categoria/${c.id}" class="${activeCat === c.id ? "active" : ""}">${c.label}</a>`))
     .join("");
 
-  // HOME (sin categoría activa): selector interactivo de 6 categorías +
-  // modal con personaje/catálogo — no se apilan las 6 grillas en la página.
+  // HOME (sin categoría activa): selector interactivo de categorías +
+  // modal con personaje/catálogo — no se apilan las grillas en la página.
   if (!activeCat) {
     return layout({
       title: "Catálogo",
-      body: `${oriosHomeHTML(cats)}
+      body: `${oriosHomeHTML(visible)}
       ${TRUST_STRIP_HTML}
-      ${categoryModalsHTML(cats)}`,
+      ${categoryModalsHTML(visible)}`,
     });
   }
 
   // Página de una categoría puntual (link directo, nav, footer, SEO):
-  // se mantiene el comportamiento existente (mini-hero + grilla).
-  const cat = cats.find((c) => c.id === activeCat);
+  // se mantiene el comportamiento existente (mini-hero + grilla). Usa la
+  // lista completa de categorías para el lookup, así una categoría de
+  // temporada sigue siendo accesible todo el año por link directo.
+  const cat = categories.find((c) => c.id === activeCat);
   return layout({
     title: cat.label,
     body: `${miniHeroHTML(cat, cats)}
@@ -466,7 +477,7 @@ app.get("/terminos", (req, res) => {
     title: "Términos y condiciones",
     body: `<div class="legal-wrap">
       <h1>Términos y condiciones</h1>
-      <p>TaDi ofrece invitaciones digitales personalizables para eventos (bodas, quince años, bautismos, fiestas infantiles, cumpleaños y despedidas de soltero/a). Al comprar una invitación, el comprador puede personalizar sus datos (textos, fechas, lugares, fotos) y compartir el link resultante con sus invitados.</p>
+      <p>TaDi ofrece invitaciones digitales personalizables para eventos (bodas, save the date, fiestas infantiles, quince años, cumpleaños, bautismos, y por temporada Halloween y Navidad). Al comprar una invitación, el comprador puede personalizar sus datos (textos, fechas, lugares, fotos) y compartir el link resultante con sus invitados.</p>
       <h3>Edición y vigencia</h3>
       <p>La invitación puede editarse sin límite de veces desde el link privado de edición hasta ${EDIT_GRACE_DAYS} días después de la fecha del evento cargada. Pasado ese plazo, la edición se bloquea automáticamente; la página pública ya compartida con los invitados permanece accesible. Cada invitación comprada corresponde a un único evento — usarla para un evento distinto requiere una nueva compra.</p>
       <h3>Pagos</h3>
@@ -916,7 +927,12 @@ app.get("/editar/:token", (req, res) => {
 // solo se completa con los valores de ejemplo lo que sea específico del
 // diseño nuevo — así no se pierde el trabajo ya hecho.
 function changeDesignPickerHTML(order, currentDesign) {
+  // Categorías de temporada fuera de fecha no se ofrecen como opción para
+  // cambiar de diseño, salvo que sea justo la propia categoría del diseño
+  // que ya se compró (para no dejar sin alternativas a quien ya eligió
+  // ahí).
   const sections = categories
+    .filter((cat) => isCategoryInSeason(cat) || cat.id === currentDesign.category)
     .map((cat) => {
       const opciones = designsByCategory(cat.id).filter((d) => d.id !== currentDesign.id);
       if (!opciones.length) return "";

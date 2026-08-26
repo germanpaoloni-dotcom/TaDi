@@ -150,4 +150,28 @@ function formatFechaCorta(fechaISO) {
   return `${Number(partes[2])} de ${MESES_ES[dt.getMonth()]}`;
 }
 
-module.exports = { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta, tadiFooterWidget };
+// Link de "Agregar a Google Calendar" — pensado sobre todo para Save the
+// Date (donde no tiene sentido pedir RSVP todavía, pero sí que la fecha
+// quede agendada). No depende de red ni de nada externo: es sólo una URL,
+// se arma con el formato que Google Calendar espera (fechas en UTC
+// "AAAAMMDDTHHMMSSZ"). Si la fecha no es válida, devuelve "" para que el
+// llamador decida no mostrar el botón.
+function googleCalendarLink({ title, dateISO, time = "12:00", details = "", location = "" }) {
+  if (!dateISO) return "";
+  const [y, m, d] = String(dateISO).split("-").map(Number);
+  const [hh, mm] = String(time || "12:00").split(":").map(Number);
+  const start = new Date(y, (m || 1) - 1, d || 1, hh || 12, mm || 0);
+  if (isNaN(start.getTime())) return "";
+  const end = new Date(start.getTime() + 60 * 60 * 1000);
+  const fmt = (dt) => dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title || "",
+    dates: `${fmt(start)}/${fmt(end)}`,
+    details: details || "",
+    location: location || "",
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+module.exports = { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta, tadiFooterWidget, googleCalendarLink };
