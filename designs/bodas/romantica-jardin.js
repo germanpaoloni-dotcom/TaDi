@@ -114,6 +114,15 @@ function toileTileSVG() {
   </svg>`;
 }
 
+// Pétalo/hojita pequeña que cae lentamente por el hero (animación CSS vía
+// .hero-petal, ver @keyframes petal-fall). Forma simple tipo gota, en tono
+// oro/oliva/vino para variar entre los distintos pétalos.
+function fallingPetalSVG(size = 13, fill = "#b8923f") {
+  return `<svg class="petal-shape" width="${size}" height="${Math.round(size * 1.3)}" viewBox="0 0 20 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M10 2 C 2 8, 2 18, 10 24 C 18 18, 18 8, 10 2 Z" fill="${fill}" opacity=".85"/>
+  </svg>`;
+}
+
 // Filete dorado fino y sinuoso para las esquinas del hero (como en la
 // tarjetería de referencia): una sola curva, currentColor para heredar el
 // color de acento vía CSS.
@@ -132,6 +141,19 @@ function render(data = {}) {
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
   const iniciales = `${(d.novia || "").charAt(0)}${(d.novio || "").charAt(0)}`.toUpperCase();
   const toileURI = `data:image/svg+xml,${encodeURIComponent(toileTileSVG())}`;
+
+  // Config de los pétalos que caen por el hero: posición, tamaño, color,
+  // delay y duración escalonados para que no caigan sincronizados.
+  const petalCfg = [
+    { left: "7%", size: 12, color: accent, delay: "0s", duration: "12s" },
+    { left: "23%", size: 9, color: "#7f8a5f", delay: "3.5s", duration: "14s" },
+    { left: "49%", size: 13, color: "#8a2432", delay: "1.5s", duration: "9.5s" },
+    { left: "70%", size: 10, color: accent, delay: "6.5s", duration: "13s" },
+    { left: "87%", size: 11, color: "#7f8a5f", delay: "4.5s", duration: "10.5s" },
+  ];
+  const heroPetals = petalCfg.map(p =>
+    `<span class="hero-petal" style="left:${p.left};animation-delay:${p.delay};animation-duration:${p.duration};">${fallingPetalSVG(p.size, p.color)}</span>`
+  ).join("");
 
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -183,6 +205,22 @@ function render(data = {}) {
   .hero-frame img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.92);}
   .hero-seal{margin:-30px auto 0;position:relative;z-index:2;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));}
   .hero .fecha-linda{margin-top:18px;font-size:clamp(1rem,3vw,1.2rem);letter-spacing:2px;color:var(--gold-light);text-transform:uppercase;font-family:'Cormorant Garamond',serif;font-weight:600;}
+
+  /* Pétalos cayendo, sutiles, por el hero (decorativo, sin bloquear clicks). */
+  .hero-petals{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+  .hero-petal{position:absolute;top:-24px;opacity:0;animation-name:petal-fall;animation-timing-function:ease-in-out;animation-iteration-count:infinite;will-change:transform,opacity;}
+  @keyframes petal-fall{
+    0%{transform:translateY(0) rotate(0deg);opacity:0;}
+    12%{opacity:.8;}
+    85%{opacity:.5;}
+    100%{transform:translateY(430px) rotate(70deg);opacity:0;}
+  }
+  /* Brillo ocasional y muy leve del lacre, como un reflejo de luz. */
+  .wax-seal{animation:seal-glow 9s ease-in-out infinite;}
+  @keyframes seal-glow{
+    0%,78%,100%{filter:brightness(1);}
+    89%{filter:brightness(1.16);}
+  }
 
   /* Tarjeta oscura tipo "itinerario/faltan" de la referencia */
   .dark-card{position:relative;overflow:hidden;background:linear-gradient(165deg,var(--wine-light),var(--wine) 60%,var(--wine-deep));border-radius:20px;padding:clamp(28px,5vw,46px) clamp(20px,5vw,36px);color:var(--paper);box-shadow:0 16px 34px rgba(61,22,32,.28);text-align:left;}
@@ -264,6 +302,11 @@ function render(data = {}) {
   footer .script{font-size:clamp(2rem,6vw,2.6rem);display:block;margin-bottom:10px;color:var(--paper);}
   footer p{margin:0;font-size:.92rem;opacity:.85;}
   .corner-deco{display:flex;justify-content:center;margin-top:18px;opacity:.9;}
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-petal{display:none;}
+    .wax-seal{animation:none !important;filter:none;}
+  }
 </style></head>
 <body>
 
@@ -272,6 +315,7 @@ function render(data = {}) {
     ${squiggleSVG().replace('class="corner-squiggle"', 'class="corner-squiggle cs-br"')}
     <div class="corner-sprig cs-tr">${sprigSVG(96, -20, accent)}</div>
     <div class="corner-sprig cs-bl">${sprigSVG(96, -20, accent)}</div>
+    <div class="hero-petals">${heroPetals}</div>
     <div class="hero-inner">
       <div class="eyebrow">Nos casamos</div>
       <h1>${esc(d.novia)} <span class="amp">&amp;</span> ${esc(d.novio)}</h1>

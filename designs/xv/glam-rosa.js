@@ -4,6 +4,9 @@ const { getPaletteColor } = require("../palettes");
 
 const id = "xv-glam-rosa";
 
+const MESES_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+const DIAS_ES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+
 const sampleData = {
   nombre: "Abigail",
   fecha: "2027-09-23",
@@ -139,9 +142,9 @@ function render(data = {}) {
     try {
       const [y, m, day] = d.fecha.split("-").map(Number);
       const dt = new Date(y, m - 1, day);
-      diaSemana = dt.toLocaleDateString("es-AR", { weekday: "long" });
+      diaSemana = DIAS_ES[dt.getDay()];
       diaNum = String(day);
-      mesNombre = dt.toLocaleDateString("es-AR", { month: "long" });
+      mesNombre = MESES_ES[dt.getMonth()];
     } catch { /* ignore */ }
   }
 
@@ -361,6 +364,45 @@ function render(data = {}) {
   footer small{
     display:block;margin-top:10px;letter-spacing:2px;text-transform:uppercase;
     color:var(--gold);font-size:.7rem;font-weight:600;
+  }
+
+  /* ---------- ANIMACIONES SUTILES ---------- */
+  /* Brillo dorado en la tiara: pulso lento de brillo + resplandor suave. */
+  .hero-tiara{ animation:tiaraShimmer 6s ease-in-out infinite; }
+  @keyframes tiaraShimmer{
+    0%,100%{ filter:brightness(1) drop-shadow(0 0 0 rgba(182,146,79,0)); }
+    50%{ filter:brightness(1.15) drop-shadow(0 0 5px rgba(182,146,79,.4)); }
+  }
+
+  /* Balanceo leve de los moños, con el nudo (centro del svg) como eje.
+     Se usa la propiedad "rotate" independiente de "transform" para no
+     pisar el transform:translateX(-50%) que centra los moños-ribbon. */
+  .hero-divider,
+  .quote-card .ribbon,
+  .detail-card .ribbon,
+  .rsvp-card .ribbon{
+    transform-origin:50% 50%;
+    animation:bowSway 8s ease-in-out infinite;
+  }
+  .quote-card .ribbon{ animation-delay:.6s; }
+  .detail-card .ribbon{ animation-delay:1.4s; }
+  .rsvp-card .ribbon{ animation-delay:2.2s; }
+  @keyframes bowSway{
+    0%,100%{ rotate:-2deg; }
+    50%{ rotate:2deg; }
+  }
+
+  /* Destello dorado suave en el sparkle del pie. */
+  .icon-gold{ animation:sparkleTwinkle 4.5s ease-in-out infinite; }
+  @keyframes sparkleTwinkle{
+    0%,100%{ opacity:.6; transform:scale(.92); }
+    50%{ opacity:1; transform:scale(1.08); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-tiara,.hero-divider,.quote-card .ribbon,.detail-card .ribbon,.rsvp-card .ribbon,.icon-gold{
+      animation:none !important;
+    }
   }
 </style></head>
 <body>

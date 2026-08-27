@@ -194,7 +194,29 @@ function render(data = {}) {
 
   /* ---------- HERO ---------- */
   .hero{text-align:center;padding-top:clamp(50px,9vw,90px);padding-bottom:clamp(50px,9vw,90px);}
-  .desert-sun{position:absolute;top:6%;left:50%;transform:translateX(-50%);width:min(60vw,320px);height:min(60vw,320px);opacity:.55;pointer-events:none;z-index:0;}
+  .desert-sun{position:absolute;top:6%;left:50%;transform:translateX(-50%);width:min(60vw,320px);height:min(60vw,320px);opacity:.55;pointer-events:none;z-index:0;animation:desertGlowPulse 11s ease-in-out infinite;}
+
+  /* ---------- resplandor de atardecer + polvo dorado (sutiles) ---------- */
+  @keyframes desertGlowPulse{
+    0%,100%{opacity:.5;filter:brightness(1);}
+    50%{opacity:.63;filter:brightness(1.1);}
+  }
+  .dust-mote{position:absolute;bottom:8%;border-radius:50%;background:radial-gradient(circle,rgba(251,227,205,.95) 0%,rgba(251,227,205,0) 72%);opacity:0;pointer-events:none;z-index:0;animation:dustFloat 15s ease-in-out infinite;}
+  .dust-mote.d1{left:16%;width:4px;height:4px;animation-duration:14s;animation-delay:0s;}
+  .dust-mote.d2{left:38%;width:6px;height:6px;animation-duration:17s;animation-delay:4s;}
+  .dust-mote.d3{left:64%;width:5px;height:5px;animation-duration:13s;animation-delay:8s;}
+  .dust-mote.d4{left:83%;width:4px;height:4px;animation-duration:18s;animation-delay:12s;}
+  @keyframes dustFloat{
+    0%{transform:translate(0,0);opacity:0;}
+    14%{opacity:.6;}
+    50%{transform:translate(7px,-90px);opacity:.5;}
+    88%{opacity:0;}
+    100%{transform:translate(-6px,-170px);opacity:0;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .desert-sun{animation:none !important;opacity:.55;filter:none;}
+    .dust-mote{animation:none !important;display:none;}
+  }
   .cactus-deco{position:absolute;bottom:0;width:clamp(46px,11vw,84px);height:auto;opacity:.9;pointer-events:none;z-index:0;}
   .cactus-deco.hero-left{left:4%;}
   .cactus-deco.hero-right{right:4%;transform:scaleX(-1);}
@@ -253,6 +275,10 @@ function render(data = {}) {
     ${cactusSVG("hero-right", "#fdf3e7")}
     ${agaveSVG("hero-left2", "#fbe3cd")}
     ${agaveSVG("hero-right2", "#fbe3cd")}
+    <span class="dust-mote d1" aria-hidden="true"></span>
+    <span class="dust-mote d2" aria-hidden="true"></span>
+    <span class="dust-mote d3" aria-hidden="true"></span>
+    <span class="dust-mote d4" aria-hidden="true"></span>
     <div class="wrap">
       <div class="sun-badge">${inicial(d.novia)}<span class="amp">&amp;</span>${inicial(d.novio)}</div>
       <p class="kicker">Guardá la fecha</p>

@@ -53,6 +53,13 @@ function roseCluster(opts = {}) {
   </svg>`;
 }
 
+// Pétalo suelto (usado en la lluvia de pétalos animada del hero)
+function petal() {
+  return `<svg viewBox="0 0 24 34" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M12 1C4 9 2 19 12 33C22 19 20 9 12 1Z" fill="currentColor"/>
+  </svg>`;
+}
+
 function sprig(w = 70) {
   return `<svg class="sprig" width="${w}" viewBox="0 0 100 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path d="M2 20 C 30 2, 70 2, 98 20" stroke="#c9a98f" stroke-width="1.5" fill="none"/>
@@ -225,11 +232,51 @@ function render(data = {}) {
     section{padding:36px 18px;}
     .floral{transform:scale(.8);}
   }
+
+  /* Lluvia sutil de pétalos en el hero + leve balanceo de los ramos florales */
+  .petals{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+  .petal{position:absolute;top:-8%;width:15px;color:var(--rose);opacity:0;
+    animation:petal-fall 12s ease-in-out infinite;}
+  .petal svg{width:100%;height:auto;display:block;}
+  .petal.p1{left:8%; width:12px; color:#e7c6ac; animation-duration:11.5s; animation-delay:.4s;}
+  .petal.p2{left:27%;width:16px; color:#d9a988; animation-duration:13s;   animation-delay:2.6s;}
+  .petal.p3{left:50%;width:11px; color:#f0dcc9; animation-duration:10.5s;animation-delay:5s;}
+  .petal.p4{left:70%;width:15px; color:#e7c6ac; animation-duration:14s;  animation-delay:1.6s;}
+  .petal.p5{left:89%;width:13px; color:#d9a988; animation-duration:9.5s; animation-delay:4s;}
+
+  @keyframes petal-fall{
+    0%{opacity:0;transform:translateY(0) translateX(0) rotate(0deg);}
+    10%{opacity:.75;}
+    50%{transform:translateY(120px) translateX(8px) rotate(90deg);}
+    88%{opacity:.5;}
+    100%{opacity:0;transform:translateY(255px) translateX(-6px) rotate(180deg);}
+  }
+  @keyframes sway{
+    0%,100%{transform:rotate(-2deg);}
+    50%{transform:rotate(2deg);}
+  }
+  .floral{animation:sway 9s ease-in-out infinite;transform-origin:50% 30%;}
+  .hero .floral.tl{animation-delay:.3s;}
+  .hero .floral.tr{animation-delay:1.8s;}
+  .photo-section .floral.bl{animation-delay:1s;}
+  .divider .sprig{animation:sway 8s ease-in-out infinite;transform-origin:50% 50%;}
+
+  @media (prefers-reduced-motion: reduce){
+    .petal{display:none;}
+    .floral,.divider .sprig{animation:none;}
+  }
 </style></head>
 <body>
 <div class="card">
 
   <div class="hero">
+    <div class="petals" aria-hidden="true">
+      <span class="petal p1">${petal()}</span>
+      <span class="petal p2">${petal()}</span>
+      <span class="petal p3">${petal()}</span>
+      <span class="petal p4">${petal()}</span>
+      <span class="petal p5">${petal()}</span>
+    </div>
     <span class="floral tl">${roseCluster({ w: 120 })}</span>
     <span class="floral tr">${roseCluster({ w: 120, flip: true })}</span>
     <span class="label">Mis quince años</span>

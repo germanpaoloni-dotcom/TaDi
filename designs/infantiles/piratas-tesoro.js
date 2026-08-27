@@ -95,7 +95,30 @@ function render(data = {}) {
     font-family:'Baloo 2',sans-serif;
   }
   .hero p.sub{font-size:1.05rem;max-width:520px;margin:8px auto 0;font-weight:700;}
-  .hero .ship{margin-top:10px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.4));}
+  .hero .ship{
+    margin-top:10px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.4));
+    transform-origin:50% 90%;
+    animation:shipRock 6.5s ease-in-out infinite;
+  }
+  @keyframes shipRock{
+    0%,100%{transform:rotate(-1.6deg) translateY(0);}
+    50%{transform:rotate(1.6deg) translateY(-3px);}
+  }
+  .hero .gulls{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+  .hero .gull{
+    position:absolute;opacity:.55;
+    animation-name:gullFly;animation-timing-function:ease-in-out;animation-iteration-count:infinite;
+  }
+  .hero .gull-1{top:16%;left:18%;width:26px;animation-duration:8s;}
+  .hero .gull-2{top:26%;left:70%;width:20px;animation-duration:9.5s;animation-delay:-2.5s;}
+  .hero .gull-3{top:12%;left:46%;width:16px;animation-duration:7s;animation-delay:-4s;}
+  @keyframes gullFly{
+    0%,100%{transform:translate(0,0);}
+    50%{transform:translate(16px,-10px);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .hero .ship,.hero .gull{animation:none;}
+  }
 
   section{max-width:800px;margin:0 auto;padding:48px 20px;text-align:center;}
   .section-title{
@@ -210,6 +233,11 @@ function render(data = {}) {
   <div class="rope"></div>
 
   <div class="hero">
+    <div class="gulls" aria-hidden="true">
+      <svg class="gull gull-1" viewBox="0 0 24 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 Q6 1 12 6 Q18 1 23 7" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <svg class="gull gull-2" viewBox="0 0 24 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 Q6 1 12 6 Q18 1 23 7" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <svg class="gull gull-3" viewBox="0 0 24 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7 Q6 1 12 6 Q18 1 23 7" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </div>
     <span class="flag">¡Zarpamos rumbo a la aventura!</span>
     <h1>${esc(d.nombreChico)}</h1>
     <div class="age-badge">${esc(d.edad)}</div>

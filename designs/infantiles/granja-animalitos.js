@@ -101,6 +101,29 @@ function render(data = {}) {
     letter-spacing:16px;
     opacity:.85;
     filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));
+    animation:granja-respirar 5.5s ease-in-out infinite;
+  }
+  .hero::after{
+    content:"🦋";
+    position:absolute;
+    top:20%;
+    left:-10%;
+    font-size:1.4rem;
+    opacity:.8;
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));
+    animation:granja-mariposa 24s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes granja-respirar{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-4px);}
+  }
+  @keyframes granja-mariposa{
+    0%{transform:translate(0,0) rotate(0deg);}
+    25%{transform:translate(35vw,-16px) rotate(4deg);}
+    50%{transform:translate(70vw,4px) rotate(-3deg);}
+    75%{transform:translate(100vw,-12px) rotate(3deg);}
+    100%{transform:translate(130vw,0) rotate(0deg);}
   }
   .hero-content{position:relative;z-index:1;color:#fff;max-width:640px;}
   .stamp{
@@ -312,13 +335,17 @@ function render(data = {}) {
     color:#f4ecd4;
     font-size:.9rem;
   }
-  footer .banda{font-size:1.4rem;display:block;margin-bottom:6px;}
+  footer .banda{font-size:1.4rem;display:block;margin-bottom:6px;animation:granja-respirar 6s ease-in-out infinite;}
 
   @media (max-width:480px){
     .hero-content h1{font-size:2rem;}
     .hero-age{padding:12px 24px 10px;}
     .hero-age .num{font-size:3rem;}
     .hero::before{font-size:1.1rem;letter-spacing:8px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero::before, .hero::after, footer .banda{animation:none;}
   }
 </style></head>
 <body>

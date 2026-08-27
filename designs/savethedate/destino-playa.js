@@ -126,15 +126,26 @@ function render(data = {}) {
 
   .wave-divider{width:120px;height:16px;color:var(--turquoise);opacity:.8;display:block;margin:0 auto 26px;position:relative;z-index:1;}
 
-  .wave-deco{position:absolute;left:0;right:0;pointer-events:none;z-index:0;line-height:0;}
-  .wave-deco svg{width:100%;height:100%;display:block;}
+  .wave-deco{position:absolute;left:0;right:0;pointer-events:none;z-index:0;line-height:0;overflow:hidden;}
+  .wave-deco svg{width:calc(100% + 24px);height:100%;display:block;margin-left:-12px;animation:waveDrift 9s ease-in-out infinite;}
   .wave-top{top:-1px;height:60px;transform:scaleY(-1);}
   .wave-bottom{bottom:-1px;height:60px;}
+  .wave-bottom svg{animation-duration:10.5s;animation-delay:-4s;}
 
   .palm-deco{position:absolute;pointer-events:none;z-index:0;opacity:.9;}
-  .palm-deco svg{width:100%;height:100%;display:block;}
+  .palm-deco svg{width:100%;height:100%;display:block;transform-origin:50% 100%;animation:palmSway 7.5s ease-in-out infinite;}
   .palm-tr{top:-18px;right:-16px;width:100px;height:150px;}
   .palm-bl{bottom:-18px;left:-16px;width:90px;height:136px;transform:scaleX(-1);}
+  .palm-bl svg{animation-duration:8.5s;animation-delay:-3s;}
+
+  @keyframes waveDrift{
+    0%,100%{transform:translateX(0);}
+    50%{transform:translateX(12px);}
+  }
+  @keyframes palmSway{
+    0%,100%{transform:rotate(-2deg);}
+    50%{transform:rotate(2deg);}
+  }
 
   /* --- hero / portada --- */
   .hero{padding-top:60px;padding-bottom:0;}
@@ -191,6 +202,11 @@ function render(data = {}) {
     .section{padding-left:18px;padding-right:18px;}
     .palm-tr{width:74px;height:112px;}
     .palm-bl{width:70px;height:106px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .wave-deco svg,.palm-deco svg{animation:none !important;transform:none !important;}
+    .palm-deco svg{transform-origin:initial;}
   }
 </style></head>
 <body>

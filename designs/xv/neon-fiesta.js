@@ -181,6 +181,37 @@ function render(data = {}) {
   .glow-magenta{filter:drop-shadow(0 0 4px var(--magenta)) drop-shadow(0 0 9px color-mix(in srgb, ${accent} 65%, transparent));}
   .glow-cyan{filter:drop-shadow(0 0 4px var(--cyan)) drop-shadow(0 0 9px rgba(34,229,255,.65));}
 
+  /* ===== NEON FLICKER (letrero de neón) =====
+     Titileo sutil de cartel de neón real: oscila apenas entre brillo pleno y
+     un poco más tenue, nunca apagado. ease-in-out, 4-6s, con delays
+     distintos por pieza para que no titilen todas sincronizadas. */
+  @keyframes neonKickerFlicker{0%,100%{text-shadow:0 0 3px #fff,0 0 16px var(--magenta);}50%{text-shadow:0 0 2px #fff,0 0 11px var(--magenta);}}
+  @keyframes neonAgeFlicker{0%,100%{text-shadow:0 0 3px #fff,0 0 16px var(--cyan);}50%{text-shadow:0 0 2px #fff,0 0 11px var(--cyan);}}
+  @keyframes neonNameFlicker{0%,100%{text-shadow:0 0 4px var(--magenta),0 0 22px color-mix(in srgb, var(--magenta) 55%, transparent);}50%{text-shadow:0 0 3px var(--magenta),0 0 15px color-mix(in srgb, var(--magenta) 38%, transparent);}}
+  @keyframes neonScriptFlicker{0%,100%{text-shadow:0 0 4px var(--cyan),0 0 22px rgba(34,229,255,.55);}50%{text-shadow:0 0 3px var(--cyan),0 0 15px rgba(34,229,255,.36);}}
+  @keyframes neonStarMagentaFlicker{0%,100%{filter:drop-shadow(0 0 4px var(--magenta)) drop-shadow(0 0 9px color-mix(in srgb, var(--magenta) 65%, transparent));}50%{filter:drop-shadow(0 0 3px var(--magenta)) drop-shadow(0 0 6px color-mix(in srgb, var(--magenta) 44%, transparent));}}
+  @keyframes neonStarCyanFlicker{0%,100%{filter:drop-shadow(0 0 4px var(--cyan)) drop-shadow(0 0 9px rgba(34,229,255,.65));}50%{filter:drop-shadow(0 0 3px var(--cyan)) drop-shadow(0 0 6px rgba(34,229,255,.44));}}
+  @keyframes neonDateFlicker{0%,100%{text-shadow:0 0 6px var(--magenta),0 0 20px color-mix(in srgb, var(--magenta) 70%, transparent);}50%{text-shadow:0 0 4px var(--magenta),0 0 13px color-mix(in srgb, var(--magenta) 48%, transparent);}}
+  @keyframes neonPlaceFlicker{0%,100%{text-shadow:0 0 8px rgba(34,229,255,.65);}50%{text-shadow:0 0 5px rgba(34,229,255,.42);}}
+  @keyframes neonTagFlicker{0%,100%{box-shadow:0 0 10px rgba(34,229,255,.35);text-shadow:0 0 6px rgba(34,229,255,.5);}50%{box-shadow:0 0 6px rgba(34,229,255,.2);text-shadow:0 0 3px rgba(34,229,255,.28);}}
+
+  .neon-outline-magenta{animation:neonKickerFlicker 4.4s ease-in-out infinite;}
+  .neon-outline-cyan{animation:neonAgeFlicker 5.1s ease-in-out infinite;animation-delay:.7s;}
+  .neon-script-magenta{animation:neonNameFlicker 4.8s ease-in-out infinite;animation-delay:1.3s;}
+  .neon-script-cyan{animation:neonScriptFlicker 5.6s ease-in-out infinite;animation-delay:.3s;}
+  .glow-magenta{animation:neonStarMagentaFlicker 4.2s ease-in-out infinite;animation-delay:1.6s;}
+  .glow-cyan{animation:neonStarCyanFlicker 5.3s ease-in-out infinite;animation-delay:.9s;}
+  .date-row .big{animation:neonDateFlicker 4.6s ease-in-out infinite;animation-delay:2.1s;}
+  .hero-place{animation:neonPlaceFlicker 5.8s ease-in-out infinite;animation-delay:.5s;}
+  .hero-pass-tag{box-shadow:0 0 10px rgba(34,229,255,.35);animation:neonTagFlicker 4.9s ease-in-out infinite;animation-delay:1.9s;}
+
+  @media (prefers-reduced-motion: reduce){
+    .neon-outline-magenta,.neon-outline-cyan,.neon-script-magenta,.neon-script-cyan,
+    .glow-magenta,.glow-cyan,.date-row .big,.hero-place,.hero-pass-tag{
+      animation:none !important;
+    }
+  }
+
   /* ===== HERO ===== */
   .hero{position:relative;min-height:clamp(560px,110vh,900px);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;overflow:hidden;padding:56px 20px 40px;}
   .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.2;filter:saturate(1.2) contrast(1.05);}

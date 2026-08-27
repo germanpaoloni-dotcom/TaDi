@@ -67,6 +67,17 @@ h1,h2,h3,p{margin:0}
 .brush{display:inline-block;padding:6px 18px;background:var(--green);color:#fff;clip-path:polygon(2% 16%,96% 0,100% 78%,5% 100%,0 48%);font-weight:800;text-transform:uppercase;letter-spacing:1px;transform:rotate(-1deg)}
 .gold-rule{height:3px;background:linear-gradient(90deg,transparent,var(--gold2),transparent);width:100%;margin:14px 0}
 
+/* ANIMACIONES SUTILES */
+@keyframes heroBallFloat{0%,100%{transform:rotate(-12deg) translateY(0)}50%{transform:rotate(-6deg) translateY(-14px)}}
+@keyframes pitchBallSpin{from{transform:translate(-50%,-50%) rotate(-12deg)}to{transform:translate(-50%,-50%) rotate(348deg)}}
+@keyframes fieldGlow{0%,100%{box-shadow:inset 0 0 0 rgba(255,255,255,0)}50%{box-shadow:inset 0 0 22px rgba(255,255,255,.28)}}
+.hero-ball{animation:heroBallFloat 4s ease-in-out infinite}
+.pitch-ball{animation:pitchBallSpin 9s linear infinite}
+.pitch{animation:fieldGlow 5s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){
+  .hero-ball,.pitch-ball,.pitch{animation:none}
+}
+
 /* HERO */
 .hero{position:relative;min-height:760px;padding:58px 34px 42px;display:grid;grid-template-columns:1.02fr .98fr;gap:28px;align-items:center;
  background:
