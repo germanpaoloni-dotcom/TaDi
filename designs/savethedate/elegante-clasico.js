@@ -11,7 +11,7 @@ const sampleData = {
   mensaje: "Nos casamos y queremos que lo sepas primero. ¡Guardá la fecha!",
   instagram: "@sofiaytomas2027",
   whatsapp: "5491100000050",
-  coverImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1683238112508-27ec0155e774?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&q=80",
     "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80",

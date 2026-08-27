@@ -16,7 +16,7 @@ const sampleData = {
   mensaje: "Con el corazón lleno de ilusión, quiero compartir con ustedes la noche en la que cumplo un sueño. Los espero para celebrar juntos esta nueva etapa.",
   dressCode: "Formal, tonos azul noche y marfil",
   whatsapp: "5491155556666",
-  coverImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1763959949927-b86ed20b3290?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=80",
     "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=800&q=80",

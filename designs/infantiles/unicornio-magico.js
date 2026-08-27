@@ -14,7 +14,7 @@ const sampleData = {
   mensaje: "Guadalupe cumple 5 años y nos invita a cruzar el arcoíris hasta su reino mágico. Habrá torta de nubes, purpurina, sorpresas y muchísima magia unicornio. ¡Traé tu varita y tus mejores brillos!",
   tematica: "Vení con tu disfraz más brillante y mágico",
   whatsapp: "5491100000061",
-  coverImage: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1519308914928-2e6b45de9ac1?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1558636508-e0db3814bd1d?w=800&q=80",
     "https://images.unsplash.com/photo-1464349153735-e3fa06c6c9c8?w=800&q=80",

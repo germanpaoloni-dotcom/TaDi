@@ -16,7 +16,7 @@ const sampleData = {
   whatsapp: "5491100000010",
   coverImage: "https://images.unsplash.com/photo-1533294455009-a77b7557d2d1?w=1200&q=80",
   galeria: [
-    "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80",
+    "https://images.unsplash.com/photo-1765635648081-73f1e9e2189a?w=800&q=80",
     "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=800&q=80",
     "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&q=80",
     "https://images.unsplash.com/photo-1558636508-e0db3814bd1d?w=800&q=80"

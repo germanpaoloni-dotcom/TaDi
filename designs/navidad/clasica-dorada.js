@@ -14,7 +14,7 @@ const sampleData = {
   amigoInvisible: "Trajimos algo para el amigo invisible, tope $8000",
   whatsapp: "5491100000050",
   fechaLimiteRSVP: "2026-12-18",
-  coverImage: "https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1763463608554-1a1d7ec7147b?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=800&q=80",
     "https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=800&q=80",

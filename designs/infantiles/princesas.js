@@ -14,7 +14,7 @@ const sampleData = {
   mensaje: "Delfina se convierte en princesa por un día y quiere compartir su cuento de hadas favorito con vos. Habrá torta, magia y mucho baile en el castillo. ¡No puede faltar su invitado/a de honor!",
   tematica: "Vení vestida de tu princesa favorita 👑",
   whatsapp: "5491100000011",
-  coverImage: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1706798807358-77fab115e789?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1558636508-e0db3814bd1d?w=800&q=80",
     "https://images.unsplash.com/photo-1464349153735-e3fa06c6c9c8?w=800&q=80",

@@ -14,7 +14,7 @@ const sampleData = {
   disfraz: "Disfraz obligatorio: buena onda y mucho color, nada de sustos de verdad 🎃",
   whatsapp: "5491100000045",
   fechaLimiteRSVP: "2027-10-24",
-  coverImage: "https://images.unsplash.com/photo-1509557965875-b88c97052f0e?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1603663572429-bfd1920fef23?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1508361727343-ca787442dcd7?w=800&q=80",
     "https://images.unsplash.com/photo-1541257087499-9bb0791f7825?w=800&q=80",

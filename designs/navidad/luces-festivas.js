@@ -14,7 +14,7 @@ const sampleData = {
   amigoInvisible: "Sorteamos amigo invisible en la fiesta — tope $8.000, se abre a las 23 hs. ¡No te olvides el regalo!",
   whatsapp: "5491100000038",
   fechaLimiteRSVP: "2027-12-10",
-  coverImage: "https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1768464706260-e355a3d86803?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?w=800&q=80",
     "https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=800&q=80",

@@ -19,7 +19,7 @@ const sampleData = {
   coverImage: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1544213456-93d3d5c3c8de?w=800&q=80",
-    "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
+    "https://images.unsplash.com/photo-1765947382923-578ab761b7fc?w=800&q=80",
     "https://images.unsplash.com/photo-1522771930-78848d9293e8?w=800&q=80",
     "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=800&q=80",
   ],

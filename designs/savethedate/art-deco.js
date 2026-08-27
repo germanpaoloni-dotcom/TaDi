@@ -17,7 +17,7 @@ const sampleData = {
   mensaje: "Guardá la fecha: en los años veinte todo era jazz, brillo y grandes gestos de amor. Así queremos empezar nuestra historia juntos, y nos encantaría que estés ahí.",
   instagram: "sofia.joaquin.boda",
   whatsapp: "5491100000052",
-  coverImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1754490900179-528cc5a3f8c4?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=80",
     "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80",
