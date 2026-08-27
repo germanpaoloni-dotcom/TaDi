@@ -235,15 +235,7 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .remove-link{font-size:.72rem;color:var(--muted);background:none;border:0;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit;}
 .remove-link:hover{color:var(--accent);}
 .field-help{margin:-2px 0 8px;font-size:.72rem;color:var(--muted);line-height:1.5;}
-.palette-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;}
-.palette-swatch{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px 10px;border-radius:12px;background:var(--bg);box-shadow:var(--nu-xs);cursor:pointer;transition:box-shadow .15s;}
-.palette-swatch:hover{box-shadow:var(--nu-sm);}
-.palette-swatch:has(input:checked){box-shadow:var(--nu-inset-sm);}
-.palette-swatch input{position:absolute;opacity:0;width:0;height:0;}
-.swatch-dot{width:30px;height:30px;border-radius:50%;box-shadow:var(--nu-xs);flex-shrink:0;}
-.palette-swatch:has(input:checked) .swatch-dot{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--accent);}
 .swatch-name{font-size:.62rem;text-align:center;color:var(--muted);line-height:1.25;}
-.palette-swatch:has(input:checked) .swatch-name{color:var(--accent-2);font-weight:700;}
 
 /* simple pages (pago pendiente/fallido) */
 .status-page{max-width:480px;margin:80px auto;text-align:center;padding:0 20px;}
