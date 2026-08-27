@@ -4,7 +4,6 @@ const path = require("path");
 const fs = require("fs");
 const { getDB, saveDB, uid } = require("./db");
 const { categories, designs, getDesign, designsByCategory, isCategoryInSeason, visibleCategories } = require("./designs");
-const { PALETTES } = require("./designs/palettes");
 const mp = require("./mercadopago");
 const mailer = require("./mailer");
 
@@ -745,20 +744,6 @@ function fieldHTML(f, value) {
       <div class="gallery-preview" id="preview-${f.name}">${arr.map((s) => `<div class="thumb"><img src="${escapeHtml(s)}"><button type="button" class="thumb-remove" data-target="${f.name}" data-url="${escapeHtml(s)}" title="Quitar foto">✕</button></div>`).join("")}</div>
     </div>`;
   }
-  if (f.type === "palette") {
-    const current = val || "original";
-    return `<div class="field"><label>${f.label}</label>${helpHTML(f)}
-      <div class="palette-picker">
-        ${PALETTES.map(
-          (p) => `<label class="palette-swatch">
-            <input type="radio" name="${f.name}" value="${p.id}"${p.id === current ? " checked" : ""}>
-            <span class="swatch-dot"${p.id === "original" ? ' style="background:linear-gradient(135deg,#fff,#ccc,#333)"' : ` style="background:linear-gradient(135deg,${p.dark},${p.light})"`}></span>
-            <span class="swatch-name">${p.name}</span>
-          </label>`
-        ).join("")}
-      </div>
-    </div>`;
-  }
   return `<div class="field"><label>${f.label}${f.required ? " *" : ""}</label>${helpHTML(f)}<input type="${f.type}" name="${f.name}" value="${escapeHtml(val)}"></div>`;
 }
 
@@ -792,7 +777,7 @@ app.get("/editar/:token", (req, res) => {
     <p style="color:var(--muted);font-size:.85rem">Diseño: <strong>${design.name}</strong>. Los cambios se ven al instante en la vista previa → · <a href="/como-funciona" target="_blank" style="color:var(--accent)">¿Cómo funciona?</a></p>
     ${req.query.bienvenida ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Pago confirmado! Ya podés personalizar tu invitación.</p>` : ""}
     <form id="editForm">
-      ${design.schema.map((f) => fieldHTML(f, inv.data[f.name])).join("")}
+      ${design.schema.filter((f) => f.type !== "palette").map((f) => fieldHTML(f, inv.data[f.name])).join("")}
       <div class="save-bar"><button class="save-btn" type="submit">Guardar cambios</button></div>
     </form>
     ${req.query.disenoCambiado ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Listo! Cambiamos el diseño. Los datos que coincidían (fecha, lugar, fotos, etc.) se mantuvieron, revisá que esté todo como querés.</p>` : ""}
