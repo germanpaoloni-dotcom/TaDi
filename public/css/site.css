@@ -56,12 +56,6 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .orios-panel-hint{font-size:.74rem;font-weight:700;color:var(--accent-2);letter-spacing:.3px;opacity:0;transform:translateY(-4px);transition:opacity .2s,transform .2s;height:0;}
 .orios-panel:hover .orios-panel-hint, .orios-panel:focus-visible .orios-panel-hint{opacity:1;transform:translateY(0);}
 
-/* acentos de temporada (Halloween/Navidad): SVG decorativo detrás de la
-   foto circular, sin tocar el fondo neumórfico del panel */
-.orios-panel-decor{position:absolute;top:2px;left:50%;transform:translateX(-50%);width:180px;height:180px;pointer-events:none;opacity:.9;z-index:0;}
-.orios-panel-photo{z-index:1;}
-.orios-panel-halloween .orios-panel-photo{box-shadow:var(--nu-inset),0 0 0 2px rgba(255,122,61,.18);}
-.orios-panel-navidad .orios-panel-photo{box-shadow:var(--nu-inset),0 0 0 2px rgba(47,122,82,.18);}
 
 .cat-modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(30,32,38,.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:24px;}
 .cat-modal-overlay.open{display:flex;}
