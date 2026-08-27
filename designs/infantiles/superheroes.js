@@ -231,7 +231,8 @@ function render(data = {}) {
 
   @media(max-width:480px){
     .panel,.bubble{padding:20px 16px;}
-    .hero-sticker{width:60px;height:60px;font-size:.52rem;}
+    .hero{padding-top:52px;}
+    .hero-sticker{width:56px;height:56px;font-size:.48rem;right:6%;}
     .issue-num{font-size:1.8rem;}
     .corner-burst{width:46px;height:46px;font-size:.56rem;}
   }

@@ -254,7 +254,7 @@ function render(data = {}) {
   .lightbox-close{position:absolute;top:18px;right:24px;color:var(--gold-light);font-size:2rem;cursor:pointer;line-height:1;}
 
   /* ---------- RSVP (crema, dos columnas) ---------- */
-  .rsvp-section{max-width:820px;display:grid;grid-template-columns:1fr 1px 1fr;gap:40px;align-items:center;text-align:center;}
+  .rsvp-section{max-width:820px;display:grid;grid-template-columns:minmax(180px,240px) 1px 1fr;gap:40px;align-items:center;text-align:center;}
   .rsvp-divider{align-self:stretch;background:linear-gradient(var(--cream) 0, var(--gold) 12%, var(--gold) 88%, var(--cream) 100%);opacity:.55;}
   .rsvp-side h2{margin:0 0 10px;}
   .rsvp-sub{color:var(--green-2);margin:0;line-height:1.8;}
