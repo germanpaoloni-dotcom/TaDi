@@ -450,6 +450,7 @@ h1,h2,h3,.comic-font,.burst,.comic-label,.eyebrow,.panel-title,.hero-age,.action
   mix-blend-mode:overlay;
   opacity:.45;
   pointer-events:none;
+  animation:halftoneBreathe 6s ease-in-out infinite;
 }
 
 .hero-edition{
@@ -485,6 +486,8 @@ h1,h2,h3,.comic-font,.burst,.comic-label,.eyebrow,.panel-title,.hero-age,.action
   height:125px;
   font-size:1.65rem;
   transform:rotate(-9deg);
+  --burst-rot:-9deg;
+  animation:burstPulse 4s ease-in-out infinite;
 }
 
 .hero-cloud{
@@ -695,6 +698,8 @@ h1,h2,h3,.comic-font,.burst,.comic-label,.eyebrow,.panel-title,.hero-age,.action
   height:105px;
   font-size:1.2rem;
   transform:rotate(9deg);
+  --burst-rot:9deg;
+  animation:burstPulse 4.6s ease-in-out infinite .4s;
 }
 
 /* =========================================================
@@ -1073,6 +1078,40 @@ footer .footer-cloud{
 footer p{
   margin:7px 0;
   font-size:.9rem;
+}
+
+/* =========================================================
+   ANIMATIONS (decorativas — cómic vivo)
+   ========================================================= */
+
+/* Las onomatopeyas (¡BOOM!/¡WHAM!/¡BANG!) laten suave y de tanto en tanto
+   dan un "impacto" más marcado, sin sincronizarse entre sí (duraciones y
+   delays distintos) para que no parpadeen todas juntas. */
+.mission-card .burst-red{
+  --burst-rot:-7deg;
+  animation:burstPulse 5s ease-in-out infinite .8s;
+}
+
+@keyframes burstPulse{
+  0%,100%{transform:rotate(var(--burst-rot,0deg)) scale(1);}
+  20%{transform:rotate(var(--burst-rot,0deg)) scale(1.05);}
+  38%{transform:rotate(var(--burst-rot,0deg)) scale(1);}
+  55%{transform:rotate(var(--burst-rot,0deg)) scale(1.14);}
+  72%{transform:rotate(var(--burst-rot,0deg)) scale(1);}
+}
+
+@keyframes halftoneBreathe{
+  0%,100%{opacity:.4;}
+  50%{opacity:.52;}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-burst,
+  .message-burst,
+  .mission-card .burst-red,
+  .hero-photo-frame:after{
+    animation:none !important;
+  }
 }
 
 /* =========================================================

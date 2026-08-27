@@ -89,6 +89,51 @@ function render(data = {}) {
     filter:drop-shadow(0 2px 2px rgba(0,0,0,.4));
   }
   .hero-content{position:relative;z-index:1;color:#fff;max-width:640px;}
+
+  /* ---- decoración: hojas con brisa y mariposa sobrevolando ---- */
+  .safari-leaf{
+    position:absolute;
+    bottom:-14px;
+    font-size:3.4rem;
+    opacity:.4;
+    pointer-events:none;
+    z-index:0;
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,.35));
+    transform-origin:bottom center;
+    animation:leaf-sway 8s ease-in-out infinite;
+  }
+  .safari-leaf.leaf-left{left:2%;animation-delay:0s;}
+  .safari-leaf.leaf-right{right:2%;animation-delay:1.6s;animation-duration:9.5s;}
+  @keyframes leaf-sway{
+    0%,100%{transform:rotate(-3deg);}
+    50%{transform:rotate(3deg);}
+  }
+
+  .safari-butterfly{
+    position:absolute;
+    top:12%;
+    left:-6%;
+    font-size:1.7rem;
+    pointer-events:none;
+    z-index:0;
+    opacity:0;
+    animation:butterfly-fly 17s ease-in-out infinite;
+    animation-delay:2.5s;
+  }
+  @keyframes butterfly-fly{
+    0%{transform:translate(0,0) rotate(0deg);opacity:0;}
+    8%{opacity:.85;}
+    25%{transform:translate(30vw,-20px) rotate(8deg);}
+    50%{transform:translate(58vw,12px) rotate(-6deg);}
+    75%{transform:translate(88vw,-16px) rotate(6deg);}
+    92%{opacity:.85;}
+    100%{transform:translate(114vw,0) rotate(0deg);opacity:0;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .safari-leaf,.safari-butterfly{animation:none;opacity:.4;}
+    .safari-butterfly{opacity:0;}
+  }
   .stamp{
     display:inline-block;
     border:3px dashed var(--sol);
@@ -285,11 +330,17 @@ function render(data = {}) {
     .hero-age{padding:12px 24px 10px;}
     .hero-age .num{font-size:3.2rem;}
     .hero::before{font-size:1rem;letter-spacing:8px;}
+    .safari-leaf{font-size:2.2rem;}
+    .safari-butterfly{font-size:1.2rem;}
   }
 </style></head>
 <body>
 
-  <div class="hero"><div class="hero-content">
+  <div class="hero">
+    <span class="safari-leaf leaf-left" aria-hidden="true">🌴</span>
+    <span class="safari-leaf leaf-right" aria-hidden="true">🌿</span>
+    <span class="safari-butterfly" aria-hidden="true">🦋</span>
+    <div class="hero-content">
     <span class="stamp">Expedición especial</span>
     <h1>${esc(d.nombreChico)}</h1>
     <div class="hero-age"><span class="num">${esc(d.edad)}</span><span class="txt">años de aventura</span></div>
