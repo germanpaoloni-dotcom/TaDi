@@ -53,379 +53,605 @@ function hydrangeaSvg(w, h) {
 
 function render(data = {}) {
   const d = { ...sampleData, ...data };
-  const accent = getPaletteColor(d.colorPalette, "light", "#7c93c4");
-  const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "11:00"}:00` : sampleData.fecha, "cd-cel");
+  const accent = getPaletteColor(d.colorPalette, "light", "#86a9d5");
+
+  const cd = countdownWidget(
+    d.fecha ? `${d.fecha}T${d.horaCeremonia || "11:00"}:00` : sampleData.fecha,
+    "cd-cel"
+  );
   const gal = galleryWidget(d.galeria, "gal-cel");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", {
+    withGuests: true,
+    withMenu: false,
+    whatsapp: d.whatsapp
+  });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const fecha = d.fecha ? new Date(`${d.fecha}T00:00:00`) : null;
-  const meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
-  const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
+  const meses = ["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"];
+  const dias = ["DOMINGO","LUNES","MARTES","MIÉRCOLES","JUEVES","VIERNES","SÁBADO"];
   const mesTxt = fecha ? meses[fecha.getMonth()] : "";
   const diaTxt = fecha ? dias[fecha.getDay()] : "";
   const diaNum = fecha ? fecha.getDate() : "";
   const anioTxt = fecha ? fecha.getFullYear() : "";
 
   return `<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#eef4fa">
 <title>Bautismo de ${esc(d.nombreChico)}</title>
 <style>
-  :root{
-    --white:#ffffff;
-    --cream:#fbfaf7;
-    --ink:#40506a;
-    --ink-soft:#6b7a91;
-    --periwinkle:${accent};
-    --periwinkle-dk:color-mix(in srgb, ${accent}, black 20%);
-    --hydrangea:#a9c3ea;
-    --sky:#e7eef9;
-    --sage:#8ea88f;
-    --gold:#c9a24d;
-  }
-  *{box-sizing:border-box;}
-  html,body{overflow-x:hidden;}
-  body{
-    margin:0;
-    font-family:'Georgia','Times New Roman',serif;
-    background:var(--cream);
-    color:var(--ink);
-  }
-  .script{
-    font-family:'Brush Script MT','Segoe Script','Lucida Handwriting',cursive;
-  }
-  .hydrangea{display:block;}
+:root{
+  --paper:#f8f6f1;
+  --paper2:#eef4fa;
+  --white:#ffffff;
+  --ink:#34445c;
+  --muted:#758398;
+  --blue:${accent};
+  --blue-dark:color-mix(in srgb, ${accent}, #263b57 42%);
+  --blue-soft:#dce9f6;
+  --sage:#91aa9d;
+  --gold:#c8a45b;
+  --gold-soft:#ead9ad;
+  --line:rgba(52,68,92,.13);
+  --shadow:0 16px 44px rgba(45,62,82,.10);
+}
+*{box-sizing:border-box}
+html{overflow-x:hidden;scroll-behavior:smooth}
+body{
+  margin:0;
+  overflow-x:hidden;
+  color:var(--ink);
+  background:#e8eef4;
+  font-family:Georgia,"Times New Roman",serif;
+}
+.page{
+  width:100%;
+  max-width:640px;
+  margin:0 auto;
+  background:var(--paper);
+  overflow:hidden;
+  box-shadow:0 0 60px rgba(31,49,70,.12);
+}
+.section{
+  position:relative;
+  padding:54px 22px;
+  text-align:center;
+  overflow:hidden;
+}
+.section-inner{position:relative;z-index:2;max-width:540px;margin:auto}
+.eyebrow{
+  margin:0 0 10px;
+  color:var(--gold);
+  font:700 .58rem/1.2 Arial,sans-serif;
+  letter-spacing:2.8px;
+  text-transform:uppercase;
+}
+h2{
+  margin:0;
+  color:var(--blue-dark);
+  font-size:1.62rem;
+  font-weight:400;
+  line-height:1.18;
+}
+.rule{
+  width:62px;
+  height:1px;
+  margin:16px auto 0;
+  background:var(--gold);
+  opacity:.72;
+}
+.script{
+  font-family:"Brush Script MT","Segoe Script","Lucida Handwriting",cursive;
+}
 
-  section, .hero{
-    max-width:640px;
-    margin:0 auto;
-    padding:48px 24px;
-    text-align:center;
-    position:relative;
-  }
+/* HERO: impacto inmediato en pantalla de celular */
+.hero{
+  min-height:720px;
+  padding:28px 20px 42px;
+  display:flex;
+  align-items:flex-end;
+  background:var(--paper);
+}
+.hero:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:
+    linear-gradient(180deg,rgba(25,42,60,.03) 25%,rgba(25,42,60,.16) 58%,rgba(25,42,60,.68) 100%);
+  pointer-events:none;
+}
+.hero-photo{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+}
+.hero-top{
+  position:absolute;
+  z-index:4;
+  top:22px;
+  left:20px;
+  right:20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.hero-pill{
+  padding:9px 12px;
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:999px;
+  color:#fff;
+  background:rgba(255,255,255,.14);
+  backdrop-filter:blur(10px);
+  font:700 .55rem/1 Arial,sans-serif;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+}
+.hero-cross{color:#fff}
+.hero-content{
+  position:relative;
+  z-index:3;
+  width:100%;
+  color:#fff;
+}
+.hero-content .eyebrow{color:#f5e2b2}
+.hero-script{
+  margin:0;
+  color:#fff;
+  font-size:clamp(2.5rem,11vw,4rem);
+  line-height:.95;
+  text-shadow:0 5px 22px rgba(0,0,0,.22);
+}
+.hero h1{
+  margin:4px 0 0;
+  color:#fff;
+  font-size:clamp(3.1rem,14vw,5.2rem);
+  line-height:.88;
+  font-weight:400;
+  letter-spacing:-1.5px;
+  text-shadow:0 6px 28px rgba(0,0,0,.25);
+}
+.hero-sub{
+  max-width:420px;
+  margin:18px auto 0;
+  color:rgba(255,255,255,.92);
+  font-size:.88rem;
+  line-height:1.7;
+}
+.hero-meta{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin-top:20px;
+  color:#fff;
+  font:700 .58rem/1.3 Arial,sans-serif;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+}
+.hero-meta .dot{
+  width:4px;height:4px;border-radius:50%;background:var(--gold-soft)
+}
 
-  .divider{
-    width:60px;
-    height:1px;
-    background:var(--periwinkle);
-    margin:0 auto 22px;
-    opacity:.6;
-  }
+/* INTRO */
+.intro{background:var(--paper)}
+.botanical{position:absolute;pointer-events:none}
+.intro .botanical{right:-30px;top:-20px;opacity:.72}
+.seal{display:block;margin:0 auto 10px;color:var(--gold)}
+.quote{
+  max-width:440px;
+  margin:24px auto 0;
+  color:var(--muted);
+  font-size:.96rem;
+  line-height:1.85;
+  font-style:italic;
+}
+.names{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:12px;
+  max-width:470px;
+  margin:30px auto 0;
+}
+.name-block{position:relative}
+.name-block:before{
+  content:"";
+  position:absolute;
+  top:50%;
+  left:0;
+  right:0;
+  height:1px;
+  background:var(--line);
+  z-index:-1;
+}
+.name-block strong{
+  display:inline-block;
+  padding-right:10px;
+  background:var(--paper);
+  color:var(--gold);
+  font:700 .58rem/1.3 Arial,sans-serif;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+}
+.name-block span{
+  display:block;
+  margin-top:6px;
+  color:var(--ink);
+  font-size:.9rem;
+  line-height:1.4;
+}
+.name-cross{color:var(--gold)}
+.date-card{
+  max-width:390px;
+  margin:34px auto 0;
+  padding:22px 16px 24px;
+  border:1px solid rgba(134,169,213,.22);
+  border-radius:24px;
+  background:linear-gradient(145deg,#fff 0%,#f0f5fa 100%);
+  box-shadow:var(--shadow);
+}
+.date-month{
+  color:var(--muted);
+  font:700 .6rem/1 Arial,sans-serif;
+  letter-spacing:3px;
+}
+.date-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:13px;
+  margin-top:11px;
+}
+.date-row .line{width:36px;height:1px;background:var(--gold);opacity:.7}
+.date-day-name,.date-year{
+  color:var(--muted);
+  font:700 .55rem/1 Arial,sans-serif;
+  letter-spacing:1.6px;
+}
+.date-num{color:var(--blue-dark);font-size:2.9rem;line-height:.9}
 
-  h2{
-    font-weight:400;
-    letter-spacing:3px;
-    text-transform:uppercase;
-    font-size:.95rem;
-    color:var(--periwinkle-dk);
-    margin:0 0 20px;
-  }
+/* EVENTOS */
+.event-section{background:var(--paper2)}
+.event-grid{display:grid;gap:13px;margin-top:28px}
+.event-card{
+  padding:23px 18px;
+  border:1px solid rgba(134,169,213,.22);
+  border-radius:22px;
+  background:rgba(255,255,255,.84);
+  box-shadow:0 12px 30px rgba(52,68,92,.07);
+}
+.event-label{
+  color:var(--gold);
+  font:700 .58rem/1 Arial,sans-serif;
+  letter-spacing:2.2px;
+  text-transform:uppercase;
+}
+.event-time{margin:9px 0 4px;color:var(--ink);font-size:1.12rem}
+.event-name{
+  margin:0;
+  color:var(--ink);
+  font:700 .7rem/1.3 Arial,sans-serif;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+}
+.event-place{
+  margin:8px 0 0;
+  color:var(--muted);
+  font-size:.88rem;
+  line-height:1.5;
+}
+.btn-ubicacion{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  margin-top:15px;
+  padding:0 20px;
+  border-radius:999px;
+  background:var(--blue-dark);
+  color:#fff;
+  text-decoration:none;
+  box-shadow:0 8px 20px rgba(52,68,92,.16);
+  font:700 .57rem/1 Arial,sans-serif;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+}
+.vestimenta{margin-top:27px}
+.vestimenta h3{
+  margin:0 0 7px;
+  color:var(--gold);
+  font:700 .58rem/1 Arial,sans-serif;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.vestimenta p{margin:0;color:var(--muted);font-size:.82rem;letter-spacing:1px;text-transform:uppercase}
 
-  /* ---------- hero ---------- */
-  .hero{
-    padding-top:56px;
-    overflow:visible;
-  }
-  .hero .hydrangea.corner{
-    position:absolute;
-    top:-10px;
-    right:-6px;
-    z-index:1;
-  }
-  .hero-inner{position:relative;z-index:2;}
+/* COUNTDOWN */
+.countdown-section{background:var(--paper)}
+.countdown-wrap{margin-top:25px}
+.countdown{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  width:100%;
+}
+.countdown div{
+  min-width:0 !important;
+  padding:14px 5px !important;
+  border:1px solid var(--line);
+  border-radius:17px !important;
+  background:#fff !important;
+  box-shadow:none !important;
+}
+.cd-num{color:var(--blue-dark) !important;font-size:1.38rem !important}
+.cd-label{
+  margin-top:3px;
+  color:var(--muted) !important;
+  font-size:.5rem !important;
+  letter-spacing:1.2px !important;
+}
 
-  .cross{margin:18px auto 22px;display:block;}
+/* GALERÍA */
+.gallery-section{background:#edf3f8}
+.gallery{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:28px;
+}
+.gallery-item{overflow:hidden;border-radius:18px}
+.gallery-item img{
+  display:block;
+  width:100%;
+  height:170px;
+  object-fit:cover;
+  border-radius:18px !important;
+  box-shadow:0 10px 24px rgba(52,68,92,.11) !important;
+}
+.gallery-item:first-child{grid-column:span 2}
+.gallery-item:first-child img{height:240px}
+.lightbox{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:200;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(29,42,58,.94) !important;
+}
+.lightbox.open{display:flex}
+.lightbox img{max-width:92%;max-height:88%;border-radius:12px !important}
+.lightbox-close{position:absolute;top:18px;right:26px;color:#fff;font-size:2.4rem;cursor:pointer}
 
-  .quote{
-    font-style:italic;
-    font-size:clamp(.95rem,3vw,1.05rem);
-    line-height:1.85;
-    color:var(--ink-soft);
-    max-width:420px;
-    margin:0 auto 34px;
-    letter-spacing:.3px;
-  }
+/* RSVP */
+.confirm-section{background:var(--paper)}
+.confirm-card{
+  margin-top:26px;
+  padding:26px 17px 21px;
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:#fff;
+  box-shadow:var(--shadow);
+}
+.confirm-note{
+  max-width:390px;
+  margin:0 auto 19px;
+  color:var(--muted);
+  font-size:.85rem;
+  line-height:1.7;
+}
+.rsvp-form{
+  max-width:100% !important;
+  gap:12px !important;
+}
+.rsvp-form label{
+  color:var(--blue-dark) !important;
+  font:700 .58rem/1.2 Arial,sans-serif !important;
+  letter-spacing:1.5px !important;
+}
+.rsvp-form input,.rsvp-form select,.rsvp-form textarea{
+  width:100%;
+  margin-top:5px;
+  padding:13px !important;
+  border:1px solid rgba(52,68,92,.13) !important;
+  border-radius:13px !important;
+  background:#fbfcfd !important;
+  color:var(--ink) !important;
+}
+.rsvp-form button{
+  min-height:48px;
+  border:0;
+  border-radius:999px !important;
+  background:var(--blue-dark) !important;
+  color:#fff;
+  font-weight:700 !important;
+  letter-spacing:1.7px;
+}
+.rsvp-whatsapp{color:var(--blue-dark) !important}
 
-  .kicker-script{
-    font-size:clamp(2.6rem,9vw,3.6rem);
-    color:var(--ink);
-    margin:0 0 6px;
-    line-height:1;
-  }
-  .hero h1{
-    font-weight:400;
-    letter-spacing:3px;
-    text-transform:uppercase;
-    font-size:clamp(2.2rem,8vw,3rem);
-    color:var(--periwinkle-dk);
-    margin:0 0 30px;
-  }
+/* FOOTER */
+.footer{
+  position:relative;
+  overflow:hidden;
+  padding:60px 22px 72px;
+  text-align:center;
+  background:linear-gradient(145deg,#91afd0 0%,#536b88 100%);
+}
+.footer .botanical{left:-35px;bottom:-30px;opacity:.28}
+.footer .foot-inner{position:relative;z-index:2;max-width:470px;margin:auto}
+.footer .seal{color:#f0dba9}
+.footer p{margin:0;color:rgba(255,255,255,.84);font-size:.82rem}
+.footer .script{display:block;margin-top:7px;color:#fff;font-size:2.5rem}
+.footer .small{
+  margin-top:15px;
+  color:#f2dfb3;
+  font:700 .52rem/1.3 Arial,sans-serif;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+}
 
-  .roles{margin-bottom:8px;}
-  .roles + .roles{margin-top:18px;}
-  .roles h3{
-    margin:0 0 6px;
-    font-weight:700;
-    letter-spacing:2px;
-    text-transform:uppercase;
-    font-size:.78rem;
-    color:var(--ink);
-  }
-  .roles p{margin:0;line-height:1.6;color:var(--ink-soft);font-size:.95rem;text-transform:uppercase;letter-spacing:.5px;}
-
-  .invite-text{
-    margin:30px auto 0;
-    max-width:440px;
-    line-height:1.85;
-    font-size:.98rem;
-    color:var(--ink-soft);
-  }
-
-  .date-block{
-    margin:34px auto 0;
-    max-width:320px;
-  }
-  .date-month{
-    letter-spacing:5px;
-    font-size:.85rem;
-    color:var(--ink);
-    margin-bottom:8px;
-  }
-  .date-row{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:16px;
-  }
-  .date-row .line{flex:1;height:1px;background:var(--ink-soft);opacity:.4;max-width:70px;}
-  .date-day-name{
-    font-size:.78rem;
-    letter-spacing:2px;
-    color:var(--ink-soft);
-  }
-  .date-num{
-    font-size:2.6rem;
-    color:var(--periwinkle-dk);
-    line-height:1;
-    font-weight:400;
-  }
-  .date-year{
-    font-size:.85rem;
-    letter-spacing:3px;
-    color:var(--ink-soft);
-  }
-
-  /* ---------- tarjetas de evento (misa / fiesta) ---------- */
-  .event-card{
-    margin:34px auto 0;
-    max-width:340px;
-  }
-  .event-icon{display:block;margin:0 auto 10px;}
-  .event-time{font-size:1.05rem;color:var(--ink);margin-bottom:2px;}
-  .event-name{
-    font-weight:700;
-    letter-spacing:2px;
-    text-transform:uppercase;
-    font-size:.85rem;
-    color:var(--ink);
-    margin:2px 0;
-  }
-  .event-place{font-size:.92rem;color:var(--ink-soft);}
-  .event-city{font-style:italic;font-size:.88rem;color:var(--ink-soft);}
-  .btn-ubicacion{
-    display:inline-block;
-    margin-top:16px;
-    background:var(--periwinkle);
-    color:#fff;
-    text-decoration:none;
-    padding:12px 28px;
-    border-radius:6px;
-    font-size:.78rem;
-    letter-spacing:2px;
-    text-transform:uppercase;
-    box-shadow:0 6px 16px color-mix(in srgb, var(--periwinkle-dk) 28%, transparent);
-  }
-
-  /* ---------- countdown ---------- */
-  .countdown{display:flex;gap:14px;justify-content:center;margin:0;flex-wrap:wrap;}
-  .countdown div{
-    display:flex;flex-direction:column;
-    background:#fff;
-    border-radius:14px;
-    padding:14px 16px;
-    min-width:62px;
-    box-shadow:0 6px 16px color-mix(in srgb, var(--periwinkle) 18%, transparent);
-  }
-  .cd-num{font-size:1.5rem;color:var(--periwinkle-dk);font-weight:bold;}
-  .cd-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);}
-
-  /* ---------- galería ---------- */
-  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;}
-  .gallery-item img{width:100%;height:150px;object-fit:cover;border-radius:10px;cursor:pointer;box-shadow:0 6px 14px color-mix(in srgb, var(--periwinkle) 20%, transparent);}
-  .lightbox{display:none;position:fixed;inset:0;background:rgba(30,40,60,.92);align-items:center;justify-content:center;z-index:50;}
-  .lightbox.open{display:flex;}
-  .lightbox img{max-width:90%;max-height:85%;border-radius:8px;}
-  .lightbox-close{position:absolute;top:20px;right:30px;color:#fff;font-size:2rem;cursor:pointer;line-height:1;}
-
-  /* ---------- rsvp ---------- */
-  .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:360px;margin:0 auto;text-align:left;}
-  .rsvp-form label{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--periwinkle-dk);}
-  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{
-    font-family:inherit;padding:11px;border:1px solid var(--sky);border-radius:8px;margin-top:5px;width:100%;background:#fff;color:var(--ink);
-  }
-  .rsvp-form button{
-    background:var(--periwinkle);color:#fff;border:0;padding:13px;border-radius:6px;
-    letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-size:.8rem;
-  }
-  .rsvp-whatsapp{font-size:.85rem;color:var(--periwinkle-dk);text-align:center;text-decoration:none;}
-  .rsvp-status{text-align:center;color:var(--sage);font-weight:bold;}
-
-  .vestimenta{margin-top:36px;}
-  .vestimenta h3{
-    font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:.78rem;color:var(--ink);margin:0 0 10px;
-  }
-  .vestimenta p{margin:6px 0 0;color:var(--ink-soft);letter-spacing:1px;font-size:.85rem;text-transform:uppercase;}
-
-  footer{
-    position:relative;
-    text-align:center;
-    padding:50px 20px 60px;
-    background:var(--sky);
-    overflow:hidden;
-  }
-  footer .foot-inner{max-width:640px;margin:0 auto;position:relative;z-index:2;}
-  footer .hydrangea.corner{
-    position:absolute;
-    bottom:-12px;
-    left:-8px;
-    z-index:1;
-  }
-  footer p{color:var(--ink-soft);font-size:.9rem;margin:0 0 14px;letter-spacing:.5px;}
-  footer .script{font-size:2.2rem;display:block;color:var(--ink);}
-
-  @media (max-width:420px){
-    .hero .hydrangea.corner{width:110px;height:110px;}
-    footer .hydrangea.corner{width:110px;height:110px;}
-  }
-</style></head>
+@media (max-width:430px){
+  .hero{min-height:680px}
+  /* deja lugar arriba para que el botón fijo "← Volver" de la demo no
+     quede pisando el cartel "Un día para recordar" */
+  .hero-top{top:64px}
+  .section{padding:50px 19px}
+  .gallery-item img{height:155px}
+  .gallery-item:first-child img{height:215px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto!important;transition:none!important}
+}
+</style>
+</head>
 <body>
+<div class="page">
 
-  <section class="hero">
-    ${hydrangeaSvg(150, 150)}
-    <div class="hero-inner">
-      <svg class="cross" width="34" height="46" viewBox="0 0 34 46" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect x="14" y="0" width="6" height="46" fill="var(--gold)"/>
-        <rect x="0" y="12" width="34" height="6" fill="var(--gold)"/>
-      </svg>
-      ${d.mensaje ? `<p class="quote">${esc(d.mensaje)}</p>` : ""}
-      <p class="kicker-script script">Mi Bautizo</p>
-      <h1>${esc(d.nombreChico)}</h1>
+<section class="section hero">
+  ${d.coverImage ? `<img class="hero-photo" src="${esc(d.coverImage)}" alt="Foto de ${esc(d.nombreChico)}">` : ""}
+  <div class="hero-top">
+    <div class="hero-pill">Un día para recordar</div>
+    <div class="hero-cross">${hydrangeaSvg(28,28)}</div>
+  </div>
+  <div class="hero-content">
+    <p class="eyebrow">Con mucha alegría te invitamos</p>
+    <p class="hero-script script">Mi Bautizo</p>
+    <h1>${esc(d.nombreChico)}</h1>
+    <p class="hero-sub">Una celebración llena de amor, familia y bendiciones para compartir juntos.</p>
+    ${fecha ? `<div class="hero-meta">
+      <span>${esc(diaTxt)}</span><i class="dot"></i><span>${esc(diaNum)} ${esc(mesTxt)}</span><i class="dot"></i><span>${esc(anioTxt)}</span>
+    </div>` : ""}
+  </div>
+</section>
 
-      ${d.padres ? `<div class="roles"><h3>Mis papás</h3><p>${esc(d.padres)}</p></div>` : ""}
-      ${d.padrinos ? `<div class="roles"><h3>Mis padrinos</h3><p>${esc(d.padrinos)}</p></div>` : ""}
+<section class="section intro">
+  <div class="botanical">${hydrangeaSvg(135,135)}</div>
+  <div class="section-inner">
+    <svg class="seal" width="58" height="58" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="36" cy="36" r="29" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <circle cx="36" cy="36" r="24" fill="none" stroke="currentColor" stroke-width=".7" opacity=".6"/>
+      <path d="M33 17h6v14h12v6H39v18h-6V37H21v-6h12V17z" fill="currentColor"/>
+    </svg>
+    <p class="eyebrow">Una bendición muy especial</p>
+    <h2>Con amor queremos compartir este momento</h2>
+    <div class="rule"></div>
+    ${d.mensaje ? `<p class="quote">${esc(d.mensaje)}</p>` : ""}
+    ${d.padres || d.padrinos ? `<div class="names">
+      <div class="name-block">${d.padres ? `<strong>Mis papás</strong><span>${esc(d.padres)}</span>` : ""}</div>
+      <div class="name-cross">${hydrangeaSvg(24,24)}</div>
+      <div class="name-block">${d.padrinos ? `<strong>Mis padrinos</strong><span>${esc(d.padrinos)}</span>` : ""}</div>
+    </div>` : ""}
+    ${fecha ? `<div class="date-card">
+      <div class="date-month">${esc(mesTxt)}</div>
+      <div class="date-row">
+        <span class="date-day-name">${esc(diaTxt)}</span>
+        <span class="line"></span>
+        <span class="date-num">${esc(diaNum)}</span>
+        <span class="line"></span>
+        <span class="date-year">${esc(anioTxt)}</span>
+      </div>
+    </div>` : ""}
+  </div>
+</section>
 
-      <p class="invite-text">Queremos invitarte a celebrar el bautizo de ${esc(d.nombreChico)}, un momento especial en el que recibirá la bendición de Dios y será acogido en su fe.</p>
-
-      ${fecha ? `<div class="date-block">
-        <div class="date-month">${esc(mesTxt)}</div>
-        <div class="date-row">
-          <span class="date-day-name">${esc(diaTxt)}</span>
-          <span class="line"></span>
-          <span class="date-num">${esc(diaNum)}</span>
-          <span class="line"></span>
-          <span class="date-year">${esc(anioTxt)}</span>
-        </div>
-      </div>` : ""}
-
-      ${d.horaCeremonia || d.lugarCeremonia ? `<div class="event-card">
-        <svg class="event-icon" width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M15 2v6" stroke="var(--ink)" stroke-width="1.4"/>
-          <path d="M11 5h8" stroke="var(--ink)" stroke-width="1.4"/>
-          <path d="M6 28l3-11c0-3.3 2.7-6 6-6s6 2.7 6 6l3 11z" fill="none" stroke="var(--ink)" stroke-width="1.4"/>
-          <path d="M15 15v13" stroke="var(--ink)" stroke-width="1.2"/>
-          <path d="M4 28h22" stroke="var(--ink)" stroke-width="1.4"/>
-        </svg>
-        ${d.horaCeremonia ? `<p class="event-time">${esc(d.horaCeremonia)}</p>` : ""}
-        <p class="event-name">Misa</p>
+<section class="section event-section">
+  <div class="section-inner">
+    <p class="eyebrow">El gran día</p>
+    <h2>Ceremonia y celebración</h2>
+    <div class="rule"></div>
+    <div class="event-grid">
+      ${d.horaCeremonia || d.lugarCeremonia ? `<article class="event-card">
+        <div class="event-label">Ceremonia</div>
+        ${d.horaCeremonia ? `<div class="event-time">${esc(d.horaCeremonia)} hs</div>` : ""}
+        <p class="event-name">Iglesia</p>
         ${d.lugarCeremonia ? `<p class="event-place">${esc(d.lugarCeremonia)}</p>` : ""}
         ${d.direccionMapa ? `<a class="btn-ubicacion" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
-      </div>` : ""}
+      </article>` : ""}
+      ${d.horaFiesta || d.lugarFiesta ? `<article class="event-card">
+        <div class="event-label">Celebración</div>
+        ${d.horaFiesta ? `<div class="event-time">${esc(d.horaFiesta)} hs</div>` : ""}
+        <p class="event-name">Recepción</p>
+        ${d.lugarFiesta ? `<p class="event-place">${esc(d.lugarFiesta)}</p>` : ""}
+        ${d.direccionMapa ? `<a class="btn-ubicacion" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
+      </article>` : ""}
     </div>
-  </section>
-
-  <section>
-    <div class="divider"></div>
-    <h2>Falta poco</h2>
-    ${cd.html}
-  </section>
-
-  <section>
-    <div class="divider"></div>
-    <h2>Celebración</h2>
-    ${d.horaFiesta || d.lugarFiesta ? `<div class="event-card">
-      <svg class="event-icon" width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M8 3l3 10a3 3 0 01-3 3 3 3 0 01-3-3z" fill="none" stroke="var(--ink)" stroke-width="1.3"/>
-        <path d="M8 16v11" stroke="var(--ink)" stroke-width="1.3"/>
-        <path d="M4 27h8" stroke="var(--ink)" stroke-width="1.3"/>
-        <path d="M22 3l-3 8a3 3 0 003 3 3 3 0 003-3z" fill="none" stroke="var(--ink)" stroke-width="1.3"/>
-        <path d="M22 14v13" stroke="var(--ink)" stroke-width="1.3"/>
-        <path d="M18 27h8" stroke="var(--ink)" stroke-width="1.3"/>
-      </svg>
-      ${d.horaFiesta ? `<p class="event-time">${esc(d.horaFiesta)}</p>` : ""}
-      <p class="event-name">Fiesta</p>
-      ${d.lugarFiesta ? `<p class="event-place">${esc(d.lugarFiesta)}</p>` : ""}
-      ${d.direccionMapa ? `<a class="btn-ubicacion" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación</a>` : ""}
-    </div>` : ""}
     <div class="vestimenta">
       <h3>Vestimenta</h3>
       <p>Formal</p>
     </div>
-  </section>
+  </div>
+</section>
 
-  ${d.galeria && d.galeria.length ? `
-  <section>
-    <div class="divider"></div>
-    <h2>Momentos</h2>
+<section class="section countdown-section">
+  <div class="section-inner">
+    <p class="eyebrow">Cuenta regresiva</p>
+    <h2>Falta muy poquito</h2>
+    <div class="rule"></div>
+    <div class="countdown-wrap">${cd.html}</div>
+  </div>
+</section>
+
+${d.galeria && d.galeria.length ? `<section class="section gallery-section">
+  <div class="section-inner">
+    <p class="eyebrow">Nuestros momentos</p>
+    <h2>Recuerdos para guardar</h2>
+    <div class="rule"></div>
     ${gal.html}
-  </section>` : ""}
+  </div>
+</section>` : ""}
 
-  <section>
-    <div class="divider"></div>
-    <h2>Confirmación</h2>
-    <p class="invite-text" style="margin-top:-8px;">Agradecemos que confirmes tu asistencia lo antes posible.</p>
-    ${rsvpDeadline ? `<p style="margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;">Antes del ${esc(rsvpDeadline)}</p>` : ""}
-    ${rsvp.html}
-  </section>
-
-  <footer>
-    ${hydrangeaSvg(140, 140)}
-    <div class="foot-inner">
-      <p>Esperamos contar con tu presencia</p>
-      <span class="script">¡Muchas gracias!</span>
+<section class="section confirm-section">
+  <div class="section-inner">
+    <p class="eyebrow">Nos encantaría contar con vos</p>
+    <h2>Confirmá tu asistencia</h2>
+    <div class="rule"></div>
+    <div class="confirm-card">
+      <p class="confirm-note">Tu confirmación nos ayuda a preparar cada detalle de este día tan especial.</p>
+      ${rsvpDeadline ? `<p style="margin:0 0 17px;color:var(--gold);font:700 .55rem/1.4 Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;">Responder antes del ${esc(rsvpDeadline)}</p>` : ""}
+      ${rsvp.html}
     </div>
-  </footer>
+  </div>
+</section>
 
-  <script>${cd.script}${gal.script}${rsvp.script}</script>
+<footer class="footer">
+  <div class="botanical">${hydrangeaSvg(135,135)}</div>
+  <div class="foot-inner">
+    <svg class="seal" width="58" height="58" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="36" cy="36" r="29" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <circle cx="36" cy="36" r="24" fill="none" stroke="currentColor" stroke-width=".7" opacity=".6"/>
+      <path d="M33 17h6v14h12v6H39v18h-6V37H21v-6h12V17z" fill="currentColor"/>
+    </svg>
+    <p>Esperamos contar con tu presencia</p>
+    <span class="script">¡Muchas gracias!</span>
+    <div class="small">${esc(d.nombreChico)} · Mi Bautizo</div>
+  </div>
+</footer>
+
+</div>
+<script>${cd.script}${gal.script}${rsvp.script}</script>
 ${tadiFooterWidget()}
-</body></html>`;
+</body>
+</html>`;
 }
 
 function cardPreview(d) {
-  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
-    background:linear-gradient(160deg, ${d.accent} 0%, ${d.accent2} 120%);">
-    <svg viewBox="0 0 60 40" width="52" height="34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <g fill="#dce7f8">
-        <circle cx="14" cy="14" r="5"/><circle cx="22" cy="10" r="5"/><circle cx="30" cy="14" r="5"/>
-        <circle cx="10" cy="21" r="5"/><circle cx="18" cy="22" r="5.5"/><circle cx="26" cy="21" r="5"/>
-      </g>
-      <rect x="46" y="6" width="4" height="28" rx="1.5" fill="#fdf6e3"/>
-      <rect x="36" y="16" width="24" height="4" rx="1.5" fill="#fdf6e3"/>
-    </svg>
-    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:#fff;line-height:1.1;letter-spacing:.3px;">${esc(d.name)}</div>
-    <div style="font-size:.5rem;letter-spacing:2.5px;text-transform:uppercase;color:#eef3fb;font-family:Georgia,serif;">Bautismo</div>
+  return `<div style="position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:linear-gradient(145deg,${d.accent || "#86a9d5"} 0%,${d.accent2 || "#c8a45b"} 130%);">
+    <div style="position:absolute;inset:9px;border:1px solid rgba(255,255,255,.7);border-radius:13px;"></div>
+    <div style="font-family:'Brush Script MT','Segoe Script',cursive;font-size:1.4rem;color:#fff;line-height:1;">Mi Bautizo</div>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:#fff;line-height:1.1;">${esc(d.name)}</div>
+    <div style="width:38px;height:1px;background:#f2dfb3;margin-top:4px;"></div>
+    <div style="font:700 .45rem/1 Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#eef4fa;">Un día para recordar</div>
   </div>`;
 }
-
 module.exports = {
   id, category: "bautismos", name: "Celeste Angelical",
   summary: "Blanco y celeste con hortensias delicadas, cruz dorada y tipografía clásica — inspirada en tarjetas de bautismo elegantes y luminosas.",
