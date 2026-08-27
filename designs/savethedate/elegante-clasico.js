@@ -102,6 +102,31 @@ function render(data = {}) {
   .corner-flourish.cf-bl{bottom:16px;left:16px;transform:scaleY(-1);}
   .corner-flourish.cf-br{bottom:16px;right:16px;transform:scale(-1,-1);}
 
+  /* ---------- ANIMACIONES SUTILES (brillo dorado tipo luz de vela) ---------- */
+  @keyframes candleGlow{
+    0%,100%{filter:brightness(1) saturate(1);}
+    50%{filter:brightness(1.22) saturate(1.08);}
+  }
+  @keyframes monogramShimmer{
+    0%,100%{background-position:-60% 0;}
+    50%{background-position:160% 0;}
+  }
+  @keyframes dustFall{
+    0%{transform:translateY(0);opacity:0;}
+    8%{opacity:.55;}
+    55%{opacity:.3;}
+    92%{opacity:0;}
+    100%{transform:translateY(100vh);opacity:0;}
+  }
+  .laurel{animation:candleGlow 10s ease-in-out infinite;}
+  .laurel-left{animation-delay:0s;}
+  .laurel-right{animation-delay:4.6s;}
+  .corner-flourish{animation:candleGlow 13s ease-in-out infinite;}
+  .corner-flourish.cf-tl{animation-delay:.8s;}
+  .corner-flourish.cf-tr{animation-delay:4s;}
+  .corner-flourish.cf-bl{animation-delay:7.3s;}
+  .corner-flourish.cf-br{animation-delay:10.1s;}
+
   /* ---------- HERO ---------- */
   .hero{
     position:relative;
@@ -126,6 +151,12 @@ function render(data = {}) {
     border:1px solid color-mix(in srgb, ${accent} 55%, transparent);
     pointer-events:none;
   }
+  .gold-dust{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+  .dust{position:absolute;top:-6%;width:3px;height:3px;border-radius:50%;background:var(--gold-light);opacity:0;box-shadow:0 0 5px 1px color-mix(in srgb, ${accent} 65%, transparent);animation:dustFall 16s linear infinite;}
+  .dust.d1{left:16%;animation-duration:15s;animation-delay:0s;}
+  .dust.d2{left:40%;animation-duration:19s;animation-delay:5s;}
+  .dust.d3{left:66%;animation-duration:17.5s;animation-delay:9.5s;}
+  .dust.d4{left:83%;animation-duration:21s;animation-delay:2.8s;}
   .hero-content{position:relative;z-index:1;max-width:520px;}
   .monogram{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:22px;}
   .laurel{width:26px;height:52px;color:var(--gold);}
@@ -139,6 +170,17 @@ function render(data = {}) {
   }
   @media(min-width:480px){.monogram-circle{width:92px;height:92px;font-size:1.35rem;}}
   .monogram-circle .amp-small{color:var(--gold);margin:0 4px;font-style:italic;font-size:.9em;}
+  .mono-shine{display:inline-block;}
+  @supports ((-webkit-background-clip:text) or (background-clip:text)){
+    .mono-shine{
+      background-image:linear-gradient(100deg, var(--gold-light) 25%, #fff6e0 45%, var(--gold) 55%, var(--gold-light) 75%);
+      background-size:280% 100%;
+      -webkit-background-clip:text;background-clip:text;
+      -webkit-text-fill-color:transparent;color:transparent;
+      animation:monogramShimmer 9s ease-in-out infinite;
+    }
+    .mono-shine .amp-small{-webkit-text-fill-color:var(--gold);color:var(--gold);}
+  }
   .eyebrow{color:var(--gold-light);margin:0 0 14px;}
   .hero-content h1{
     margin:0;
@@ -266,15 +308,24 @@ function render(data = {}) {
     font-family:'Playfair Display',serif;font-size:.85rem;letter-spacing:1px;color:var(--gold-light);
   }
   footer .thanks{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.2rem;color:#fdfaf3;margin:0 0 6px;}
+
+  /* ---------- MOVIMIENTO REDUCIDO ---------- */
+  @media (prefers-reduced-motion: reduce){
+    .laurel,.corner-flourish,.mono-shine,.dust{animation:none !important;}
+    .dust{opacity:0 !important;}
+  }
 </style></head>
 <body>
 
   <div class="hero${d.coverImage ? " with-photo" : ""}">
     ${corners}
+    <div class="gold-dust" aria-hidden="true">
+      <span class="dust d1"></span><span class="dust d2"></span><span class="dust d3"></span><span class="dust d4"></span>
+    </div>
     <div class="hero-content">
       <div class="monogram">
         ${laurelLeft}
-        <div class="monogram-circle">${esc(inicialNovia)}<span class="amp-small">&amp;</span>${esc(inicialNovio)}</div>
+        <div class="monogram-circle"><span class="mono-shine">${esc(inicialNovia)}<span class="amp-small">&amp;</span>${esc(inicialNovio)}</span></div>
         ${laurelRight}
       </div>
       <p class="eyebrow">Save the Date</p>

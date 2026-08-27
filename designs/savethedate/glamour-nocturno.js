@@ -113,6 +113,17 @@ function render(data = {}) {
       linear-gradient(180deg, rgba(6,6,5,.4) 0%, rgba(6,6,5,.72) 55%, var(--black) 100%),
       url('${esc(d.coverImage)}') center/cover no-repeat;
   }
+  /* Destellos dorados titilando, como luces de gala desenfocadas al fondo del hero */
+  .gala-lights{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+  .gala-lights span{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 14px 4px color-mix(in srgb, var(--gold), transparent 35%);opacity:.14;animation:galaFlicker 8s ease-in-out infinite;}
+  @keyframes galaFlicker{
+    0%,100%{opacity:.12;}
+    50%{opacity:.6;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .gala-lights span{animation:none !important;opacity:.32;}
+  }
+
   .hero-content{position:relative;z-index:1;padding:0 24px 32px;max-width:620px;}
   .hero-content h1{font-size:clamp(1.9rem,7.5vw,3.2rem);color:var(--gold-soft);font-weight:600;line-height:1.16;letter-spacing:3px;text-transform:uppercase;}
   .hero-content .amp{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:.5em;letter-spacing:0;color:var(--gold);margin:6px 0;text-transform:none;}
@@ -167,6 +178,14 @@ function render(data = {}) {
 <body>
 
   <div class="hero">
+    <div class="gala-lights" aria-hidden="true">
+      <span style="top:16%;left:12%;animation-duration:8.5s;animation-delay:0s;"></span>
+      <span style="top:10%;left:78%;width:3px;height:3px;animation-duration:9.5s;animation-delay:1.3s;"></span>
+      <span style="top:32%;left:88%;animation-duration:7.2s;animation-delay:2.6s;"></span>
+      <span style="top:44%;left:20%;width:3px;height:3px;animation-duration:10s;animation-delay:.7s;"></span>
+      <span style="top:62%;left:68%;animation-duration:8s;animation-delay:3.4s;"></span>
+      <span style="top:70%;left:8%;width:3px;height:3px;animation-duration:9s;animation-delay:1.9s;"></span>
+    </div>
     <div class="hero-content">
       <p class="eyebrow">Save the Date</p>
       <h1>${esc(d.novia)}<span class="amp">&amp;</span>${esc(d.novio)}</h1>

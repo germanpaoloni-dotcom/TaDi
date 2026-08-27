@@ -131,11 +131,17 @@ function render(data = {}) {
      y overflow:hidden en el .band contenedor para nunca forzar scroll
      horizontal en pantallas chicas. --- */
   .leaf-deco{position:absolute;pointer-events:none;z-index:0;opacity:.95;}
-  .leaf-deco svg{width:100%;height:100%;display:block;}
+  /* El sway va en el <svg> interno (no en .leaf-deco), así no pisa el
+     rotate/scaleX ya fijado por corner en .leaf-tr/.leaf-bl/etc. */
+  .leaf-deco svg{width:100%;height:100%;display:block;transform-origin:center;animation:leafSway 12s ease-in-out infinite;}
   .leaf-tr{top:-14px;right:-14px;width:150px;height:196px;}
+  .leaf-tr svg{animation-duration:11s;}
   .leaf-tl{top:-12px;left:-12px;width:120px;height:156px;transform:rotate(-70deg) scaleX(-1);}
+  .leaf-tl svg{animation-duration:14s;animation-delay:-6s;}
   .leaf-br{bottom:-14px;right:-14px;width:130px;height:170px;transform:rotate(160deg);}
+  .leaf-br svg{animation-duration:10.5s;animation-delay:-1s;}
   .leaf-bl{bottom:-16px;left:-16px;width:140px;height:184px;transform:rotate(190deg) scaleX(-1);}
+  .leaf-bl svg{animation-duration:13s;animation-delay:-4s;}
 
   /* --- hero --- */
   .hero{padding-top:60px;padding-bottom:46px;}
@@ -161,7 +167,11 @@ function render(data = {}) {
 
   /* --- countdown --- */
   .countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
-  .countdown > div{background:#fff;border:1px solid var(--line);min-width:74px;padding:16px 8px;border-radius:3px;text-align:center;box-shadow:0 2px 8px color-mix(in srgb, var(--olive-dark) 6%, transparent);}
+  .countdown > div{background:#fff;border:1px solid var(--line);min-width:74px;padding:16px 8px;border-radius:3px;text-align:center;box-shadow:0 2px 8px color-mix(in srgb, var(--olive-dark) 6%, transparent);animation:cardFadeIn .9s ease-out both;}
+  .countdown > div:nth-child(1){animation-delay:.05s;}
+  .countdown > div:nth-child(2){animation-delay:.16s;}
+  .countdown > div:nth-child(3){animation-delay:.27s;}
+  .countdown > div:nth-child(4){animation-delay:.38s;}
   .cd-num{display:block;font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,5vw,2.3rem);color:var(--olive-dark);font-weight:600;}
   .cd-label{font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:#8b8b73;}
 
@@ -193,6 +203,21 @@ function render(data = {}) {
     .section{padding-left:18px;padding-right:18px;}
     .leaf-tr{width:110px;height:145px;}
     .monogram{gap:12px;}
+  }
+
+  /* --- animaciones sutiles: drift levísimo de las hojas + fade-in
+     escalonado de las tarjetas de la cuenta regresiva al cargar la página --- */
+  @keyframes leafSway{
+    0%,100%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-2px) rotate(1deg);}
+  }
+  @keyframes cardFadeIn{
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .leaf-deco svg{animation:none !important;}
+    .countdown > div{animation:none !important;opacity:1;transform:none;}
   }
 </style></head>
 <body>

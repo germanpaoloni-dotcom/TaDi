@@ -28,8 +28,10 @@ function cornerLeaf(extraClass, color) {
   const leafAt = (x, y, r, s = 1) =>
     `<g transform="translate(${x},${y}) rotate(${r}) scale(${s})"><path d="M0 0 C 6 -5 6 -13 0 -17 C -6 -13 -6 -5 0 0 Z" fill="${color}" opacity=".85"/></g>`;
   return `<svg class="corner-branch ${extraClass}" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g class="branch-sway">
     <path d="M4 4 C 28 8, 44 24, 53 54" stroke="${color}" stroke-width="1.1" stroke-linecap="round"/>
     ${leafAt(13, 9, 28)}${leafAt(23, 16, 42)}${leafAt(33, 26, 55)}${leafAt(41, 38, 68, 0.9)}${leafAt(48, 52, 80, 0.8)}
+    </g>
   </svg>`;
 }
 function corners(color) {
@@ -44,9 +46,11 @@ function sprigSVG(color) {
     return `<ellipse cx="${15 + dx}" cy="${y}" rx="2.4" ry="4.6" fill="${color}" opacity=".85" transform="rotate(${rot} ${15 + dx} ${y})"/>`;
   };
   return `<svg class="sprig" viewBox="0 0 30 50" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g class="sprig-sway">
     <path d="M15 48 L15 6" stroke="${color}" stroke-width="1.1"/>
     ${[10, 16, 22, 28, 34].map(grain).join("")}
     <circle cx="15" cy="6" r="1.6" fill="${color}"/>
+    </g>
   </svg>`;
 }
 
@@ -171,6 +175,22 @@ function render(data = {}) {
 
   footer.band{text-align:center;font-size:.85rem;padding-top:56px;padding-bottom:50px;}
   footer .script{font-family:'Fraunces',serif;font-style:italic;font-size:1.5rem;display:block;margin-bottom:10px;color:var(--tan-accent);}
+
+  /* ---------- Balanceo suave de ramitas y hojas (brisa) ---------- */
+  @keyframes brisa-suave{
+    0%,100%{transform:rotate(-2.4deg);}
+    50%{transform:rotate(2.2deg);}
+  }
+  .corner-branch .branch-sway{transform-origin:4px 4px;animation:brisa-suave 8.5s ease-in-out infinite;}
+  .corner-branch.cb-tl .branch-sway{animation-delay:0s;}
+  .corner-branch.cb-tr .branch-sway{animation-delay:1.6s;}
+  .corner-branch.cb-bl .branch-sway{animation-delay:3.2s;}
+  .corner-branch.cb-br .branch-sway{animation-delay:4.8s;}
+  .sprig .sprig-sway{transform-origin:15px 48px;animation:brisa-suave 7.2s ease-in-out infinite;animation-delay:.8s;}
+
+  @media (prefers-reduced-motion: reduce){
+    .branch-sway,.sprig-sway{animation:none !important;transform:none !important;}
+  }
 </style></head>
 <body>
 

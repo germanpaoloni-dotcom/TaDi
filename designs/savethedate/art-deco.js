@@ -151,7 +151,19 @@ function render(data = {}) {
 
   .monogram-frame{width:130px;height:130px;position:relative;margin:0 auto 24px;}
   .monogram-outer,.monogram-inner{position:absolute;clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);}
-  .monogram-outer{inset:0;border:1.5px solid var(--gold);background:rgba(6,15,11,.4);}
+  .monogram-outer{
+    inset:0;border:1.5px solid var(--gold);
+    background-color:rgba(6,15,11,.4);
+    background-image:linear-gradient(115deg, transparent 35%, color-mix(in srgb, var(--gold-soft), transparent 60%) 50%, transparent 65%);
+    background-size:260% 260%;
+    background-position:0% 50%;
+    animation:decoShimmer 13s ease-in-out infinite;
+  }
+  @keyframes decoShimmer{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
   .monogram-inner{inset:8px;border:1px solid var(--gold-dim);display:flex;align-items:center;justify-content:center;}
   .monogram-inner span{font-family:'Cinzel Decorative',Georgia,serif;font-size:1.6rem;color:var(--gold);letter-spacing:1px;}
 
@@ -170,7 +182,19 @@ function render(data = {}) {
   .countdown{display:flex;gap:clamp(10px,2.6vw,18px);justify-content:center;flex-wrap:wrap;margin:8px 0 4px;}
   .countdown div{display:flex;flex-direction:column;align-items:center;min-width:68px;padding:15px 10px 13px;border:1px double var(--gold);background:var(--black2);box-shadow:inset 0 0 0 5px var(--black2), inset 0 0 0 6px var(--gold-dim);}
   @media(min-width:480px){.countdown div{min-width:82px;padding:18px 14px 15px;}}
-  .countdown div::before{content:"";display:block;width:100%;height:6px;margin-bottom:11px;background-image:radial-gradient(circle, var(--gold) 1.4px, transparent 1.6px);background-size:11px 11px;background-position:center;opacity:.85;}
+  .countdown div::before{
+    content:"";display:block;width:100%;height:6px;margin-bottom:11px;
+    background-image:radial-gradient(circle, var(--gold) 1.4px, transparent 1.6px), radial-gradient(circle, var(--gold-dim) 1.4px, transparent 1.6px);
+    background-size:22px 11px, 22px 11px;
+    background-position:0 center, 11px center;
+    opacity:.85;
+    animation:marquesinaBulbs 2.4s ease-in-out infinite;
+  }
+  @keyframes marquesinaBulbs{
+    0%,44%{background-position:0 center, 11px center;}
+    50%,94%{background-position:11px center, 0 center;}
+    100%{background-position:0 center, 11px center;}
+  }
   .cd-num{font-family:'Cinzel Decorative',Georgia,serif;font-weight:700;font-size:clamp(1.3rem,4.4vw,1.9rem);color:var(--gold);line-height:1;}
   .cd-label{font-family:'Poiret One',cursive;font-size:.64rem;text-transform:uppercase;letter-spacing:2.5px;color:var(--muted);margin-top:8px;}
 
@@ -205,6 +229,20 @@ function render(data = {}) {
   .foot-mono-outer span{font-family:'Cinzel Decorative',Georgia,serif;font-size:.8rem;letter-spacing:1px;color:var(--gold-soft);}
   .foot-names{font-family:'Cinzel Decorative',Georgia,serif;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:1.02rem;color:var(--gold-soft);margin-bottom:8px;}
   .foot-thanks{font-family:'Montserrat',sans-serif;font-weight:300;font-size:.78rem;letter-spacing:.5px;color:var(--muted);margin:0;}
+
+  /* ---------- ANIMACIÓN: respeta la preferencia de menos movimiento ---------- */
+  @media (prefers-reduced-motion: reduce){
+    .countdown div::before{
+      animation:none !important;
+      background-image:radial-gradient(circle, var(--gold) 1.4px, transparent 1.6px) !important;
+      background-size:11px 11px !important;
+      background-position:center !important;
+    }
+    .monogram-outer{
+      animation:none !important;
+      background-position:50% 50% !important;
+    }
+  }
 </style></head>
 <body>
 
