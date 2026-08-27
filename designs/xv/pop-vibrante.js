@@ -121,6 +121,22 @@ function confettiSvg(cls = "", accent = "#7c4a9e") {
   </svg>`;
 }
 
+// Confeti animado del hero: piezas sueltas (círculo/cuadrado/triángulo) en
+// blanco, dorado y fucsia, cayendo lento y girando, con delays negativos
+// escalonados para que no se vean sincronizadas. No depende de `data`, así
+// que se arma una sola vez como markup fijo.
+const HERO_CONFETTI_HTML = `<div class="hero-confetti" aria-hidden="true">
+  <span class="cf cf-dot" style="left:6%;width:8px;height:8px;background:#fff;animation-duration:11s;animation-delay:-1s;"></span>
+  <span class="cf cf-sq" style="left:16%;width:7px;height:7px;background:var(--gold);animation-duration:9s;animation-delay:-4s;"></span>
+  <span class="cf cf-tri" style="left:28%;width:9px;height:9px;background:#fff;animation-duration:13s;animation-delay:-7.5s;"></span>
+  <span class="cf cf-dot" style="left:40%;width:6px;height:6px;background:var(--pink);animation-duration:10s;animation-delay:-2.5s;"></span>
+  <span class="cf cf-sq" style="left:52%;width:8px;height:8px;background:#fff;animation-duration:12s;animation-delay:-9s;"></span>
+  <span class="cf cf-tri" style="left:64%;width:7px;height:7px;background:var(--gold);animation-duration:8.5s;animation-delay:-3s;"></span>
+  <span class="cf cf-dot" style="left:74%;width:9px;height:9px;background:var(--pink);animation-duration:14s;animation-delay:-6s;"></span>
+  <span class="cf cf-sq" style="left:84%;width:6px;height:6px;background:#fff;animation-duration:9.5s;animation-delay:-11s;"></span>
+  <span class="cf cf-dot" style="left:92%;width:7px;height:7px;background:var(--gold);animation-duration:11.5s;animation-delay:-5s;"></span>
+</div>`;
+
 // Un par de globos simples, siempre en dos tonos (blanco + acento) para que
 // convivan con cualquier paleta elegida.
 function balloonsSvg(cls = "", accent = "#7c4a9e") {
@@ -208,9 +224,35 @@ function render(data = {}) {
   .confetti{position:absolute;width:min(46vw,300px);height:auto;pointer-events:none;z-index:0;}
   .confetti-a{top:6px;left:-30px;}
   .confetti-b{bottom:6px;right:-30px;transform:scaleX(-1);}
-  .balloons{position:absolute;width:clamp(46px,10vw,74px);height:auto;pointer-events:none;z-index:0;opacity:.95;}
-  .balloons-l{top:14px;left:16px;}
-  .balloons-r{bottom:10px;right:18px;transform:scaleX(-1);}
+  .balloons{
+    position:absolute;width:clamp(46px,10vw,74px);height:auto;pointer-events:none;z-index:0;opacity:.95;
+    --flip:1;transform:scaleX(var(--flip,1));
+    animation:pop-balloon-float 6.5s ease-in-out infinite;
+  }
+  .balloons-l{top:14px;left:16px;animation-delay:-1.4s;}
+  .balloons-r{bottom:10px;right:18px;--flip:-1;animation-duration:7.5s;animation-delay:-4.2s;}
+
+  /* Confeti animado del hero: piezas sueltas que caen lento y giran */
+  .hero-confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+  .cf{position:absolute;top:-16px;opacity:0;animation-name:pop-confetti-fall;animation-timing-function:linear;animation-iteration-count:infinite;}
+  .cf-dot{border-radius:50%;}
+  .cf-sq{border-radius:2px;}
+  .cf-tri{clip-path:polygon(50% 0%, 0% 100%, 100% 100%);}
+
+  @keyframes pop-balloon-float{
+    0%,100%{transform:scaleX(var(--flip,1)) translateY(0);}
+    50%{transform:scaleX(var(--flip,1)) translateY(-8px);}
+  }
+  @keyframes pop-confetti-fall{
+    0%{opacity:0;transform:translateY(0) rotate(0deg);}
+    10%{opacity:1;}
+    85%{opacity:1;}
+    100%{opacity:0;transform:translateY(140px) rotate(220deg);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .balloons{animation:none;}
+    .cf{animation:none;opacity:0;}
+  }
 
   /* ---------- Tarjeta blanca (hero) ---------- */
   .invite-card{
@@ -364,6 +406,7 @@ function render(data = {}) {
 
   <div class="pop-band">
     ${bandDecor}
+    ${HERO_CONFETTI_HTML}
     <div class="invite-card">
       ${d.coverImage ? `<div class="frame"><img src="${esc(d.coverImage)}" alt="${esc(d.nombre)}"><span class="sticker">XV</span></div>` : ""}
       ${tiaraSvg("icon-xl icon-accent")}

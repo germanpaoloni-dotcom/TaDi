@@ -159,13 +159,27 @@ function render(data = {}) {
 
   .icon{width:clamp(30px,7vw,40px);height:auto;}
   .icon-row{width:clamp(120px,34vw,190px);height:auto;margin:18px auto;display:block;}
+  .icon-row.pearl-shimmer{animation:pearlShimmer 9s ease-in-out infinite;}
   .icon-ornament{width:clamp(120px,38vw,170px);height:auto;margin:20px auto;display:block;}
 
-  .corner-floral{position:absolute;width:clamp(72px,20vw,120px);height:auto;opacity:.9;pointer-events:none;}
+  .corner-floral{position:absolute;width:clamp(72px,20vw,120px);height:auto;opacity:.9;pointer-events:none;animation:floralGlow 10s ease-in-out infinite;}
   .corner-floral.tl{top:22px;left:16px;}
-  .corner-floral.tr{top:22px;right:16px;transform:scaleX(-1);}
-  .corner-floral.bl{bottom:22px;left:16px;transform:scaleY(-1);}
-  .corner-floral.br{bottom:22px;right:16px;transform:scale(-1,-1);}
+  .corner-floral.tr{top:22px;right:16px;transform:scaleX(-1);animation-delay:2.5s;}
+  .corner-floral.bl{bottom:22px;left:16px;transform:scaleY(-1);animation-delay:5s;}
+  .corner-floral.br{bottom:22px;right:16px;transform:scale(-1,-1);animation-delay:7.5s;}
+
+  /* ---------- brillo perlado sutil ---------- */
+  @keyframes floralGlow{
+    0%,100%{opacity:.62;filter:drop-shadow(0 0 0 transparent);}
+    50%{opacity:1;filter:drop-shadow(0 0 5px rgba(217,223,236,.5));}
+  }
+  @keyframes pearlShimmer{
+    0%,100%{filter:brightness(1) drop-shadow(0 0 0 rgba(217,223,236,0));}
+    50%{filter:brightness(1.16) drop-shadow(0 0 7px rgba(217,223,236,.4));}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .corner-floral,.photo-frame,.icon-row.pearl-shimmer{animation:none !important;filter:none !important;}
+  }
 
   /* ---------- bordes de "papel rasgado" entre secciones ---------- */
   .torn-top{position:absolute;top:0;left:0;width:100%;height:26px;transform:translateY(-99%);line-height:0;pointer-events:none;z-index:2;}
@@ -187,7 +201,7 @@ function render(data = {}) {
 
   h1.brand-title{font-size:clamp(2.1rem,8vw,3.4rem);letter-spacing:4px;margin:6px 0 22px;text-transform:uppercase;font-weight:400;color:var(--pearl);}
 
-  .photo-frame{max-width:250px;margin:8px auto 26px;padding:8px;border:1px solid var(--accent-navy);}
+  .photo-frame{max-width:250px;margin:8px auto 26px;padding:8px;border:1px solid var(--accent-navy);animation:pearlShimmer 8s ease-in-out infinite;}
   .photo-frame img{width:100%;display:block;object-fit:cover;aspect-ratio:3/4;}
 
   .date-block{display:flex;align-items:center;justify-content:center;gap:16px;margin:8px auto 4px;flex-wrap:wrap;}
@@ -331,7 +345,7 @@ function render(data = {}) {
   ${(d.galeria && d.galeria.length) ? `<div class="card-section on-navy">
     ${tornToNavy}
     <div class="inner">
-      ${pearlRowSvg("icon-row")}
+      ${pearlRowSvg("icon-row pearl-shimmer")}
       <h2>Momentos</h2>
       ${gal.html}
     </div>
