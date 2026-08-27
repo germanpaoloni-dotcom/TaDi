@@ -16,7 +16,7 @@ const sampleData = {
   mensaje: "Guardá la fecha: nos gusta pensar el amor como algo que se cultiva de a poco. Después de un tiempo sembrando esta historia juntos, queremos celebrar la cosecha rodeados de las personas que más queremos.",
   instagram: "flor.tomas.boda",
   whatsapp: "5491100000041",
-  coverImage: "https://images.unsplash.com/photo-1544923246-77307dd654cb?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1646366045654-ed6b2b355dc9?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&q=80",
     "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",

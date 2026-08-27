@@ -15,7 +15,7 @@ const sampleData = {
   dressCode: "Todo lo que brille — cuanto más flashero, mejor",
   whatsapp: "5491100000036",
   fechaLimiteRSVP: "2027-11-01",
-  coverImage: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1546640646-89b557854b23?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=800&q=80",
     "https://images.unsplash.com/photo-1571266028243-d220c9c3b31f?w=800&q=80",

@@ -14,7 +14,7 @@ const sampleData = {
   disfraz: "Código de vestimenta: gótico elegante — negro, terciopelo y un detalle dorado",
   whatsapp: "5491122334455",
   fechaLimiteRSVP: "2027-10-20",
-  coverImage: "https://images.unsplash.com/photo-1509557965875-b88c97052f0e?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1698520899168-4f9d10d85cc9?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80",
     "https://images.unsplash.com/photo-1519817650390-64a93db51149?w=800&q=80",

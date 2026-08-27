@@ -11,7 +11,7 @@ const sampleData = {
   mensaje: "Guardá la fecha: nos casamos frente al mar y queremos que este viaje lo hagamos juntos. El destino es la excusa, ustedes son el motivo.",
   instagram: "vale.tomas.boda",
   whatsapp: "5491100000042",
-  coverImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1606495185824-688328ed7871?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&q=80",
     "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800&q=80",

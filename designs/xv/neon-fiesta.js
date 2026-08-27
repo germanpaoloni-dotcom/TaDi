@@ -16,7 +16,7 @@ const sampleData = {
   mensaje: "¡Se viene la fiesta del año! Prendé el flúo, calzate las mejores zapatillas y vení a bailar hasta que se apague la última luz 🎧✨",
   dressCode: "Colores flúo obligatorio, se viene la fiesta 💜💙💗",
   whatsapp: "5491133445566",
-  coverImage: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1778874902512-70d36cca2557?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=800&q=80",
     "https://images.unsplash.com/photo-1571266028243-d220c9c3b31f?w=800&q=80",

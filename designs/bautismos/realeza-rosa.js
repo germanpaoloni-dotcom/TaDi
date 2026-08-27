@@ -21,7 +21,7 @@ const sampleData = {
     "https://images.unsplash.com/photo-1544377193-33dcf4d68fb5?w=900&q=80",
     "https://images.unsplash.com/photo-1522771930-78848d9293e8?w=900&q=80",
     "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=900&q=80",
-    "https://images.unsplash.com/photo-1519741497674-611481863552?w=900&q=80",
+    "https://images.unsplash.com/photo-1764922074767-a27ee324380e?w=900&q=80",
   ],
 };
 

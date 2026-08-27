@@ -16,7 +16,7 @@ const sampleData = {
   mensaje: "Después de tanto soñarlo, llegó el momento: nos casamos. Guardá la fecha — la invitación con todos los detalles llega más adelante, pero por ahora queremos que lo sepas antes que nadie.",
   instagram: "valen.ignacio.boda",
   whatsapp: "5491133445566",
-  coverImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1769038936373-07c4806ee247?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&q=80",
     "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=800&q=80",

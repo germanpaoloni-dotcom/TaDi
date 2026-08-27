@@ -11,7 +11,7 @@ const sampleData = {
   direccionMapa: "https://maps.google.com/?q=Estancia+La+Rosada+Pilar",
   mensaje: "Con el corazón lleno de alegría, queremos que nos acompañes a celebrar el bautismo de Renata, un día para agradecer y compartir en familia.",
   whatsapp: "5491100000022",
-  coverImage: "https://images.unsplash.com/photo-1544923246-77307dd654cb?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1721862650498-1e7274dec2ec?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&q=80",
     "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",

@@ -13,7 +13,7 @@ const sampleData = {
   mensaje: "Hay momentos inolvidables que se atesoran en el corazón para siempre, por esa razón, quiero que compartas conmigo éste día tan especial.",
   dressCode: "Formal · evitar tonos lavanda y morado",
   whatsapp: "5491100000005",
-  coverImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80",
+  coverImage: "https://images.unsplash.com/photo-1763959952707-7f4b2c3c2219?w=1200&q=80",
   galeria: [
     "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800&q=80",
     "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800&q=80",
