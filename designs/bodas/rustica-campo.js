@@ -103,6 +103,21 @@ function twineDividerSVG(width = 200, color = "#a9835a") {
   </svg>`;
 }
 
+// Abejita chica dibujada a mano (trazo simple, no geométrico) que
+// sobrevuela el hero: cuerpo ovalado con rayas curvas y un par de alas
+// asimétricas, coherente con el resto de los ornamentos "a pluma".
+function beeSVG(size = 30, ink = "#3a2a12") {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <path d="M13 16 C 6 8, 4 4, 9 2 C 13 3, 15 9, 16 15Z" fill="rgba(255,255,255,.8)" stroke="#7c8f6e" stroke-width=".7"/>
+    <path d="M27 16 C 34 8, 36 4, 31 2 C 27 3, 25 9, 24 15Z" fill="rgba(255,255,255,.8)" stroke="#7c8f6e" stroke-width=".7"/>
+    <ellipse cx="20" cy="22" rx="10" ry="7.2" fill="#e8b23d" stroke="${ink}" stroke-width="1.1"/>
+    <path d="M11.5 21 Q20 16.5 28.5 21" fill="none" stroke="${ink}" stroke-width="2" stroke-linecap="round"/>
+    <path d="M11.5 25 Q20 20.5 28.5 25" fill="none" stroke="${ink}" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="20" cy="12" r="5" fill="${ink}"/>
+    <path d="M17 8 L15 5M23 8 L25 5" stroke="${ink}" stroke-width="1.1" stroke-linecap="round"/>
+  </svg>`;
+}
+
 // Icono chico de capullo silvestre, para encabezar bloques de info
 // (ceremonia, fiesta, etc). Trazo asimétrico, no un círculo perfecto.
 function budIconSVG(size = 20, accent = "#b5651d") {
@@ -175,8 +190,29 @@ function render(data = {}) {
   .hero::before{content:"";position:absolute;inset:0;background:url('${kraftURI}');background-size:180px 180px;opacity:.5;pointer-events:none;}
   .hero-inner{position:relative;z-index:1;max-width:640px;margin:0 auto;}
   .hero-corner{position:absolute;z-index:1;pointer-events:none;opacity:.95;}
-  .hero-corner.hc-tl{top:-6px;left:-6px;}
-  .hero-corner.hc-br{bottom:-6px;right:-6px;}
+  .hero-corner.hc-tl{top:-6px;left:-6px;transform-origin:12% 92%;animation:brisa-tallo 9s ease-in-out infinite;}
+  .hero-corner.hc-br{bottom:-6px;right:-6px;transform-origin:88% 92%;animation:brisa-tallo 10s ease-in-out infinite 1.4s;}
+  /* Balanceo levísimo tipo brisa de campo, sobre el ramo de las esquinas del hero */
+  @keyframes brisa-tallo{
+    0%,100%{transform:rotate(-1.6deg);}
+    50%{transform:rotate(2deg);}
+  }
+  /* Abejita que sobrevuela el hero con una trayectoria suave y lenta */
+  .bee-fly{position:absolute;top:32%;left:16%;z-index:2;pointer-events:none;opacity:.9;animation:vuelo-abeja 16s ease-in-out infinite;}
+  @keyframes vuelo-abeja{
+    0%{transform:translate(0,0) rotate(-6deg);}
+    16%{transform:translate(42px,-20px) rotate(4deg);}
+    34%{transform:translate(88px,8px) rotate(-5deg);}
+    52%{transform:translate(58px,30px) rotate(3deg);}
+    70%{transform:translate(16px,16px) rotate(-4deg);}
+    86%{transform:translate(-20px,-10px) rotate(5deg);}
+    100%{transform:translate(0,0) rotate(-6deg);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .hero-corner.hc-tl,.hero-corner.hc-br,.bee-fly{animation:none !important;}
+    .hero-corner.hc-tl,.hero-corner.hc-br{transform:none;}
+    .bee-fly{transform:none;}
+  }
   .hero .eyebrow{color:var(--kraft-deep);opacity:.8;}
   .hero h1{font-size:clamp(2.6rem,10vw,4.6rem);line-height:1;color:var(--kraft-deep);margin:10px 0;text-shadow:0 1px 0 rgba(255,255,255,.25);}
   .hero h1 .amp{color:var(--accent);padding:0 .1em;display:inline-block;}
@@ -268,6 +304,7 @@ function render(data = {}) {
   <div class="hero">
     <div class="hero-corner hc-tl">${cornerBouquetSVG(100, false, accent, accent2)}</div>
     <div class="hero-corner hc-br">${cornerBouquetSVG(100, true, accent, accent2)}</div>
+    <div class="bee-fly" aria-hidden="true">${beeSVG(30)}</div>
     <div class="hero-inner">
       <div class="eyebrow">Nos casamos en el campo</div>
       <h1>${esc(d.novia)} <span class="amp">&amp;</span> ${esc(d.novio)}</h1>

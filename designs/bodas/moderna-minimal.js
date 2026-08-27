@@ -149,12 +149,18 @@ function render(data = {}) {
 
   /* --- decoración de hojas + mancha acuarela (cuelgan del .band, esquinas reales) --- */
   .leaf-deco{position:absolute;pointer-events:none;z-index:0;opacity:.95;}
-  .leaf-deco svg{width:100%;height:100%;display:block;}
+  /* El sway va en el <svg> interno (no en .leaf-deco), así no pisa el
+     rotate/scaleX ya fijado por corner en .leaf-tr/.leaf-bl/etc. */
+  .leaf-deco svg{width:100%;height:100%;display:block;transform-origin:center;animation:leafSway 12s ease-in-out infinite;}
   .leaf-tr{top:-14px;right:-14px;width:170px;height:220px;}
   .leaf-tr-sm{top:-8px;right:-8px;width:110px;height:140px;}
+  .leaf-tr-sm svg{animation-duration:9s;animation-delay:-2s;}
   .leaf-bl{bottom:-16px;left:-16px;width:160px;height:210px;transform:rotate(190deg) scaleX(-1);}
+  .leaf-bl svg{animation-duration:13s;animation-delay:-4s;}
   .leaf-br{bottom:-14px;right:-14px;width:140px;height:180px;transform:rotate(160deg);}
+  .leaf-br svg{animation-duration:10.5s;animation-delay:-1s;}
   .leaf-tl{top:-12px;left:-12px;width:140px;height:180px;transform:rotate(-70deg) scaleX(-1);}
+  .leaf-tl svg{animation-duration:14s;animation-delay:-6s;}
   .blob-deco{position:absolute;top:-16px;left:-20px;width:420px;height:320px;z-index:0;pointer-events:none;opacity:.95;}
   .blob-deco svg{width:100%;height:100%;display:block;}
 
@@ -189,7 +195,9 @@ function render(data = {}) {
 
   /* --- detalle ceremonia / fiesta --- */
   .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;position:relative;z-index:1;}
-  .info-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:28px 22px 24px;text-align:center;}
+  .info-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:28px 22px 24px;text-align:center;animation:cardFadeIn .9s ease-out both;}
+  .info-grid .info-card:nth-child(1){animation-delay:.05s;}
+  .info-grid .info-card:nth-child(2){animation-delay:.22s;}
   .info-card .info-time{font-size:.72rem;letter-spacing:2px;color:var(--olive);text-transform:uppercase;}
   .info-card h3{margin:6px 0 2px;font-family:'Cormorant Garamond',serif;font-size:1.25rem;letter-spacing:1px;text-transform:uppercase;color:var(--olive-dark);}
   .info-card p{margin:0;font-size:.85rem;color:#666;font-style:italic;}
@@ -238,6 +246,21 @@ function render(data = {}) {
     .leaf-tr{width:130px;height:170px;}
     .blob-deco{width:230px;height:190px;top:-20px;left:-34px;}
     .monogram{gap:12px;}
+  }
+
+  /* --- animaciones sutiles: drift levísimo de las hojas + fade-in
+     escalonado de las tarjetas de itinerario al cargar la página --- */
+  @keyframes leafSway{
+    0%,100%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-2px) rotate(1deg);}
+  }
+  @keyframes cardFadeIn{
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .leaf-deco svg{animation:none !important;}
+    .info-card{animation:none !important;opacity:1;transform:none;}
   }
 </style></head>
 <body>
