@@ -44,6 +44,11 @@ footer.site .footer-links{line-height:1.9;}
 footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spacing:.2px;}
 
 /* ---------- home interactivo (6 categorías + modal) — neumorphism ---------- */
+.orios-home-head{max-width:1180px;margin:0 auto;padding:44px 32px 4px;text-align:center;}
+.orios-home-kicker{display:block;text-transform:uppercase;letter-spacing:3px;font-size:.72rem;font-weight:700;color:var(--accent-2);margin-bottom:10px;}
+.orios-home-head h1{margin:0 0 8px;font-size:2rem;font-weight:800;color:var(--ink);letter-spacing:-.5px;}
+.orios-home-head h1 .dot{color:var(--accent);}
+.orios-home-head p{margin:0;color:var(--muted);font-size:.95rem;}
 .orios-home{max-width:1180px;margin:0 auto;padding:36px 32px 8px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
 .orios-panel{position:relative;background:var(--bg);border:0;border-radius:28px;box-shadow:var(--nu-md);padding:26px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:16px;cursor:pointer;font-family:inherit;transition:box-shadow .2s,transform .2s;}
 .orios-panel:hover, .orios-panel:focus-visible{box-shadow:var(--nu-lg);transform:translateY(-4px);}
@@ -300,6 +305,8 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
   .tutorial-step{grid-template-columns:1fr;padding:22px;}
   .tutorial-step .num{margin-bottom:4px;}
 
+  .orios-home-head{padding:30px 20px 4px;}
+  .orios-home-head h1{font-size:1.5rem;}
   .orios-home{grid-template-columns:repeat(2,1fr);gap:16px;padding:24px 20px 4px;}
   .orios-panel{padding:18px 12px 16px;gap:10px;}
   .orios-panel-photo{width:96px;height:96px;}

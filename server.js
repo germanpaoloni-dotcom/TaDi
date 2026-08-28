@@ -315,7 +315,12 @@ function catalogPage(activeCat) {
   if (!activeCat) {
     return layout({
       title: "Catálogo",
-      body: `${oriosHomeHTML(visible)}
+      body: `<div class="orios-home-head">
+        <span class="orios-home-kicker">Catálogo TaDi</span>
+        <h1>Elegí tu tarjeta<span class="dot">.</span></h1>
+        <p>Diseños digitales para cada ocasión, listos para personalizar en minutos.</p>
+      </div>
+      ${oriosHomeHTML(visible)}
       ${TRUST_STRIP_HTML}
       ${categoryModalsHTML(visible)}`,
     });
