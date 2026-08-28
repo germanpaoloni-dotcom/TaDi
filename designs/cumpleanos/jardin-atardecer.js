@@ -129,7 +129,8 @@ function render(data = {}) {
   .eyebrow{letter-spacing:3.5px;text-transform:uppercase;font-size:.72rem;color:var(--salvia);font-weight:600;}
   .eyebrow.on-dark{color:var(--dorado-suave);}
   h2.section-title{font-size:clamp(1.5rem,4vw,2.15rem);font-style:italic;margin:6px 0 22px;}
-  .divider-row{display:flex;justify-content:center;margin:6px 0 2px;}
+  .divider-row{display:flex;justify-content:center;margin:6px 0 2px;transform-origin:50% 100%;animation:gardenSway 10s ease-in-out infinite;}
+  .rsvp-section .divider-row{animation-duration:12s;animation-delay:1.2s;}
   .twig{max-width:100%;height:auto;}
 
   /* HERO */
@@ -204,6 +205,18 @@ function render(data = {}) {
   footer.despedida .inner{position:relative;z-index:1;}
   footer.despedida .script{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(1.8rem,5vw,2.4rem);display:block;margin-bottom:8px;}
   footer.despedida p{margin:0;font-size:.9rem;opacity:.9;}
+
+  /* Brisa de jardín: leve balanceo en los divisores de ramitas */
+  @keyframes gardenSway{0%,100%{transform:rotate(-1.6deg);}50%{transform:rotate(1.6deg);}}
+  /* Resplandor de atardecer, muy sutil, detrás del contenido del hero */
+  @keyframes duskGlow{0%,100%{opacity:.55;}50%{opacity:.85;}}
+  .hero::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse at 50% 105%, rgba(255,185,120,.4), transparent 70%);
+    animation:duskGlow 11s ease-in-out infinite;}
+  @media (prefers-reduced-motion: reduce){
+    .divider-row,.rsvp-section .divider-row{animation:none !important;}
+    .hero::after{animation:none !important;opacity:.7;}
+  }
 </style></head>
 <body>
 

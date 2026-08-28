@@ -137,6 +137,17 @@ function render(data = {}) {
   .sun-badge{position:absolute;width:clamp(220px,46vw,420px);height:auto;opacity:.85;}
   .pin{width:36px;height:auto;flex:0 0 auto;}
 
+  /* brisa suave sobre las hojas de palmera del hero, y resplandor tenue del sol */
+  @keyframes frond-sway{0%,100%{transform:rotate(-2.5deg);}50%{transform:rotate(2.5deg);}}
+  @keyframes frond-sway-mirror{0%,100%{transform:scaleX(-1) rotate(1.5deg);}50%{transform:scaleX(-1) rotate(6.5deg);}}
+  @keyframes sun-glow{0%,100%{transform:translateX(-50%) scale(1);opacity:.85;filter:drop-shadow(0 0 0 rgba(255,211,122,0));}50%{transform:translateX(-50%) scale(1.015);opacity:.95;filter:drop-shadow(0 0 30px rgba(255,211,122,.5));}}
+  .hero .frond.tl{transform-origin:50% 92%;animation:frond-sway 8s ease-in-out infinite;animation-delay:.3s;}
+  .hero .frond.br{transform-origin:50% 92%;animation:frond-sway-mirror 9.5s ease-in-out infinite;animation-delay:1.6s;}
+  .hero .sun-badge{animation:sun-glow 10s ease-in-out infinite;}
+  @media (prefers-reduced-motion: reduce){
+    .hero .frond.tl,.hero .frond.br,.hero .sun-badge{animation:none;}
+  }
+
   .divider{display:flex;align-items:center;justify-content:center;gap:10px;max-width:220px;margin:0 auto 26px;}
   .divider-line{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.5);}
   .wave{font-size:1.1rem;}
