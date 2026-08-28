@@ -54,7 +54,7 @@ function render(data = {}) {
   const accent = getPaletteColor(d.colorPalette, "dark", "#B6FF3C");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "23:00"}:00` : `${sampleData.fecha}T${sampleData.hora}:00`, "cd-neon");
   const gal = galleryWidget(d.galeria, "gal-neon");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "cumpleanos", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const look = [

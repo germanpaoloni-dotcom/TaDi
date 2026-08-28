@@ -63,7 +63,9 @@ function render(data = {}) {
   const rsvp = rsvpWidget(d.__slug || "demo", {
     withGuests: true,
     withMenu: false,
-    whatsapp: d.whatsapp
+    whatsapp: d.whatsapp,
+    categoria: "bautismos",
+    datos: d
   });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 

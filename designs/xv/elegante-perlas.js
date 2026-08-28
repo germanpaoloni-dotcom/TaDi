@@ -115,7 +115,7 @@ function render(data = {}) {
   const accentOnPearl = getPaletteColor(d.colorPalette, "light", "#3c4a70");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha, "cd-perlas");
   const gal = galleryWidget(d.galeria || [], "gal-perlas");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp, categoria: "xv", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   let diaSemana = "";

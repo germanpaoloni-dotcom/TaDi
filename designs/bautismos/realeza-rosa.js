@@ -33,7 +33,7 @@ function render(data = {}) {
   const accent = getPaletteColor(d.colorPalette, "light", "#e7a9c2");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "13:00"}:00` : sampleData.fecha, "cd5");
   const gal = galleryWidget(d.galeria || [], "gal5");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "bautismos", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const fecha = d.fecha ? new Date(`${d.fecha}T00:00:00`) : null;

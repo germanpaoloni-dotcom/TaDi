@@ -154,7 +154,7 @@ function render(data = {}) {
   const accent2 = "#7c8f6e";
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "18:00"}:00` : sampleData.fecha, "cdrustica");
   const gal = galleryWidget(d.galeria, "galrustica");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp, categoria: "bodas", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
   const kraftURI = `data:image/svg+xml,${encodeURIComponent(kraftTextureSVG())}`;
 

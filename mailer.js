@@ -14,39 +14,59 @@
 //   SMTP_FROM=TaDi <administracion@tadi.com.ar>   (opcional, así se muestra el remitente)
 
 const nodemailer = require("nodemailer");
+const dns = require("dns");
 
 function isConfigured() {
   return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
 let transporter = null;
-function getTransporter() {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 465),
-      secure: Number(process.env.SMTP_PORT || 465) === 465, // true para 465 (SSL), false para 587 (STARTTLS)
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-      // Varios hostings (Render incluido) no tienen salida IPv6 habilitada:
-      // si no forzamos IPv4 acá, Node intenta conectar por IPv6 (porque
-      // smtp.gmail.com también publica un registro AAAA), la conexión
-      // nunca sale y termina en ENETUNREACH. Forzando family:4 se evita
-      // ese intento y conecta directo por IPv4.
-      family: 4,
-      // Sin esto, si algo anda mal con la conexión SMTP (credenciales
-      // vencidas, firewall, lo que sea), nodemailer puede quedarse colgado
-      // varios minutos intentando conectar — y como el envío del mail
-      // corría "en línea" con el guardado del editor, el botón "¡Listo!"
-      // se quedaba trabado en "Guardando…" para siempre. Con estos límites,
-      // si el mail falla, falla rápido (y ya no bloquea nada: ver server.js).
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-    });
+async function getTransporter() {
+  if (transporter) return transporter;
+
+  const host = process.env.SMTP_HOST;
+  let connectHost = host;
+  // OJO ACÁ — esto costó bastante encontrarlo: pasarle family:4 a nodemailer
+  // NO alcanza para evitar el ENETUNREACH por IPv6 en Render. La razón real
+  // (mirando el código fuente de nodemailer/lib/shared/index.js): nodemailer
+  // resuelve el host por su cuenta contra IPv4 y IPv6 en paralelo, junta
+  // todas las direcciones en una sola lista y elige la que usa para conectar
+  // CON Math.random() — literalmente al azar entre v4 y v6, sin mirar la
+  // opción family para nada. Por eso a veces mandaba el mail bien (le tocó
+  // una IPv4) y la mayoría de las veces fallaba (le tocó una IPv6, que
+  // Render no puede alcanzar). La única forma confiable de evitarlo es
+  // resolver nosotros mismos a una IPv4 y pasarle esa IP como "host": si el
+  // host ya es una IP literal, nodemailer no intenta resolver nada más.
+  try {
+    const addresses = await dns.promises.resolve4(host);
+    if (addresses && addresses[0]) connectHost = addresses[0];
+  } catch (err) {
+    console.error(`[mailer] No se pudo resolver ${host} a IPv4 (se intenta con el hostname tal cual, puede fallar por el bug de nodemailer):`, err.message);
   }
+
+  transporter = nodemailer.createTransport({
+    host: connectHost,
+    port: Number(process.env.SMTP_PORT || 465),
+    secure: Number(process.env.SMTP_PORT || 465) === 465, // true para 465 (SSL), false para 587 (STARTTLS)
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    // Conectamos directo a la IP (ver arriba), pero el handshake TLS tiene
+    // que seguir validando el certificado contra el nombre real del server
+    // — si no, falla porque el certificado de Gmail no es para esa IP.
+    tls: { servername: host },
+    family: 4,
+    // Sin esto, si algo anda mal con la conexión SMTP (credenciales
+    // vencidas, firewall, lo que sea), nodemailer puede quedarse colgado
+    // varios minutos intentando conectar — y como el envío del mail
+    // corría "en línea" con el guardado del editor, el botón "¡Listo!"
+    // se quedaba trabado en "Guardando…" para siempre. Con estos límites,
+    // si el mail falla, falla rápido (y ya no bloquea nada: ver server.js).
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
+  });
   return transporter;
 }
 
@@ -103,7 +123,8 @@ async function sendInvitationLinkEmail({ to, nombreEvento, designName, editUrl, 
     </div>
   `;
 
-  return getTransporter().sendMail({
+  const transporter = await getTransporter();
+  return transporter.sendMail({
     from: process.env.SMTP_FROM || process.env.SMTP_USER,
     to,
     subject,

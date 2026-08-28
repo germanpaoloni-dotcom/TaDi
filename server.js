@@ -504,8 +504,11 @@ app.get("/terminos", (req, res) => {
       <p>TaDi ofrece invitaciones digitales personalizables para eventos (bodas, save the date, fiestas infantiles, quince años, cumpleaños, bautismos, y por temporada Halloween y Navidad). Al comprar una invitación, el comprador puede personalizar sus datos (textos, fechas, lugares, fotos) y compartir el link resultante con sus invitados.</p>
       <h3>Edición y vigencia</h3>
       <p>La invitación puede editarse sin límite de veces desde el link privado de edición hasta ${EDIT_GRACE_DAYS} días después de la fecha del evento cargada. Pasado ese plazo, la edición se bloquea automáticamente; la página pública ya compartida con los invitados permanece accesible. Cada invitación comprada corresponde a un único evento — usarla para un evento distinto requiere una nueva compra.</p>
-      <h3>Pagos</h3>
+      <h3>Conservación y borrado de datos</h3>
+      <p>Los datos cargados en la invitación (textos, fotos, confirmaciones de asistencia) se conservan hasta ${DATA_RETENTION_DAYS} días después de la fecha del evento. Pasado ese plazo se eliminan de forma permanente — incluidas las fotos subidas — y la página pública deja de estar disponible con ese contenido. Los datos de la compra en sí (fecha, monto, diseño elegido) se conservan más tiempo por motivos contables e impositivos.</p>
+      <h3>Pagos y reembolsos</h3>
       <p>Los pagos se procesan a través de Mercado Pago. TaDi no almacena datos de tarjetas ni medios de pago.</p>
+      <p><strong>Una vez acreditado el pago, la compra no admite reembolso ni cancelación.</strong> Al tratarse de un producto digital personalizable de entrega inmediata (el comprador accede al editor apenas se acredita el pago), no aplica el derecho de arrepentimiento sobre servicios ya prestados. Si tenés un problema puntual con tu compra (un error técnico del sitio, por ejemplo), escribinos${SUPPORT_WHATSAPP ? ` por WhatsApp` : ""} y lo resolvemos — pero no se realizan devoluciones de dinero por cambio de opinión, error al elegir el diseño, o no haber usado la invitación.</p>
       <h3>Contenido cargado por el usuario</h3>
       <p>El comprador es responsable de las fotos y textos que carga en su invitación, y declara contar con los derechos necesarios sobre ese contenido.</p>
       <h3>Contacto</h3>
@@ -577,6 +580,10 @@ app.get("/checkout/:designId", (req, res) => {
             style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);font-family:inherit;font-size:1rem;">
           <p class="field-help">Te mandamos el link de tu invitación acá también, como respaldo, para que no se pierda aunque cierres esta ventana.</p>
         </div>
+        <label class="terms-check">
+          <input type="checkbox" name="aceptaTerminos" id="aceptaTerminos" required>
+          <span>Leí y acepto los <a href="/terminos" target="_blank">Términos y condiciones</a> — en especial, que <strong>una vez acreditado el pago no hay reembolsos ni cancelaciones</strong>.</span>
+        </label>
         <button class="mp-btn" type="submit">🔒 Pagar con Mercado Pago</button>
       </form>
       <p class="checkout-trust">Podés pagar con tarjeta, cuotas (según lo que ofrezca tu banco) o dinero en cuenta — Mercado Pago te muestra las opciones disponibles antes de confirmar. Pago 100% seguro, no vemos ni guardamos tu tarjeta.</p>
@@ -1230,6 +1237,12 @@ app.get("/preview/:token", (req, res) => {
 // evento nuevo tiene que comprar una invitación nueva a precio normal:
 // no hay una "reactivación" con precio especial, es directamente otra compra.
 const EDIT_GRACE_DAYS = 15;
+
+// Cuántos días después de la fecha del evento se conservan los datos de la
+// invitación (fotos y textos cargados) antes de borrarlos definitivamente.
+// Ver cleanupOldInvitations() más abajo, que es quien efectivamente los
+// borra corriendo una vez por día.
+const DATA_RETENTION_DAYS = 60;
 
 function isEditLocked(inv) {
   const fecha = inv?.data?.fecha;

@@ -153,7 +153,7 @@ function render(data = {}) {
   const accentOnFrost = getPaletteColor(d.colorPalette, "light", "#3c4a70");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha, "cd-cristal");
   const gal = galleryWidget(d.galeria || [], "gal-cristal");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp, categoria: "xv", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   // Fecha calculada a mano (sin toLocaleDateString) por portabilidad: el

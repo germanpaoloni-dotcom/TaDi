@@ -33,7 +33,7 @@ function render(data = {}) {
   const accent = getPaletteColor(d.colorPalette, "light", "#ff5fa2");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "16:00"}:00` : sampleData.fecha, "cd-princesa");
   const gal = galleryWidget(d.galeria, "gal-princesa");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "infantiles", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const sparkles = [

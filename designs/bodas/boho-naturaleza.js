@@ -104,7 +104,7 @@ function render(data = {}) {
   const accent = getPaletteColor(d.colorPalette, "dark", "#c9b790");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "18:00"}:00` : sampleData.fecha, "cdboho");
   const gal = galleryWidget(d.galeria, "galboho");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "bodas", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const rsvpMainHTML = `<p class="kicker">Por favor confirmá</p>

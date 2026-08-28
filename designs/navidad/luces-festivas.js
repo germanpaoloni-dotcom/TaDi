@@ -143,7 +143,7 @@ function render(data = {}) {
   const green = "#1f8a56";
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "21:00"}:00` : `${sampleData.fecha}T${sampleData.hora}:00`, "cd-luces");
   const gal = galleryWidget(d.galeria, "gal-luces");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "navidad", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   let fechaLarga = "";
