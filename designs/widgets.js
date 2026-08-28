@@ -82,6 +82,41 @@ function galleryWidget(images = [], id = "gal") {
   };
 }
 
+// Arma una frase tipo "el cumple nº 7 de Bruno" o "el casamiento de Cande y
+// Manchi" a partir de la categoría y los datos cargados, para que el
+// mensaje de WhatsApp diga para qué evento es la confirmación (en vez de
+// un genérico "la invitación"). Si falta algún dato, cae a un fallback
+// prolijo en vez de mostrar "undefined" o una frase rota.
+function eventoLabel(categoria, d = {}) {
+  switch (categoria) {
+    case "bodas":
+      if (d.novia && d.novio) return `el casamiento de ${d.novia} y ${d.novio}`;
+      return "el casamiento";
+    case "xv":
+      if (d.nombre) return `los 15 de ${d.nombre}`;
+      return "la fiesta de 15";
+    case "cumpleanos":
+      if (d.nombre && d.edad) return `el cumple nº ${d.edad} de ${d.nombre}`;
+      if (d.nombre) return `el cumpleaños de ${d.nombre}`;
+      return "el cumpleaños";
+    case "infantiles":
+      if (d.nombreChico && d.edad) return `el cumple nº ${d.edad} de ${d.nombreChico}`;
+      if (d.nombreChico) return `el cumpleaños de ${d.nombreChico}`;
+      return "el cumpleaños";
+    case "bautismos":
+      if (d.nombreChico) return `el bautismo de ${d.nombreChico}`;
+      return "el bautismo";
+    case "halloween":
+      if (d.nombre) return `el festejo de Halloween de ${d.nombre}`;
+      return "el festejo de Halloween";
+    case "navidad":
+      if (d.nombre) return `el festejo de ${d.nombre}`;
+      return "el festejo";
+    default:
+      return "la invitación";
+  }
+}
+
 // La confirmación de asistencia es un solo paso: la persona completa la
 // ficha y un único botón la manda directo por WhatsApp al número que cargó
 // el organizador (campo "whatsapp" del formulario del editor) — no hay un
@@ -89,9 +124,10 @@ function galleryWidget(images = [], id = "gal") {
 // Igual seguimos guardando la respuesta en segundo plano (silencioso, sin
 // bloquear ni depender de eso) para que el organizador la vea también en su
 // panel de invitados por si no llega a revisar WhatsApp.
-function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null } = {}) {
+function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null, categoria = null, datos = {} } = {}) {
   const id = "rsvp-" + Math.random().toString(36).slice(2, 8);
   const waNumber = whatsapp ? String(whatsapp).replace(/[^0-9]/g, "") : "";
+  const evento = eventoLabel(categoria, datos);
   const btnLabel = waNumber ? "✅ Confirmar asistencia por WhatsApp" : "✅ Confirmar asistencia";
   const menuLabels = { clasico: "Clásico", vegetariano: "Vegetariano", vegano: "Vegano", celiaco: "Sin TACC" };
   return {
@@ -109,6 +145,7 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
         var form = document.getElementById(${JSON.stringify(id)});
         var status = document.getElementById(${JSON.stringify(id + "-status")});
         var waNumber = ${JSON.stringify(waNumber)};
+        var evento = ${JSON.stringify(evento)};
         var menuLabels = ${JSON.stringify(menuLabels)};
         if(!form) return;
         form.addEventListener('submit', function(e){
@@ -128,7 +165,7 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
             if (data.acompaniantes && data.asiste !== 'no') lineas.push('Vamos a ser ' + data.acompaniantes + ' persona(s).');
             if (data.menu && menuLabels[data.menu] && data.asiste !== 'no') lineas.push('Preferencia de menú: ' + menuLabels[data.menu] + '.');
             if (data.mensaje) lineas.push('"' + data.mensaje + '"');
-            lineas.push('(Confirmando mi asistencia desde la invitación)');
+            lineas.push('Confirmo mi asistencia para ' + evento + '.');
             var texto = lineas.join('\\n');
             window.open('https://wa.me/' + waNumber + '?text=' + encodeURIComponent(texto), '_blank', 'noopener');
             status.textContent = '¡Te llevamos a WhatsApp para confirmar!';

@@ -149,7 +149,7 @@ function render(data = {}) {
   const lime = "#9be564";
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "17:00"}:00` : sampleData.fecha, "cd-dot");
   const gal = galleryWidget(d.galeria || [], "gal-dot");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "halloween", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
   const fp = fechaPartes(d.fecha);
 

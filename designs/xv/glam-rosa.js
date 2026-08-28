@@ -133,7 +133,7 @@ function render(data = {}) {
   const targetISO = d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha;
   const cd = countdownWidget(targetISO, "cd-glam");
   const gal = galleryWidget(d.galeria || [], "gal-glam");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "xv", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
   const archId = "arch-" + Math.random().toString(36).slice(2, 8);
 

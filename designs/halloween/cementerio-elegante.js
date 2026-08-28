@@ -117,7 +117,7 @@ function render(data = {}) {
   const GOLD = getPaletteColor(d.colorPalette, "dark", GOLD_FALLBACK);
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "21:00"}:00` : sampleData.fecha, "cdh1");
   const gal = galleryWidget(d.galeria, "galh1");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "halloween", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const fechaLarga = (() => {

@@ -103,7 +103,7 @@ function render(data = {}) {
   const accent2 = "#7C8F6E";
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "19:00"}:00` : sampleData.fecha, "cdjardinatard");
   const gal = galleryWidget(d.galeria, "galjardinatard");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "cumpleanos", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
   const tituloPagina = d.edad ? `${d.nombre} cumple ${d.edad}` : `Cumpleaños de ${d.nombre}`;
 

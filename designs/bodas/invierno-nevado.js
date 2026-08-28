@@ -51,7 +51,7 @@ function render(data = {}) {
   const accent = getPaletteColor(d.colorPalette, "dark", "#1c3a5e");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "18:00"}:00` : sampleData.fecha, "cd1");
   const gal = galleryWidget(d.galeria, "gal1");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp, categoria: "bodas", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const inicialNovia = (d.novia || "?").trim().charAt(0).toUpperCase();

@@ -119,7 +119,7 @@ function render(data = {}) {
   const accentOnBlush = getPaletteColor(d.colorPalette, "light", "#6f8256");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha, "cd-jardin");
   const gal = galleryWidget(d.galeria || [], "gal-jardin");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp, categoria: "xv", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   let diaSemana = "";

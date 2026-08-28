@@ -81,7 +81,7 @@ function render(data = {}) {
   const accent = getPaletteColor(d.colorPalette, "dark", "#d9a94f");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "20:30"}:00` : `${sampleData.fecha}T${sampleData.hora}:00`, "cd-vino");
   const gal = galleryWidget(d.galeria, "gal-vino");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "cumpleanos", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const fechaLarga = (() => {

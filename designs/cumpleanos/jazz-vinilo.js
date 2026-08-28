@@ -97,7 +97,7 @@ function render(data = {}) {
   const accent2 = "#1c1013";
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "21:30"}:00` : `${sampleData.fecha}T${sampleData.hora}:00`, "cd-jazz");
   const gal = galleryWidget(d.galeria, "gal-jazz");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "cumpleanos", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const fechaLarga = (() => {

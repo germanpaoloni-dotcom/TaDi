@@ -44,7 +44,7 @@ function render(data = {}) {
   const accent2 = "#8fd9c4";
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "16:00"}:00` : sampleData.fecha, "cd-unicornio");
   const gal = galleryWidget(d.galeria, "gal-unicornio");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "infantiles", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const nSectors = WHEEL_SECTORS.length;

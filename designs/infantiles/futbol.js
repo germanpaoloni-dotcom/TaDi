@@ -98,7 +98,7 @@ function render(data = {}) {
   const team1Pop = popColor(team1);
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "16:00"}:00` : sampleData.fecha, "cd-fut");
   const gal = galleryWidget(d.galeria, "gal-fut");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "infantiles", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
   const fechaLarga = formatFechaLarga(d.fecha);
 

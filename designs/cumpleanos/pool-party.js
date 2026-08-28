@@ -104,7 +104,7 @@ function render(data = {}) {
   const accent2 = "#f2c14e";
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "13:30"}:00` : `${sampleData.fecha}T${sampleData.hora}:00`, "cd-pool");
   const gal = galleryWidget(d.galeria, "gal-pool");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "cumpleanos", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const fechaLarga = (() => {

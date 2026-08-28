@@ -86,7 +86,7 @@ function render(data = {}) {
   const accent = getPaletteColor(d.colorPalette, "light", "#6d7a52");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "18:00"}:00` : sampleData.fecha, "cd3");
   const gal = galleryWidget(d.galeria, "gal3");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp, categoria: "bodas", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   // Fecha formateada (server-side, sin depender de zona horaria del browser)

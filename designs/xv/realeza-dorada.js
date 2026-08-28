@@ -141,7 +141,7 @@ function render(data = {}) {
   const accentOnCream = getPaletteColor(d.colorPalette, "light", "#8a6a1a");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha, "cd-realeza");
   const gal = galleryWidget(d.galeria || [], "gal-realeza");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp, categoria: "xv", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   // Fecha calculada a mano con arrays en español (no toLocaleDateString):

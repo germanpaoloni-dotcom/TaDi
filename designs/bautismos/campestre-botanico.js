@@ -25,7 +25,7 @@ function render(data = {}) {
   const accent = getPaletteColor(d.colorPalette, "light", "#b8935a");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaCeremonia || "11:00"}:00` : sampleData.fecha, "cdbau");
   const gal = galleryWidget(d.galeria, "galbau");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp, categoria: "bautismos", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   // Nota: se arma la fecha a mano (no con toLocaleDateString/Intl) por el

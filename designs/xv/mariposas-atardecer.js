@@ -127,7 +127,7 @@ function render(data = {}) {
   const accentOnIvory = getPaletteColor(d.colorPalette, "light", "#c05a3a");
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.horaFiesta || "20:00"}:00` : sampleData.fecha, "cd-mariposas");
   const gal = galleryWidget(d.galeria || [], "gal-mariposas");
-  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp });
+  const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: true, whatsapp: d.whatsapp, categoria: "xv", datos: d });
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   // Fecha calculada a mano (sin toLocaleDateString) por portabilidad.
