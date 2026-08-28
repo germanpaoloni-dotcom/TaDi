@@ -1,5 +1,6 @@
 const express = require("express");
 const multer = require("multer");
+const sharp = require("sharp");
 const path = require("path");
 const fs = require("fs");
 const { getDB, saveDB, uid } = require("./db");
@@ -48,7 +49,13 @@ const upload = multer({
     },
     filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname.replace(/[^a-zA-Z0-9._-]/g, "")),
   }),
-  limits: { fileSize: 8 * 1024 * 1024 },
+  // Las fotos que vienen directo de la cámara de un celular (12MP+, HEIC o
+  // JPEG sin comprimir) pueden pesar bien más de los 8MB que había antes —
+  // con ese límite tan bajo, subir una foto real fallaba en silencio (el
+  // fetch del editor no mostraba ningún error). Subimos el límite acá y,
+  // más abajo, cada imagen se re-comprime automáticamente con sharp así el
+  // archivo final que queda en el server siempre es liviano igual.
+  limits: { fileSize: 25 * 1024 * 1024 },
 });
 
 // ---------- vista previa al compartir el link (WhatsApp, Facebook, etc.) ----------
@@ -727,6 +734,23 @@ function helpHTML(f) {
   return f.help ? `<p class="field-help">${escapeHtml(f.help)}</p>` : "";
 }
 
+// Paleta fija de 10 colores para los selectores de "color de camiseta"
+// (ej. diseño Fútbol): en vez del selector de color libre del navegador,
+// se eligen entre estos 10 nombrados — más simple y a prueba de combinaciones
+// raras.
+const COLOR_SWATCHES = [
+  { name: "Blanco", hex: "#ffffff" },
+  { name: "Rojo", hex: "#e11d2e" },
+  { name: "Negro", hex: "#111111" },
+  { name: "Azul", hex: "#1a56db" },
+  { name: "Amarillo", hex: "#ffd400" },
+  { name: "Celeste", hex: "#75aadb" },
+  { name: "Granate", hex: "#7a1927" },
+  { name: "Naranja", hex: "#ff7a3d" },
+  { name: "Verde", hex: "#178345" },
+  { name: "Rosado", hex: "#ec4899" },
+];
+
 function fieldHTML(f, value) {
   const val = value ?? "";
   if (f.type === "textarea") {
@@ -750,8 +774,11 @@ function fieldHTML(f, value) {
     </div>`;
   }
   if (f.type === "color") {
-    const val2 = /^#[0-9a-fA-F]{6}$/.test(val) ? val : "#f0c44b";
-    return `<div class="field field-color"><label>${f.label}${f.required ? " *" : ""}</label>${helpHTML(f)}<input type="color" name="${f.name}" value="${escapeHtml(val2)}"></div>`;
+    const val2 = /^#[0-9a-fA-F]{6}$/.test(val) ? val.toLowerCase() : "#ffd400";
+    return `<div class="field field-swatches"><label>${f.label}${f.required ? " *" : ""}</label>${helpHTML(f)}
+      <input type="hidden" name="${f.name}" value="${escapeHtml(val2)}" id="hidden-${f.name}">
+      <div class="swatch-row" data-target="${f.name}">${COLOR_SWATCHES.map((s) => `<button type="button" class="swatch-btn${val2 === s.hex ? " selected" : ""}" data-target="${f.name}" data-hex="${s.hex}" style="background:${s.hex}" title="${s.name}" aria-label="${s.name}"></button>`).join("")}</div>
+    </div>`;
   }
   return `<div class="field"><label>${f.label}${f.required ? " *" : ""}</label>${helpHTML(f)}<input type="${f.type}" name="${f.name}" value="${escapeHtml(val)}"></div>`;
 }
@@ -889,12 +916,22 @@ app.get("/editar/:token", (req, res) => {
     return div;
   }
 
+  function uploadFile(file){
+    const fd = new FormData(); fd.append('imagen', file);
+    return fetch('/api/upload/' + token, { method:'POST', body: fd })
+      .then(function(r){
+        return r.json().catch(function(){ throw new Error('El servidor no respondió correctamente.'); })
+          .then(function(data){
+            if(!r.ok) throw new Error(data.error || 'No se pudo subir la foto.');
+            return data;
+          });
+      });
+  }
+
   document.querySelectorAll('.single-upload').forEach(function(input){
     input.addEventListener('change', function(){
       if(!input.files[0]) return;
-      const fd = new FormData(); fd.append('imagen', input.files[0]);
-      fetch('/api/upload/' + token, { method:'POST', body: fd })
-        .then(r => r.json()).then(function(res){
+      uploadFile(input.files[0]).then(function(res){
           document.getElementById('hidden-' + input.dataset.target).value = res.url;
           const preview = document.getElementById('preview-' + input.dataset.target);
           preview.innerHTML = '';
@@ -907,6 +944,9 @@ app.get("/editar/:token", (req, res) => {
           preview.style.display = '';
           input.value = '';
           refreshPreview();
+        }).catch(function(err){
+          alert('⚠️ ' + err.message);
+          input.value = '';
         });
     });
   });
@@ -918,17 +958,31 @@ app.get("/editar/:token", (req, res) => {
       const files = Array.from(input.files);
       let pending = files.length;
       files.forEach(function(file){
-        const fd = new FormData(); fd.append('imagen', file);
-        fetch('/api/upload/' + token, { method:'POST', body: fd })
-          .then(r => r.json()).then(function(res){
+        uploadFile(file).then(function(res){
             current.push(res.url);
             hidden.value = JSON.stringify(current);
             preview.appendChild(thumbHTML(input.dataset.target, res.url));
+          }).catch(function(err){
+            alert('⚠️ ' + err.message);
+          }).finally(function(){
             pending--; if(pending === 0) refreshPreview();
           });
       });
       input.value = '';
     });
+  });
+
+  // selector de color por paleta fija: click en un swatch marca ese color
+  // como elegido (hidden input + clase "selected") y refresca la vista previa.
+  document.addEventListener('click', function(e){
+    const swatch = e.target.closest('.swatch-btn');
+    if(!swatch) return;
+    const target = swatch.dataset.target;
+    const hidden = document.getElementById('hidden-' + target);
+    if(!hidden) return;
+    hidden.value = swatch.dataset.hex;
+    swatch.closest('.swatch-row').querySelectorAll('.swatch-btn').forEach(function(b){ b.classList.toggle('selected', b === swatch); });
+    refreshPreview();
   });
 
   // quitar imágenes ya subidas: click delegado, funciona tanto para las
@@ -1059,12 +1113,56 @@ app.post("/editar/:token/cambiar-diseno", (req, res) => {
   res.redirect(`/editar/${order.editToken}?disenoCambiado=1`);
 });
 
-app.post("/api/upload/:token", upload.single("imagen"), (req, res) => {
-  const db = getDB();
-  const order = db.orders.find((o) => o.editToken === req.params.token);
-  const inv = order && db.invitations.find((i) => i.orderId === order.id);
-  if (!order || !inv || isEditLocked(inv)) return res.status(403).json({ error: "invitación bloqueada" });
-  res.json({ url: `/static/uploads/${req.params.token}/${req.file.filename}` });
+app.post("/api/upload/:token", (req, res) => {
+  upload.single("imagen")(req, res, async (err) => {
+    // Antes, un error acá (ej. "MulterError: File too large") no lo agarraba
+    // nadie: Express devolvía una página de error en HTML, el fetch del
+    // editor intentaba leerla como JSON, tiraba una excepción sin catch, y
+    // el usuario no veía nada — la foto simplemente "no subía", sin aviso.
+    if (err) {
+      const msg = err.code === "LIMIT_FILE_SIZE"
+        ? "La foto pesa demasiado (máximo 25MB). Probá con una un poco más liviana."
+        : "No se pudo subir la foto. Probá de nuevo.";
+      return res.status(400).json({ error: msg });
+    }
+    try {
+      const db = getDB();
+      const order = db.orders.find((o) => o.editToken === req.params.token);
+      const inv = order && db.invitations.find((i) => i.orderId === order.id);
+      if (!order || !inv || isEditLocked(inv)) return res.status(403).json({ error: "invitación bloqueada" });
+      if (!req.file) return res.status(400).json({ error: "No llegó ninguna foto." });
+
+      // Recomprimimos y limitamos el tamaño con sharp: además de mantener
+      // el disco liviano, esto convierte a JPEG cualquier formato raro (por
+      // ejemplo HEIC, típico de fotos sacadas con iPhone) que muchos
+      // navegadores no pueden mostrar directamente.
+      const dir = path.dirname(req.file.path);
+      const finalName = req.file.filename.replace(/\.[a-zA-Z0-9]+$/, "") + ".jpg";
+      const finalPath = path.join(dir, finalName);
+      // sharp no permite leer y escribir el mismo archivo a la vez (pasa
+      // seguido: la foto original ya viene con extensión .jpg), así que
+      // siempre procesamos a un archivo temporal aparte y después lo
+      // renombramos al nombre final, borrando el original.
+      const tmpPath = finalPath + ".tmp";
+      await sharp(req.file.path)
+        .rotate()
+        .resize({ width: 1800, height: 1800, fit: "inside", withoutEnlargement: true })
+        .jpeg({ quality: 82, mozjpeg: true })
+        .toFile(tmpPath);
+      // Ojo con el orden acá: si el archivo original ya se llamaba igual al
+      // final (ej. subieron un .jpg), borrar de forma asíncrona podía pisar
+      // -en una carrera de milisegundos- al rename recién hecho y dejar la
+      // carpeta sin la foto. Por eso todo sincrónico y el borrado del
+      // original solo si de verdad quedó un archivo distinto al final.
+      fs.renameSync(tmpPath, finalPath);
+      if (req.file.path !== finalPath && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+
+      res.json({ url: `/static/uploads/${req.params.token}/${finalName}` });
+    } catch (e) {
+      console.error("Error procesando imagen subida:", e);
+      res.status(500).json({ error: "No se pudo procesar la foto. Probá con otra." });
+    }
+  });
 });
 
 // preview en vivo (sin guardar) — usa un archivo temporal en memoria por token
