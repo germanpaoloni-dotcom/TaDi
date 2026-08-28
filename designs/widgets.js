@@ -82,8 +82,18 @@ function galleryWidget(images = [], id = "gal") {
   };
 }
 
+// La confirmación de asistencia es un solo paso: la persona completa la
+// ficha y un único botón la manda directo por WhatsApp al número que cargó
+// el organizador (campo "whatsapp" del formulario del editor) — no hay un
+// botón separado que "guarda en el sitio" más un link aparte de WhatsApp.
+// Igual seguimos guardando la respuesta en segundo plano (silencioso, sin
+// bloquear ni depender de eso) para que el organizador la vea también en su
+// panel de invitados por si no llega a revisar WhatsApp.
 function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null } = {}) {
   const id = "rsvp-" + Math.random().toString(36).slice(2, 8);
+  const waNumber = whatsapp ? String(whatsapp).replace(/[^0-9]/g, "") : "";
+  const btnLabel = waNumber ? "✅ Confirmar asistencia por WhatsApp" : "✅ Confirmar asistencia";
+  const menuLabels = { clasico: "Clásico", vegetariano: "Vegetariano", vegano: "Vegano", celiaco: "Sin TACC" };
   return {
     html: `<form class="rsvp-form" id="${id}">
       <label>Nombre y apellido <input required name="nombre" type="text" placeholder="Tu nombre"></label>
@@ -91,25 +101,41 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
       <label>¿Asistís? <select name="asiste"><option value="si">Sí, ahí estaré</option><option value="no">No voy a poder ir</option></select></label>
       ${withMenu ? `<label>Preferencia de menú <select name="menu"><option value="clasico">Clásico</option><option value="vegetariano">Vegetariano</option><option value="vegano">Vegano</option><option value="celiaco">Sin TACC</option></select></label>` : ""}
       <label>Mensaje (opcional) <textarea name="mensaje" placeholder="¡Les mando un beso!"></textarea></label>
-      <button type="submit">Confirmar asistencia</button>
-      ${whatsapp ? `<a class="rsvp-whatsapp" href="https://wa.me/${whatsapp}" target="_blank" rel="noopener">O confirmá por WhatsApp →</a>` : ""}
+      <button type="submit">${btnLabel}</button>
       <p class="rsvp-status" id="${id}-status"></p>
     </form>`,
     script: `
       (function(){
         var form = document.getElementById(${JSON.stringify(id)});
         var status = document.getElementById(${JSON.stringify(id + "-status")});
+        var waNumber = ${JSON.stringify(waNumber)};
+        var menuLabels = ${JSON.stringify(menuLabels)};
         if(!form) return;
         form.addEventListener('submit', function(e){
           e.preventDefault();
           var data = Object.fromEntries(new FormData(form).entries());
+          // Guardado best-effort en segundo plano: no bloquea ni condiciona
+          // el paso a WhatsApp, es solo para que quede también en el panel
+          // de invitados del organizador.
           fetch('/api/invitacion/${slug}/rsvp', {
             method: 'POST', headers: {'Content-Type':'application/json'},
             body: JSON.stringify(data)
-          }).then(function(r){ return r.json(); }).then(function(){
+          }).catch(function(){});
+
+          if (waNumber) {
+            var lineas = ['¡Hola! Soy ' + (data.nombre || '') + '.'];
+            lineas.push(data.asiste === 'no' ? 'Lamentablemente no voy a poder ir 😔' : '¡Sí, ahí voy a estar! 🎉');
+            if (data.acompaniantes && data.asiste !== 'no') lineas.push('Vamos a ser ' + data.acompaniantes + ' persona(s).');
+            if (data.menu && menuLabels[data.menu] && data.asiste !== 'no') lineas.push('Preferencia de menú: ' + menuLabels[data.menu] + '.');
+            if (data.mensaje) lineas.push('"' + data.mensaje + '"');
+            lineas.push('(Confirmando mi asistencia desde la invitación)');
+            var texto = lineas.join('\\n');
+            window.open('https://wa.me/' + waNumber + '?text=' + encodeURIComponent(texto), '_blank', 'noopener');
+            status.textContent = '¡Te llevamos a WhatsApp para confirmar!';
+          } else {
             status.textContent = '¡Gracias, confirmamos tu respuesta!';
-            form.reset();
-          }).catch(function(){ status.textContent = 'Hubo un error, probá de nuevo.'; });
+          }
+          form.reset();
         });
       })();`,
   };
