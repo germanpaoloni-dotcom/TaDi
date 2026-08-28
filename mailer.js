@@ -36,6 +36,15 @@ function getTransporter() {
       // nunca sale y termina en ENETUNREACH. Forzando family:4 se evita
       // ese intento y conecta directo por IPv4.
       family: 4,
+      // Sin esto, si algo anda mal con la conexión SMTP (credenciales
+      // vencidas, firewall, lo que sea), nodemailer puede quedarse colgado
+      // varios minutos intentando conectar — y como el envío del mail
+      // corría "en línea" con el guardado del editor, el botón "¡Listo!"
+      // se quedaba trabado en "Guardando…" para siempre. Con estos límites,
+      // si el mail falla, falla rápido (y ya no bloquea nada: ver server.js).
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
   }
   return transporter;
