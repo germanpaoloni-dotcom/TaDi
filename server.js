@@ -1287,9 +1287,21 @@ app.post("/api/invitaciones/:token/finalizar", async (req, res) => {
   saveDB(db);
   previewCache.delete(req.params.token);
 
+  // Importante: NO esperamos (await) a que el mail termine de mandarse antes
+  // de responder. Antes sí se esperaba, y si el envío por SMTP se colgaba
+  // (credenciales con problemas, red lenta, lo que sea — nodemailer puede
+  // tardar minutos en fallar sin un timeout), el botón "¡Listo!" se quedaba
+  // trabado en "Guardando…" para siempre y el usuario nunca veía ni el
+  // guardado confirmado ni el mail. El guardado de arriba ya es instantáneo
+  // (no depende de red); el mail se dispara en paralelo, en segundo plano.
+  const alreadySent = Boolean(order.emailSent);
   const baseUrl = `${req.protocol}://${req.get("host")}`;
-  const mailResult = (await sendOrderEmail(order, baseUrl).catch(() => null)) || {};
-  res.json({ ok: true, mailSent: Boolean(mailResult.sent), mailAlreadySent: Boolean(mailResult.alreadySent) });
+  if (!alreadySent) {
+    sendOrderEmail(order, baseUrl).catch((err) =>
+      console.error("Error enviando mail desde el botón ¡Listo!:", err)
+    );
+  }
+  res.json({ ok: true, mailSent: !alreadySent, mailAlreadySent: alreadySent });
 });
 
 // ---------- PÁGINA PÚBLICA FINAL ----------
