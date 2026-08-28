@@ -786,13 +786,24 @@ app.get("/editar/:token", (req, res) => {
       <div class="save-bar"><button class="save-btn" type="submit">Guardar cambios</button></div>
     </form>
     ${req.query.disenoCambiado ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Listo! Cambiamos el diseño. Los datos que coincidían (fecha, lugar, fotos, etc.) se mantuvieron, revisá que esté todo como querés.</p>` : ""}
-    <div class="link-box">
-      🔗 Link para compartir con tus invitados:<br>
-      <a href="${publicUrl}" target="_blank">${publicUrl}</a>
+    <div class="link-box link-box-row">
+      <div class="link-box-text">
+        🔗 Link para compartir con tus invitados:<br>
+        <a href="${publicUrl}" target="_blank">${publicUrl}</a>
+      </div>
+      <div class="link-box-actions">
+        <button type="button" class="copy-btn" data-copy="${escapeHtml(publicUrl)}">📋 Copiar</button>
+        <a class="wa-btn" href="https://wa.me/?text=${encodeURIComponent(`¡Ya está lista mi invitación! Mirala acá: ${publicUrl}`)}" target="_blank" rel="noopener">💬 WhatsApp</a>
+      </div>
     </div>
-    <div class="link-box">
-      🔒 Guardá este link para volver a editar cuando quieras:<br>
-      <a href="/editar/${order.editToken}">${req.protocol}://${req.get("host")}/editar/${order.editToken}</a>
+    <div class="link-box link-box-row">
+      <div class="link-box-text">
+        🔒 Guardá este link para volver a editar cuando quieras:<br>
+        <a href="/editar/${order.editToken}">${req.protocol}://${req.get("host")}/editar/${order.editToken}</a>
+      </div>
+      <div class="link-box-actions">
+        <button type="button" class="copy-btn" data-copy="${escapeHtml(`${req.protocol}://${req.get("host")}/editar/${order.editToken}`)}">📋 Copiar</button>
+      </div>
     </div>
     <a href="/editar/${order.editToken}/cambiar-diseno" class="btn btn-outline" style="display:block;width:100%;text-align:center;text-decoration:none;margin-top:16px;box-sizing:border-box;">
       🔄 ¿Te confundiste de diseño? Cambiar diseño
@@ -806,6 +817,35 @@ app.get("/editar/:token", (req, res) => {
   const token = ${JSON.stringify(order.editToken)};
   const form = document.getElementById('editForm');
   const iframe = document.getElementById('preview');
+
+  // Copiar link con un click (con fallback para navegadores/contextos sin
+  // acceso a navigator.clipboard, como http sin TLS).
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      const text = btn.dataset.copy;
+      const done = function(){
+        const original = btn.textContent;
+        btn.textContent = '✅ ¡Copiado!';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = original; btn.classList.remove('copied'); }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(function(){ fallbackCopy(text, done); });
+      } else {
+        fallbackCopy(text, done);
+      }
+    });
+  });
+  function fallbackCopy(text, done){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
 
   function collect(){
     const data = {};
