@@ -1467,14 +1467,64 @@ function adminLayout({ title, body }) {
   .admin-actions{display:flex;flex-direction:column;gap:6px;}
   .admin-actions form{margin:0;}
   .admin-actions button, .admin-actions a{display:block;width:100%;box-sizing:border-box;text-align:center;padding:6px 10px;border-radius:8px;border:none;font-size:.74rem;cursor:pointer;text-decoration:none;}
+  .admin-actions .a-view{background:#6b5bd6;color:#fff;}
   .admin-actions .a-edit{background:var(--accent);color:#fff;}
   .admin-actions .a-pay{background:#1f9d55;color:#fff;}
   .admin-actions .a-resend{background:#3a6ea5;color:#fff;}
   .admin-empty{padding:40px;text-align:center;color:var(--muted);}
+  .admin-panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:26px;}
+  .admin-panel{background:var(--bg);box-shadow:var(--nu-xs, 6px 6px 12px #0002,-6px -6px 12px #fff2);border-radius:14px;padding:18px 20px;}
+  .admin-panel h3{margin:0 0 12px;font-size:.86rem;}
+  .admin-mini-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line,#0001);font-size:.82rem;}
+  .admin-mini-row:last-child{border-bottom:none;}
+  .admin-mini-row .n{color:var(--muted);}
+  .admin-mini-empty{color:var(--muted);font-size:.82rem;}
+  .admin-detail-meta{display:flex;flex-wrap:wrap;gap:14px 26px;font-size:.85rem;background:var(--bg);box-shadow:var(--nu-inset-sm, inset 2px 2px 5px #0002, inset -2px -2px 5px #fff2);border-radius:12px;padding:14px 18px;margin-bottom:8px;}
+  .admin-detail-grid{display:flex;flex-direction:column;gap:2px;border-radius:14px;overflow:hidden;background:var(--bg);box-shadow:var(--nu-xs, 6px 6px 12px #0002,-6px -6px 12px #fff2);}
+  .admin-detail-row{display:grid;grid-template-columns:220px 1fr;gap:16px;padding:12px 18px;border-bottom:1px solid var(--line,#0001);font-size:.85rem;}
+  .admin-detail-row:last-child{border-bottom:none;}
+  .admin-detail-label{color:var(--muted);font-weight:600;}
+  .admin-detail-value{word-break:break-word;}
+  .admin-empty-val{color:var(--muted);}
+  .admin-thumbs{display:flex;flex-wrap:wrap;gap:8px;}
+  .admin-thumbs img{width:70px;height:70px;object-fit:cover;border-radius:8px;}
+  .admin-thumb-single{max-width:160px;max-height:160px;border-radius:10px;display:block;}
+  .admin-color-chip{display:inline-block;width:16px;height:16px;border-radius:4px;vertical-align:middle;margin-right:6px;box-shadow:0 0 0 1px #0002;}
 </style>
 </head><body>
 <div class="admin-wrap">${body}</div>
 </body></html>`;
+}
+
+const MESES_ES_ADMIN = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+
+// Muestra el valor cargado de un campo del esquema del diseño en modo
+// solo-lectura, para el detalle de la orden en el admin (fotos como
+// miniaturas, color como chip, etc.) — es la contraparte de fieldHTML()
+// pero sin inputs, porque acá no se edita nada.
+function adminFieldValueHTML(f, value) {
+  if (f.type === "images") {
+    const arr = Array.isArray(value) ? value : [];
+    if (!arr.length) return `<span class="admin-empty-val">— sin fotos —</span>`;
+    return `<div class="admin-thumbs">${arr.map((s) => `<a href="${escapeHtml(s)}" target="_blank"><img src="${escapeHtml(s)}" alt=""></a>`).join("")}</div>`;
+  }
+  if (f.type === "image") {
+    if (!value) return `<span class="admin-empty-val">— sin foto —</span>`;
+    return `<a href="${escapeHtml(value)}" target="_blank"><img class="admin-thumb-single" src="${escapeHtml(value)}" alt=""></a>`;
+  }
+  if (f.type === "color") {
+    if (!value) return `<span class="admin-empty-val">—</span>`;
+    return `<span class="admin-color-chip" style="background:${escapeHtml(value)}"></span>${escapeHtml(value)}`;
+  }
+  if (f.type === "textarea") {
+    if (!value) return `<span class="admin-empty-val">—</span>`;
+    return `<span style="white-space:pre-wrap;">${escapeHtml(value)}</span>`;
+  }
+  if (f.type === "url") {
+    if (!value) return `<span class="admin-empty-val">—</span>`;
+    return `<a href="${escapeHtml(value)}" target="_blank">${escapeHtml(value)}</a>`;
+  }
+  return value ? escapeHtml(value) : `<span class="admin-empty-val">—</span>`;
 }
 
 app.get("/admin", requireAdminAuth, (req, res) => {
@@ -1498,6 +1548,34 @@ app.get("/admin", requireAdminAuth, (req, res) => {
 
   const totalRsvps = db.rsvps.length;
 
+  // Resumen mensual: tarjetas vendidas y facturación por mes (según fecha
+  // de pago), más recientes primero.
+  const monthly = {};
+  paidOrders.forEach((o) => {
+    const d = new Date(o.paidAt || o.createdAt);
+    if (isNaN(d.getTime())) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    if (!monthly[key]) monthly[key] = { count: 0, revenue: 0, y: d.getFullYear(), m: d.getMonth() };
+    monthly[key].count++;
+    monthly[key].revenue += Number(o.amount) || 0;
+  });
+  const monthlyRows = Object.entries(monthly)
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .slice(0, 12)
+    .map(([key, v]) => `<div class="admin-mini-row"><span>${MESES_ES_ADMIN[v.m]} ${v.y}</span><span class="n">${v.count} tarjeta${v.count === 1 ? "" : "s"} · ${money(v.revenue)}</span></div>`)
+    .join("") || `<p class="admin-mini-empty">Todavía no hay ventas.</p>`;
+
+  // Diseños más elegidos (sobre tarjetas pagadas).
+  const designCounts = {};
+  paidOrders.forEach((o) => { designCounts[o.designId] = (designCounts[o.designId] || 0) + 1; });
+  const topDesignsRows = Object.entries(designCounts)
+    .map(([designId, count]) => ({ design: getDesign(designId), count }))
+    .filter((r) => r.design)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10)
+    .map((r) => `<div class="admin-mini-row"><span>${escapeHtml(r.design.name)}</span><span class="n">${r.count}</span></div>`)
+    .join("") || `<p class="admin-mini-empty">Todavía no hay ventas.</p>`;
+
   const visibleOrders = (estado === "all" ? db.orders : db.orders.filter((o) => o.status === estado))
     .slice()
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -1514,6 +1592,7 @@ app.get("/admin", requireAdminAuth, (req, res) => {
 
     const acciones = [];
     if (order.status === "paid" && order.editToken) {
+      acciones.push(`<a class="a-view" href="/admin/orders/${order.id}">🔍 Ver datos</a>`);
       acciones.push(`<a class="a-edit" href="/editar/${order.editToken}" target="_blank">✏️ Editar</a>`);
       acciones.push(`<form method="POST" action="/admin/orders/${order.id}/reenviar-mail" onsubmit="return confirm('¿Reenviar el mail con los links de esta invitación?');"><button class="a-resend" type="submit">✉️ Reenviar mail</button></form>`);
     }
@@ -1547,6 +1626,10 @@ app.get("/admin", requireAdminAuth, (req, res) => {
         <div class="admin-stat"><span class="num">${totalRsvps}</span><span class="label">Confirmaciones RSVP</span></div>
       </div>
       <p style="color:var(--muted);font-size:.8rem;margin:-14px 0 20px;">Por categoría: ${byCategoryLabel}</p>
+      <div class="admin-panels">
+        <div class="admin-panel"><h3>📅 Resumen mensual</h3>${monthlyRows}</div>
+        <div class="admin-panel"><h3>🏆 Diseños más elegidos</h3>${topDesignsRows}</div>
+      </div>
       <div class="admin-filters">
         <a href="/admin" class="${estado === "all" ? "active" : ""}">Todas (${db.orders.length})</a>
         <a href="/admin?estado=paid" class="${estado === "paid" ? "active" : ""}">Pagadas (${paidOrders.length})</a>
@@ -1558,6 +1641,58 @@ app.get("/admin", requireAdminAuth, (req, res) => {
           <tbody>${rows}</tbody>
         </table>` : `<div class="admin-empty">No hay órdenes${estado !== "all" ? " con ese estado" : ""} todavía.</div>`}
       </div>
+    `,
+  }));
+});
+
+// Detalle de una orden puntual: todos los datos cargados en la tarjeta
+// (para revisar rápido si hay que arreglar algo que pidió el comprador,
+// sin tener que abrir el editor completo solo para mirar) + confirmaciones.
+app.get("/admin/orders/:id", requireAdminAuth, (req, res) => {
+  const db = getDB();
+  const order = db.orders.find((o) => o.id === req.params.id);
+  if (!order) return res.status(404).send(adminLayout({ title: "No encontrado", body: `<p>Orden no encontrada. <a href="/admin">← Volver</a></p>` }));
+
+  const design = getDesign(order.designId);
+  const inv = db.invitations.find((i) => i.orderId === order.id);
+  const rsvps = inv ? db.rsvps.filter((r) => r.slug === inv.slug) : [];
+  const catLabel = design ? (categories.find((c) => c.id === design.category) || {}).label || design.category : "—";
+
+  const fieldsHTML = design && inv
+    ? design.schema.filter((f) => f.type !== "palette").map((f) => `
+        <div class="admin-detail-row">
+          <div class="admin-detail-label">${escapeHtml(f.label)}</div>
+          <div class="admin-detail-value">${adminFieldValueHTML(f, inv.data[f.name])}</div>
+        </div>`).join("")
+    : `<div class="admin-detail-row"><div class="admin-detail-value">Esta orden todavía no tiene una tarjeta cargada (el pago sigue pendiente).</div></div>`;
+
+  const rsvpsHTML = rsvps.length
+    ? rsvps.map((r) => `
+        <div class="admin-detail-row">
+          <div class="admin-detail-label">${escapeHtml(r.nombre || "—")}</div>
+          <div class="admin-detail-value">${r.asiste === "no" ? "❌ No asiste" : "✅ Asiste"}${r.acompaniantes ? ` · ${escapeHtml(r.acompaniantes)} persona(s)` : ""}${r.menu ? ` · menú: ${escapeHtml(r.menu)}` : ""}${r.mensaje ? `<br><em>"${escapeHtml(r.mensaje)}"</em>` : ""}</div>
+        </div>`).join("")
+    : "";
+
+  res.send(adminLayout({
+    title: design ? design.name : "Detalle de orden",
+    body: `
+      <div class="admin-top">
+        <h1>🔍 ${escapeHtml(design ? design.name : order.designId)}</h1>
+        <a class="brand-link" href="/admin">← Volver al panel</a>
+      </div>
+      <div class="admin-detail-meta">
+        <span><strong>Comprador:</strong> ${escapeHtml(order.buyerEmail || "—")}</span>
+        <span><strong>Categoría:</strong> ${escapeHtml(catLabel)}</span>
+        <span><strong>Monto:</strong> ${money(order.amount)}</span>
+        <span><strong>Estado:</strong> ${order.status === "paid" ? "Pagada" : "Pendiente"}</span>
+        <span><strong>Comprada:</strong> ${order.createdAt ? new Date(order.createdAt).toLocaleString("es-AR") : "—"}</span>
+        ${order.status === "paid" ? `<span><strong>Editor:</strong> <a href="/editar/${order.editToken}" target="_blank">abrir para modificar →</a></span>` : ""}
+      </div>
+      <h2 style="margin-top:26px;font-size:1rem;">Datos cargados en la tarjeta</h2>
+      <div class="admin-detail-grid">${fieldsHTML}</div>
+      ${inv ? `<h2 style="margin-top:26px;font-size:1rem;">Confirmaciones (${rsvps.length})</h2>
+        ${rsvps.length ? `<div class="admin-detail-grid">${rsvpsHTML}</div>` : `<p class="admin-mini-empty">Todavía no hay confirmaciones.</p>`}` : ""}
     `,
   }));
 });
