@@ -499,6 +499,61 @@ h2{
   text-transform:uppercase;
 }
 
+/* ANIMACIONES SUTILES: balanceo de hortensias, brillo dorado en la cruz
+   y nubecitas/plumitas flotando lentísimo en el hero (tema angelical). */
+.hydrangea{
+  animation:hortensiaSway 8s ease-in-out infinite;
+  transform-origin:50% 55%;
+}
+.hero-cross .hydrangea{animation-delay:.4s}
+.name-cross .hydrangea{animation-delay:1.1s}
+.intro .botanical .hydrangea{animation-delay:.8s}
+.footer .botanical .hydrangea{animation-delay:1.6s}
+.seal{animation:cruzBrillo 6s ease-in-out infinite}
+@keyframes hortensiaSway{
+  0%,100%{transform:rotate(-1.6deg)}
+  50%{transform:rotate(1.6deg)}
+}
+@keyframes cruzBrillo{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.22)}
+}
+.hero-clouds{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  overflow:hidden;
+  pointer-events:none;
+}
+.cloud{
+  position:absolute;
+  border-radius:50%;
+  background:rgba(255,255,255,.62);
+  filter:blur(.3px);
+  animation:nubeFlotar 20s ease-in-out infinite;
+}
+.cloud-a{
+  top:16%;left:13%;width:20px;height:7px;
+  box-shadow:9px -3px 0 -1px rgba(255,255,255,.5),-8px -2px 0 -2px rgba(255,255,255,.4);
+  animation-duration:19s;
+}
+.cloud-b{
+  top:27%;right:15%;width:16px;height:6px;
+  box-shadow:7px -2px 0 -1px rgba(255,255,255,.45);
+  animation-duration:23s;
+  animation-delay:3s;
+}
+.cloud-c{
+  top:9%;left:52%;width:13px;height:5px;
+  box-shadow:6px -2px 0 -1px rgba(255,255,255,.4);
+  animation-duration:26s;
+  animation-delay:6s;
+}
+@keyframes nubeFlotar{
+  0%,100%{transform:translate(0,0);opacity:.55}
+  50%{transform:translate(7px,-15px);opacity:.85}
+}
+
 @media (max-width:430px){
   .hero{min-height:680px}
   /* deja lugar arriba para que el botón fijo "← Volver" de la demo no
@@ -509,7 +564,7 @@ h2{
   .gallery-item:first-child img{height:215px}
 }
 @media (prefers-reduced-motion:reduce){
-  *{scroll-behavior:auto!important;transition:none!important}
+  *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
 </style>
 </head>
@@ -518,6 +573,11 @@ h2{
 
 <section class="section hero">
   ${d.coverImage ? `<img class="hero-photo" src="${esc(d.coverImage)}" alt="Foto de ${esc(d.nombreChico)}">` : ""}
+  <div class="hero-clouds" aria-hidden="true">
+    <span class="cloud cloud-a"></span>
+    <span class="cloud cloud-b"></span>
+    <span class="cloud cloud-c"></span>
+  </div>
   <div class="hero-top">
     <div class="hero-pill">Un día para recordar</div>
     <div class="hero-cross">${hydrangeaSvg(28,28)}</div>

@@ -73,6 +73,26 @@ function divider() {
   return `<div class="divider">${confettiSVG()}${clinkSVG.replace('motif-clink', 'motif-clink motif-clink-small')}${confettiSVG("flip")}</div>`;
 }
 
+// Copa de brindis con un par de burbujas subiendo despacio, con demoras
+// distintas por copa para que las tres nunca queden sincronizadas.
+function champagneGlass(i) {
+  const delays = [[0, 2.1], [0.9, 3.4], [1.6, 2.7]][i % 3];
+  return `<div class="champagne-glass">${champagneSVG}<span class="bubble" style="animation-delay:${delays[0]}s"></span><span class="bubble" style="animation-delay:${delays[1]}s"></span></div>`;
+}
+
+// Puntitos dorados difusos que titilan muy despacio en el hero, como
+// luces de salón desenfocadas. Duraciones y demoras variadas a propósito.
+const heroSparkles = [
+  { top: "14%", left: "18%", dur: "7.5s", delay: "0s" },
+  { top: "22%", left: "74%", dur: "9s", delay: "1.2s" },
+  { top: "38%", left: "46%", dur: "8.5s", delay: "2.6s" },
+  { top: "10%", left: "58%", dur: "6.5s", delay: ".8s" },
+  { top: "30%", left: "12%", dur: "10s", delay: "3.4s" },
+  { top: "18%", left: "86%", dur: "7s", delay: "2s" },
+]
+  .map((s) => `<span class="spark" style="top:${s.top};left:${s.left};animation-duration:${s.dur};animation-delay:${s.delay}"></span>`)
+  .join("");
+
 function render(data = {}) {
   const d = { ...sampleData, ...data };
   const accent = getPaletteColor(d.colorPalette, "dark", "#D4AF37");
@@ -135,6 +155,29 @@ function render(data = {}) {
   .hero-date{letter-spacing:.25em;text-transform:uppercase;font-size:clamp(.72rem,2vw,.9rem);color:var(--cream-dim);margin-top:14px;}
   .hero-champagnes{display:flex;justify-content:center;gap:18px;margin-top:24px;}
 
+  /* Destellos dorados difusos, tipo luces de salón desenfocadas */
+  .hero-sparkles{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;}
+  .spark{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold);opacity:0;box-shadow:0 0 10px 4px var(--gold-soft);animation-name:spark-twinkle;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}
+  @keyframes spark-twinkle{
+    0%,100%{opacity:0;transform:scale(.6);}
+    50%{opacity:.8;transform:scale(1);}
+  }
+
+  /* Burbujitas subiendo despacio desde cada copa de brindis del hero */
+  .champagne-glass{position:relative;}
+  .bubble{position:absolute;left:50%;bottom:44%;width:2px;height:2px;border-radius:50%;background:var(--gold-soft);opacity:0;animation:bubble-rise 6.5s ease-in infinite;}
+  .bubble + .bubble{left:57%;width:1.5px;height:1.5px;}
+  @keyframes bubble-rise{
+    0%{opacity:0;transform:translate(-50%,0) scale(.8);}
+    12%{opacity:.65;}
+    82%{opacity:.3;}
+    100%{opacity:0;transform:translate(-50%,-32px) scale(1);}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .spark,.bubble{animation:none !important;opacity:0 !important;}
+  }
+
   section{max-width:760px;margin:0 auto;padding:66px 24px;text-align:center;}
   h2{font-weight:800;letter-spacing:2px;text-transform:uppercase;font-size:clamp(1.1rem,2.8vw,1.5rem);color:var(--gold);margin:0 0 30px;}
 
@@ -187,12 +230,13 @@ function render(data = {}) {
 
   <div class="hero">
     <div class="hero-bg"></div>
+    <div class="hero-sparkles">${heroSparkles}</div>
     <div class="hero-content">
       <p class="eyebrow">Cumpleaños de gala</p>
       <h1>${esc(d.nombre)}</h1>
       ${d.edad ? `<div class="hero-age">${esc(d.edad)}</div>` : ""}
       ${fechaLarga ? `<p class="hero-date">${esc(fechaLarga)}</p>` : ""}
-      <div class="hero-champagnes">${champagneSVG}${champagneSVG}${champagneSVG}</div>
+      <div class="hero-champagnes">${champagneGlass(0)}${champagneGlass(1)}${champagneGlass(2)}</div>
     </div>
   </div>
 

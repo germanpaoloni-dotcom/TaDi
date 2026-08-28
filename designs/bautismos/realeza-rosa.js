@@ -4,6 +4,9 @@ const { getPaletteColor } = require("../palettes");
 
 const id = "bau-realeza-rosa";
 
+const DIAS_CORTOS_ES = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
+const MESES_CORTOS_ES = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+
 const sampleData = {
   nombreChico: "Lucía Ximena",
   padres: "Rocío y Diego",
@@ -34,8 +37,8 @@ function render(data = {}) {
   const rsvpDeadline = formatFechaCorta(d.fechaLimiteRSVP);
 
   const fecha = d.fecha ? new Date(`${d.fecha}T00:00:00`) : null;
-  const diaSemana = fecha ? fecha.toLocaleDateString("es-AR", { weekday: "short" }).replace(".", "").toUpperCase() : "";
-  const mesTxt = fecha ? fecha.toLocaleDateString("es-AR", { month: "short" }).replace(".", "").toUpperCase() : "";
+  const diaSemana = fecha ? DIAS_CORTOS_ES[fecha.getDay()] : "";
+  const mesTxt = fecha ? MESES_CORTOS_ES[fecha.getMonth()] : "";
   const diaNum = fecha ? String(fecha.getDate()).padStart(2, "0") : "";
   const anioTxt = fecha ? fecha.getFullYear() : "";
 
@@ -115,7 +118,35 @@ function render(data = {}) {
     margin:0 auto 8px;
     position:relative;z-index:2;
   }
-  .cross-wrap svg{width:100%;height:auto;display:block;}
+  .cross-wrap svg{width:100%;height:auto;display:block;animation:cross-shimmer 6s ease-in-out infinite;}
+  .hero .petal{
+    position:absolute;
+    width:10px;height:10px;
+    background:radial-gradient(circle at 30% 30%, #fff, var(--rosa) 70%);
+    border-radius:0 60% 0 60%;
+    opacity:0;
+    pointer-events:none;
+    z-index:1;
+    animation:petal-fall 15s ease-in-out infinite;
+  }
+  .hero .petal.p1{left:12%;top:-4%;animation-delay:0s;}
+  .hero .petal.p2{left:48%;top:-6%;width:8px;height:8px;background:radial-gradient(circle at 30% 30%,#fff,var(--dorado-claro) 70%);animation-delay:5s;animation-duration:18s;}
+  .hero .petal.p3{left:82%;top:-3%;animation-delay:10s;animation-duration:16s;}
+
+  @keyframes cross-shimmer{
+    0%,100%{filter:drop-shadow(0 0 0 rgba(227,201,168,0));}
+    50%{filter:drop-shadow(0 0 6px rgba(227,201,168,.65));}
+  }
+  @keyframes petal-fall{
+    0%{opacity:0;transform:translateY(0) rotate(0deg);}
+    8%{opacity:.75;}
+    85%{opacity:.4;}
+    100%{opacity:0;transform:translateY(420px) rotate(70deg);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .cross-wrap svg{animation:none;}
+    .hero .petal{animation:none;opacity:0;}
+  }
   .medallion{
     width:clamp(150px,34vw,200px);
     height:clamp(150px,34vw,200px);
@@ -293,6 +324,9 @@ function render(data = {}) {
 <body>
 
   <div class="hero">
+    <span class="petal p1" aria-hidden="true"></span>
+    <span class="petal p2" aria-hidden="true"></span>
+    <span class="petal p3" aria-hidden="true"></span>
     ${d.mensaje ? `<p class="quote">&ldquo;${esc(d.mensaje)}&rdquo;</p>` : ""}
     <p class="kicker">Mi Bautizo</p>
     <h1>${esc(d.nombreChico)}</h1>

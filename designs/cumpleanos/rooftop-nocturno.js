@@ -30,7 +30,9 @@ const MESES_LARGO = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "jul
 // distinta altura, algunas ventanas encendidas (accent turquesa + un dorado
 // tenue). Se usa como decoración de fondo del hero, detrás del degradé de
 // cielo nocturno. Genera ventanas con una semilla simple (determinística)
-// para que no cambie entre renders del mismo diseño.
+// para que no cambie entre renders del mismo diseño. Una parte de las
+// ventanas turquesa titila lentamente (duración y delay negativo derivados
+// de la misma semilla) para que la ciudad se sienta viva, sin sincronía.
 function skylineSVG(accent) {
   function windows(x0, y0, w, h, cols, rows, seed) {
     const cw = w / cols;
@@ -46,7 +48,18 @@ function skylineSVG(accent) {
         const gold = s / 233280 > 0.75;
         const wx = x0 + c * cw + cw * 0.28;
         const wy = y0 + r * rh + rh * 0.28;
-        out += `<rect x="${wx.toFixed(1)}" y="${wy.toFixed(1)}" width="${(cw * 0.44).toFixed(1)}" height="${(rh * 0.44).toFixed(1)}" fill="${gold ? "#e8c98a" : accent}" opacity="${gold ? 0.75 : 0.85}"/>`;
+        const baseOp = gold ? 0.75 : 0.85;
+        s = (s * 9301 + 49297) % 233280;
+        const willTwinkle = !gold && s / 233280 > 0.62;
+        let extra = "";
+        if (willTwinkle) {
+          s = (s * 9301 + 49297) % 233280;
+          const dur = (4 + (s / 233280) * 5).toFixed(2); // 4s a 9s
+          s = (s * 9301 + 49297) % 233280;
+          const delay = (-(s / 233280) * 9).toFixed(2); // delay negativo: arranca ya desfasada
+          extra = ` class="tw" style="--w-op:${baseOp};animation-duration:${dur}s;animation-delay:${delay}s"`;
+        }
+        out += `<rect x="${wx.toFixed(1)}" y="${wy.toFixed(1)}" width="${(cw * 0.44).toFixed(1)}" height="${(rh * 0.44).toFixed(1)}" fill="${gold ? "#e8c98a" : accent}" opacity="${baseOp}"${extra}/>`;
       }
     }
     return out;
@@ -125,6 +138,19 @@ function render(data = {}) {
   .hero-skyline{position:absolute;left:0;right:0;bottom:0;height:56%;z-index:1;}
   .skyline-svg{width:100%;height:100%;display:block;}
   .hero-skyline::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,rgba(9,10,26,.55) 70%,rgba(9,10,26,.92) 100%);}
+
+  /* Ventanitas del skyline: titileo suave y desincronizado (ver windows() en skylineSVG). */
+  @keyframes windowTwinkle{
+    0%,100%{opacity:var(--w-op,.85);}
+    50%{opacity:calc(var(--w-op,.85) * .22);}
+  }
+  .skyline-svg .tw{animation-name:windowTwinkle;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}
+
+  /* Glow turquesa pulsante, sutil, en la chapita de la edad */
+  @keyframes accentGlow{
+    0%,100%{filter:drop-shadow(0 0 3px var(--accent)) drop-shadow(0 0 7px rgba(55,224,196,.35));}
+    50%{filter:drop-shadow(0 0 9px var(--accent)) drop-shadow(0 0 18px rgba(55,224,196,.55));}
+  }
   .stars{position:absolute;inset:0;z-index:0;opacity:.7;
     background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),
       radial-gradient(1.5px 1.5px at 28% 10%,#fff,transparent),
@@ -139,7 +165,8 @@ function render(data = {}) {
   .hero-content h1{font-size:clamp(3rem,13vw,5.6rem);line-height:1;margin:0;color:var(--ink);font-weight:700;
     text-shadow:0 0 30px rgba(55,224,196,.35);}
   .hero-edad{display:inline-block;margin-top:14px;font-family:'Space Grotesk',Arial,sans-serif;font-size:clamp(1rem,3vw,1.3rem);color:var(--accent2);
-    background:var(--accent);border-radius:999px;padding:6px 22px;font-weight:600;letter-spacing:.5px;}
+    background:var(--accent);border-radius:999px;padding:6px 22px;font-weight:600;letter-spacing:.5px;
+    animation:accentGlow 5.5s ease-in-out infinite;}
   .hero-mensaje{margin:22px auto 0;max-width:460px;color:var(--ink-soft);font-size:clamp(.95rem,2.2vw,1.08rem);line-height:1.7;}
 
   section{max-width:800px;margin:0 auto;padding:60px 22px;text-align:center;position:relative;}
@@ -191,6 +218,11 @@ function render(data = {}) {
   .rsvp-status{text-align:center;color:var(--accent);font-weight:bold;}
 
   footer{text-align:center;padding:44px 22px 52px;font-size:.85rem;color:var(--ink-soft);border-top:1px solid var(--glass-border);}
+
+  @media (prefers-reduced-motion: reduce){
+    .skyline-svg .tw{animation:none !important;}
+    .hero-edad{animation:none !important;}
+  }
 </style></head>
 <body>
 
