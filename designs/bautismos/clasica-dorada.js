@@ -223,6 +223,36 @@ function render(data = {}) {
   footer{position:relative;max-width:640px;margin:0 auto;text-align:center;padding:44px 22px 54px;font-size:.88rem;color:var(--ink-soft);border-top:1px solid var(--cream2);}
   footer .orn-cross{margin:0 auto 14px;width:22px;height:33px;}
   footer .fam{font-family:'Brush Script MT','Segoe Script','Lucida Handwriting',cursive;font-size:1.5rem;color:var(--gold-dark);margin-top:6px;}
+
+  /* ---- Animación sutil: aparición suave del hero + brillo dorado en la cruz y las ramas ---- */
+  @keyframes heroReveal{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @keyframes goldPulse{
+    0%,100%{filter:brightness(1);}
+    50%{filter:brightness(1.16);}
+  }
+  .hero-inner .eyebrow{animation:heroReveal 1.2s ease-out both;}
+  .hero-inner .orn-cross{animation:heroReveal 1.2s ease-out .18s both, goldPulse 7s ease-in-out 1.6s infinite;}
+  .hero-inner .hero-title{animation:heroReveal 1.2s ease-out .36s both;}
+  .hero-inner .hero-name{animation:heroReveal 1.2s ease-out .54s both;}
+  .hero-inner .photo-frame{animation:heroReveal 1.3s ease-out .72s both;}
+  .hero-inner .message{animation:heroReveal 1.3s ease-out .95s both;}
+  .hero-inner .familia{animation:heroReveal 1.3s ease-out 1.15s both;}
+  .hero-inner .festejar{animation:heroReveal 1.3s ease-out 1.35s both;}
+  .hero .orn-corner{animation:goldPulse 8s ease-in-out infinite;}
+  .hero .orn-corner.flip{animation-delay:1.4s;}
+  .divider .orn-flower{animation:goldPulse 6.5s ease-in-out infinite;}
+  footer .orn-cross{animation:goldPulse 7.5s ease-in-out .5s infinite;}
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-inner .eyebrow,.hero-inner .orn-cross,.hero-inner .hero-title,.hero-inner .hero-name,
+    .hero-inner .photo-frame,.hero-inner .message,.hero-inner .familia,.hero-inner .festejar,
+    .hero .orn-corner,.divider .orn-flower,footer .orn-cross{
+      animation:none !important;
+    }
+  }
 </style></head>
 <body>
 

@@ -103,6 +103,12 @@ function render(data = {}) {
     filter:blur(2px);
     opacity:.55;
     border-radius:6px;
+    animation:crossGlow 11s ease-in-out infinite;
+  }
+  .hero-cross::after{ animation-delay:-3.5s; }
+  @keyframes crossGlow{
+    0%, 100%{ opacity:.48; }
+    50%{ opacity:.66; }
   }
   .hero-cross::before{ /* barra vertical */
     top:0; left:50%;
@@ -190,6 +196,11 @@ function render(data = {}) {
     color:#fff;
     position:relative;
     box-shadow:6px 0 0 0 var(--gold-soft);
+    animation:fadeInSoft 1.1s cubic-bezier(.22,.61,.36,1) both;
+  }
+  @keyframes fadeInSoft{
+    from{ opacity:0; transform:translateY(8px); }
+    to{ opacity:1; transform:translateY(0); }
   }
   .fiesta-pretexto{
     font-size:.78rem;
@@ -241,7 +252,9 @@ function render(data = {}) {
   @media (max-width:520px){
     .familia{grid-template-columns:1fr;}
   }
-  .familia-card{text-align:center;padding:18px 12px;}
+  .familia-card{text-align:center;padding:18px 12px;animation:fadeInSoft 1.1s cubic-bezier(.22,.61,.36,1) both;}
+  .familia-card:nth-of-type(1){animation-delay:.08s;}
+  .familia-card:nth-of-type(2){animation-delay:.22s;}
   .familia-card .tag{
     font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ink);
     font-weight:700;
@@ -333,6 +346,19 @@ function render(data = {}) {
     color:var(--ink);
   }
   footer .heart{color:var(--gold);}
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-cross::before,
+    .hero-cross::after,
+    .fiesta-card,
+    .familia-card{
+      animation:none !important;
+      opacity:1 !important;
+      transform:none !important;
+    }
+    .hero-cross::before,
+    .hero-cross::after{ opacity:.55 !important; }
+  }
 </style></head>
 <body>
 
