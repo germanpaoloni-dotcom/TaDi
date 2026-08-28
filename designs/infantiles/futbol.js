@@ -221,22 +221,25 @@ h1,h2,h3,p{margin:0}
 .pitch-ball{position:absolute;font-size:3.5rem;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-12deg);filter:drop-shadow(5px 7px 0 rgba(0,0,0,.25))}
 @media(max-width:700px){.location{grid-template-columns:1fr}.pitch{min-height:190px}}
 
-/* GAME */
-.game-shell{max-width:520px;margin:0 auto;background:#06131f;border:2px solid var(--team2);padding:22px;box-shadow:10px 10px 0 rgba(0,0,0,.3);position:relative}
-.game-shell:before{content:"SPECIAL EDITION";position:absolute;right:-1px;top:12px;background:var(--team1);color:var(--team1-text);padding:4px 12px;font-size:.65rem;font-weight:900;letter-spacing:2px}
+/* GAME — diseño fijo albiceleste, NO cambia con los colores de equipo elegidos */
+.game-shell{max-width:520px;margin:0 auto;background:#06131f;border:2px solid #75aadb;padding:22px;box-shadow:10px 10px 0 rgba(0,0,0,.3);position:relative}
+.game-shell:before{content:"SPECIAL EDITION";position:absolute;right:-1px;top:12px;background:#75aadb;color:#06131f;padding:4px 12px;font-size:.65rem;font-weight:900;letter-spacing:2px}
 .game-copy{text-align:center;padding:20px 10px 8px}
 .game-copy p{font-size:1.12rem;font-weight:600}
 .game-card{margin-top:16px;background:linear-gradient(145deg,#17354c,#071521);border:5px solid #eee7d8;padding:8px;position:relative;min-height:250px}
 .game-card-inner{border:1px solid rgba(255,255,255,.25);padding:28px 20px;text-align:center}
 .game-silhouette{font-size:6rem;line-height:1;opacity:.9}
-.game-question{font-family:'Anton';font-size:3.4rem;color:var(--gold2);line-height:1}
-.game-card button{margin-top:18px;width:100%;border:0;background:var(--team1);color:var(--team1-text);font-family:'Anton';font-size:1.45rem;text-transform:uppercase;padding:13px;cursor:pointer;box-shadow:5px 5px 0 var(--team1-shadow)}
-.game-card button:active{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--team1-shadow)}
-.mini-card{margin-top:18px;background:var(--cream2);color:var(--ink);border:4px solid var(--ink);display:none}
+.game-question{font-family:'Anton';font-size:3.4rem;color:#75aadb;line-height:1}
+.game-card button{margin-top:18px;width:100%;border:0;background:#75aadb;color:#06131f;font-family:'Anton';font-size:1.45rem;text-transform:uppercase;padding:13px;cursor:pointer;box-shadow:5px 5px 0 #3f7bb8}
+.game-card button:active{transform:translate(2px,2px);box-shadow:3px 3px 0 #3f7bb8}
+.mini-card{margin-top:18px;background:#fffaf0;color:#0b1d2d;border:4px solid #0b1d2d;display:none}
 .mini-card.show{display:block}
-.mini-card-top{background:var(--green);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.mini-card-top{background:#0e6b36;color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
 .rv-tag{font-weight:800;text-transform:uppercase;letter-spacing:1px}
-.rv-num{background:var(--team1);color:var(--team1-text);font-family:'Anton';font-size:1.5rem;padding:4px 10px}
+.rv-jersey{position:relative;width:48px;height:52px;flex:none;background:repeating-linear-gradient(90deg,#75aadb 0 8px,#fff 8px 16px);clip-path:polygon(22% 0%,38% 0%,50% 13%,62% 0%,78% 0%,100% 24%,83% 38%,78% 31%,78% 100%,22% 100%,22% 31%,17% 38%,0% 24%);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,.35)}
+.rv-jersey.gk{background:#22c55e}
+.rv-num{font-family:'Anton';font-size:1.15rem;color:#111;line-height:1;padding-top:6px}
+.rv-jersey.gk .rv-num{color:#fff}
 .mini-card-bottom{padding:14px;text-align:center}
 .rv-name{font-family:'Anton';font-size:2rem;text-transform:uppercase}
 .rv-pos{text-transform:uppercase;color:#577;letter-spacing:2px;font-weight:800}
@@ -363,7 +366,7 @@ footer p{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spa
           <div class="game-question">¿Quién sos?</div>
           <button type="button" id="futPlayerBtn">Jugar ahora ⚽</button>
           <div class="mini-card" id="futPlayerReveal">
-            <div class="mini-card-top"><span class="rv-tag">Hoy jugás como</span><span class="rv-num" id="futPlayerNum"></span></div>
+            <div class="mini-card-top"><span class="rv-tag">Hoy jugás como</span><span class="rv-jersey" id="futPlayerJersey"><span class="rv-num" id="futPlayerNum"></span></span></div>
             <div class="mini-card-bottom"><div class="rv-name" id="futPlayerName"></div><div class="rv-pos" id="futPlayerPos"></div></div>
           </div>
         </div>
@@ -417,10 +420,12 @@ ${cd.script}${gal.script}${rsvp.script}
   ];
   var btn=document.getElementById('futPlayerBtn'), reveal=document.getElementById('futPlayerReveal');
   var nameEl=document.getElementById('futPlayerName'), posEl=document.getElementById('futPlayerPos'), numEl=document.getElementById('futPlayerNum');
+  var jerseyEl=document.getElementById('futPlayerJersey');
   if(!btn)return;
   btn.addEventListener('click',function(){
     var pick=players[Math.floor(Math.random()*players.length)];
     nameEl.textContent=pick.n; posEl.textContent=pick.p; numEl.textContent=pick.num;
+    if(jerseyEl) jerseyEl.classList.toggle('gk', pick.p==='Arquero');
     reveal.classList.add('show');
   });
 })();
