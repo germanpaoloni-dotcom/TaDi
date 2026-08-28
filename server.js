@@ -749,6 +749,10 @@ function fieldHTML(f, value) {
       <div class="gallery-preview" id="preview-${f.name}">${arr.map((s) => `<div class="thumb"><img src="${escapeHtml(s)}"><button type="button" class="thumb-remove" data-target="${f.name}" data-url="${escapeHtml(s)}" title="Quitar foto">✕</button></div>`).join("")}</div>
     </div>`;
   }
+  if (f.type === "color") {
+    const val2 = /^#[0-9a-fA-F]{6}$/.test(val) ? val : "#f0c44b";
+    return `<div class="field field-color"><label>${f.label}${f.required ? " *" : ""}</label>${helpHTML(f)}<input type="color" name="${f.name}" value="${escapeHtml(val2)}"></div>`;
+  }
   return `<div class="field"><label>${f.label}${f.required ? " *" : ""}</label>${helpHTML(f)}<input type="${f.type}" name="${f.name}" value="${escapeHtml(val)}"></div>`;
 }
 

@@ -226,6 +226,9 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .field input[type=file]{padding:8px;font-size:.76rem;color:var(--muted);cursor:pointer;box-shadow:var(--nu-inset-sm);}
 .field input[type=file]::file-selector-button{background:var(--accent);color:#fff;border:0;padding:8px 14px;border-radius:8px;font-weight:700;cursor:pointer;margin-right:12px;font-size:.76rem;font-family:inherit;}
 .field input[type=file]::-webkit-file-upload-button{background:var(--accent);color:#fff;border:0;padding:8px 14px;border-radius:8px;font-weight:700;cursor:pointer;margin-right:12px;font-size:.76rem;font-family:inherit;}
+.field-color{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.field-color label{margin-bottom:0;flex:1;}
+.field-color input[type=color]{width:56px;height:44px;flex:none;padding:4px;border:0;border-radius:10px;box-shadow:var(--nu-inset-sm);background:var(--bg);cursor:pointer;}
 .save-bar{position:sticky;bottom:0;background:var(--bg);padding:12px 0;}
 .save-btn{width:100%;background:var(--accent);color:#fff;border:0;padding:13px;border-radius:12px;font-weight:700;cursor:pointer;box-shadow:var(--nu-xs);}
 .save-btn:hover{box-shadow:var(--nu-sm);}
