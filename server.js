@@ -86,6 +86,22 @@ function absoluteUrl(baseUrl, url) {
   return baseUrl.replace(/\/$/, "") + (url.startsWith("/") ? url : `/${url}`);
 }
 
+// PUBLIC_BASE_URL (variable de entorno en Render) tiene prioridad si está
+// cargada, pero si alguien la carga mal (sin "https://", con una barra al
+// final, con espacios, vacía-pero-definida, etc.) los links del mail salen
+// rotos ("http:///invitacion/...", dominios con doble barra, etc.) aunque
+// el código que arma la URL esté bien. Por eso la validamos: si no tiene
+// forma de URL absoluta prolija, la ignoramos del todo y usamos el dominio
+// real de la request en su lugar (que siempre es correcto).
+function resolvePublicBaseUrl(req) {
+  const fromEnv = (process.env.PUBLIC_BASE_URL || "").trim();
+  if (/^https?:\/\/[^\s/]+$/i.test(fromEnv)) return fromEnv;
+  if (fromEnv) {
+    console.warn(`[server] PUBLIC_BASE_URL="${fromEnv}" no tiene forma de URL válida (debe ser algo como "https://tadi.com.ar", sin barra al final) — se ignora y se usa el dominio de la request.`);
+  }
+  return `${req.protocol}://${req.get("host")}`;
+}
+
 function injectOgTags(html, { baseUrl, url, image, description }) {
   const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/i);
   const title = titleMatch ? titleMatch[1].trim() : "TaDi — Invitación digital";
@@ -548,7 +564,7 @@ const DEMO_BACK_BUTTON = `<a href="/" onclick="if(window.history.length>1){histo
 app.get("/demo/:designId", (req, res) => {
   const design = getDesign(req.params.designId);
   if (!design) return res.status(404).send("Diseño no encontrado");
-  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+  const baseUrl = resolvePublicBaseUrl(req);
   let html = design.render({ ...design.sampleData, __slug: "demo" });
   html = injectOgTags(html, {
     baseUrl,
@@ -614,7 +630,7 @@ app.post("/api/orders", async (req, res) => {
   db.orders.push(order);
   saveDB(db);
 
-  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+  const baseUrl = resolvePublicBaseUrl(req);
 
   if (mp.isConfigured()) {
     try {
@@ -668,14 +684,10 @@ async function sendOrderEmail(order, baseUrl) {
   if (!ord || ord.emailSent) return { sent: false, alreadySent: Boolean(ord && ord.emailSent) };
 
   const design = getDesign(ord.designId);
-  // Antes, sin PUBLIC_BASE_URL configurada en el server, esto quedaba en ""
-  // y los links del mail salían relativos ("/editar/..."). Un link relativo
-  // dentro de un email no tiene "página actual" desde la que resolverse, así
-  // que el cliente de mail arma cualquier cosa (ej. "http:///invitacion/..."
-  // con el dominio vacío) y el link no abre. Por eso ahora, si no hay
-  // PUBLIC_BASE_URL, usamos el dominio real de la request que disparó el
-  // envío (pasado por quien llama a esta función) como respaldo.
-  baseUrl = process.env.PUBLIC_BASE_URL || baseUrl || "";
+  // baseUrl ya viene resuelto y validado por resolvePublicBaseUrl(req) desde
+  // quien llama a esta función (ver ahí el porqué) — acá no lo tocamos más,
+  // así evitamos pisarlo de nuevo con una PUBLIC_BASE_URL sin validar.
+  baseUrl = baseUrl || "";
   try {
     const result = await mailer.sendInvitationLinkEmail({
       to: ord.buyerEmail,
@@ -718,7 +730,7 @@ app.get("/pago-exitoso", async (req, res) => {
   }
 
   const paid = markOrderPaid(order);
-  sendOrderEmail(paid, `${req.protocol}://${req.get("host")}`).catch(() => {}); // no bloquea la redirección si el mail tarda o falla
+  sendOrderEmail(paid, resolvePublicBaseUrl(req)).catch(() => {}); // no bloquea la redirección si el mail tarda o falla
   res.redirect(`/editar/${paid.editToken}?bienvenida=1`);
 });
 
@@ -744,7 +756,7 @@ app.post("/webhook/mercadopago", express.json(), async (req, res) => {
         // para no mandar el mail dos veces.
         if (order) {
           const paid = markOrderPaid(order);
-          await sendOrderEmail(paid, `${req.protocol}://${req.get("host")}`).catch((err) =>
+          await sendOrderEmail(paid, resolvePublicBaseUrl(req)).catch((err) =>
             console.error("Error enviando mail desde el webhook:", err)
           );
         } else {
@@ -883,6 +895,21 @@ app.get("/editar/:token", (req, res) => {
   const token = ${JSON.stringify(order.editToken)};
   const form = document.getElementById('editForm');
   const iframe = document.getElementById('preview');
+
+  // Al hacer foco en un campo de texto (click o Tab), selecciona todo el
+  // contenido de una — así para cambiar un dato alcanza con tipear encima,
+  // sin tener que borrar a mano primero. 'focus' no burbujea, por eso el
+  // listener va en captura (true) sobre el form entero en vez de campo por
+  // campo. Se excluyen los campos de tipo file/color/checkbox/etc, donde
+  // "seleccionar todo el texto" no tiene sentido.
+  const SELECT_ALL_TYPES = ['text', 'email', 'url', 'tel', 'search', 'number', 'date', 'time', 'textarea'];
+  form.addEventListener('focus', function(e){
+    const el = e.target;
+    const tag = el.tagName ? el.tagName.toLowerCase() : '';
+    const type = tag === 'textarea' ? 'textarea' : (el.type || '');
+    if (SELECT_ALL_TYPES.indexOf(type) === -1) return;
+    if (typeof el.select === 'function') el.select();
+  }, true);
 
   // Copiar link con un click (con fallback para navegadores/contextos sin
   // acceso a navigator.clipboard, como http sin TLS).
@@ -1317,7 +1344,7 @@ app.post("/api/invitaciones/:token/finalizar", async (req, res) => {
   // guardado confirmado ni el mail. El guardado de arriba ya es instantáneo
   // (no depende de red); el mail se dispara en paralelo, en segundo plano.
   const alreadySent = Boolean(order.emailSent);
-  const baseUrl = `${req.protocol}://${req.get("host")}`;
+  const baseUrl = resolvePublicBaseUrl(req);
   if (!alreadySent) {
     sendOrderEmail(order, baseUrl).catch((err) =>
       console.error("Error enviando mail desde el botón ¡Listo!:", err)
@@ -1332,7 +1359,7 @@ app.get("/invitacion/:slug", (req, res) => {
   const inv = db.invitations.find((i) => i.slug === req.params.slug);
   if (!inv) return res.status(404).send("Invitación no encontrada");
   const design = getDesign(inv.designId);
-  const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+  const baseUrl = resolvePublicBaseUrl(req);
   let html = design.render({ ...inv.data, __slug: inv.slug });
   html = injectOgTags(html, {
     baseUrl,
