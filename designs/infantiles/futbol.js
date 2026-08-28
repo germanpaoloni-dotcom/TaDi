@@ -4,6 +4,57 @@ const { getPaletteColor } = require("../palettes");
 
 const id = "inf-futbol";
 
+// ---- colores de camiseta (2 colores a elección, según el equipo del que
+// sea hincha el cumpleañero/a) ---------------------------------------------
+// El esquema base de "infantiles" es compartido por todos los diseños de esa
+// categoría, así que acá armamos una copia propia agregando los dos campos
+// de color justo después de la temática — solo Fútbol los muestra.
+const futbolSchema = (() => {
+  const copy = infantilSchema.slice();
+  const idx = copy.findIndex((f) => f.name === "tematica");
+  copy.splice(idx + 1, 0,
+    { name: "equipoColor1", label: "Color 1 de la camiseta", type: "color" },
+    { name: "equipoColor2", label: "Color 2 (según el equipo del que es hincha)", type: "color" }
+  );
+  return copy;
+})();
+
+function hexToRgb(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || "").trim());
+  const h = m ? m[1] : "f0c44b";
+  return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16) };
+}
+// Texto legible (blanco o tinta oscura) según qué tan clara sea la
+// camiseta elegida — así "Elegí dos colores" funciona con cualquier
+// combinación sin que el texto se pierda adentro del botón/chip.
+function contrastText(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.6 ? "#101820" : "#ffffff";
+}
+// Sombra "3D" de los botones estilo cartel: una versión más oscura del
+// mismo color, para que el efecto de profundidad seguiera funcionando sea
+// cual sea el color de camiseta que se elija.
+function shade(hex, amt) {
+  const { r, g, b } = hexToRgb(hex);
+  const clamp = (v) => Math.max(0, Math.min(255, v));
+  const c = (v) => clamp(v + amt).toString(16).padStart(2, "0");
+  return `#${c(r)}${c(g)}${c(b)}`;
+}
+function luminance(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
+// El color 1 se usa como texto/detalle sobre fondos oscuros (navy/negro) en
+// varias partes de la tarjeta. Si alguien elige un color muy oscuro (por
+// ej. el azul de Boca), lo aclaramos lo justo para que siga leyéndose bien
+// ahí — el relleno sólido (etiquetas, botones) sigue usando el color real,
+// sin tocar, así no se pierde identidad del equipo.
+function popColor(hex) {
+  if (luminance(hex) >= 0.25) return hex;
+  return shade(hex, 115);
+}
+
 // Convierte "YYYY-MM-DD" en "24 de mayo de 2027" (mismo criterio que el
 // resto de las tarjetas — no viene del widget compartido porque cada
 // diseño lo combina con su propia tipografía/mayúsculas).
@@ -24,6 +75,8 @@ const sampleData = {
   direccionMapa: "https://maps.google.com/?q=Complejo+Deportivo+Sur+Rosario",
   mensaje: "¡Armamos un partidazo! Vení con los botines puestos a jugar un picadito y después nos quedamos a comer algo rico entre todos. La numeración de la camiseta se define en la cancha.",
   tematica: "Vení con la camiseta de tu equipo favorito",
+  equipoColor1: "#f0c44b",
+  equipoColor2: "#e8e2d4",
   whatsapp: "5491100000015",
   coverImage: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=1200&q=80",
   galeria: [
@@ -37,6 +90,12 @@ const sampleData = {
 function render(data = {}) {
   const d = { ...sampleData, ...data };
   const accent = getPaletteColor(d.colorPalette, "light", "#d6a72c");
+  const team1 = /^#[0-9a-fA-F]{6}$/.test(d.equipoColor1) ? d.equipoColor1 : sampleData.equipoColor1;
+  const team2 = /^#[0-9a-fA-F]{6}$/.test(d.equipoColor2) ? d.equipoColor2 : sampleData.equipoColor2;
+  const team1Text = contrastText(team1);
+  const team2Text = contrastText(team2);
+  const team1Shadow = shade(team1, -70);
+  const team1Pop = popColor(team1);
   const cd = countdownWidget(d.fecha ? `${d.fecha}T${d.hora || "16:00"}:00` : sampleData.fecha, "cd-fut");
   const gal = galleryWidget(d.galeria, "gal-fut");
   const rsvp = rsvpWidget(d.__slug || "demo", { withGuests: true, withMenu: false, whatsapp: d.whatsapp });
@@ -52,8 +111,10 @@ function render(data = {}) {
 <style>
 :root{
  --navy:#071827;--navy2:#0d263b;--green:#0e6b36;--green2:#178345;
- --gold:${accent};--gold2:#f0c44b;--cream:#f5efe0;--cream2:#fffaf0;
+ --gold:${accent};--cream:#f5efe0;--cream2:#fffaf0;
  --white:#fff;--muted:#aebdca;--line:rgba(255,255,255,.16);--ink:#0b1d2d;
+ --team1:${team1};--team2:${team2};--team1-text:${team1Text};--team2-text:${team2Text};--team1-shadow:${team1Shadow};
+ --gold2:${team1Pop};
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -97,17 +158,18 @@ h1,h2,h3,p{margin:0}
 .hero-sub b{color:var(--gold2)}
 .hero-ball{font-size:5rem;display:block;transform:rotate(-12deg);filter:drop-shadow(8px 10px 0 rgba(0,0,0,.3));margin:12px 0 0 48%}
 .hero-card{justify-self:end;width:min(100%,390px);transform:rotate(2.2deg);filter:drop-shadow(16px 20px 0 rgba(0,0,0,.35))}
-.player-card{background:linear-gradient(145deg,#172d40,#06121d);border:8px solid #e8e2d4;padding:8px;position:relative;overflow:hidden}
+.player-card{background:linear-gradient(145deg,#172d40,#06121d);border:8px solid var(--team2);padding:8px;position:relative;overflow:hidden}
 .player-card:before{content:"";position:absolute;inset:8px;border:1px solid rgba(255,255,255,.22);pointer-events:none}
 .player-card:after{content:"";position:absolute;width:170%;height:70px;left:-35%;top:42%;transform:rotate(-25deg);background:rgba(255,255,255,.08);pointer-events:none}
+.jersey-stripe{height:12px;background:linear-gradient(90deg,var(--team1) 0 50%,var(--team2) 50% 100%)}
 .player-top{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 10px 8px}
 .edition{font-size:.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold2);font-weight:800}
-.jersey{background:#050b11;color:#fff;border:3px solid var(--gold2);padding:4px 11px;font-family:'Anton',sans-serif;font-size:2.2rem;line-height:1}
+.jersey{background:var(--team2);color:var(--team2-text);border:3px solid var(--team1);padding:4px 11px;font-family:'Anton',sans-serif;font-size:2.2rem;line-height:1}
 .player-photo{aspect-ratio:4/4.8;background:#162b3d;overflow:hidden;border:2px solid rgba(255,255,255,.2)}
 .player-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.05) contrast(1.08)}
 .card-name{font-family:'Anton','Impact',sans-serif;font-size:2.4rem;text-transform:uppercase;letter-spacing:1px;padding:12px 10px 2px}
 .card-meta{display:flex;justify-content:space-between;align-items:center;padding:0 10px 13px;color:var(--gold2);font-size:.78rem;text-transform:uppercase;font-weight:800;letter-spacing:1px}
-.badge{width:54px;height:54px;border:2px solid var(--gold2);border-radius:50%;display:grid;place-items:center;font-size:1.55rem;background:#08131f}
+.badge{width:54px;height:54px;border:2px solid var(--team2);border-radius:50%;display:grid;place-items:center;font-size:1.55rem;background:#08131f}
 .hero-bottom{position:absolute;bottom:0;left:0;right:0;background:rgba(4,13,21,.9);border-top:2px solid var(--gold2);padding:12px 30px;display:flex;justify-content:center;gap:35px;text-transform:uppercase;font-weight:800;letter-spacing:1.2px;font-size:.82rem}
 .hero-bottom span:nth-child(2){color:var(--gold2)}
 @media(max-width:760px){.hero{grid-template-columns:1fr;text-align:center;padding:54px 20px 70px;min-height:auto}.hero-copy{padding-top:20px}.hero-sub{margin:18px auto 0}.hero-ball{margin:8px 0 0}.hero-card{justify-self:center;width:min(92vw,360px)}.hero-bottom{gap:14px;flex-wrap:wrap;font-size:.72rem}}
@@ -143,7 +205,7 @@ h1,h2,h3,p{margin:0}
 .program .ico{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:var(--gold2);font-size:1.1rem}
 .program strong{display:block;text-transform:uppercase;font-size:.68rem;letter-spacing:1.5px;color:#557}
 .program span{font-size:1rem;font-weight:700}
-.tematica-box{margin-top:18px;padding:10px 14px;background:var(--gold2);color:var(--ink);font-weight:800;text-transform:uppercase;display:inline-block;transform:rotate(-1deg)}
+.tematica-box{margin-top:18px;padding:10px 14px;background:var(--team1);color:var(--team1-text);font-weight:800;text-transform:uppercase;display:inline-block;transform:rotate(-1deg)}
 @media(max-width:700px){.match-grid{grid-template-columns:1fr}}
 
 /* LOCATION */
@@ -151,7 +213,7 @@ h1,h2,h3,p{margin:0}
 .field-card{background:var(--cream2);color:var(--ink);padding:30px;border:1px solid #c9bfa8;box-shadow:8px 8px 0 rgba(0,0,0,.2)}
 .field-card .date{font-family:'Anton';font-size:2rem;text-transform:uppercase}
 .field-card .lugar{font-size:1.35rem;font-weight:800;margin:10px 0}
-.map-link{display:inline-block;background:var(--gold2);color:var(--ink);padding:12px 22px;font-weight:900;text-transform:uppercase;box-shadow:4px 4px 0 #6c5214}
+.map-link{display:inline-block;background:var(--team1);color:var(--team1-text);padding:12px 22px;font-weight:900;text-transform:uppercase;box-shadow:4px 4px 0 var(--team1-shadow)}
 .pitch{min-height:260px;background:linear-gradient(135deg,#0d6b36,#0a522b);border:4px solid rgba(255,255,255,.55);position:relative;overflow:hidden}
 .pitch:before{content:"";position:absolute;inset:12%;border:3px solid rgba(255,255,255,.5)}
 .pitch:after{content:"";position:absolute;left:50%;top:12%;bottom:12%;width:3px;background:rgba(255,255,255,.5);transform:translateX(-50%)}
@@ -160,21 +222,21 @@ h1,h2,h3,p{margin:0}
 @media(max-width:700px){.location{grid-template-columns:1fr}.pitch{min-height:190px}}
 
 /* GAME */
-.game-shell{max-width:520px;margin:0 auto;background:#06131f;border:2px solid var(--gold2);padding:22px;box-shadow:10px 10px 0 rgba(0,0,0,.3);position:relative}
-.game-shell:before{content:"SPECIAL EDITION";position:absolute;right:-1px;top:12px;background:var(--gold2);color:var(--ink);padding:4px 12px;font-size:.65rem;font-weight:900;letter-spacing:2px}
+.game-shell{max-width:520px;margin:0 auto;background:#06131f;border:2px solid var(--team2);padding:22px;box-shadow:10px 10px 0 rgba(0,0,0,.3);position:relative}
+.game-shell:before{content:"SPECIAL EDITION";position:absolute;right:-1px;top:12px;background:var(--team1);color:var(--team1-text);padding:4px 12px;font-size:.65rem;font-weight:900;letter-spacing:2px}
 .game-copy{text-align:center;padding:20px 10px 8px}
 .game-copy p{font-size:1.12rem;font-weight:600}
 .game-card{margin-top:16px;background:linear-gradient(145deg,#17354c,#071521);border:5px solid #eee7d8;padding:8px;position:relative;min-height:250px}
 .game-card-inner{border:1px solid rgba(255,255,255,.25);padding:28px 20px;text-align:center}
 .game-silhouette{font-size:6rem;line-height:1;opacity:.9}
 .game-question{font-family:'Anton';font-size:3.4rem;color:var(--gold2);line-height:1}
-.game-card button{margin-top:18px;width:100%;border:0;background:var(--gold2);color:var(--ink);font-family:'Anton';font-size:1.45rem;text-transform:uppercase;padding:13px;cursor:pointer;box-shadow:5px 5px 0 #59420c}
-.game-card button:active{transform:translate(2px,2px);box-shadow:3px 3px 0 #59420c}
+.game-card button{margin-top:18px;width:100%;border:0;background:var(--team1);color:var(--team1-text);font-family:'Anton';font-size:1.45rem;text-transform:uppercase;padding:13px;cursor:pointer;box-shadow:5px 5px 0 var(--team1-shadow)}
+.game-card button:active{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--team1-shadow)}
 .mini-card{margin-top:18px;background:var(--cream2);color:var(--ink);border:4px solid var(--ink);display:none}
 .mini-card.show{display:block}
 .mini-card-top{background:var(--green);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
 .rv-tag{font-weight:800;text-transform:uppercase;letter-spacing:1px}
-.rv-num{background:var(--gold2);color:var(--ink);font-family:'Anton';font-size:1.5rem;padding:4px 10px}
+.rv-num{background:var(--team1);color:var(--team1-text);font-family:'Anton';font-size:1.5rem;padding:4px 10px}
 .mini-card-bottom{padding:14px;text-align:center}
 .rv-name{font-family:'Anton';font-size:2rem;text-transform:uppercase}
 .rv-pos{text-transform:uppercase;color:#577;letter-spacing:2px;font-weight:800}
@@ -224,6 +286,7 @@ footer p{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spa
 
     <div class="hero-card">
       <div class="player-card">
+        <div class="jersey-stripe"></div>
         <div class="player-top">
           <div><div class="edition">Edición especial</div><div style="font-size:.75rem;color:#fff;letter-spacing:2px;text-transform:uppercase;margin-top:3px">Los Cracks FC</div></div>
           <div class="jersey">${esc(d.edad)}</div>
@@ -338,23 +401,26 @@ footer p{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spa
 <script>
 ${cd.script}${gal.script}${rsvp.script}
 (function(){
+  // Plantilla de la Selección Argentina para el Mundial 2026 (26 convocados
+  // de Scaloni), con el dorsal real de cada uno.
   var players = [
-    {n:'E. Martínez',p:'Arquero'},{n:'F. Armani',p:'Arquero'},{n:'G. Rulli',p:'Arquero'},
-    {n:'N. Molina',p:'Defensor'},{n:'G. Montiel',p:'Defensor'},{n:'C. Romero',p:'Defensor'},
-    {n:'N. Otamendi',p:'Defensor'},{n:'Lisandro Martínez',p:'Defensor'},{n:'M. Acuña',p:'Defensor'},
-    {n:'N. Tagliafico',p:'Defensor'},{n:'G. Pezzella',p:'Defensor'},
-    {n:'R. De Paul',p:'Mediocampista'},{n:'L. Paredes',p:'Mediocampista'},{n:'G. Rodríguez',p:'Mediocampista'},
-    {n:'A. Mac Allister',p:'Mediocampista'},{n:'E. Fernández',p:'Mediocampista'},{n:'E. Palacios',p:'Mediocampista'},
-    {n:'A. Gómez',p:'Mediocampista'},{n:'T. Almada',p:'Mediocampista'},
-    {n:'L. Messi',p:'Delantero'},{n:'J. Álvarez',p:'Delantero'},{n:'Á. Di María',p:'Delantero'},
-    {n:'Lautaro Martínez',p:'Delantero'},{n:'P. Dybala',p:'Delantero'},{n:'J. Correa',p:'Delantero'}
+    {n:'J. Musso',p:'Arquero',num:1},{n:'G. Rulli',p:'Arquero',num:12},{n:'E. Martínez',p:'Arquero',num:23},
+    {n:'L. Balerdi',p:'Defensor',num:2},{n:'N. Tagliafico',p:'Defensor',num:3},{n:'G. Montiel',p:'Defensor',num:4},
+    {n:'Lisandro Martínez',p:'Defensor',num:6},{n:'C. Romero',p:'Defensor',num:13},{n:'N. Otamendi',p:'Defensor',num:19},
+    {n:'F. Medina',p:'Defensor',num:25},{n:'N. Molina',p:'Defensor',num:26},
+    {n:'L. Paredes',p:'Mediocampista',num:5},{n:'R. De Paul',p:'Mediocampista',num:7},{n:'V. Barco',p:'Mediocampista',num:8},
+    {n:'G. Lo Celso',p:'Mediocampista',num:11},{n:'E. Palacios',p:'Mediocampista',num:14},{n:'A. Mac Allister',p:'Mediocampista',num:20},
+    {n:'E. Fernández',p:'Mediocampista',num:24},
+    {n:'J. Álvarez',p:'Delantero',num:9},{n:'L. Messi',p:'Delantero',num:10},{n:'N. González',p:'Delantero',num:15},
+    {n:'T. Almada',p:'Delantero',num:16},{n:'G. Simeone',p:'Delantero',num:17},{n:'N. Paz',p:'Delantero',num:18},
+    {n:'J. López',p:'Delantero',num:21},{n:'Lautaro Martínez',p:'Delantero',num:22}
   ];
   var btn=document.getElementById('futPlayerBtn'), reveal=document.getElementById('futPlayerReveal');
   var nameEl=document.getElementById('futPlayerName'), posEl=document.getElementById('futPlayerPos'), numEl=document.getElementById('futPlayerNum');
   if(!btn)return;
   btn.addEventListener('click',function(){
     var pick=players[Math.floor(Math.random()*players.length)];
-    nameEl.textContent=pick.n; posEl.textContent=pick.p; numEl.textContent=1+Math.floor(Math.random()*11);
+    nameEl.textContent=pick.n; posEl.textContent=pick.p; numEl.textContent=pick.num;
     reveal.classList.add('show');
   });
 })();
@@ -435,6 +501,6 @@ function cardPreview(d) {
 
 module.exports = {
   id, category: "infantiles", name: "Fútbol",
-  summary: "Cumpleaños con partido de fútbol y comida después: cancha con líneas de juego, ficha de jugador y un mini juego de qué crack de la Scaloneta sos.",
-  accent: "#6cace4", schema: infantilSchema, sampleData, render, cardPreview,
+  summary: "Cumpleaños con partido de fútbol y comida después: cancha con líneas de juego, ficha de jugador con los colores del equipo favorito y un mini juego de qué crack de la Scaloneta sos.",
+  accent: "#6cace4", schema: futbolSchema, sampleData, render, cardPreview,
 };

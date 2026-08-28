@@ -53,25 +53,44 @@ async function sendInvitationLinkEmail({ to, nombreEvento, designName, editUrl, 
     return { skipped: true };
   }
 
-  const subject = `Tu invitación de TaDi está lista${nombreEvento ? ` — ${nombreEvento}` : ""}`;
+  const subject = "Tus links están listos";
   const html = `
-    <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#222;">
-      <h2 style="color:#111;">¡Ya podés personalizar tu invitación! 🎉</h2>
-      <p>Guardá este mail — acá vas a encontrar siempre el link para seguir editando tu invitación
+    <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#33363f;background:#eaeef2;padding:28px 22px;">
+      <p style="font-size:.72rem;font-weight:bold;letter-spacing:.5px;color:#ff7a3d;text-transform:uppercase;margin:0 0 6px;">TaDi</p>
+      <h2 style="color:#111;margin:0 0 6px;">¡Tus links ya están listos! 🎉</h2>
+      <p style="margin:0 0 24px;color:#555;">Guardá este mail: acá vas a tener siempre a mano los dos links de tu invitación
       "${designName || "TaDi"}", aunque cierres la pestaña o pase el tiempo.</p>
-      <p style="margin:28px 0;">
-        <a href="${editUrl}" style="background:#ff7a3d;color:#fff;text-decoration:none;
-          padding:14px 26px;border-radius:10px;font-weight:bold;display:inline-block;">
-          Editar mi invitación
-        </a>
-      </p>
-      <p style="font-size:.85rem;color:#666;word-break:break-all;">O copiá y pegá este link: ${editUrl}</p>
+
+      <div style="background:#ffffff;border:1px solid #e2e6eb;border-radius:14px;padding:18px 20px;margin-bottom:16px;">
+        <p style="margin:0 0 4px;font-weight:bold;color:#111;">✏️ Link para editar tu invitación</p>
+        <p style="margin:0 0 14px;font-size:.85rem;color:#666;">Usalo cuando quieras cambiar nombres, fecha, lugar, fotos o
+        cualquier otro dato. Es privado — no lo compartas con tus invitados.</p>
+        <p style="margin:0 0 10px;">
+          <a href="${editUrl}" style="background:#ff7a3d;color:#fff;text-decoration:none;
+            padding:12px 22px;border-radius:10px;font-weight:bold;display:inline-block;font-size:.9rem;">
+            Editar mi invitación
+          </a>
+        </p>
+        <p style="font-size:.78rem;color:#8a8f99;word-break:break-all;margin:0;">${editUrl}</p>
+      </div>
+
       ${publicUrl ? `
-      <p>Una vez que termines de cargar los datos, este es el link que vas a compartir con tus invitados:</p>
-      <p style="font-size:.85rem;color:#666;word-break:break-all;">${publicUrl}</p>
+      <div style="background:#ffffff;border:1px solid #e2e6eb;border-radius:14px;padding:18px 20px;margin-bottom:16px;">
+        <p style="margin:0 0 4px;font-weight:bold;color:#111;">🔗 Link para compartir con tus invitados</p>
+        <p style="margin:0 0 14px;font-size:.85rem;color:#666;">Este es el que le mandás a la gente que invitás — ahí van a
+        poder ver la invitación online y confirmar asistencia.</p>
+        <p style="margin:0 0 10px;">
+          <a href="${publicUrl}" style="background:#ffffff;color:#33363f;text-decoration:none;border:1px solid #d8dce2;
+            padding:11px 22px;border-radius:10px;font-weight:bold;display:inline-block;font-size:.9rem;">
+            Ver invitación
+          </a>
+        </p>
+        <p style="font-size:.78rem;color:#8a8f99;word-break:break-all;margin:0;">${publicUrl}</p>
+      </div>
       ` : ""}
-      <hr style="border:0;border-top:1px solid #eee;margin:28px 0;">
-      <p style="font-size:.8rem;color:#999;">TaDi — Invitaciones digitales · tadi.com.ar</p>
+
+      <hr style="border:0;border-top:1px solid #dde1e7;margin:28px 0 16px;">
+      <p style="font-size:.8rem;color:#999;margin:0;">TaDi — Invitaciones digitales · tadi.com.ar</p>
     </div>
   `;
 
