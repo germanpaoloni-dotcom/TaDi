@@ -646,10 +646,10 @@ function markOrderPaid(order) {
 // webhook, así que se protege con ord.emailSent para no mandarlo dos veces
 // si ambos caminos terminan disparando para la misma orden.
 async function sendOrderEmail(order, baseUrl) {
-  if (order.emailSent || !order.buyerEmail) return;
+  if (order.emailSent || !order.buyerEmail) return { sent: false, alreadySent: Boolean(order.emailSent) };
   const db = getDB();
   const ord = db.orders.find((o) => o.id === order.id);
-  if (!ord || ord.emailSent) return;
+  if (!ord || ord.emailSent) return { sent: false, alreadySent: Boolean(ord && ord.emailSent) };
 
   const design = getDesign(ord.designId);
   // Antes, sin PUBLIC_BASE_URL configurada en el server, esto quedaba en ""
@@ -674,9 +674,12 @@ async function sendOrderEmail(order, baseUrl) {
     if (!result || !result.skipped) {
       ord.emailSent = true;
       saveDB(db);
+      return { sent: true };
     }
+    return { sent: false, demo: true };
   } catch (err) {
     console.error("Error enviando mail con el link de la invitación:", err);
+    return { sent: false, error: true };
   }
 }
 
@@ -825,28 +828,33 @@ app.get("/editar/:token", (req, res) => {
     ${req.query.bienvenida ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Pago confirmado! Ya podés personalizar tu invitación.</p>` : ""}
     <form id="editForm">
       ${design.schema.filter((f) => f.type !== "palette").map((f) => fieldHTML(f, inv.data[f.name])).join("")}
-      <div class="save-bar"><button class="save-btn" type="submit">Guardar cambios</button></div>
     </form>
     ${req.query.disenoCambiado ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Listo! Cambiamos el diseño. Los datos que coincidían (fecha, lugar, fotos, etc.) se mantuvieron, revisá que esté todo como querés.</p>` : ""}
-    <div class="link-box link-box-row">
-      <div class="link-box-text">
-        🔗 Link para compartir con tus invitados:<br>
-        <a href="${publicUrl}" target="_blank">${publicUrl}</a>
+
+    <div class="links-section">
+      <h2 class="links-section-title">🔗 Tus links</h2>
+      <div class="link-box">
+        <p class="link-box-label">Para compartir con tus invitados</p>
+        <a class="link-box-url" href="${publicUrl}" target="_blank">${publicUrl}</a>
+        <div class="link-box-actions">
+          <button type="button" class="copy-btn" data-copy="${escapeHtml(publicUrl)}">📋 Copiar</button>
+          <a class="wa-btn" href="https://wa.me/?text=${encodeURIComponent(`¡Ya está lista mi invitación! Mirala acá: ${publicUrl}`)}" target="_blank" rel="noopener">💬 WhatsApp</a>
+        </div>
       </div>
-      <div class="link-box-actions">
-        <button type="button" class="copy-btn" data-copy="${escapeHtml(publicUrl)}">📋 Copiar</button>
-        <a class="wa-btn" href="https://wa.me/?text=${encodeURIComponent(`¡Ya está lista mi invitación! Mirala acá: ${publicUrl}`)}" target="_blank" rel="noopener">💬 WhatsApp</a>
+      <div class="link-box">
+        <p class="link-box-label">🔒 Para volver a editar cuando quieras</p>
+        <a class="link-box-url" href="/editar/${order.editToken}">${req.protocol}://${req.get("host")}/editar/${order.editToken}</a>
+        <div class="link-box-actions">
+          <button type="button" class="copy-btn" data-copy="${escapeHtml(`${req.protocol}://${req.get("host")}/editar/${order.editToken}`)}">📋 Copiar</button>
+        </div>
       </div>
     </div>
-    <div class="link-box link-box-row">
-      <div class="link-box-text">
-        🔒 Guardá este link para volver a editar cuando quieras:<br>
-        <a href="/editar/${order.editToken}">${req.protocol}://${req.get("host")}/editar/${order.editToken}</a>
-      </div>
-      <div class="link-box-actions">
-        <button type="button" class="copy-btn" data-copy="${escapeHtml(`${req.protocol}://${req.get("host")}/editar/${order.editToken}`)}">📋 Copiar</button>
-      </div>
+
+    <div class="finish-bar">
+      <button class="finish-btn" type="submit" form="editForm" id="finishBtn">✅ ¡Listo!</button>
+      <p class="finish-hint" id="finishHint">Guarda los cambios y te manda tus links por mail.</p>
     </div>
+
     <a href="/editar/${order.editToken}/cambiar-diseno" class="btn btn-outline" style="display:block;width:100%;text-align:center;text-decoration:none;margin-top:16px;box-sizing:border-box;">
       🔄 ¿Te confundiste de diseño? Cambiar diseño
     </a>
@@ -907,13 +915,25 @@ app.get("/editar/:token", (req, res) => {
     debounceTimer = setTimeout(refreshPreview, 500);
   });
 
+  const finishBtn = document.getElementById('finishBtn');
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    fetch('/api/invitaciones/' + token, {
+    if (finishBtn) { finishBtn.disabled = true; finishBtn.textContent = 'Guardando…'; }
+    fetch('/api/invitaciones/' + token + '/finalizar', {
       method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(collect())
-    }).then(r => r.json()).then(() => {
-      alert('¡Guardado! Tu invitación ya está actualizada.');
+    }).then(r => r.json()).then((res) => {
+      if (res.mailSent) {
+        alert('✅ ¡Listo! Guardamos los cambios y te mandamos un mail con tus links.');
+      } else if (res.mailAlreadySent) {
+        alert('✅ ¡Listo! Guardamos los cambios. Es el mismo link que ya te habíamos mandado por mail antes.');
+      } else {
+        alert('✅ ¡Listo! Guardamos los cambios.');
+      }
       refreshPreview();
+    }).catch(() => {
+      alert('⚠️ No pudimos guardar los cambios. Probá de nuevo.');
+    }).finally(() => {
+      if (finishBtn) { finishBtn.disabled = false; finishBtn.textContent = '✅ ¡Listo!'; }
     });
   });
 
@@ -1247,6 +1267,29 @@ app.post("/api/invitaciones/:token", (req, res) => {
   saveDB(db);
   previewCache.delete(req.params.token);
   res.json({ ok: true });
+});
+
+// Botón "¡Listo!" del editor: guarda igual que el POST de arriba, y además
+// dispara el mail con los links — pero solo la primera vez (sendOrderEmail
+// se autoprotege con order.emailSent). Si el comprador ya lo había recibido
+// antes, no se reenvía: solo avisamos que es el mismo link de siempre, para
+// no generar confusión con "¿me llegó otro mail nuevo?".
+app.post("/api/invitaciones/:token/finalizar", async (req, res) => {
+  const db = getDB();
+  const order = db.orders.find((o) => o.editToken === req.params.token);
+  if (!order || order.status !== "paid") return res.status(404).json({ error: "no encontrado" });
+  const design = getDesign(order.designId);
+  const inv = db.invitations.find((i) => i.orderId === order.id);
+  if (isEditLocked(inv)) return res.status(403).json({ error: "invitación bloqueada" });
+
+  inv.data = { ...inv.data, ...normalizeInvitationData(design, req.body) };
+  inv.updatedAt = new Date().toISOString();
+  saveDB(db);
+  previewCache.delete(req.params.token);
+
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+  const mailResult = (await sendOrderEmail(order, baseUrl).catch(() => null)) || {};
+  res.json({ ok: true, mailSent: Boolean(mailResult.sent), mailAlreadySent: Boolean(mailResult.alreadySent) });
 });
 
 // ---------- PÁGINA PÚBLICA FINAL ----------
