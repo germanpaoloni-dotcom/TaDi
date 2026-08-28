@@ -1,3 +1,12 @@
+// IMPORTANTE — antes que cualquier otro require: en Render (y hostings
+// parecidos), Node 18+ puede resolver smtp.gmail.com priorizando su
+// dirección IPv6 aunque el hosting no tenga salida IPv6 real, y la conexión
+// muere con ENETUNREACH. Pasarle family:4 a nodemailer no alcanza — el
+// cambio real de comportamiento está en el orden de resolución DNS de Node
+// mismo. Esto lo fuerza a nivel de todo el proceso, así CUALQUIER conexión
+// saliente (mail, Mercado Pago, lo que sea) prefiere IPv4 cuando existe.
+require("dns").setDefaultResultOrder("ipv4first");
+
 const express = require("express");
 const multer = require("multer");
 const sharp = require("sharp");
