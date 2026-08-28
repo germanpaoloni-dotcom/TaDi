@@ -16,6 +16,7 @@ const { getDB, saveDB, uid } = require("./db");
 const { categories, designs, getDesign, designsByCategory, isCategoryInSeason, visibleCategories } = require("./designs");
 const mp = require("./mercadopago");
 const mailer = require("./mailer");
+const { eventoLabel, formatFechaCorta } = require("./designs/widgets");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -617,6 +618,14 @@ app.post("/api/orders", async (req, res) => {
   const design = getDesign(req.body.designId);
   if (!design) return res.status(404).send("Diseño no encontrado");
 
+  // El checkbox de términos y condiciones ya es "required" en el HTML, pero
+  // eso solo frena al navegador — alguien pegando el POST directo (o un bot)
+  // lo saltea. Se valida también acá para que quede constancia real de la
+  // aceptación en cada orden, no solo en el front.
+  if (!req.body.aceptaTerminos) {
+    return res.status(400).send("Tenés que aceptar los Términos y condiciones para continuar.");
+  }
+
   const db = getDB();
   const orderId = uid("order");
   const order = {
@@ -626,6 +635,7 @@ app.post("/api/orders", async (req, res) => {
     status: "pending",
     buyerEmail: (req.body.email || "").trim(),
     createdAt: new Date().toISOString(),
+    termsAcceptedAt: new Date().toISOString(),
   };
   db.orders.push(order);
   saveDB(db);
@@ -1393,6 +1403,188 @@ app.get("/editar/:token/invitados", (req, res) => {
       <p style="margin-top:20px"><a href="/editar/${order.editToken}">← Volver a editar</a></p>
     </div>`,
   }));
+});
+
+// ---------- ADMIN (worklist de tarjetas/cobros + estadísticas) ----------
+// Basic Auth con usuario/contraseña por variable de entorno. Si no están
+// cargadas, el panel queda BLOQUEADO por completo (nunca abierto por
+// accidente) y avisa con un 503 qué falta configurar en Render.
+function timingSafeStringEqual(a, b) {
+  const bufA = Buffer.from(String(a));
+  const bufB = Buffer.from(String(b));
+  if (bufA.length !== bufB.length) return false;
+  return require("crypto").timingSafeEqual(bufA, bufB);
+}
+
+function requireAdminAuth(req, res, next) {
+  const user = process.env.ADMIN_USER;
+  const pass = process.env.ADMIN_PASS;
+  if (!user || !pass) {
+    return res.status(503).send("Panel de administrador no configurado: faltan las variables de entorno ADMIN_USER y ADMIN_PASS en el servidor.");
+  }
+  const header = req.headers.authorization || "";
+  const [scheme, encoded] = header.split(" ");
+  if (scheme === "Basic" && encoded) {
+    let decoded = "";
+    try { decoded = Buffer.from(encoded, "base64").toString("utf-8"); } catch {}
+    const sep = decoded.indexOf(":");
+    const u = sep === -1 ? decoded : decoded.slice(0, sep);
+    const p = sep === -1 ? "" : decoded.slice(sep + 1);
+    if (timingSafeStringEqual(u, user) && timingSafeStringEqual(p, pass)) return next();
+  }
+  res.set("WWW-Authenticate", 'Basic realm="TaDi Admin"');
+  return res.status(401).send("Autenticación requerida.");
+}
+
+function adminLayout({ title, body }) {
+  return `<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title} · Admin TaDi</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
+<link rel="stylesheet" href="${CSS_HREF}">
+<style>
+  body{background:var(--bg);}
+  .admin-wrap{max-width:1180px;margin:0 auto;padding:28px 20px 60px;}
+  .admin-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px;}
+  .admin-top h1{margin:0;font-size:1.4rem;}
+  .admin-top a.brand-link{color:var(--muted);text-decoration:none;font-size:.85rem;}
+  .admin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:26px;}
+  .admin-stat{background:var(--bg);box-shadow:var(--nu-xs, 6px 6px 12px var(--sh-dark,#0002),-6px -6px 12px var(--sh-light,#fff));border-radius:14px;padding:16px 18px;}
+  .admin-stat .num{font-size:1.5rem;font-weight:700;color:var(--ink);display:block;}
+  .admin-stat .label{font-size:.76rem;color:var(--muted);}
+  .admin-filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .admin-filters a{padding:7px 14px;border-radius:20px;font-size:.8rem;text-decoration:none;color:var(--ink);background:var(--bg);box-shadow:var(--nu-inset-sm, inset 2px 2px 5px #0002, inset -2px -2px 5px #fff2);}
+  .admin-filters a.active{background:var(--accent);color:#fff;box-shadow:none;}
+  .admin-table-wrap{overflow-x:auto;border-radius:14px;background:var(--bg);box-shadow:var(--nu-xs, 6px 6px 12px #0002,-6px -6px 12px #fff2);}
+  table.admin-table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:920px;}
+  table.admin-table th{text-align:left;padding:12px 14px;color:var(--muted);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--line,#0002);}
+  table.admin-table td{padding:12px 14px;border-bottom:1px solid var(--line,#0001);vertical-align:top;}
+  table.admin-table tr:last-child td{border-bottom:none;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;}
+  .badge-paid{background:#1f9d55;color:#fff;}
+  .badge-pending{background:#c99a2e;color:#fff;}
+  .admin-actions{display:flex;flex-direction:column;gap:6px;}
+  .admin-actions form{margin:0;}
+  .admin-actions button, .admin-actions a{display:block;width:100%;box-sizing:border-box;text-align:center;padding:6px 10px;border-radius:8px;border:none;font-size:.74rem;cursor:pointer;text-decoration:none;}
+  .admin-actions .a-edit{background:var(--accent);color:#fff;}
+  .admin-actions .a-pay{background:#1f9d55;color:#fff;}
+  .admin-actions .a-resend{background:#3a6ea5;color:#fff;}
+  .admin-empty{padding:40px;text-align:center;color:var(--muted);}
+</style>
+</head><body>
+<div class="admin-wrap">${body}</div>
+</body></html>`;
+}
+
+app.get("/admin", requireAdminAuth, (req, res) => {
+  const db = getDB();
+  const estado = ["paid", "pending"].includes(req.query.estado) ? req.query.estado : "all";
+
+  const paidOrders = db.orders.filter((o) => o.status === "paid");
+  const pendingOrders = db.orders.filter((o) => o.status === "pending");
+  const totalRevenue = paidOrders.reduce((sum, o) => sum + (Number(o.amount) || 0), 0);
+
+  const byCategory = {};
+  paidOrders.forEach((o) => {
+    const d = getDesign(o.designId);
+    const cat = d ? d.category : "otros";
+    byCategory[cat] = (byCategory[cat] || 0) + 1;
+  });
+  const byCategoryLabel = Object.entries(byCategory)
+    .sort((a, b) => b[1] - a[1])
+    .map(([cat, count]) => `${(categories.find((c) => c.id === cat) || {}).label || cat}: ${count}`)
+    .join(" · ") || "—";
+
+  const totalRsvps = db.rsvps.length;
+
+  const visibleOrders = (estado === "all" ? db.orders : db.orders.filter((o) => o.status === estado))
+    .slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const rows = visibleOrders.map((order) => {
+    const design = getDesign(order.designId);
+    const inv = db.invitations.find((i) => i.orderId === order.id);
+    const catLabel = design ? (categories.find((c) => c.id === design.category) || {}).label || design.category : "—";
+    const evento = design && inv ? eventoLabel(design.category, inv.data) : "—";
+    const fechaEvento = inv && inv.data && inv.data.fecha ? formatFechaCorta(inv.data.fecha) : "";
+    const rsvps = inv ? db.rsvps.filter((r) => r.slug === inv.slug) : [];
+    const rsvpSi = rsvps.filter((r) => r.asiste !== "no").length;
+    const fechaCompra = order.createdAt ? new Date(order.createdAt).toLocaleDateString("es-AR") : "—";
+
+    const acciones = [];
+    if (order.status === "paid" && order.editToken) {
+      acciones.push(`<a class="a-edit" href="/editar/${order.editToken}" target="_blank">✏️ Editar</a>`);
+      acciones.push(`<form method="POST" action="/admin/orders/${order.id}/reenviar-mail" onsubmit="return confirm('¿Reenviar el mail con los links de esta invitación?');"><button class="a-resend" type="submit">✉️ Reenviar mail</button></form>`);
+    }
+    if (order.status === "pending") {
+      acciones.push(`<form method="POST" action="/admin/orders/${order.id}/marcar-pagada" onsubmit="return confirm('¿Marcar esta orden como pagada manualmente?');"><button class="a-pay" type="submit">✅ Marcar pagada</button></form>`);
+    }
+
+    return `<tr>
+      <td>${fechaCompra}</td>
+      <td>${escapeHtml(order.buyerEmail || "—")}</td>
+      <td>${escapeHtml(design ? design.name : order.designId)}<br><span style="color:var(--muted);font-size:.72rem;">${escapeHtml(catLabel)}</span></td>
+      <td>${escapeHtml(evento)}${fechaEvento ? `<br><span style="color:var(--muted);font-size:.72rem;">${escapeHtml(fechaEvento)}</span>` : ""}</td>
+      <td>${money(order.amount)}</td>
+      <td><span class="badge ${order.status === "paid" ? "badge-paid" : "badge-pending"}">${order.status === "paid" ? "Pagada" : "Pendiente"}</span>${order.emailSent ? "<br><span style=\"font-size:.68rem;color:var(--muted);\">mail enviado</span>" : ""}</td>
+      <td>${rsvps.length ? `${rsvpSi} sí / ${rsvps.length} total` : "—"}</td>
+      <td class="admin-actions">${acciones.join("") || "—"}</td>
+    </tr>`;
+  }).join("");
+
+  res.send(adminLayout({
+    title: "Panel de administrador",
+    body: `
+      <div class="admin-top">
+        <h1>📋 Panel de administrador</h1>
+        <a class="brand-link" href="/">← Volver al sitio</a>
+      </div>
+      <div class="admin-stats">
+        <div class="admin-stat"><span class="num">${money(totalRevenue)}</span><span class="label">Facturado (pagadas)</span></div>
+        <div class="admin-stat"><span class="num">${paidOrders.length}</span><span class="label">Tarjetas pagadas</span></div>
+        <div class="admin-stat"><span class="num">${pendingOrders.length}</span><span class="label">Pagos pendientes</span></div>
+        <div class="admin-stat"><span class="num">${totalRsvps}</span><span class="label">Confirmaciones RSVP</span></div>
+      </div>
+      <p style="color:var(--muted);font-size:.8rem;margin:-14px 0 20px;">Por categoría: ${byCategoryLabel}</p>
+      <div class="admin-filters">
+        <a href="/admin" class="${estado === "all" ? "active" : ""}">Todas (${db.orders.length})</a>
+        <a href="/admin?estado=paid" class="${estado === "paid" ? "active" : ""}">Pagadas (${paidOrders.length})</a>
+        <a href="/admin?estado=pending" class="${estado === "pending" ? "active" : ""}">Pendientes (${pendingOrders.length})</a>
+      </div>
+      <div class="admin-table-wrap">
+        ${visibleOrders.length ? `<table class="admin-table">
+          <thead><tr><th>Fecha compra</th><th>Comprador</th><th>Diseño</th><th>Evento</th><th>Monto</th><th>Estado</th><th>RSVP</th><th>Acciones</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>` : `<div class="admin-empty">No hay órdenes${estado !== "all" ? " con ese estado" : ""} todavía.</div>`}
+      </div>
+    `,
+  }));
+});
+
+app.post("/admin/orders/:id/marcar-pagada", requireAdminAuth, async (req, res) => {
+  const db = getDB();
+  const order = db.orders.find((o) => o.id === req.params.id);
+  if (!order) return res.status(404).send("Orden no encontrada");
+  const paid = markOrderPaid(order);
+  sendOrderEmail(paid, resolvePublicBaseUrl(req)).catch((err) =>
+    console.error("Error enviando mail al marcar pagada desde admin:", err)
+  );
+  res.redirect("/admin");
+});
+
+app.post("/admin/orders/:id/reenviar-mail", requireAdminAuth, async (req, res) => {
+  const db = getDB();
+  const order = db.orders.find((o) => o.id === req.params.id);
+  if (!order || order.status !== "paid") return res.status(404).send("Orden no encontrada");
+  // Fuerza el reenvío pisando el flag que evita mandarlo dos veces solo:
+  // acá es un pedido explícito del admin, no un guardado automático.
+  order.emailSent = false;
+  saveDB(db);
+  sendOrderEmail(order, resolvePublicBaseUrl(req)).catch((err) =>
+    console.error("Error reenviando mail desde admin:", err)
+  );
+  res.redirect("/admin");
 });
 
 app.listen(PORT, () => {

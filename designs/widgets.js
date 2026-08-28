@@ -237,4 +237,4 @@ function googleCalendarLink({ title, dateISO, time = "12:00", details = "", loca
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-module.exports = { esc, countdownWidget, galleryWidget, rsvpWidget, formatFechaCorta, tadiFooterWidget, googleCalendarLink };
+module.exports = { esc, countdownWidget, galleryWidget, rsvpWidget, eventoLabel, formatFechaCorta, tadiFooterWidget, googleCalendarLink };
