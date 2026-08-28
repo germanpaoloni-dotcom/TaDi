@@ -10,6 +10,10 @@ const mailer = require("./mailer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+// Render (y la mayoría de los hosts) ponen el server detrás de un proxy que
+// termina el HTTPS: sin esto, req.protocol siempre da "http" aunque el sitio
+// real sea https, y los links armados a partir de él (mails, etc.) salen mal.
+app.set("trust proxy", true);
 
 // Precio por defecto (según la investigación de mercado, se puede subir el
 // precio con el tiempo sin tocar código: alcanza con cambiar esta variable
@@ -641,14 +645,21 @@ function markOrderPaid(order) {
 // pestaña) — se llama tanto desde la vuelta del checkout como desde el
 // webhook, así que se protege con ord.emailSent para no mandarlo dos veces
 // si ambos caminos terminan disparando para la misma orden.
-async function sendOrderEmail(order) {
+async function sendOrderEmail(order, baseUrl) {
   if (order.emailSent || !order.buyerEmail) return;
   const db = getDB();
   const ord = db.orders.find((o) => o.id === order.id);
   if (!ord || ord.emailSent) return;
 
   const design = getDesign(ord.designId);
-  const baseUrl = process.env.PUBLIC_BASE_URL || "";
+  // Antes, sin PUBLIC_BASE_URL configurada en el server, esto quedaba en ""
+  // y los links del mail salían relativos ("/editar/..."). Un link relativo
+  // dentro de un email no tiene "página actual" desde la que resolverse, así
+  // que el cliente de mail arma cualquier cosa (ej. "http:///invitacion/..."
+  // con el dominio vacío) y el link no abre. Por eso ahora, si no hay
+  // PUBLIC_BASE_URL, usamos el dominio real de la request que disparó el
+  // envío (pasado por quien llama a esta función) como respaldo.
+  baseUrl = process.env.PUBLIC_BASE_URL || baseUrl || "";
   try {
     const result = await mailer.sendInvitationLinkEmail({
       to: ord.buyerEmail,
@@ -688,7 +699,7 @@ app.get("/pago-exitoso", async (req, res) => {
   }
 
   const paid = markOrderPaid(order);
-  sendOrderEmail(paid).catch(() => {}); // no bloquea la redirección si el mail tarda o falla
+  sendOrderEmail(paid, `${req.protocol}://${req.get("host")}`).catch(() => {}); // no bloquea la redirección si el mail tarda o falla
   res.redirect(`/editar/${paid.editToken}?bienvenida=1`);
 });
 
@@ -714,7 +725,7 @@ app.post("/webhook/mercadopago", express.json(), async (req, res) => {
         // para no mandar el mail dos veces.
         if (order) {
           const paid = markOrderPaid(order);
-          await sendOrderEmail(paid).catch((err) =>
+          await sendOrderEmail(paid, `${req.protocol}://${req.get("host")}`).catch((err) =>
             console.error("Error enviando mail desde el webhook:", err)
           );
         } else {

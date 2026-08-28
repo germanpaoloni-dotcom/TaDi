@@ -110,7 +110,7 @@ function render(data = {}) {
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
- --navy:#071827;--navy2:#0d263b;--green:#0e6b36;--green2:#178345;
+ --navy:#0d0d0e;--navy2:#1a1a1c;--green:#0e6b36;--green2:#178345;
  --gold:${accent};--cream:#f5efe0;--cream2:#fffaf0;
  --white:#fff;--muted:#aebdca;--line:rgba(255,255,255,.16);--ink:#0b1d2d;
  --team1:${team1};--team2:${team2};--team1-text:${team1Text};--team2-text:${team2Text};--team1-shadow:${team1Shadow};
@@ -144,7 +144,7 @@ h1,h2,h3,p{margin:0}
  background:
  radial-gradient(circle at 80% 18%,rgba(255,255,255,.22),transparent 2px),
  radial-gradient(circle at 15% 20%,rgba(255,255,255,.16),transparent 2px),
- linear-gradient(180deg,#0b2740 0%,#061725 58%,#0a3a23 58%,#0c6b35 100%);
+ linear-gradient(180deg,#161616 0%,#0a0a0a 58%,#0a3a23 58%,#0c6b35 100%);
 }
 .hero:before{content:"";position:absolute;inset:0;opacity:.22;background-image:linear-gradient(105deg,transparent 0 46%,rgba(255,255,255,.22) 47%,transparent 48%);background-size:120px 120px}
 .stadium-lights{position:absolute;top:20px;left:0;right:0;height:70px;background:repeating-linear-gradient(90deg,transparent 0 35px,rgba(255,255,255,.18) 36px 38px,transparent 39px 72px);filter:blur(.2px);opacity:.7}
@@ -158,7 +158,7 @@ h1,h2,h3,p{margin:0}
 .hero-sub b{color:var(--gold2)}
 .hero-ball{font-size:5rem;display:block;transform:rotate(-12deg);filter:drop-shadow(8px 10px 0 rgba(0,0,0,.3));margin:12px 0 0 48%}
 .hero-card{justify-self:end;width:min(100%,390px);transform:rotate(2.2deg);filter:drop-shadow(16px 20px 0 rgba(0,0,0,.35))}
-.player-card{background:linear-gradient(145deg,#172d40,#06121d);border:8px solid var(--team2);padding:8px;position:relative;overflow:hidden}
+.player-card{background:linear-gradient(145deg,#242426,#0a0a0a);border:8px solid var(--team2);padding:8px;position:relative;overflow:hidden}
 .player-card:before{content:"";position:absolute;inset:8px;border:1px solid rgba(255,255,255,.22);pointer-events:none}
 .player-card:after{content:"";position:absolute;width:170%;height:70px;left:-35%;top:42%;transform:rotate(-25deg);background:rgba(255,255,255,.08);pointer-events:none}
 .jersey-stripe{height:12px;background:linear-gradient(90deg,var(--team1) 0 50%,var(--team2) 50% 100%)}
@@ -169,7 +169,7 @@ h1,h2,h3,p{margin:0}
 .player-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.05) contrast(1.08)}
 .card-name{font-family:'Anton','Impact',sans-serif;font-size:2.4rem;text-transform:uppercase;letter-spacing:1px;padding:12px 10px 2px}
 .card-meta{display:flex;justify-content:space-between;align-items:center;padding:0 10px 13px;color:var(--gold2);font-size:.78rem;text-transform:uppercase;font-weight:800;letter-spacing:1px}
-.badge{width:54px;height:54px;border:2px solid var(--team2);border-radius:50%;display:grid;place-items:center;font-size:1.55rem;background:#08131f}
+.badge{width:54px;height:54px;border:2px solid var(--team2);border-radius:50%;display:grid;place-items:center;font-size:1.55rem;background:#0d0d0e}
 .hero-bottom{position:absolute;bottom:0;left:0;right:0;background:rgba(4,13,21,.9);border-top:2px solid var(--gold2);padding:12px 30px;display:flex;justify-content:center;gap:35px;text-transform:uppercase;font-weight:800;letter-spacing:1.2px;font-size:.82rem}
 .hero-bottom span:nth-child(2){color:var(--gold2)}
 @media(max-width:760px){.hero{grid-template-columns:1fr;text-align:center;padding:54px 20px 70px;min-height:auto}.hero-copy{padding-top:20px}.hero-sub{margin:18px auto 0}.hero-ball{margin:8px 0 0}.hero-card{justify-self:center;width:min(92vw,360px)}.hero-bottom{gap:14px;flex-wrap:wrap;font-size:.72rem}}
@@ -188,7 +188,7 @@ h1,h2,h3,p{margin:0}
 .count-wrap{max-width:860px;margin:0 auto}
 .count-label{text-align:center;font-size:1rem;text-transform:uppercase;letter-spacing:2px;font-weight:800;color:var(--muted);margin-bottom:14px}
 .countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.countdown div{background:#050d15;border:1px solid #3b4d5c;border-bottom:4px solid var(--gold2);padding:18px 8px;text-align:center;box-shadow:inset 0 0 25px rgba(255,255,255,.035)}
+.countdown div{background:#0c0c0d;border:1px solid #4a4a4d;border-bottom:4px solid var(--gold2);padding:18px 8px;text-align:center;box-shadow:inset 0 0 25px rgba(255,255,255,.035)}
 .cd-num{display:block;font-family:'Anton','Impact',sans-serif;font-size:2.7rem;line-height:1;color:#fff}
 .cd-label{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold2);margin-top:6px;font-weight:800}
 @media(max-width:560px){.countdown{grid-template-columns:repeat(2,1fr)}}
@@ -222,15 +222,15 @@ h1,h2,h3,p{margin:0}
 @media(max-width:700px){.location{grid-template-columns:1fr}.pitch{min-height:190px}}
 
 /* GAME — diseño fijo albiceleste, NO cambia con los colores de equipo elegidos */
-.game-shell{max-width:520px;margin:0 auto;background:#06131f;border:2px solid #75aadb;padding:22px;box-shadow:10px 10px 0 rgba(0,0,0,.3);position:relative}
-.game-shell:before{content:"SPECIAL EDITION";position:absolute;right:-1px;top:12px;background:#75aadb;color:#06131f;padding:4px 12px;font-size:.65rem;font-weight:900;letter-spacing:2px}
+.game-shell{max-width:520px;margin:0 auto;background:#0a0a0a;border:2px solid #75aadb;padding:22px;box-shadow:10px 10px 0 rgba(0,0,0,.3);position:relative}
+.game-shell:before{content:"SPECIAL EDITION";position:absolute;right:-1px;top:12px;background:#75aadb;color:#0a0a0a;padding:4px 12px;font-size:.65rem;font-weight:900;letter-spacing:2px}
 .game-copy{text-align:center;padding:20px 10px 8px}
 .game-copy p{font-size:1.12rem;font-weight:600}
-.game-card{margin-top:16px;background:linear-gradient(145deg,#17354c,#071521);border:5px solid #eee7d8;padding:8px;position:relative;min-height:250px}
+.game-card{margin-top:16px;background:linear-gradient(145deg,#242426,#0a0a0a);border:5px solid #eee7d8;padding:8px;position:relative;min-height:250px}
 .game-card-inner{border:1px solid rgba(255,255,255,.25);padding:28px 20px;text-align:center}
 .game-silhouette{font-size:6rem;line-height:1;opacity:.9}
 .game-question{font-family:'Anton';font-size:3.4rem;color:#75aadb;line-height:1}
-.game-card button{margin-top:18px;width:100%;border:0;background:#75aadb;color:#06131f;font-family:'Anton';font-size:1.45rem;text-transform:uppercase;padding:13px;cursor:pointer;box-shadow:5px 5px 0 #3f7bb8}
+.game-card button{margin-top:18px;width:100%;border:0;background:#75aadb;color:#0a0a0a;font-family:'Anton';font-size:1.45rem;text-transform:uppercase;padding:13px;cursor:pointer;box-shadow:5px 5px 0 #3f7bb8}
 .game-card button:active{transform:translate(2px,2px);box-shadow:3px 3px 0 #3f7bb8}
 .mini-card{margin-top:18px;background:#fffaf0;color:#0b1d2d;border:4px solid #0b1d2d;display:none}
 .mini-card.show{display:block}
@@ -255,7 +255,7 @@ h1,h2,h3,p{margin:0}
 
 /* RSVP */
 .rsvp-wrap{max-width:900px;margin:0 auto;background:var(--cream2);color:var(--ink);border:1px solid #c9bfa8;box-shadow:10px 10px 0 rgba(0,0,0,.22);display:grid;grid-template-columns:1.25fr .75fr;overflow:hidden}
-.rsvp-content{padding:30px}.rsvp-side{background:linear-gradient(160deg,#111,#050b11);color:#fff;padding:30px;display:flex;flex-direction:column;justify-content:center;text-align:center;border-left:4px solid var(--gold2)}
+.rsvp-content{padding:30px}.rsvp-side{background:linear-gradient(160deg,#141414,#0a0a0a);color:#fff;padding:30px;display:flex;flex-direction:column;justify-content:center;text-align:center;border-left:4px solid var(--gold2)}
 .rsvp-side .cup{font-size:5rem}.rsvp-side h3{font-family:'Anton';font-size:2.6rem;color:var(--gold2);text-transform:uppercase}
 .rsvp-side p{font-size:1.05rem;font-weight:600}
 .rsvp-box{margin-top:8px}
@@ -268,7 +268,7 @@ h1,h2,h3,p{margin:0}
 @media(max-width:700px){.rsvp-wrap{grid-template-columns:1fr}.rsvp-side{border-left:0;border-top:4px solid var(--gold2)}}
 
 /* FOOTER */
-footer{background:#030a11;padding:34px 20px;text-align:center;border-top:2px solid var(--gold2)}
+footer{background:#0a0a0a;padding:34px 20px;text-align:center;border-top:2px solid var(--gold2)}
 footer .whistle{display:block;font-size:1.6rem;margin-bottom:8px}
 footer .brand{font-family:'Anton';font-size:2rem;letter-spacing:4px}
 footer p{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:1.5px}
@@ -490,7 +490,7 @@ function cardPreview(d) {
     background:
       radial-gradient(ellipse at 50% 8%, rgba(255,255,255,.4), transparent 60%),
       repeating-linear-gradient(90deg,#2e8b3d 0 20px,#1c5c28 20px 40px);">
-    <span style="position:absolute;top:0;left:0;right:0;height:10px;background-color:#0c2340;
+    <span style="position:absolute;top:0;left:0;right:0;height:10px;background-color:#0a0a0a;
       background-image:radial-gradient(circle,rgba(255,255,255,.55) 1.2px,transparent 1.4px);
       background-size:7px 7px;background-position:0 3px;"></span>
     <span style="position:absolute;top:14px;left:0;right:0;text-align:center;">
@@ -498,9 +498,9 @@ function cardPreview(d) {
     </span>
     <span style="font-size:2.1rem;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));">⚽</span>
     <div style="font-family:'Arial Black',Impact,sans-serif;font-size:1.2rem;color:#fff;letter-spacing:1px;
-      -webkit-text-stroke:1px #0c2340;paint-order:stroke fill;">${esc(d.name)}</div>
+      -webkit-text-stroke:1px #0a0a0a;paint-order:stroke fill;">${esc(d.name)}</div>
     <div style="font-size:.5rem;letter-spacing:3px;text-transform:uppercase;color:#ffd400;font-weight:700;
-      background:#0c2340;padding:2px 8px;border-radius:8px;">Partido de cumple</div>
+      background:#0a0a0a;padding:2px 8px;border-radius:8px;">Partido de cumple</div>
   </div>`;
 }
 
