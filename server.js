@@ -847,7 +847,7 @@ app.get("/editar/:token", (req, res) => {
   const design = getDesign(order.designId);
   const inv = db.invitations.find((i) => i.orderId === order.id);
 
-  if (isEditLocked(inv)) return res.send(lockedPage(order, design));
+  if (isEditLocked(inv)) return res.send(lockedPage(order, design, inv));
 
   const publicUrl = `${req.protocol}://${req.get("host")}/invitacion/${order.publicSlug}`;
 
@@ -1162,7 +1162,7 @@ app.get("/editar/:token/cambiar-diseno", (req, res) => {
   if (!order || order.status !== "paid") return res.status(404).send(layout({ title: "No encontrado", body: `<div class="status-page"><h1>Link no válido</h1><p>Este link de edición no existe o el pago todavía no fue confirmado.</p></div>` }));
   const currentDesign = getDesign(order.designId);
   const inv = db.invitations.find((i) => i.orderId === order.id);
-  if (isEditLocked(inv)) return res.send(lockedPage(order, currentDesign));
+  if (isEditLocked(inv)) return res.send(lockedPage(order, currentDesign, inv));
   res.send(changeDesignPickerHTML(order, currentDesign));
 });
 
@@ -1261,6 +1261,7 @@ app.get("/preview/:token", (req, res) => {
   if (!order) return res.status(404).send("No encontrado");
   const design = getDesign(order.designId);
   const inv = db.invitations.find((i) => i.orderId === order.id);
+  if (inv && inv.purgedAt) return res.status(410).send("Invitación vencida: los datos se eliminaron por vencimiento del plazo de conservación.");
   const draft = previewCache.get(req.params.token);
   const data = normalizeInvitationData(design, { ...inv.data, ...(draft || {}) });
   res.send(design.render({ ...data, __slug: order.publicSlug }));
@@ -1282,6 +1283,14 @@ const EDIT_GRACE_DAYS = 15;
 const DATA_RETENTION_DAYS = 60;
 
 function isEditLocked(inv) {
+  // Una invitación purgada (ver cleanupOldInvitations) ya perdió su fecha
+  // junto con el resto de los datos personales, así que sin este chequeo
+  // "sin fecha cargada" se interpretaría como "recién comprada, no
+  // bloquear" — exactamente al revés de lo que corresponde. El purgado
+  // siempre pasa mucho después de que el bloqueo por vencimiento ya
+  // aplicaba (60 días de retención vs. 15 de gracia de edición), así que
+  // tratarlo como bloqueado es siempre correcto.
+  if (inv?.purgedAt) return true;
   const fecha = inv?.data?.fecha;
   if (!fecha) return false; // sin fecha cargada todavía: no bloqueamos
   const eventDate = new Date(`${fecha}T00:00:00`);
@@ -1290,18 +1299,66 @@ function isEditLocked(inv) {
   return Date.now() > unlockUntil;
 }
 
-function lockedPage(order, design) {
+function lockedPage(order, design, inv) {
   const publicUrl2 = `/invitacion/${order.publicSlug}`;
+  const purged = Boolean(inv?.purgedAt);
   return layout({
     title: "Invitación vencida",
     body: `<div class="status-page">
       <h1>🔒 Esta invitación ya cumplió su ciclo</h1>
       <p>Pasaron más de ${EDIT_GRACE_DAYS} días desde la fecha del evento, así que la edición quedó bloqueada para que cada invitación se use para un solo evento. Más info en las <a href="/preguntas-frecuentes">preguntas frecuentes</a>.</p>
-      <p>La página que ya compartiste con tus invitados sigue disponible: <a href="${publicUrl2}" target="_blank">${publicUrl2}</a></p>
+      ${purged
+        ? `<p>Además, pasaron más de ${DATA_RETENTION_DAYS} días desde el evento, así que los datos cargados (textos, fotos y confirmaciones) ya se eliminaron de forma permanente y la página pública dejó de estar disponible con ese contenido.</p>`
+        : `<p>La página que ya compartiste con tus invitados sigue disponible: <a href="${publicUrl2}" target="_blank">${publicUrl2}</a></p>`}
       <p style="margin-top:24px">¿Tenés un evento nuevo? Podés comprar una invitación nueva (no hay reactivación con precio especial, es una compra normal):</p>
       <p><a class="btn btn-primary" href="/checkout/${design.id}">Comprar invitación nueva</a></p>
     </div>`,
   });
+}
+
+// ---------- BORRADO AUTOMÁTICO DE DATOS (60 días después del evento) ----------
+// Ver DATA_RETENTION_DAYS arriba y lo que dice /terminos. Por cada
+// invitación pagada cuyo evento (dato "fecha" del propio formulario) haya
+// pasado hace más de DATA_RETENTION_DAYS, borra las fotos subidas y vacía
+// los datos personales cargados (nombres, mensajes, fotos) y las
+// confirmaciones de invitados — pero deja intacta la orden (comprador,
+// monto, diseño, fechas de compra/pago): esos datos de la compra en sí se
+// conservan más tiempo por motivos contables e impositivos, tal como avisa
+// /terminos, y son los que usa el panel de admin para las estadísticas.
+function cleanupOldInvitations() {
+  const db = getDB();
+  const now = Date.now();
+  let purgedCount = 0;
+
+  db.invitations.forEach((inv) => {
+    if (inv.purgedAt) return; // ya se limpió antes
+    const fecha = inv.data && inv.data.fecha;
+    if (!fecha) return; // sin fecha de evento cargada: no hay forma de saber si venció
+    const eventDate = new Date(`${fecha}T00:00:00`);
+    if (isNaN(eventDate.getTime())) return;
+    const deadline = eventDate.getTime() + DATA_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+    if (now <= deadline) return;
+
+    const order = db.orders.find((o) => o.id === inv.orderId);
+    if (order && order.editToken) {
+      const uploadsDir = path.join(__dirname, "public", "uploads", order.editToken);
+      try {
+        fs.rmSync(uploadsDir, { recursive: true, force: true });
+      } catch (err) {
+        console.error(`[cleanup] No se pudieron borrar las fotos de ${order.editToken}:`, err.message);
+      }
+    }
+
+    db.rsvps = db.rsvps.filter((r) => r.slug !== inv.slug);
+    inv.data = {};
+    inv.purgedAt = new Date().toISOString();
+    purgedCount++;
+  });
+
+  if (purgedCount > 0) {
+    saveDB(db);
+    console.log(`[cleanup] Se eliminaron los datos de ${purgedCount} invitación(es) vencida(s) (más de ${DATA_RETENTION_DAYS} días desde el evento).`);
+  }
 }
 
 function normalizeInvitationData(design, raw) {
@@ -1364,10 +1421,22 @@ app.post("/api/invitaciones/:token/finalizar", async (req, res) => {
 });
 
 // ---------- PÁGINA PÚBLICA FINAL ----------
+function purgedPublicPage() {
+  return layout({
+    title: "Invitación vencida",
+    body: `<div class="status-page">
+      <h1>🗑️ Esta invitación ya no está disponible</h1>
+      <p>Pasaron más de ${DATA_RETENTION_DAYS} días desde la fecha del evento, así que los datos cargados (textos, fotos y confirmaciones) se eliminaron de forma permanente, tal como avisan los <a href="/terminos">Términos y condiciones</a>.</p>
+      <p style="margin-top:24px">¿Tenés un evento nuevo? <a class="btn btn-primary" href="/">Ver el catálogo</a></p>
+    </div>`,
+  });
+}
+
 app.get("/invitacion/:slug", (req, res) => {
   const db = getDB();
   const inv = db.invitations.find((i) => i.slug === req.params.slug);
   if (!inv) return res.status(404).send("Invitación no encontrada");
+  if (inv.purgedAt) return res.status(410).send(purgedPublicPage());
   const design = getDesign(inv.designId);
   const baseUrl = resolvePublicBaseUrl(req);
   let html = design.render({ ...inv.data, __slug: inv.slug });
@@ -1721,6 +1790,11 @@ app.post("/admin/orders/:id/reenviar-mail", requireAdminAuth, async (req, res) =
   );
   res.redirect("/admin");
 });
+
+// Corre una vez al arrancar (por si el server estuvo apagado varios días y
+// se acumularon vencimientos) y después cada 24hs.
+cleanupOldInvitations();
+setInterval(cleanupOldInvitations, 24 * 60 * 60 * 1000);
 
 app.listen(PORT, () => {
   console.log(`TaDi corriendo en http://localhost:${PORT}`);
