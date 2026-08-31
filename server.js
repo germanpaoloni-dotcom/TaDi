@@ -1487,6 +1487,27 @@ app.get("/editar/:token", (req, res) => {
 
   const publicUrl = `${req.protocol}://${req.get("host")}/invitacion/${order.publicSlug}`;
 
+  // Stats de la pestaña "Resumen" — solo cuentan lo que aplica según el plan
+  // (invitados nombrados es feature Premium bodas/xv, así que en el resto
+  // de los planes esa tarjeta directamente no se muestra).
+  const hasInvitadosNombrados = pricing.hasFeature(design.category, inv.plan, "invitadosPersonalizados");
+  const nombrados = inv.invitadosNombrados || [];
+  const rsvpsGenericos = db.rsvps.filter((r) => r.slug === inv.slug);
+  const personasConfirmadas =
+    nombrados.filter((g) => g.confirmacion && g.confirmacion.asiste === "si").reduce((sum, g) => sum + (Number(g.confirmacion.cantidad) || 1), 0) +
+    rsvpsGenericos.filter((r) => r.asiste !== "no").reduce((sum, r) => sum + (Number(r.acompaniantes) || 1), 0);
+  const invitadosPendientes = nombrados.filter((g) => !g.confirmacion).length;
+  const fotosCount = (inv.muro || []).length;
+  let diasLabel = "-";
+  if (inv.data.fecha) {
+    const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+    const fechaEvento = new Date(inv.data.fecha + "T00:00:00");
+    if (!isNaN(fechaEvento.getTime())) {
+      const dias = Math.round((fechaEvento - hoy) / 86400000);
+      diasLabel = dias > 0 ? String(dias) : dias === 0 ? "¡Hoy!" : "Ya pasó";
+    }
+  }
+
   res.send(`<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Panel de tu evento · TaDi</title>
@@ -1501,43 +1522,80 @@ app.get("/editar/:token", (req, res) => {
     <p style="color:var(--muted);font-size:.85rem">Diseño: <strong>${design.name}</strong>. Los cambios se ven al instante en la vista previa → · <a href="/como-funciona" target="_blank" style="color:var(--accent)">¿Cómo funciona?</a></p>
     ${req.query.bienvenida ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Pago confirmado! Ya podés personalizar tu invitación.</p>` : ""}
 
-    <h2 class="links-section-title">✏️ Editar tu invitación</h2>
-    <form id="editForm">
-      ${schemaForPlan(design, inv.plan).filter((f) => f.type !== "palette").map((f) => fieldHTML(f, inv.data[f.name])).join("")}
-    </form>
-    ${req.query.disenoCambiado ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Listo! Cambiamos el diseño. Los datos que coincidían (fecha, lugar, fotos, etc.) se mantuvieron, revisá que esté todo como querés.</p>` : ""}
+    <div class="panel-shell">
+      <nav class="panel-nav" id="panelNav">
+        <button type="button" class="panel-nav-item" data-target="resumen"><span class="nav-icon">📝</span><span>Resumen</span></button>
+        <button type="button" class="panel-nav-item" data-target="editar"><span class="nav-icon">✏️</span><span>Editar diseño</span></button>
+        ${hasInvitadosNombrados ? `<button type="button" class="panel-nav-item" data-target="invitados"><span class="nav-icon">💌</span><span>Invitados</span></button>` : ""}
+        <button type="button" class="panel-nav-item" data-target="confirmaciones"><span class="nav-icon">✅</span><span>Confirmaciones</span></button>
+        ${pricing.hasFeature(design.category, inv.plan, "muro") ? `<button type="button" class="panel-nav-item" data-target="fotos"><span class="nav-icon">📷</span><span>Fotos</span></button>` : ""}
+        <button type="button" class="panel-nav-item" data-target="links"><span class="nav-icon">🔗</span><span>Links</span></button>
+      </nav>
 
-    ${pricing.hasFeature(design.category, inv.plan, "invitadosPersonalizados") ? invitadosPersonalizadosHTML(order, inv, req, design) : ""}
-    ${confirmacionesHTML(db, inv)}
-    ${pricing.hasFeature(design.category, inv.plan, "muro") ? muroModerationHTML(order, inv) : ""}
+      <div class="panel-content">
+        <section class="panel-section" data-section="resumen">
+          <div class="panel-stat-row">
+            <div class="panel-stat-tile"><div class="panel-stat-num">${personasConfirmadas}</div><div class="panel-stat-label">Personas confirmadas</div></div>
+            ${hasInvitadosNombrados ? `<div class="panel-stat-tile"><div class="panel-stat-num">${invitadosPendientes}</div><div class="panel-stat-label">Invitados pendientes</div></div>` : `<div class="panel-stat-tile"><div class="panel-stat-num">${rsvpsGenericos.length}</div><div class="panel-stat-label">Confirmaciones</div></div>`}
+            <div class="panel-stat-tile"><div class="panel-stat-num">${fotosCount}</div><div class="panel-stat-label">Fotos subidas</div></div>
+            <div class="panel-stat-tile"><div class="panel-stat-num">${diasLabel}</div><div class="panel-stat-label">${diasLabel === "1" ? "Día para el evento" : "Días para el evento"}</div></div>
+          </div>
+          <p style="color:var(--muted);font-size:.8rem;">Usá el menú de la izquierda para editar tu invitación, cargar invitados con link personal, moderar fotos o ver tus links para compartir.</p>
+        </section>
 
-    <div class="links-section">
-      <h2 class="links-section-title">🔗 Tus links</h2>
-      ${pricing.hasFeature(design.category, inv.plan, "alias") && inv.data.aliasPersonalizado ? (() => {
-        const aliasUrl = `${req.protocol}://${req.get("host")}/${inv.data.aliasPersonalizado}`;
-        return `<div class="link-box">
-        <p class="link-box-label">✨ Tu link personalizado</p>
-        <a class="link-box-url" href="${aliasUrl}" target="_blank">${aliasUrl}</a>
-        <div class="link-box-actions">
-          <button type="button" class="copy-btn" data-copy="${escapeHtml(aliasUrl)}">📋 Copiar</button>
-          <a class="wa-btn" href="https://wa.me/?text=${encodeURIComponent(`¡Ya está lista mi invitación! Mirala acá: ${aliasUrl}`)}" target="_blank" rel="noopener">💬 WhatsApp</a>
-        </div>
-      </div>`;
-      })() : ""}
-      <div class="link-box">
-        <p class="link-box-label">Para compartir con tus invitados</p>
-        <a class="link-box-url" href="${publicUrl}" target="_blank">${publicUrl}</a>
-        <div class="link-box-actions">
-          <button type="button" class="copy-btn" data-copy="${escapeHtml(publicUrl)}">📋 Copiar</button>
-          <a class="wa-btn" href="https://wa.me/?text=${encodeURIComponent(`¡Ya está lista mi invitación! Mirala acá: ${publicUrl}`)}" target="_blank" rel="noopener">💬 WhatsApp</a>
-        </div>
-      </div>
-      <div class="link-box">
-        <p class="link-box-label">🎛️ Tu panel de evento (guardalo, es tuyo)</p>
-        <a class="link-box-url" href="/editar/${order.editToken}">${req.protocol}://${req.get("host")}/editar/${order.editToken}</a>
-        <div class="link-box-actions">
-          <button type="button" class="copy-btn" data-copy="${escapeHtml(`${req.protocol}://${req.get("host")}/editar/${order.editToken}`)}">📋 Copiar</button>
-        </div>
+        <section class="panel-section" data-section="editar">
+          <form id="editForm">
+            ${schemaForPlan(design, inv.plan).filter((f) => f.type !== "palette").map((f) => fieldHTML(f, inv.data[f.name])).join("")}
+          </form>
+          ${req.query.disenoCambiado ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Listo! Cambiamos el diseño. Los datos que coincidían (fecha, lugar, fotos, etc.) se mantuvieron, revisá que esté todo como querés.</p>` : ""}
+          <a href="/editar/${order.editToken}/cambiar-diseno" class="btn btn-outline" style="display:block;width:100%;text-align:center;text-decoration:none;margin-top:16px;box-sizing:border-box;">
+            🔄 ¿Te confundiste de diseño? Cambiar diseño
+          </a>
+        </section>
+
+        ${hasInvitadosNombrados ? `<section class="panel-section" data-section="invitados">
+          ${invitadosPersonalizadosHTML(order, inv, req, design)}
+        </section>` : ""}
+
+        <section class="panel-section" data-section="confirmaciones">
+          ${confirmacionesHTML(db, inv)}
+        </section>
+
+        ${pricing.hasFeature(design.category, inv.plan, "muro") ? `<section class="panel-section" data-section="fotos">
+          ${muroModerationHTML(order, inv)}
+        </section>` : ""}
+
+        <section class="panel-section" data-section="links">
+          <div class="links-section" style="margin-top:0;padding-top:0;border-top:0;">
+            <h2 class="links-section-title">🔗 Tus links</h2>
+            ${pricing.hasFeature(design.category, inv.plan, "alias") && inv.data.aliasPersonalizado ? (() => {
+              const aliasUrl = `${req.protocol}://${req.get("host")}/${inv.data.aliasPersonalizado}`;
+              return `<div class="link-box">
+              <p class="link-box-label">✨ Tu link personalizado</p>
+              <a class="link-box-url" href="${aliasUrl}" target="_blank">${aliasUrl}</a>
+              <div class="link-box-actions">
+                <button type="button" class="copy-btn" data-copy="${escapeHtml(aliasUrl)}">📋 Copiar</button>
+                <a class="wa-btn" href="https://wa.me/?text=${encodeURIComponent(`¡Ya está lista mi invitación! Mirala acá: ${aliasUrl}`)}" target="_blank" rel="noopener">💬 WhatsApp</a>
+              </div>
+            </div>`;
+            })() : ""}
+            <div class="link-box">
+              <p class="link-box-label">Para compartir con tus invitados</p>
+              <a class="link-box-url" href="${publicUrl}" target="_blank">${publicUrl}</a>
+              <div class="link-box-actions">
+                <button type="button" class="copy-btn" data-copy="${escapeHtml(publicUrl)}">📋 Copiar</button>
+                <a class="wa-btn" href="https://wa.me/?text=${encodeURIComponent(`¡Ya está lista mi invitación! Mirala acá: ${publicUrl}`)}" target="_blank" rel="noopener">💬 WhatsApp</a>
+              </div>
+            </div>
+            <div class="link-box">
+              <p class="link-box-label">🎛️ Tu panel de evento (guardalo, es tuyo)</p>
+              <a class="link-box-url" href="/editar/${order.editToken}">${req.protocol}://${req.get("host")}/editar/${order.editToken}</a>
+              <div class="link-box-actions">
+                <button type="button" class="copy-btn" data-copy="${escapeHtml(`${req.protocol}://${req.get("host")}/editar/${order.editToken}`)}">📋 Copiar</button>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
 
@@ -1545,10 +1603,6 @@ app.get("/editar/:token", (req, res) => {
       <button class="finish-btn" type="submit" form="editForm" id="finishBtn">✅ ¡Listo!</button>
       <p class="finish-hint" id="finishHint">Guarda los cambios y te manda tus links por mail.</p>
     </div>
-
-    <a href="/editar/${order.editToken}/cambiar-diseno" class="btn btn-outline" style="display:block;width:100%;text-align:center;text-decoration:none;margin-top:16px;box-sizing:border-box;">
-      🔄 ¿Te confundiste de diseño? Cambiar diseño
-    </a>
   </div>
   <div class="editor-preview-panel">
     <iframe id="preview" src="/preview/${order.editToken}"></iframe>
@@ -1558,6 +1612,32 @@ app.get("/editar/:token", (req, res) => {
   const token = ${JSON.stringify(order.editToken)};
   const form = document.getElementById('editForm');
   const iframe = document.getElementById('preview');
+
+  // Panel de tu evento: nav lateral (sidebar en desktop, pestañas horizontales
+  // en mobile por CSS) — todo en el cliente, sin recargar la página. El tab
+  // activo queda en el hash de la URL así sobrevive a un location.reload()
+  // (ej. después de agregar un invitado) y se puede compartir/bookmarkear.
+  (function(){
+    var navItems = document.querySelectorAll('.panel-nav-item');
+    var sections = document.querySelectorAll('.panel-section');
+    function activate(target){
+      var found = false;
+      sections.forEach(function(s){
+        var match = s.dataset.section === target;
+        s.classList.toggle('active', match);
+        if (match) found = true;
+      });
+      if (!found && sections.length) sections[0].classList.add('active');
+      navItems.forEach(function(b){ b.classList.toggle('active', b.dataset.target === target); });
+    }
+    navItems.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        window.location.hash = btn.dataset.target;
+        activate(btn.dataset.target);
+      });
+    });
+    activate((window.location.hash || '#resumen').slice(1));
+  })();
 
   // Al hacer foco en un campo de texto (click o Tab), selecciona todo el
   // contenido de una — así para cambiar un dato alcanza con tipear encima,
@@ -1655,7 +1735,7 @@ app.get("/editar/:token", (req, res) => {
       })
         .then(function(r){ return r.json(); })
         .then(function(data){
-          if (data.ok) { window.location.reload(); return; }
+          if (data.ok) { window.location.hash = 'invitados'; window.location.reload(); return; }
           alert(data.error || 'No se pudo agregar.');
           submitBtn.disabled = false;
         })
