@@ -259,6 +259,21 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .wall-mod-thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;box-shadow:var(--nu-xs);}
 .wall-mod-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
 .wall-mod-remove{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(51,54,63,.75);color:#fff;font-size:.7rem;cursor:pointer;line-height:1;}
+.wall-mod-star{position:absolute;top:4px;left:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(51,54,63,.75);color:#fff;font-size:.85rem;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;}
+.wall-mod-star.active{color:#ffcf4d;}
+.wall-mod-thumb-destacada{box-shadow:0 0 0 2px #ffcf4d,var(--nu-xs);}
+.add-guest-form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.add-guest-form input{background:var(--bg);box-shadow:var(--nu-inset-sm);border:0;border-radius:8px;padding:10px 12px;font-family:inherit;font-size:.85rem;color:var(--ink);flex:1;min-width:120px;}
+.guest-row{background:var(--bg);box-shadow:var(--nu-inset-sm);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;}
+.guest-row-main{font-size:.85rem;color:var(--ink);display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.guest-row-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.guest-remove{font-family:inherit;font-size:.74rem;font-weight:700;border:0;border-radius:20px;padding:8px 10px;cursor:pointer;background:var(--bg);box-shadow:var(--nu-xs);color:var(--muted);}
+.guest-remove:hover{box-shadow:var(--nu-sm);color:#c0392b;}
+.guest-estado{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.guest-estado-pendiente{background:var(--sh-dark);color:var(--muted);}
+.guest-estado-si{background:#e9f7ea;color:#1e8e4a;}
+.guest-estado-no{background:#fbeaea;color:#c0392b;}
+.rsvp-guest-intro{font-weight:700;color:var(--ink);margin:0 0 10px;}
 .links-section{margin-top:24px;padding-top:18px;border-top:1px solid var(--sh-dark);}
 .links-section-title{font-size:.95rem;color:var(--ink);margin:0 0 12px;}
 .link-box{background:var(--bg);box-shadow:var(--nu-inset-sm);border-radius:10px;padding:14px;font-size:.8rem;line-height:1.5;margin-bottom:10px;}

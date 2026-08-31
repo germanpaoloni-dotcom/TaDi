@@ -130,14 +130,44 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
   const evento = eventoLabel(categoria, datos);
   const btnLabel = waNumber ? "✅ Confirmar asistencia por WhatsApp" : "✅ Confirmar asistencia";
   const menuLabels = { clasico: "Clásico", vegetariano: "Vegetariano", vegano: "Vegano", celiaco: "Sin TACC" };
+
+  // Modo invitado nombrado (feature "invitadosPersonalizados", plan Premium
+  // bodas/xv): si el organizador cargó a este invitado en su panel, "datos"
+  // trae "__guest" (inyectado por server.js al resolver el link personal
+  // /invitacion/:slug/i/:token) con { nombre, cupo, confirmacion }. En ese
+  // caso el form pide un nombre por acompañante hasta el cupo asignado en
+  // vez del campo libre "¿Cuántos asisten?", y guarda contra el endpoint
+  // del invitado puntual (para que se pueda reeditar la respuesta después)
+  // en vez del RSVP anónimo genérico.
+  const guest = datos && datos.__guest ? datos.__guest : null;
+  const cupo = guest ? Math.max(1, Number(guest.cupo) || 1) : null;
+  const prevConf = guest && guest.confirmacion ? guest.confirmacion : null;
+  const prevNombres = prevConf && Array.isArray(prevConf.nombres) ? prevConf.nombres : [];
+
+  const guestIntro = guest
+    ? `<p class="rsvp-guest-intro" style="font-weight:700;margin:0 0 12px;">¡Hola <strong>${esc(guest.nombre)}</strong>! Tenés ${cupo === 1 ? "1 lugar reservado" : `${cupo} lugares reservados`} para ${evento}.</p>`
+    : "";
+
+  const guestNameFields = guest
+    ? Array.from({ length: cupo }).map((_, i) => `
+      <label class="rsvp-guest-name-field" data-idx="${i}" ${i > 0 ? 'style="display:none"' : ""}>
+        Nombre del invitado ${cupo > 1 ? i + 1 : ""}
+        <input name="invitadoNombre${i}" type="text" placeholder="Nombre y apellido" value="${esc(prevNombres[i] || "")}" ${i === 0 ? "required" : ""}>
+      </label>`).join("")
+    : "";
+
   return {
     html: `<form class="rsvp-form" id="${id}">
-      <label>Nombre y apellido <input required name="nombre" type="text" placeholder="Tu nombre"></label>
-      ${withGuests ? `<label>¿Cuántos asisten? <input name="acompaniantes" type="number" min="1" value="1"></label>` : ""}
-      <label>¿Asistís? <select name="asiste"><option value="si">Sí, ahí estaré</option><option value="no">No voy a poder ir</option></select></label>
+      ${guestIntro}
+      ${guest ? "" : `<label>Nombre y apellido <input required name="nombre" type="text" placeholder="Tu nombre"></label>`}
+      ${guest
+        ? `<label>¿Cuántos van a ir (de los ${cupo} reservados)? <select name="cantidadInvitados">${Array.from({ length: cupo }).map((_, i) => `<option value="${i + 1}" ${prevConf && Number(prevConf.cantidad) === i + 1 ? "selected" : (!prevConf && i === cupo - 1 ? "selected" : "")}>${i + 1}</option>`).join("")}</select></label>
+           <div class="rsvp-guest-names">${guestNameFields}</div>`
+        : (withGuests ? `<label>¿Cuántos asisten? <input name="acompaniantes" type="number" min="1" value="1"></label>` : "")}
+      <label>¿Asistís? <select name="asiste"><option value="si" ${prevConf && prevConf.asiste === "no" ? "" : "selected"}>Sí, ahí estaré</option><option value="no" ${prevConf && prevConf.asiste === "no" ? "selected" : ""}>No voy a poder ir</option></select></label>
       ${withMenu ? `<label>Preferencia de menú <select name="menu"><option value="clasico">Clásico</option><option value="vegetariano">Vegetariano</option><option value="vegano">Vegano</option><option value="celiaco">Sin TACC</option></select></label>` : ""}
-      <label>Mensaje (opcional) <textarea name="mensaje" placeholder="¡Les mando un beso!"></textarea></label>
-      <button type="submit">${btnLabel}</button>
+      <label>Mensaje (opcional) <textarea name="mensaje" placeholder="¡Les mando un beso!">${prevConf ? esc(prevConf.mensaje || "") : ""}</textarea></label>
+      <button type="submit">${prevConf ? "✏️ Actualizar mi confirmación" : btnLabel}</button>
       <p class="rsvp-status" id="${id}-status"></p>
     </form>`,
     script: `
@@ -147,10 +177,55 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
         var waNumber = ${JSON.stringify(waNumber)};
         var evento = ${JSON.stringify(evento)};
         var menuLabels = ${JSON.stringify(menuLabels)};
+        var guestToken = ${JSON.stringify(guest ? guest.token : null)};
+        var cupo = ${JSON.stringify(cupo)};
         if(!form) return;
+
+        // En modo invitado nombrado, mostrar/ocultar los campos de nombre
+        // según cuántos de los lugares reservados va a usar.
+        var cantidadSel = form.querySelector('select[name="cantidadInvitados"]');
+        if (cantidadSel) {
+          var nameFields = form.querySelectorAll('.rsvp-guest-name-field');
+          function syncNameFields(){
+            var n = Number(cantidadSel.value) || 1;
+            nameFields.forEach(function(f){
+              var idx = Number(f.dataset.idx);
+              f.style.display = idx < n ? '' : 'none';
+              var input = f.querySelector('input');
+              if (idx < n) { if (idx === 0) input.required = true; }
+              else { input.required = false; }
+            });
+          }
+          cantidadSel.addEventListener('change', syncNameFields);
+          syncNameFields();
+        }
+
         form.addEventListener('submit', function(e){
           e.preventDefault();
           var data = Object.fromEntries(new FormData(form).entries());
+
+          if (guestToken) {
+            var n = Number(data.cantidadInvitados) || 1;
+            var nombres = [];
+            for (var i = 0; i < n; i++) { nombres.push(data['invitadoNombre' + i] || ''); }
+            fetch('/api/invitacion/${slug}/invitado/' + guestToken + '/rsvp', {
+              method: 'POST', headers: {'Content-Type':'application/json'},
+              body: JSON.stringify({ asiste: data.asiste, cantidad: n, nombres: nombres, mensaje: data.mensaje || '' })
+            }).catch(function(){});
+
+            if (waNumber) {
+              var lineas2 = ['¡Hola! Somos ' + nombres.filter(Boolean).join(', ') + '.'];
+              lineas2.push(data.asiste === 'no' ? 'Lamentablemente no vamos a poder ir 😔' : ('¡Sí, ahí vamos a estar! Confirmamos ' + n + ' persona(s). 🎉'));
+              if (data.mensaje) lineas2.push('"' + data.mensaje + '"');
+              lineas2.push('Confirmamos nuestra asistencia para ' + evento + '.');
+              window.open('https://wa.me/' + waNumber + '?text=' + encodeURIComponent(lineas2.join('\\n')), '_blank', 'noopener');
+              status.textContent = '¡Te llevamos a WhatsApp para avisarles también!';
+            } else {
+              status.textContent = '¡Gracias, guardamos tu confirmación!';
+            }
+            return;
+          }
+
           // Guardado best-effort en segundo plano: no bloquea ni condiciona
           // el paso a WhatsApp, es solo para que quede también en el panel
           // de invitados del organizador.
