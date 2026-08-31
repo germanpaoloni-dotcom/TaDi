@@ -186,29 +186,39 @@ function injectBackgroundMusic(html, trackId) {
   const track = music.getTrack(trackId);
   if (!track) return html;
   const url = music.trackUrl(trackId);
+  const noteIcon = `<svg class="tadi-bgm-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 18V5l11-2v13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.5" stroke="currentColor" stroke-width="1.8"/><circle cx="17.5" cy="16" r="2.5" stroke="currentColor" stroke-width="1.8"/></svg>`;
+  const barsIcon = `<svg class="tadi-bgm-icon tadi-bgm-icon-bars" viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="10" width="3" height="8" rx="1.5" fill="currentColor"><animate attributeName="height" values="8;16;8" dur="0.9s" repeatCount="indefinite"/><animate attributeName="y" values="12;4;12" dur="0.9s" repeatCount="indefinite"/></rect><rect x="10.5" y="6" width="3" height="14" rx="1.5" fill="currentColor"><animate attributeName="height" values="14;5;14" dur="0.9s" begin="0.15s" repeatCount="indefinite"/><animate attributeName="y" values="5;9.5;5" dur="0.9s" begin="0.15s" repeatCount="indefinite"/></rect><rect x="17" y="9" width="3" height="10" rx="1.5" fill="currentColor"><animate attributeName="height" values="10;18;10" dur="0.9s" begin="0.3s" repeatCount="indefinite"/><animate attributeName="y" values="7;3;7" dur="0.9s" begin="0.3s" repeatCount="indefinite"/></rect></svg>`;
   const widget = `
     <audio id="tadi-bgm" loop preload="none" src="${escapeHtml(url)}"></audio>
-    <button type="button" id="tadi-bgm-toggle" class="tadi-bgm-toggle" aria-label="Activar música de fondo">🎵 Música</button>
+    <button type="button" id="tadi-bgm-toggle" class="tadi-bgm-toggle" aria-label="Activar música de fondo">${noteIcon}<span class="tadi-bgm-label">Música</span></button>
     <style>
-      .tadi-bgm-toggle{position:fixed;right:18px;bottom:18px;z-index:60;background:#eaeef2;color:#33363f;border:0;border-radius:30px;padding:11px 18px;font-size:.8rem;font-weight:700;font-family:'Helvetica Neue',Arial,sans-serif;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
+      .tadi-bgm-toggle{display:flex;align-items:center;gap:7px;position:fixed;right:18px;bottom:18px;z-index:60;background:#eaeef2;color:#33363f;border:0;border-radius:30px;padding:11px 18px;font-size:.8rem;font-weight:700;font-family:'Helvetica Neue',Arial,sans-serif;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
       .tadi-bgm-toggle.playing{box-shadow:inset 4px 4px 9px #c5cbd6,inset -4px -4px 9px #ffffff;color:#e8672e;}
+      .tadi-bgm-icon{flex:none;display:block}
+      .tadi-bgm-icon-bars{display:none}
+      .tadi-bgm-toggle.playing .tadi-bgm-icon-note{display:none}
+      .tadi-bgm-toggle.playing .tadi-bgm-icon-bars{display:block}
     </style>
     <script>
       (function(){
         var audio = document.getElementById('tadi-bgm');
         var btn = document.getElementById('tadi-bgm-toggle');
         if(!audio || !btn) return;
+        var noteIcon = btn.querySelector('svg');
+        noteIcon.classList.add('tadi-bgm-icon-note');
+        noteIcon.insertAdjacentHTML('afterend', ${JSON.stringify(barsIcon)});
+        var label = btn.querySelector('.tadi-bgm-label');
         var playing = false;
         btn.addEventListener('click', function(){
           if (!playing) {
             audio.volume = 0.55;
             audio.play().catch(function(){});
-            btn.textContent = '🎵 Pausar';
+            label.textContent = 'Pausar';
             btn.classList.add('playing');
             playing = true;
           } else {
             audio.pause();
-            btn.textContent = '🎵 Música';
+            label.textContent = 'Música';
             btn.classList.remove('playing');
             playing = false;
           }
@@ -458,9 +468,6 @@ function renderPublicInvitation(inv, req) {
   let html = design.render({ ...inv.data, __slug: inv.slug });
   if (pricing.hasFeature(design.category, inv.plan, "musica")) {
     html = injectBackgroundMusic(html, inv.data.musica);
-  }
-  if (pricing.hasFeature(design.category, inv.plan, "mapa")) {
-    html = injectMapEmbed(html, inv.data.direccionMapa);
   }
   if (pricing.hasFeature(design.category, inv.plan, "muro")) {
     html = injectPhotoWall(html, { slug: inv.slug, photos: inv.muro || [] });
@@ -1927,9 +1934,6 @@ app.get("/preview/:token", (req, res) => {
   let html = design.render({ ...data, __slug: order.publicSlug });
   if (pricing.hasFeature(design.category, inv.plan, "musica")) {
     html = injectBackgroundMusic(html, data.musica);
-  }
-  if (pricing.hasFeature(design.category, inv.plan, "mapa")) {
-    html = injectMapEmbed(html, data.direccionMapa);
   }
   if (pricing.hasFeature(design.category, inv.plan, "video")) {
     html = injectVideoCover(html, data.videoPortada);
