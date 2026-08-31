@@ -24,7 +24,7 @@ const categories = [
     ghost: "PARA SIEMPRE",
     kicker: "Para quién es",
     heroBody: "Para la pareja que quiere una invitación que se sienta tan cuidada como la boda misma: cronograma, mapa, mesa de regalos y confirmación de asistencia, todo en un link.",
-    heroImage: "/static/img/categorias/bodas.png",
+    heroImage: "/static/img/categorias/bodas.webp",
     flagshipDesign: "boda-elegante-clasica",
   },
   {
@@ -34,7 +34,7 @@ const categories = [
     ghost: "ANOTALO",
     kicker: "Para quién es",
     heroBody: "Para la pareja que ya tiene fecha y quiere avisar antes que nadie: un link lindo para agendar la fecha, mientras la invitación con todos los detalles llega más adelante.",
-    heroImage: "/static/img/categorias/savethedate.png",
+    heroImage: "/static/img/categorias/savethedate.webp",
     flagshipDesign: "std-elegante-clasico",
   },
   {
@@ -44,7 +44,7 @@ const categories = [
     ghost: "A JUGAR",
     kicker: "Para quién es",
     heroBody: "Para el cumpleaños de los más chicos: colores, personajes y una invitación tan divertida como la fiesta, con RSVP para que los papás confirmen fácil.",
-    heroImage: "/static/img/categorias/infantiles.png",
+    heroImage: "/static/img/categorias/infantiles.webp",
     flagshipDesign: "inf-superheroes",
   },
   {
@@ -54,7 +54,7 @@ const categories = [
     ghost: "MIS QUINCE",
     kicker: "Para quién es",
     heroBody: "Para la quinceañera que quiere algo distinto a una tarjeta de cartulina: fotos, cuenta regresiva, música y una invitación que sus amigas van a querer abrir.",
-    heroImage: "/static/img/categorias/xv.png",
+    heroImage: "/static/img/categorias/xv.webp",
     flagshipDesign: "xv-glam-rosa",
   },
   {
@@ -64,7 +64,7 @@ const categories = [
     ghost: "A CELEBRAR",
     kicker: "Para quién es",
     heroBody: "Para el cumpleaños que se festeja en grande: brindis, buena música y una invitación con la misma onda de la fiesta, con confirmación de asistencia incluida.",
-    heroImage: "/static/img/categorias/cumpleanos.png",
+    heroImage: "/static/img/categorias/cumpleanos.webp",
     flagshipDesign: "cum-gala-dorada",
   },
   {
@@ -74,7 +74,7 @@ const categories = [
     ghost: "BAUTISMOS",
     kicker: "Para quién es",
     heroBody: "Para la familia que quiere compartir un bautismo con una invitación cálida y sencilla: datos de la ceremonia, la fiesta después y confirmación de asistencia.",
-    heroImage: "/static/img/categorias/bautismos.png",
+    heroImage: "/static/img/categorias/bautismos.webp",
     flagshipDesign: "bau-clasica-dorada",
   },
   {
@@ -84,7 +84,7 @@ const categories = [
     ghost: "TRICK OR TREAT",
     kicker: "Para quién es",
     heroBody: "Para la fiesta de Halloween que se festeja con disfraz obligatorio: una invitación con la onda justa de misterio y diversión, lista para compartir.",
-    heroImage: "/static/img/categorias/halloween.png",
+    heroImage: "/static/img/categorias/halloween.webp",
     flagshipDesign: "hall-noche-embrujada",
     // TESTING: temporalmente visible todo el año a pedido del cliente,
     // mientras el sitio está en pruebas. Restaurar cuando avise que el
@@ -98,7 +98,7 @@ const categories = [
     ghost: "FELIZ NAVIDAD",
     kicker: "Para quién es",
     heroBody: "Para la cena de Navidad, el amigo invisible o el brindis de fin de año: una invitación cálida y festiva con todos los datos para que nadie falte.",
-    heroImage: "/static/img/categorias/navidad.png",
+    heroImage: "/static/img/categorias/navidad.webp",
     flagshipDesign: "nav-clasica-dorada",
     // TESTING: temporalmente visible todo el año a pedido del cliente,
     // mientras el sitio está en pruebas. Restaurar cuando avise que el
