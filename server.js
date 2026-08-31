@@ -17,6 +17,8 @@ const { categories, designs, getDesign, designsByCategory, isCategoryInSeason, v
 const mp = require("./mercadopago");
 const mailer = require("./mailer");
 const { eventoLabel, formatFechaCorta } = require("./designs/widgets");
+const pricing = require("./designs/pricing");
+const music = require("./designs/music");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -74,6 +76,45 @@ const upload = multer({
   // más abajo, cada imagen se re-comprime automáticamente con sharp así el
   // archivo final que queda en el server siempre es liviano igual.
   limits: { fileSize: 25 * 1024 * 1024 },
+});
+
+// --- subida de fotos del "muro de invitados" (feature "muro", plan Plus+)
+// --- misma idea que el upload de arriba, pero público (lo sube cualquier
+// invitado desde el link de la invitación, no hace falta el editToken del
+// dueño) y guardado en su propia carpeta por slug.
+const uploadMuroPhoto = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const dir = path.join(__dirname, "public", "uploads", "muro", req.params.slug || "tmp");
+      fs.mkdirSync(dir, { recursive: true });
+      cb(null, dir);
+    },
+    filename: (req, file, cb) => cb(null, Date.now() + "-" + Math.random().toString(36).slice(2, 8) + ".jpg"),
+  }),
+  limits: { fileSize: 25 * 1024 * 1024 },
+});
+
+// --- subida de video de portada (feature "video", plan Premium bodas/xv) ---
+// A diferencia de las fotos, el video no se re-procesa con sharp (sharp es
+// solo de imágenes) — se guarda tal cual llega, solo validando que sea un
+// archivo de video y limitando el tamaño para que la invitación no quede
+// pesadísima de cargar en el celular de un invitado.
+const uploadVideo = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const dir = path.join(__dirname, "public", "uploads", req.params.token || "tmp");
+      fs.mkdirSync(dir, { recursive: true });
+      cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+      const ext = (file.originalname.match(/\.[a-zA-Z0-9]+$/) || [".mp4"])[0].toLowerCase();
+      cb(null, Date.now() + "-" + Math.random().toString(36).slice(2, 8) + ext);
+    },
+  }),
+  fileFilter: (req, file, cb) => cb(null, /^video\//.test(file.mimetype)),
+  // 60MB: bastante para 15-20s de video de portada en buena calidad sin
+  // que la invitación tarde una eternidad en cargar en 4G.
+  limits: { fileSize: 60 * 1024 * 1024 },
 });
 
 // ---------- vista previa al compartir el link (WhatsApp, Facebook, etc.) ----------
@@ -134,6 +175,359 @@ function injectOgTags(html, { baseUrl, url, image, description }) {
     html = html.replace("<head>", `<head><meta name="description" content="${escapeHtml(desc)}">`);
   }
   return html;
+}
+
+// Inserta el reproductor de música de fondo (feature "musica", plan Plus+)
+// en la página pública de una invitación. Los navegadores bloquean el
+// autoplay con sonido, así que arranca muteado y se ve una píldora flotante
+// para que el invitado la active con un toque — patrón estándar para esto.
+function injectBackgroundMusic(html, trackId) {
+  if (!trackId) return html;
+  const track = music.getTrack(trackId);
+  if (!track) return html;
+  const url = music.trackUrl(trackId);
+  const widget = `
+    <audio id="tadi-bgm" loop preload="none" src="${escapeHtml(url)}"></audio>
+    <button type="button" id="tadi-bgm-toggle" class="tadi-bgm-toggle" aria-label="Activar música de fondo">🎵 Música</button>
+    <style>
+      .tadi-bgm-toggle{position:fixed;right:18px;bottom:18px;z-index:60;background:#eaeef2;color:#33363f;border:0;border-radius:30px;padding:11px 18px;font-size:.8rem;font-weight:700;font-family:'Helvetica Neue',Arial,sans-serif;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
+      .tadi-bgm-toggle.playing{box-shadow:inset 4px 4px 9px #c5cbd6,inset -4px -4px 9px #ffffff;color:#e8672e;}
+    </style>
+    <script>
+      (function(){
+        var audio = document.getElementById('tadi-bgm');
+        var btn = document.getElementById('tadi-bgm-toggle');
+        if(!audio || !btn) return;
+        var playing = false;
+        btn.addEventListener('click', function(){
+          if (!playing) {
+            audio.volume = 0.55;
+            audio.play().catch(function(){});
+            btn.textContent = '🎵 Pausar';
+            btn.classList.add('playing');
+            playing = true;
+          } else {
+            audio.pause();
+            btn.textContent = '🎵 Música';
+            btn.classList.remove('playing');
+            playing = false;
+          }
+        });
+      })();
+    </script>
+  `;
+  if (html.includes("</body>")) return html.replace("</body>", widget + "</body>");
+  return html + widget;
+}
+
+// Convierte el link de Google Maps que carga el comprador (el mismo campo
+// "direccionMapa" de siempre, pensado para copiar/pegar un link normal) en
+// una URL de embed de Google Maps SIN API key — Google sigue soportando el
+// formato viejo "?output=embed" para esto, gratis, así no hace falta pagar
+// ni gestionar credenciales de la Maps Embed API solo para un iframe.
+// Si el link no es reconocible como de Google Maps, devuelve null y el
+// mapa embebido simplemente no se agrega (el link de toda la vida que ya
+// pone cada diseño en su propio template sigue funcionando igual).
+function toMapEmbedUrl(mapsUrl) {
+  if (!mapsUrl) return null;
+  let url;
+  try {
+    url = new URL(mapsUrl);
+  } catch {
+    return null;
+  }
+  if (!/google\./i.test(url.hostname)) return null;
+  const q = url.searchParams.get("q");
+  if (q) {
+    return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
+  }
+  // Link tipo .../maps/place/Nombre+Lugar/... sin query "q": lo usamos
+  // directo, sumando output=embed si todavía no lo tiene.
+  if (/\/maps\//i.test(url.pathname)) {
+    url.searchParams.set("output", "embed");
+    return url.toString();
+  }
+  return null;
+}
+
+// Inserta el botón flotante "📍 Mapa" (feature "mapa", plan Plus+) que abre
+// un panel con el mapa embebido interactivo — mismo patrón que el widget de
+// música, para que la experiencia sea consistente entre ambos features.
+function injectMapEmbed(html, direccionMapa) {
+  const embedUrl = toMapEmbedUrl(direccionMapa);
+  if (!embedUrl) return html;
+  const widget = `
+    <button type="button" id="tadi-map-toggle" class="tadi-map-toggle" aria-label="Ver mapa interactivo">📍 Mapa</button>
+    <div id="tadi-map-panel" class="tadi-map-panel" hidden>
+      <div class="tadi-map-panel-inner">
+        <button type="button" id="tadi-map-close" class="tadi-map-close" aria-label="Cerrar mapa">✕</button>
+        <iframe id="tadi-map-iframe" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen data-src="${escapeHtml(embedUrl)}"></iframe>
+      </div>
+    </div>
+    <style>
+      .tadi-map-toggle{position:fixed;left:18px;bottom:18px;z-index:60;background:#eaeef2;color:#33363f;border:0;border-radius:30px;padding:11px 18px;font-size:.8rem;font-weight:700;font-family:'Helvetica Neue',Arial,sans-serif;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
+      .tadi-map-panel{position:fixed;inset:0;z-index:70;background:rgba(51,54,63,.55);display:flex;align-items:center;justify-content:center;padding:20px;}
+      .tadi-map-panel[hidden]{display:none;}
+      .tadi-map-panel-inner{position:relative;background:#eaeef2;border-radius:20px;box-shadow:14px 14px 30px #c5cbd6,-14px -14px 30px #ffffff;width:100%;max-width:640px;height:min(70vh,520px);overflow:hidden;}
+      .tadi-map-panel-inner iframe{width:100%;height:100%;border:0;display:block;}
+      .tadi-map-close{position:absolute;top:10px;right:10px;z-index:2;background:#eaeef2;color:#33363f;border:0;width:34px;height:34px;border-radius:50%;font-size:1rem;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
+    </style>
+    <script>
+      (function(){
+        var btn = document.getElementById('tadi-map-toggle');
+        var panel = document.getElementById('tadi-map-panel');
+        var closeBtn = document.getElementById('tadi-map-close');
+        var iframe = document.getElementById('tadi-map-iframe');
+        if(!btn || !panel) return;
+        function open(){
+          if (!iframe.src) iframe.src = iframe.dataset.src;
+          panel.hidden = false;
+        }
+        function close(){ panel.hidden = true; }
+        btn.addEventListener('click', open);
+        closeBtn.addEventListener('click', close);
+        panel.addEventListener('click', function(e){ if (e.target === panel) close(); });
+      })();
+    </script>
+  `;
+  if (html.includes("</body>")) return html.replace("</body>", widget + "</body>");
+  return html + widget;
+}
+
+// Inserta el botón flotante "📷 Muro" (feature "muro", plan Plus+): un panel
+// con las fotos que ya subieron los invitados + un input para sumar una
+// nueva foto directo desde el link de la invitación (sin login, el slug
+// público es el mismo "permiso" que ya usa el RSVP). Sube por fetch y la
+// agrega al grid al toque, sin recargar la página.
+function injectPhotoWall(html, { slug, photos }) {
+  const grid = (photos || []).map((p) => `<div class="tadi-wall-thumb"><img src="${escapeHtml(p.url)}" loading="lazy"></div>`).join("");
+  const widget = `
+    <button type="button" id="tadi-wall-toggle" class="tadi-wall-toggle" aria-label="Ver muro de fotos de invitados">📷 Fotos</button>
+    <div id="tadi-wall-panel" class="tadi-wall-panel" hidden>
+      <div class="tadi-wall-panel-inner">
+        <button type="button" id="tadi-wall-close" class="tadi-wall-close" aria-label="Cerrar muro de fotos">✕</button>
+        <h3 class="tadi-wall-title">Fotos de la fiesta</h3>
+        <p class="tadi-wall-sub">Subí las tuyas para que queden todas juntas.</p>
+        <label class="tadi-wall-upload-btn">
+          📤 Subir una foto
+          <input type="file" accept="image/*" id="tadi-wall-input" hidden>
+        </label>
+        <p class="tadi-wall-status" id="tadi-wall-status"></p>
+        <div class="tadi-wall-grid" id="tadi-wall-grid">${grid}</div>
+      </div>
+    </div>
+    <style>
+      .tadi-wall-toggle{position:fixed;left:18px;bottom:74px;z-index:60;background:#eaeef2;color:#33363f;border:0;border-radius:30px;padding:11px 18px;font-size:.8rem;font-weight:700;font-family:'Helvetica Neue',Arial,sans-serif;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
+      .tadi-wall-panel{position:fixed;inset:0;z-index:70;background:rgba(51,54,63,.55);display:flex;align-items:center;justify-content:center;padding:20px;}
+      .tadi-wall-panel[hidden]{display:none;}
+      .tadi-wall-panel-inner{position:relative;background:#eaeef2;border-radius:20px;box-shadow:14px 14px 30px #c5cbd6,-14px -14px 30px #ffffff;width:100%;max-width:640px;max-height:80vh;overflow-y:auto;padding:26px 22px;font-family:'Helvetica Neue',Arial,sans-serif;box-sizing:border-box;}
+      .tadi-wall-close{position:absolute;top:10px;right:10px;background:#eaeef2;color:#33363f;border:0;width:34px;height:34px;border-radius:50%;font-size:1rem;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
+      .tadi-wall-title{margin:0 0 4px;font-size:1.1rem;color:#33363f;}
+      .tadi-wall-sub{margin:0 0 16px;font-size:.82rem;color:#6d7280;}
+      .tadi-wall-upload-btn{display:inline-flex;align-items:center;gap:8px;background:#ff7a3d;color:#fff;font-weight:700;font-size:.85rem;padding:12px 18px;border-radius:14px;cursor:pointer;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;}
+      .tadi-wall-status{font-size:.78rem;color:#6d7280;margin:10px 0 0;min-height:1.1em;}
+      .tadi-wall-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:16px;}
+      .tadi-wall-thumb{aspect-ratio:1;border-radius:10px;overflow:hidden;background:#dfe3e8;}
+      .tadi-wall-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+    </style>
+    <script>
+      (function(){
+        var btn = document.getElementById('tadi-wall-toggle');
+        var panel = document.getElementById('tadi-wall-panel');
+        var closeBtn = document.getElementById('tadi-wall-close');
+        var input = document.getElementById('tadi-wall-input');
+        var grid = document.getElementById('tadi-wall-grid');
+        var status = document.getElementById('tadi-wall-status');
+        if(!btn || !panel) return;
+        btn.addEventListener('click', function(){ panel.hidden = false; });
+        closeBtn.addEventListener('click', function(){ panel.hidden = true; });
+        panel.addEventListener('click', function(e){ if (e.target === panel) panel.hidden = true; });
+        input.addEventListener('change', function(){
+          var file = input.files && input.files[0];
+          if (!file) return;
+          status.textContent = 'Subiendo...';
+          var fd = new FormData();
+          fd.append('foto', file);
+          fetch('/api/invitacion/${escapeHtml(slug)}/muro', { method: 'POST', body: fd })
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+              if (data.error) { status.textContent = data.error; return; }
+              var div = document.createElement('div');
+              div.className = 'tadi-wall-thumb';
+              div.innerHTML = '<img src="' + data.url + '" loading="lazy">';
+              grid.prepend(div);
+              status.textContent = '¡Gracias por compartirla!';
+              input.value = '';
+            })
+            .catch(function(){ status.textContent = 'No se pudo subir. Probá de nuevo.'; });
+        });
+      })();
+    </script>
+  `;
+  if (html.includes("</body>")) return html.replace("</body>", widget + "</body>");
+  return html + widget;
+}
+
+// Video de portada flotante (feature "video", plan Premium bodas/xv) — se
+// suma arriba de la píldora de música, mismo patrón visual.
+function injectVideoCover(html, videoUrl) {
+  if (!videoUrl) return html;
+  const widget = `
+    <button type="button" id="tadi-video-toggle" class="tadi-video-toggle" aria-label="Ver video de portada">🎬 Video</button>
+    <div id="tadi-video-panel" class="tadi-video-panel" hidden>
+      <div class="tadi-video-panel-inner">
+        <button type="button" id="tadi-video-close" class="tadi-video-close" aria-label="Cerrar video">✕</button>
+        <video id="tadi-video-el" controls playsinline data-src="${escapeHtml(videoUrl)}"></video>
+      </div>
+    </div>
+    <style>
+      .tadi-video-toggle{position:fixed;right:18px;bottom:74px;z-index:60;background:#eaeef2;color:#33363f;border:0;border-radius:30px;padding:11px 18px;font-size:.8rem;font-weight:700;font-family:'Helvetica Neue',Arial,sans-serif;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
+      .tadi-video-panel{position:fixed;inset:0;z-index:70;background:rgba(51,54,63,.75);display:flex;align-items:center;justify-content:center;padding:20px;}
+      .tadi-video-panel[hidden]{display:none;}
+      .tadi-video-panel-inner{position:relative;width:100%;max-width:420px;}
+      .tadi-video-panel-inner video{width:100%;border-radius:16px;display:block;background:#000;}
+      .tadi-video-close{position:absolute;top:-14px;right:-14px;background:#eaeef2;color:#33363f;border:0;width:34px;height:34px;border-radius:50%;font-size:1rem;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
+    </style>
+    <script>
+      (function(){
+        var btn = document.getElementById('tadi-video-toggle');
+        var panel = document.getElementById('tadi-video-panel');
+        var closeBtn = document.getElementById('tadi-video-close');
+        var vid = document.getElementById('tadi-video-el');
+        if(!btn || !panel) return;
+        function open(){ if(!vid.src) vid.src = vid.dataset.src; panel.hidden=false; vid.play().catch(function(){}); }
+        function close(){ panel.hidden=true; vid.pause(); }
+        btn.addEventListener('click', open);
+        closeBtn.addEventListener('click', close);
+        panel.addEventListener('click', function(e){ if(e.target===panel) close(); });
+      })();
+    </script>
+  `;
+  if (html.includes("</body>")) return html.replace("</body>", widget + "</body>");
+  return html + widget;
+}
+
+// Toggle ES/EN (feature "multilenguaje", plan Premium bodas/xv). Usa el
+// widget gratuito de Google Website Translator: traducción automática
+// (no es una traducción profesional hecha a mano), pero funciona sobre
+// cualquiera de los 60+ diseños sin tener que traducir a mano cada uno.
+// Vale la pena avisarle esto al comprador si pregunta por la calidad.
+function injectLanguageToggle(html) {
+  const widget = `
+    <div id="google_translate_element" style="position:fixed;top:0;left:0;opacity:0;pointer-events:none;height:0;overflow:hidden;"></div>
+    <button type="button" id="tadi-lang-toggle" class="tadi-lang-toggle" aria-label="Ver en inglés / View in English">🌐 EN</button>
+    <style>
+      .tadi-lang-toggle{position:fixed;top:14px;right:14px;z-index:66;background:#eaeef2;color:#33363f;border:0;border-radius:20px;padding:8px 14px;font-size:.72rem;font-weight:700;font-family:'Helvetica Neue',Arial,sans-serif;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
+      .goog-te-banner-frame{display:none !important;}
+      body{top:0 !important;}
+    </style>
+    <script>
+      function tadiTranslateInit(){
+        new google.translate.TranslateElement({ pageLanguage: "es", includedLanguages: "en", autoDisplay: false }, "google_translate_element");
+      }
+      (function(){
+        var s = document.createElement("script");
+        s.src = "https://translate.google.com/translate_a/element.js?cb=tadiTranslateInit";
+        s.async = true;
+        document.head.appendChild(s);
+        var btn = document.getElementById("tadi-lang-toggle");
+        var toggled = false;
+        function findSelect(){ return document.querySelector("#google_translate_element select.goog-te-combo"); }
+        btn.addEventListener("click", function(){
+          var sel = findSelect();
+          if (!sel) { var prev = btn.textContent; btn.textContent = "⏳"; setTimeout(function(){ btn.textContent = prev; btn.click(); }, 700); return; }
+          toggled = !toggled;
+          sel.value = toggled ? "en" : "es";
+          sel.dispatchEvent(new Event("change"));
+          btn.textContent = toggled ? "🌐 ES" : "🌐 EN";
+        });
+      })();
+    </script>
+  `;
+  if (html.includes("</body>")) return html.replace("</body>", widget + "</body>");
+  return html + widget;
+}
+
+// Arma todos los widgets flotantes (música/mapa/muro/video/idioma) según lo
+// que el plan comprado habilita, más las etiquetas Open Graph — se usa
+// tanto en /invitacion/:slug como en el link con alias personalizado, así
+// las dos formas de llegar a la misma invitación se ven exactamente igual.
+function renderPublicInvitation(inv, req) {
+  const design = getDesign(inv.designId);
+  const baseUrl = resolvePublicBaseUrl(req);
+  let html = design.render({ ...inv.data, __slug: inv.slug });
+  if (pricing.hasFeature(design.category, inv.plan, "musica")) {
+    html = injectBackgroundMusic(html, inv.data.musica);
+  }
+  if (pricing.hasFeature(design.category, inv.plan, "mapa")) {
+    html = injectMapEmbed(html, inv.data.direccionMapa);
+  }
+  if (pricing.hasFeature(design.category, inv.plan, "muro")) {
+    html = injectPhotoWall(html, { slug: inv.slug, photos: inv.muro || [] });
+  }
+  if (pricing.hasFeature(design.category, inv.plan, "video")) {
+    html = injectVideoCover(html, inv.data.videoPortada);
+  }
+  if (pricing.hasFeature(design.category, inv.plan, "multilenguaje") && inv.data.multilenguaje) {
+    html = injectLanguageToggle(html);
+  }
+  html = injectOgTags(html, {
+    baseUrl,
+    url: `${baseUrl}/invitacion/${inv.slug}`,
+    image: inv.data.coverImage,
+    description: "Mirá la invitación y confirmá tu asistencia.",
+  });
+  return html;
+}
+
+// ---------- ALIAS PERSONALIZADO (feature "alias", plan Premium bodas/xv) ----------
+// Convierte "Julieta y Tomás" en "julieta-y-tomas": minúsculas, sin acentos,
+// solo letras/números separados por guiones.
+function slugifyAlias(s) {
+  return String(s || "")
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+}
+
+// Nombres de ruta que ya usa el sitio a nivel raíz — un alias no puede
+// pisar ninguno de estos, o el link de alguien rompería una página real.
+const RESERVED_SLUGS = new Set([
+  "", "robots.txt", "sitemap.xml", "categoria", "como-funciona",
+  "preguntas-frecuentes", "terminos", "privacidad", "demo", "checkout",
+  "pago-exitoso", "pago-pendiente", "pago-fallido", "editar", "preview",
+  "invitacion", "admin", "api", "static", "webhook", "login", "logout",
+  "contacto", "ayuda", "app",
+]);
+
+// Si el alias pedido ya está tomado (por otra invitación, o choca con una
+// ruta reservada), le suma "-2", "-3", etc. hasta encontrar uno libre —
+// más simple y más amigable que devolver un error y frenar el guardado.
+function resolveUniqueAlias(desired, db, currentSlug) {
+  const base = slugifyAlias(desired);
+  if (!base) return "";
+  const taken = (s) =>
+    RESERVED_SLUGS.has(s) ||
+    db.invitations.some((i) => i.slug !== currentSlug && i.data && i.data.aliasPersonalizado === s);
+  if (!taken(base)) return base;
+  let n = 2;
+  let candidate = `${base}-${n}`;
+  while (taken(candidate)) {
+    n++;
+    candidate = `${base}-${n}`;
+  }
+  return candidate;
+}
+
+// Filtra los campos del schema de un diseño según lo que el plan comprado
+// habilita (musica/mapa/muro/alias/video/multilenguaje) — así el comprador
+// de un plan Básico ni siquiera ve el campo de un feature que no compró, y
+// el buyer de Plus/Premium sí. Los campos sin "feature" (los de siempre)
+// están disponibles en cualquier plan.
+function schemaForPlan(design, planId) {
+  return design.schema.filter((f) => !f.feature || pricing.hasFeature(design.category, planId, f.feature));
 }
 
 // Script de Google Analytics 4 — vacío (no inserta nada) si no hay
@@ -417,7 +811,7 @@ function cardHTML(d) {
       <span class="cat-tag">${cat.label}</span>
       <h3>${d.name}</h3>
       <p>${d.summary}</p>
-      <span class="price-tag">${money(PRICE_ARS)}</span>
+      <span class="price-tag">Desde ${money(pricing.defaultPlan(cat.id).price)}</span>
       <div class="actions">
         <a class="btn btn-outline" href="/demo/${d.id}">Ver demo</a>
         <a class="btn btn-primary" href="/checkout/${d.id}">Elegir</a>
@@ -648,20 +1042,46 @@ app.get("/demo/:designId", (req, res) => {
 });
 
 // ---------- CHECKOUT ----------
+
+function planCardsHTML(catId, selectedPlanId) {
+  const plans = pricing.plansForCategory(catId);
+  return `<div class="plan-picker" role="radiogroup" aria-label="Elegí tu plan">
+    ${plans.map((p, i) => {
+      const checked = p.id === selectedPlanId ? "checked" : "";
+      const isRecommended = p.id === "plus";
+      return `<label class="plan-card${checked ? " selected" : ""}">
+        <input type="radio" name="plan" value="${p.id}" data-price="${p.price}" ${checked}>
+        <div class="plan-card-head">
+          <span class="plan-card-name">${p.label}</span>
+          ${isRecommended ? `<span class="plan-card-flag">Recomendado</span>` : ""}
+        </div>
+        <div class="plan-card-price">${money(p.price)}</div>
+        <p class="plan-card-tagline">${p.tagline}</p>
+        <ul class="plan-card-includes">
+          ${p.includes.map((item) => `<li>${item}</li>`).join("")}
+        </ul>
+      </label>`;
+    }).join("")}
+  </div>`;
+}
+
 app.get("/checkout/:designId", (req, res) => {
   const design = getDesign(req.params.designId);
   if (!design) return res.status(404).send("Diseño no encontrado");
+  const defaultPlan = pricing.defaultPlan(design.category);
   res.send(layout({
     title: "Checkout",
-    body: `<div class="checkout-wrap">
+    body: `<div class="checkout-wrap" style="max-width:720px">
       <h1>Estás por elegir: ${design.name}</h1>
       <p style="color:var(--muted)">${design.summary}</p>
-      <div class="checkout-price">${money(PRICE_ARS)}</div>
       <div class="checkout-row"><span>Diseño</span><strong>${design.name}</strong></div>
       <div class="checkout-row"><span>Categoría</span><strong>${categories.find((c) => c.id === design.category).label}</strong></div>
-      <div class="checkout-row"><span>Incluye</span><strong>Edición ilimitada de datos + link para compartir</strong></div>
-      <form method="POST" action="/api/orders">
+
+      <h2 class="plan-picker-title">Elegí tu plan</h2>
+      <form method="POST" action="/api/orders" id="checkout-form">
         <input type="hidden" name="designId" value="${design.id}">
+        ${planCardsHTML(design.category, defaultPlan.id)}
+        <div class="checkout-price" id="checkout-total">${money(defaultPlan.price)}</div>
         <div class="field" style="margin-bottom:16px;text-align:left;">
           <label for="checkout-email">Tu email</label>
           <input type="email" id="checkout-email" name="email" required placeholder="tu@email.com"
@@ -679,7 +1099,21 @@ app.get("/checkout/:designId", (req, res) => {
       <p class="checkout-trust">¿Dudas antes de pagar? Mirá las <a href="/preguntas-frecuentes">preguntas frecuentes</a>${SUPPORT_WHATSAPP ? ` o <a href="https://wa.me/${SUPPORT_WHATSAPP}" target="_blank">escribinos por WhatsApp</a>` : ""}.</p>
       ${!mp.isConfigured() ? `<div class="demo-note">Modo demo: no hay credenciales de Mercado Pago cargadas, así que el pago se simula como aprobado al instante para que puedas probar todo el flujo. Para cobrar de verdad, cargá <code>MP_ACCESS_TOKEN</code> (ver README).</div>` : ""}
       <p style="margin-top:16px"><a href="/demo/${design.id}">← Ver el diseño antes de pagar</a></p>
-    </div>`,
+    </div>
+    <script>
+      (function(){
+        var form = document.getElementById('checkout-form');
+        var total = document.getElementById('checkout-total');
+        var radios = form.querySelectorAll('input[name="plan"]');
+        function fmt(n){ return '$' + Number(n).toLocaleString('es-AR'); }
+        radios.forEach(function(r){
+          r.addEventListener('change', function(){
+            radios.forEach(function(other){ other.closest('.plan-card').classList.toggle('selected', other.checked); });
+            total.textContent = fmt(r.dataset.price);
+          });
+        });
+      })();
+    </script>`,
   }));
 });
 
@@ -688,6 +1122,11 @@ app.get("/checkout/:designId", (req, res) => {
 app.post("/api/orders", async (req, res) => {
   const design = getDesign(req.body.designId);
   if (!design) return res.status(404).send("Diseño no encontrado");
+
+  // El plan viaja como radio button del form — se re-valida acá contra la
+  // categoría real del diseño (no confiar en lo que mande el cliente), así
+  // alguien no puede pegar un plan/precio de otra categoría a mano.
+  const plan = pricing.getPlan(design.category, req.body.plan) || pricing.defaultPlan(design.category);
 
   // El checkbox de términos y condiciones ya es "required" en el HTML, pero
   // eso solo frena al navegador — alguien pegando el POST directo (o un bot)
@@ -702,7 +1141,8 @@ app.post("/api/orders", async (req, res) => {
   const order = {
     id: orderId,
     designId: design.id,
-    amount: PRICE_ARS,
+    plan: plan.id,
+    amount: plan.price,
     status: "pending",
     buyerEmail: (req.body.email || "").trim(),
     createdAt: new Date().toISOString(),
@@ -717,8 +1157,8 @@ app.post("/api/orders", async (req, res) => {
     try {
       const initPoint = await mp.createPreference({
         orderId,
-        title: `Invitación digital — ${design.name}`,
-        unitPrice: PRICE_ARS,
+        title: `Invitación digital — ${design.name} (plan ${plan.label})`,
+        unitPrice: plan.price,
         baseUrl,
       });
       return res.redirect(initPoint);
@@ -742,9 +1182,14 @@ function markOrderPaid(order) {
 
   if (!db.invitations.find((i) => i.orderId === ord.id)) {
     const design = getDesign(ord.designId);
+    // El plan queda guardado en la propia invitación (no solo en la orden)
+    // porque es lo que se consulta en cada render público para decidir si
+    // se muestran música/mapa/muro/extras — más simple que ir a buscar la
+    // orden cada vez.
     db.invitations.push({
       orderId: ord.id,
       designId: ord.designId,
+      plan: ord.plan || pricing.defaultPlan(design.category).id,
       slug: ord.publicSlug,
       data: { ...design.sampleData },
       updatedAt: new Date().toISOString(),
@@ -888,12 +1333,49 @@ function fieldHTML(f, value) {
       </div>
     </div>`;
   }
+  if (f.type === "video") {
+    return `<div class="field"><label>${f.label}</label>${helpHTML(f)}
+      <input type="hidden" name="${f.name}" value="${escapeHtml(val)}" id="hidden-${f.name}">
+      <input type="file" accept="video/*" data-target="${f.name}" class="single-upload-video">
+      <div class="single-preview-row" id="preview-${f.name}" ${val ? "" : 'style="display:none"'}>
+        <div class="thumb thumb-video"><video src="${escapeHtml(val)}" muted controls></video><button type="button" class="thumb-remove single-remove" data-target="${f.name}" title="Quitar video">✕</button></div>
+      </div>
+    </div>`;
+  }
+  if (f.type === "checkbox") {
+    return `<div class="field field-checkbox"><label class="checkbox-label">
+      <input type="checkbox" name="${f.name}" ${val ? "checked" : ""}>
+      <span>${f.label}</span>
+    </label>${helpHTML(f)}</div>`;
+  }
   if (f.type === "images") {
     const arr = Array.isArray(value) ? value : [];
     return `<div class="field"><label>${f.label}</label>${helpHTML(f)}
       <input type="hidden" name="${f.name}" value='${escapeHtml(JSON.stringify(arr))}' id="hidden-${f.name}">
       <input type="file" accept="image/*" multiple data-target="${f.name}" class="multi-upload">
       <div class="gallery-preview" id="preview-${f.name}">${arr.map((s) => `<div class="thumb"><img src="${escapeHtml(s)}"><button type="button" class="thumb-remove" data-target="${f.name}" data-url="${escapeHtml(s)}" title="Quitar foto">✕</button></div>`).join("")}</div>
+    </div>`;
+  }
+  if (f.type === "music") {
+    return `<div class="field"><label>${f.label}</label>${helpHTML(f)}
+      <select name="${f.name}" class="music-select" id="music-select-${f.name}">
+        <option value="">Sin música</option>
+        ${music.MUSIC_LIBRARY.map((t) => `<option value="${t.id}" ${val === t.id ? "selected" : ""}>${escapeHtml(t.label)} — ${escapeHtml(t.mood)}</option>`).join("")}
+      </select>
+      <audio id="music-preview-${f.name}" style="width:100%;margin-top:8px;${val ? "" : "display:none"}" controls src="${val ? music.trackUrl(val) : ""}"></audio>
+      <script>
+        (function(){
+          var sel = document.getElementById("music-select-${f.name}");
+          var player = document.getElementById("music-preview-${f.name}");
+          var urls = ${JSON.stringify(Object.fromEntries(music.MUSIC_LIBRARY.map((t) => [t.id, music.trackUrl(t.id)])))};
+          sel.addEventListener("change", function(){
+            if (!sel.value) { player.pause(); player.removeAttribute("src"); player.style.display = "none"; return; }
+            player.src = urls[sel.value];
+            player.style.display = "";
+            player.play().catch(function(){});
+          });
+        })();
+      </script>
     </div>`;
   }
   if (f.type === "color") {
@@ -908,6 +1390,24 @@ function fieldHTML(f, value) {
 
 function escapeHtml(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+// Sección de moderación del muro de invitados dentro del editor: el dueño
+// ve todo lo que subieron sus invitados y puede borrar lo que no
+// corresponda. Solo se muestra si el plan comprado tiene la feature "muro".
+function muroModerationHTML(order, inv) {
+  const photos = inv.muro || [];
+  return `<div class="wall-mod-section">
+    <h2 class="links-section-title">📷 Muro de fotos de invitados (${photos.length})</h2>
+    <p style="color:var(--muted);font-size:.82rem;margin:0 0 12px;">Tus invitados pueden subir fotos desde el link de la invitación. Acá podés borrar la que no corresponda.</p>
+    <div class="wall-mod-grid" id="wallModGrid">
+      ${photos.length ? photos.map((p) => `
+        <div class="wall-mod-thumb" data-id="${escapeHtml(p.id)}">
+          <img src="${escapeHtml(p.url)}">
+          <button type="button" class="wall-mod-remove" data-token="${escapeHtml(order.editToken)}" data-id="${escapeHtml(p.id)}" title="Borrar foto">✕</button>
+        </div>`).join("") : `<p style="color:var(--muted);font-size:.82rem;">Todavía no subieron ninguna foto.</p>`}
+    </div>
+  </div>`;
 }
 
 app.get("/editar/:token", (req, res) => {
@@ -936,12 +1436,24 @@ app.get("/editar/:token", (req, res) => {
     <p style="color:var(--muted);font-size:.85rem">Diseño: <strong>${design.name}</strong>. Los cambios se ven al instante en la vista previa → · <a href="/como-funciona" target="_blank" style="color:var(--accent)">¿Cómo funciona?</a></p>
     ${req.query.bienvenida ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Pago confirmado! Ya podés personalizar tu invitación.</p>` : ""}
     <form id="editForm">
-      ${design.schema.filter((f) => f.type !== "palette").map((f) => fieldHTML(f, inv.data[f.name])).join("")}
+      ${schemaForPlan(design, inv.plan).filter((f) => f.type !== "palette").map((f) => fieldHTML(f, inv.data[f.name])).join("")}
     </form>
     ${req.query.disenoCambiado ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Listo! Cambiamos el diseño. Los datos que coincidían (fecha, lugar, fotos, etc.) se mantuvieron, revisá que esté todo como querés.</p>` : ""}
+    ${pricing.hasFeature(design.category, inv.plan, "muro") ? muroModerationHTML(order, inv) : ""}
 
     <div class="links-section">
       <h2 class="links-section-title">🔗 Tus links</h2>
+      ${pricing.hasFeature(design.category, inv.plan, "alias") && inv.data.aliasPersonalizado ? (() => {
+        const aliasUrl = `${req.protocol}://${req.get("host")}/${inv.data.aliasPersonalizado}`;
+        return `<div class="link-box">
+        <p class="link-box-label">✨ Tu link personalizado</p>
+        <a class="link-box-url" href="${aliasUrl}" target="_blank">${aliasUrl}</a>
+        <div class="link-box-actions">
+          <button type="button" class="copy-btn" data-copy="${escapeHtml(aliasUrl)}">📋 Copiar</button>
+          <a class="wa-btn" href="https://wa.me/?text=${encodeURIComponent(`¡Ya está lista mi invitación! Mirala acá: ${aliasUrl}`)}" target="_blank" rel="noopener">💬 WhatsApp</a>
+        </div>
+      </div>`;
+      })() : ""}
       <div class="link-box">
         <p class="link-box-label">Para compartir con tus invitados</p>
         <a class="link-box-url" href="${publicUrl}" target="_blank">${publicUrl}</a>
@@ -1021,9 +1533,34 @@ app.get("/editar/:token", (req, res) => {
     document.body.removeChild(ta);
   }
 
+  // Borrar una foto del muro de invitados (moderación) — confirma antes de
+  // sacarla porque es irreversible (borra también el archivo del server).
+  document.querySelectorAll('.wall-mod-remove').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!confirm('¿Borrar esta foto del muro? No se puede deshacer.')) return;
+      const wrap = btn.closest('.wall-mod-thumb');
+      fetch('/api/invitaciones/' + btn.dataset.token + '/muro/eliminar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: btn.dataset.id }),
+      })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          if (data.ok && wrap) wrap.remove();
+        })
+        .catch(function(){});
+    });
+  });
+
   function collect(){
     const data = {};
     new FormData(form).forEach((value, key) => { data[key] = value; });
+    // Un checkbox sin marcar no aparece en FormData (a diferencia de un
+    // input de texto vacío), así que sin esto nunca se podría "desmarcar"
+    // algo ya guardado — se pisa acá explícitamente con su estado real.
+    form.querySelectorAll('input[type="checkbox"]').forEach(function(cb){
+      data[cb.name] = cb.checked;
+    });
     return data;
   }
 
@@ -1082,6 +1619,41 @@ app.get("/editar/:token", (req, res) => {
           });
       });
   }
+
+  function uploadVideoFile(file){
+    const fd = new FormData(); fd.append('video', file);
+    return fetch('/api/upload-video/' + token, { method:'POST', body: fd })
+      .then(function(r){
+        return r.json().catch(function(){ throw new Error('El servidor no respondió correctamente.'); })
+          .then(function(data){
+            if(!r.ok) throw new Error(data.error || 'No se pudo subir el video.');
+            return data;
+          });
+      });
+  }
+
+  document.querySelectorAll('.single-upload-video').forEach(function(input){
+    input.addEventListener('change', function(){
+      if(!input.files[0]) return;
+      uploadVideoFile(input.files[0]).then(function(res){
+          document.getElementById('hidden-' + input.dataset.target).value = res.url;
+          const preview = document.getElementById('preview-' + input.dataset.target);
+          preview.innerHTML = '';
+          const div = document.createElement('div'); div.className = 'thumb thumb-video';
+          const vid = document.createElement('video'); vid.src = res.url; vid.muted = true; vid.controls = true;
+          const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'thumb-remove single-remove';
+          btn.dataset.target = input.dataset.target; btn.title = 'Quitar video'; btn.textContent = '✕';
+          div.appendChild(vid); div.appendChild(btn);
+          preview.appendChild(div);
+          preview.style.display = '';
+          input.value = '';
+          refreshPreview();
+        }).catch(function(err){
+          alert('⚠️ ' + err.message);
+          input.value = '';
+        });
+    });
+  });
 
   document.querySelectorAll('.single-upload').forEach(function(input){
     input.addEventListener('change', function(){
@@ -1320,6 +1892,23 @@ app.post("/api/upload/:token", (req, res) => {
   });
 });
 
+app.post("/api/upload-video/:token", (req, res) => {
+  uploadVideo.single("video")(req, res, (err) => {
+    if (err) {
+      const msg = err.code === "LIMIT_FILE_SIZE"
+        ? "El video pesa demasiado (máximo 60MB). Probá con uno un poco más corto o comprimido."
+        : "No se pudo subir el video. Probá de nuevo.";
+      return res.status(400).json({ error: msg });
+    }
+    const db = getDB();
+    const order = db.orders.find((o) => o.editToken === req.params.token);
+    const inv = order && db.invitations.find((i) => i.orderId === order.id);
+    if (!order || !inv || isEditLocked(inv)) return res.status(403).json({ error: "invitación bloqueada" });
+    if (!req.file) return res.status(400).json({ error: "El archivo no es un video válido." });
+    res.json({ url: `/static/uploads/${req.params.token}/${req.file.filename}` });
+  });
+});
+
 // preview en vivo (sin guardar) — usa un archivo temporal en memoria por token
 const previewCache = new Map();
 app.post("/api/invitaciones/:token/preview", (req, res) => {
@@ -1334,8 +1923,18 @@ app.get("/preview/:token", (req, res) => {
   const inv = db.invitations.find((i) => i.orderId === order.id);
   if (inv && inv.purgedAt) return res.status(410).send("Invitación vencida: los datos se eliminaron por vencimiento del plazo de conservación.");
   const draft = previewCache.get(req.params.token);
-  const data = normalizeInvitationData(design, { ...inv.data, ...(draft || {}) });
-  res.send(design.render({ ...data, __slug: order.publicSlug }));
+  const data = normalizeInvitationData(design, { ...inv.data, ...(draft || {}) }, inv.plan);
+  let html = design.render({ ...data, __slug: order.publicSlug });
+  if (pricing.hasFeature(design.category, inv.plan, "musica")) {
+    html = injectBackgroundMusic(html, data.musica);
+  }
+  if (pricing.hasFeature(design.category, inv.plan, "mapa")) {
+    html = injectMapEmbed(html, data.direccionMapa);
+  }
+  if (pricing.hasFeature(design.category, inv.plan, "video")) {
+    html = injectVideoCover(html, data.videoPortada);
+  }
+  res.send(html);
 });
 
 // ---------- BLOQUEO POR VENCIMIENTO DEL EVENTO ----------
@@ -1432,13 +2031,37 @@ function cleanupOldInvitations() {
   }
 }
 
-function normalizeInvitationData(design, raw) {
-  const data = { ...raw };
+// planId es opcional (algunos llamados, como el preview en vivo, no
+// necesitan filtrar) — cuando viene, descarta del guardado cualquier campo
+// gateado por feature (musica/mapa/muro/alias/video/multilenguaje) que el
+// plan comprado no habilita, así nadie puede pegar un POST directo con un
+// campo Plus/Premium aunque haya comprado Básico.
+function normalizeInvitationData(design, raw, planId) {
+  const allowedNames = planId ? new Set(schemaForPlan(design, planId).map((f) => f.name)) : null;
+  const data = {};
   design.schema.forEach((f) => {
-    if (f.type === "images" && typeof data[f.name] === "string") {
-      try { data[f.name] = JSON.parse(data[f.name]); } catch { data[f.name] = []; }
+    if (allowedNames && !allowedNames.has(f.name)) return;
+    if (!(f.name in raw)) return;
+    let val = raw[f.name];
+    if (f.type === "images" && typeof val === "string") {
+      try { val = JSON.parse(val); } catch { val = []; }
     }
+    data[f.name] = val;
   });
+  return data;
+}
+
+// Normaliza los datos del form Y, si el campo aliasPersonalizado vino en el
+// guardado, lo resuelve a un slug único (ver resolveUniqueAlias) — se
+// centraliza acá porque el guardado normal y el de "finalizar" hacen
+// exactamente lo mismo.
+function normalizeAndResolveInvitationData(design, raw, inv, db) {
+  const data = normalizeInvitationData(design, raw, inv.plan);
+  if ("aliasPersonalizado" in data) {
+    data.aliasPersonalizado = data.aliasPersonalizado
+      ? resolveUniqueAlias(data.aliasPersonalizado, db, inv.slug)
+      : "";
+  }
   return data;
 }
 
@@ -1449,7 +2072,7 @@ app.post("/api/invitaciones/:token", (req, res) => {
   const design = getDesign(order.designId);
   const inv = db.invitations.find((i) => i.orderId === order.id);
   if (isEditLocked(inv)) return res.status(403).json({ error: "invitación bloqueada" });
-  inv.data = { ...inv.data, ...normalizeInvitationData(design, req.body) };
+  inv.data = { ...inv.data, ...normalizeAndResolveInvitationData(design, req.body, inv, db) };
   inv.updatedAt = new Date().toISOString();
   saveDB(db);
   previewCache.delete(req.params.token);
@@ -1469,7 +2092,7 @@ app.post("/api/invitaciones/:token/finalizar", async (req, res) => {
   const inv = db.invitations.find((i) => i.orderId === order.id);
   if (isEditLocked(inv)) return res.status(403).json({ error: "invitación bloqueada" });
 
-  inv.data = { ...inv.data, ...normalizeInvitationData(design, req.body) };
+  inv.data = { ...inv.data, ...normalizeAndResolveInvitationData(design, req.body, inv, db) };
   inv.updatedAt = new Date().toISOString();
   saveDB(db);
   previewCache.delete(req.params.token);
@@ -1508,16 +2131,7 @@ app.get("/invitacion/:slug", (req, res) => {
   const inv = db.invitations.find((i) => i.slug === req.params.slug);
   if (!inv) return res.status(404).send("Invitación no encontrada");
   if (inv.purgedAt) return res.status(410).send(purgedPublicPage());
-  const design = getDesign(inv.designId);
-  const baseUrl = resolvePublicBaseUrl(req);
-  let html = design.render({ ...inv.data, __slug: inv.slug });
-  html = injectOgTags(html, {
-    baseUrl,
-    url: `${baseUrl}/invitacion/${inv.slug}`,
-    image: inv.data.coverImage,
-    description: "Mirá la invitación y confirmá tu asistencia.",
-  });
-  res.send(html);
+  res.send(renderPublicInvitation(inv, req));
 });
 
 app.post("/api/invitacion/:slug/rsvp", (req, res) => {
@@ -1526,6 +2140,72 @@ app.post("/api/invitacion/:slug/rsvp", (req, res) => {
   if (!inv) return res.status(404).json({ error: "no encontrado" });
   db.rsvps.push({ slug: req.params.slug, ...req.body, createdAt: new Date().toISOString() });
   saveDB(db);
+  res.json({ ok: true });
+});
+
+// Sube una foto al "muro de invitados" — pública (cualquiera con el link de
+// la invitación), igual que el RSVP: el slug es el único "permiso" que
+// hace falta, no requiere el editToken del dueño. Solo funciona si el plan
+// comprado tiene la feature "muro" y la invitación no está purgada.
+app.post("/api/invitacion/:slug/muro", (req, res) => {
+  uploadMuroPhoto.single("foto")(req, res, async (err) => {
+    if (err) {
+      const msg = err.code === "LIMIT_FILE_SIZE"
+        ? "La foto pesa demasiado (máximo 25MB). Probá con una un poco más liviana."
+        : "No se pudo subir la foto. Probá de nuevo.";
+      return res.status(400).json({ error: msg });
+    }
+    try {
+      const db = getDB();
+      const inv = db.invitations.find((i) => i.slug === req.params.slug);
+      if (!inv || inv.purgedAt) return res.status(404).json({ error: "invitación no encontrada" });
+      const design = getDesign(inv.designId);
+      if (!pricing.hasFeature(design.category, inv.plan, "muro")) {
+        return res.status(403).json({ error: "esta invitación no tiene el muro de fotos habilitado" });
+      }
+      if (!req.file) return res.status(400).json({ error: "No llegó ninguna foto." });
+
+      const dir = path.dirname(req.file.path);
+      const finalName = req.file.filename.replace(/\.[a-zA-Z0-9]+$/, "") + ".jpg";
+      const finalPath = path.join(dir, finalName);
+      const tmpPath = finalPath + ".tmp";
+      await sharp(req.file.path)
+        .rotate()
+        .resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true })
+        .jpeg({ quality: 80, mozjpeg: true })
+        .toFile(tmpPath);
+      fs.renameSync(tmpPath, finalPath);
+      if (req.file.path !== finalPath && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+
+      const url = `/static/uploads/muro/${req.params.slug}/${finalName}`;
+      const photo = { id: uid("foto"), url, uploadedAt: new Date().toISOString() };
+      inv.muro = inv.muro || [];
+      inv.muro.push(photo);
+      saveDB(db);
+
+      res.json({ url });
+    } catch (e) {
+      console.error("Error procesando foto del muro:", e);
+      res.status(500).json({ error: "No se pudo procesar la foto. Probá con otra." });
+    }
+  });
+});
+
+// El dueño de la invitación borra una foto del muro desde el editor
+// (moderación básica — por si alguien sube algo que no corresponde).
+app.post("/api/invitaciones/:token/muro/eliminar", (req, res) => {
+  const db = getDB();
+  const order = db.orders.find((o) => o.editToken === req.params.token);
+  if (!order || order.status !== "paid") return res.status(404).json({ error: "no encontrado" });
+  const inv = db.invitations.find((i) => i.orderId === order.id);
+  if (!inv) return res.status(404).json({ error: "no encontrado" });
+  const photoId = req.body.id;
+  const photo = (inv.muro || []).find((p) => p.id === photoId);
+  if (!photo) return res.status(404).json({ error: "foto no encontrada" });
+  inv.muro = inv.muro.filter((p) => p.id !== photoId);
+  saveDB(db);
+  const filePath = path.join(__dirname, "public", photo.url.replace(/^\/static\//, ""));
+  fs.unlink(filePath, () => {});
   res.json({ ok: true });
 });
 
@@ -1745,7 +2425,7 @@ app.get("/admin", requireAdminAuth, (req, res) => {
       <td>${escapeHtml(order.buyerEmail || "—")}</td>
       <td>${escapeHtml(design ? design.name : order.designId)}<br><span style="color:var(--muted);font-size:.72rem;">${escapeHtml(catLabel)}</span></td>
       <td>${escapeHtml(evento)}${fechaEvento ? `<br><span style="color:var(--muted);font-size:.72rem;">${escapeHtml(fechaEvento)}</span>` : ""}</td>
-      <td>${money(order.amount)}</td>
+      <td>${money(order.amount)}${order.plan ? `<br><span style="color:var(--muted);font-size:.72rem;">${escapeHtml((pricing.getPlan(design ? design.category : "", order.plan) || {}).label || order.plan)}</span>` : ""}</td>
       <td><span class="badge ${order.status === "paid" ? "badge-paid" : "badge-pending"}">${order.status === "paid" ? "Pagada" : "Pendiente"}</span>${order.emailSent ? "<br><span style=\"font-size:.68rem;color:var(--muted);\">mail enviado</span>" : ""}</td>
       <td>${rsvps.length ? `${rsvpSi} sí / ${rsvps.length} total` : "—"}</td>
       <td class="admin-actions">${acciones.join("") || "—"}</td>
@@ -1860,6 +2540,23 @@ app.post("/admin/orders/:id/reenviar-mail", requireAdminAuth, async (req, res) =
     console.error("Error reenviando mail desde admin:", err)
   );
   res.redirect("/admin");
+});
+
+// ---------- ALIAS PERSONALIZADO — catch-all ----------
+// Registrada última a propósito: solo se activa cuando ninguna ruta de
+// arriba matcheó, así un alias nunca puede pisar /categoria, /checkout,
+// /admin, etc. (ver RESERVED_SLUGS, que además bloquea que alguien elija
+// esos nombres como alias al guardar la invitación).
+app.get("/:alias", (req, res, next) => {
+  const alias = req.params.alias;
+  if (RESERVED_SLUGS.has(alias)) return next();
+  const db = getDB();
+  const inv = db.invitations.find((i) => i.data && i.data.aliasPersonalizado === alias);
+  if (!inv) return next();
+  const design = getDesign(inv.designId);
+  if (!pricing.hasFeature(design.category, inv.plan, "alias")) return next();
+  if (inv.purgedAt) return res.status(410).send(purgedPublicPage());
+  res.send(renderPublicInvitation(inv, req));
 });
 
 // Corre una vez al arrancar (por si el server estuvo apagado varios días y
