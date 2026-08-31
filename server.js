@@ -462,10 +462,10 @@ function injectLanguageToggle(html) {
 // que el plan comprado habilita, más las etiquetas Open Graph — se usa
 // tanto en /invitacion/:slug como en el link con alias personalizado, así
 // las dos formas de llegar a la misma invitación se ven exactamente igual.
-function renderPublicInvitation(inv, req) {
+function renderPublicInvitation(inv, req, guest = null) {
   const design = getDesign(inv.designId);
   const baseUrl = resolvePublicBaseUrl(req);
-  let html = design.render({ ...inv.data, __slug: inv.slug });
+  let html = design.render({ ...inv.data, __slug: inv.slug, ...(guest ? { __guest: guest } : {}) });
   if (pricing.hasFeature(design.category, inv.plan, "musica")) {
     html = injectBackgroundMusic(html, inv.data.musica);
   }
@@ -1406,13 +1406,71 @@ function muroModerationHTML(order, inv) {
   const photos = inv.muro || [];
   return `<div class="wall-mod-section">
     <h2 class="links-section-title">📷 Muro de fotos de invitados (${photos.length})</h2>
-    <p style="color:var(--muted);font-size:.82rem;margin:0 0 12px;">Tus invitados pueden subir fotos desde el link de la invitación. Acá podés borrar la que no corresponda.</p>
+    <p style="color:var(--muted);font-size:.82rem;margin:0 0 12px;">Tus invitados pueden subir fotos desde el link de la invitación. Tocá la estrella para destacar tus favoritas, o la ✕ para borrar la que no corresponda.</p>
     <div class="wall-mod-grid" id="wallModGrid">
       ${photos.length ? photos.map((p) => `
-        <div class="wall-mod-thumb" data-id="${escapeHtml(p.id)}">
+        <div class="wall-mod-thumb${p.destacada ? " wall-mod-thumb-destacada" : ""}" data-id="${escapeHtml(p.id)}">
           <img src="${escapeHtml(p.url)}">
+          <button type="button" class="wall-mod-star${p.destacada ? " active" : ""}" data-token="${escapeHtml(order.editToken)}" data-id="${escapeHtml(p.id)}" title="Destacar foto">${p.destacada ? "★" : "☆"}</button>
           <button type="button" class="wall-mod-remove" data-token="${escapeHtml(order.editToken)}" data-id="${escapeHtml(p.id)}" title="Borrar foto">✕</button>
         </div>`).join("") : `<p style="color:var(--muted);font-size:.82rem;">Todavía no subieron ninguna foto.</p>`}
+    </div>
+  </div>`;
+}
+
+// Confirmaciones "genéricas" (link público sin nombre, RSVP libre) — antes
+// vivían en una página huérfana sin link (/editar/:token/invitados), ahora
+// se muestran inline en el Panel de tu evento.
+function confirmacionesHTML(db, inv) {
+  const rsvps = db.rsvps.filter((r) => r.slug === inv.slug);
+  const asisten = rsvps.filter((r) => r.asiste !== "no");
+  return `<div class="links-section">
+    <h2 class="links-section-title">✅ Confirmaciones (${rsvps.length})</h2>
+    ${rsvps.length ? `<p style="color:var(--muted);font-size:.82rem;margin:0 0 12px;">${asisten.length} de ${rsvps.length} confirmaron que van.</p>` : ""}
+    ${rsvps.map((r) => `<div class="checkout-row"><span>${escapeHtml(r.nombre || "-")} ${r.acompaniantes ? "(" + escapeHtml(String(r.acompaniantes)) + ")" : ""}</span><strong>${r.asiste === "no" ? "❌ No asiste" : "✅ Asiste"}</strong></div>`).join("") || `<p style="color:var(--muted);font-size:.82rem;">Todavía no hay confirmaciones por el link general.</p>`}
+  </div>`;
+}
+
+// Invitados nombrados con link personal + cupo de acompañantes (feature
+// "invitadosPersonalizados", plan Premium bodas/xv). El organizador carga
+// acá cada invitado/grupo, le genera un link único (/invitacion/:slug/i/:token)
+// y lo manda por WhatsApp ya con el mensaje personalizado armado — no hay
+// forma de mandarlos todos de una (WhatsApp no lo permite sin su API paga),
+// así que es un botón "Enviar" por cada invitado.
+function invitadosPersonalizadosHTML(order, inv, req, design) {
+  const guests = inv.invitadosNombrados || [];
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+  const evento = eventoLabel(design.category, inv.data);
+  return `<div class="links-section">
+    <h2 class="links-section-title">💌 Invitados con link personal (${guests.length})</h2>
+    <p style="color:var(--muted);font-size:.82rem;margin:0 0 14px;">Cargá cada invitado o grupo con su cupo de acompañantes. Cada uno recibe un link propio: al confirmar, van a poder elegir cuántos de los lugares reservados van a usar y con qué nombres — y esa confirmación aparece acá abajo, sin mezclarse con las del link general.</p>
+    <form id="addGuestForm" class="add-guest-form">
+      <input type="text" name="nombre" placeholder="Ej: Juan y Rosa" required maxlength="80">
+      <input type="number" name="cupo" placeholder="Cupo" min="1" max="20" value="2" required style="width:80px">
+      <button type="submit" class="btn btn-outline" style="white-space:nowrap;">+ Agregar</button>
+    </form>
+    <div id="guestList">
+      ${guests.length ? guests.map((g) => {
+        const url = `${baseUrl}/invitacion/${order.publicSlug}/i/${g.token}`;
+        const c = g.confirmacion;
+        const estado = !c
+          ? `<span class="guest-estado guest-estado-pendiente">Pendiente</span>`
+          : c.asiste === "no"
+            ? `<span class="guest-estado guest-estado-no">❌ No asiste</span>`
+            : `<span class="guest-estado guest-estado-si">✅ Confirmó ${c.cantidad} · ${(c.nombres || []).filter(Boolean).join(", ") || "-"}</span>`;
+        const waText = `¡Hola ${g.nombre}! Están invitados a ${evento}. Confirmen su asistencia acá, es un toque: ${url}`;
+        return `<div class="guest-row" data-id="${escapeHtml(g.id)}">
+          <div class="guest-row-main">
+            <strong>${escapeHtml(g.nombre)}</strong> <span style="color:var(--muted);font-size:.78rem;">· cupo ${g.cupo}</span>
+            ${estado}
+          </div>
+          <div class="guest-row-actions">
+            <button type="button" class="copy-btn" data-copy="${escapeHtml(url)}">📋 Copiar link</button>
+            <a class="wa-btn" href="https://wa.me/?text=${encodeURIComponent(waText)}" target="_blank" rel="noopener">💬 Enviar</a>
+            <button type="button" class="guest-remove" data-token="${escapeHtml(order.editToken)}" data-id="${escapeHtml(g.id)}" title="Quitar invitado">✕</button>
+          </div>
+        </div>`;
+      }).join("") : `<p style="color:var(--muted);font-size:.82rem;">Todavía no cargaste ningún invitado.</p>`}
     </div>
   </div>`;
 }
@@ -1431,7 +1489,7 @@ app.get("/editar/:token", (req, res) => {
 
   res.send(`<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Editar invitación · TaDi</title>
+<title>Panel de tu evento · TaDi</title>
 <link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/static/img/logo/tadi-favicon-16.png">
 <link rel="apple-touch-icon" href="/static/img/logo/tadi-favicon-180.png">
@@ -1439,13 +1497,18 @@ app.get("/editar/:token", (req, res) => {
 <body>
 <div class="editor-wrap">
   <div class="editor-form-panel">
-    <h1>✏️ Editá tu invitación</h1>
+    <h1>🎛️ Panel de tu evento</h1>
     <p style="color:var(--muted);font-size:.85rem">Diseño: <strong>${design.name}</strong>. Los cambios se ven al instante en la vista previa → · <a href="/como-funciona" target="_blank" style="color:var(--accent)">¿Cómo funciona?</a></p>
     ${req.query.bienvenida ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Pago confirmado! Ya podés personalizar tu invitación.</p>` : ""}
+
+    <h2 class="links-section-title">✏️ Editar tu invitación</h2>
     <form id="editForm">
       ${schemaForPlan(design, inv.plan).filter((f) => f.type !== "palette").map((f) => fieldHTML(f, inv.data[f.name])).join("")}
     </form>
     ${req.query.disenoCambiado ? `<p style="background:#e9f7ea;border:1px solid #bfe6c2;border-radius:8px;padding:10px;font-size:.85rem;color:#1e3a24">✅ ¡Listo! Cambiamos el diseño. Los datos que coincidían (fecha, lugar, fotos, etc.) se mantuvieron, revisá que esté todo como querés.</p>` : ""}
+
+    ${pricing.hasFeature(design.category, inv.plan, "invitadosPersonalizados") ? invitadosPersonalizadosHTML(order, inv, req, design) : ""}
+    ${confirmacionesHTML(db, inv)}
     ${pricing.hasFeature(design.category, inv.plan, "muro") ? muroModerationHTML(order, inv) : ""}
 
     <div class="links-section">
@@ -1470,7 +1533,7 @@ app.get("/editar/:token", (req, res) => {
         </div>
       </div>
       <div class="link-box">
-        <p class="link-box-label">🔒 Para volver a editar cuando quieras</p>
+        <p class="link-box-label">🎛️ Tu panel de evento (guardalo, es tuyo)</p>
         <a class="link-box-url" href="/editar/${order.editToken}">${req.protocol}://${req.get("host")}/editar/${order.editToken}</a>
         <div class="link-box-actions">
           <button type="button" class="copy-btn" data-copy="${escapeHtml(`${req.protocol}://${req.get("host")}/editar/${order.editToken}`)}">📋 Copiar</button>
@@ -1554,6 +1617,60 @@ app.get("/editar/:token", (req, res) => {
         .then(function(r){ return r.json(); })
         .then(function(data){
           if (data.ok && wrap) wrap.remove();
+        })
+        .catch(function(){});
+    });
+  });
+
+  // Destacar/quitar destaque de una foto del muro (para el carrusel de
+  // favoritas) — toggle instantáneo, sin confirmación (no es destructivo).
+  document.querySelectorAll('.wall-mod-star').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      fetch('/api/invitaciones/' + btn.dataset.token + '/muro/' + btn.dataset.id + '/destacar', { method: 'POST' })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          if (!data.ok) return;
+          btn.textContent = data.destacada ? '★' : '☆';
+          btn.classList.toggle('active', data.destacada);
+          var thumb = btn.closest('.wall-mod-thumb');
+          if (thumb) thumb.classList.toggle('wall-mod-thumb-destacada', data.destacada);
+        })
+        .catch(function(){});
+    });
+  });
+
+  // Alta de invitado nombrado con cupo (plan Premium bodas/xv) — recarga la
+  // página al agregar para no duplicar el HTML de la fila en el cliente.
+  const addGuestForm = document.getElementById('addGuestForm');
+  if (addGuestForm) {
+    addGuestForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      const fd = new FormData(addGuestForm);
+      const submitBtn = addGuestForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      fetch('/editar/' + token + '/invitados-personalizados', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: fd.get('nombre'), cupo: fd.get('cupo') }),
+      })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          if (data.ok) { window.location.reload(); return; }
+          alert(data.error || 'No se pudo agregar.');
+          submitBtn.disabled = false;
+        })
+        .catch(function(){ submitBtn.disabled = false; });
+    });
+  }
+
+  document.querySelectorAll('.guest-remove').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!confirm('¿Quitar este invitado y su link? Si ya confirmó, se pierde esa respuesta.')) return;
+      const row = btn.closest('.guest-row');
+      fetch('/editar/' + btn.dataset.token + '/invitados-personalizados/' + btn.dataset.id + '/eliminar', { method: 'POST' })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          if (data.ok && row) row.remove();
         })
         .catch(function(){});
     });
@@ -2138,6 +2255,49 @@ app.get("/invitacion/:slug", (req, res) => {
   res.send(renderPublicInvitation(inv, req));
 });
 
+// Link personal de un invitado nombrado (feature "invitadosPersonalizados",
+// plan Premium bodas/xv — ver panel del organizador en /editar/:token). Es
+// la misma tarjeta pública, pero con el bloque de RSVP personalizado: saludo
+// con su nombre y el formulario limitado a su cupo de acompañantes en vez
+// del campo libre. Si el token no existe o el plan no tiene el feature,
+// cae de vuelta a la tarjeta genérica (no rompe el link).
+app.get("/invitacion/:slug/i/:guestToken", (req, res) => {
+  const db = getDB();
+  const inv = db.invitations.find((i) => i.slug === req.params.slug);
+  if (!inv) return res.status(404).send("Invitación no encontrada");
+  if (inv.purgedAt) return res.status(410).send(purgedPublicPage());
+  const design = getDesign(inv.designId);
+  const guest = pricing.hasFeature(design.category, inv.plan, "invitadosPersonalizados")
+    ? (inv.invitadosNombrados || []).find((g) => g.token === req.params.guestToken)
+    : null;
+  res.send(renderPublicInvitation(inv, req, guest || null));
+});
+
+app.post("/api/invitacion/:slug/invitado/:guestToken/rsvp", (req, res) => {
+  const db = getDB();
+  const inv = db.invitations.find((i) => i.slug === req.params.slug);
+  if (!inv || inv.purgedAt) return res.status(404).json({ error: "no encontrado" });
+  const design = getDesign(inv.designId);
+  if (!pricing.hasFeature(design.category, inv.plan, "invitadosPersonalizados")) {
+    return res.status(403).json({ error: "no habilitado" });
+  }
+  const guest = (inv.invitadosNombrados || []).find((g) => g.token === req.params.guestToken);
+  if (!guest) return res.status(404).json({ error: "invitado no encontrado" });
+  const cupo = Math.max(1, Number(guest.cupo) || 1);
+  let cantidad = Math.max(1, Number(req.body.cantidad) || 1);
+  if (cantidad > cupo) cantidad = cupo;
+  const nombres = Array.isArray(req.body.nombres) ? req.body.nombres.slice(0, cupo).map((n) => String(n || "").slice(0, 120)) : [];
+  guest.confirmacion = {
+    asiste: req.body.asiste === "no" ? "no" : "si",
+    cantidad,
+    nombres,
+    mensaje: String(req.body.mensaje || "").slice(0, 500),
+    fecha: new Date().toISOString(),
+  };
+  saveDB(db);
+  res.json({ ok: true });
+});
+
 app.post("/api/invitacion/:slug/rsvp", (req, res) => {
   const db = getDB();
   const inv = db.invitations.find((i) => i.slug === req.params.slug);
@@ -2213,20 +2373,60 @@ app.post("/api/invitaciones/:token/muro/eliminar", (req, res) => {
   res.json({ ok: true });
 });
 
-// panel simple para que el dueño de la invitación vea quién confirmó
-app.get("/editar/:token/invitados", (req, res) => {
+// Destacar/quitar destaque de una foto del muro (para armar un carrusel de
+// favoritas en vez de mostrar todas mezcladas sin criterio).
+app.post("/api/invitaciones/:token/muro/:id/destacar", (req, res) => {
   const db = getDB();
   const order = db.orders.find((o) => o.editToken === req.params.token);
-  if (!order || order.status !== "paid") return res.status(404).send("No encontrado");
-  const rsvps = db.rsvps.filter((r) => r.slug === order.publicSlug);
-  res.send(layout({
-    title: "Invitados",
-    body: `<div class="checkout-wrap" style="max-width:700px">
-      <h1>Confirmaciones (${rsvps.length})</h1>
-      ${rsvps.map((r) => `<div class="checkout-row"><span>${escapeHtml(r.nombre || "-")} ${r.acompaniantes ? "(" + escapeHtml(r.acompaniantes) + ")" : ""}</span><strong>${r.asiste === "no" ? "❌ No asiste" : "✅ Asiste"}</strong></div>`).join("") || "<p>Todavía no hay confirmaciones.</p>"}
-      <p style="margin-top:20px"><a href="/editar/${order.editToken}">← Volver a editar</a></p>
-    </div>`,
-  }));
+  if (!order || order.status !== "paid") return res.status(404).json({ error: "no encontrado" });
+  const inv = db.invitations.find((i) => i.orderId === order.id);
+  if (!inv) return res.status(404).json({ error: "no encontrado" });
+  const photo = (inv.muro || []).find((p) => p.id === req.params.id);
+  if (!photo) return res.status(404).json({ error: "foto no encontrada" });
+  photo.destacada = !photo.destacada;
+  saveDB(db);
+  res.json({ ok: true, destacada: photo.destacada });
+});
+
+// Redirect de compatibilidad: esto vivía en una página aparte (sin link
+// visible desde ningún lado), ahora las confirmaciones están inline en el
+// Panel de tu evento (/editar/:token).
+app.get("/editar/:token/invitados", (req, res) => {
+  res.redirect(`/editar/${req.params.token}`);
+});
+
+// El organizador agrega un invitado nombrado con su cupo de acompañantes
+// (feature "invitadosPersonalizados", plan Premium bodas/xv) — genera el
+// token del link personal acá mismo.
+app.post("/editar/:token/invitados-personalizados", (req, res) => {
+  const db = getDB();
+  const order = db.orders.find((o) => o.editToken === req.params.token);
+  if (!order || order.status !== "paid") return res.status(404).json({ error: "no encontrado" });
+  const design = getDesign(order.designId);
+  const inv = db.invitations.find((i) => i.orderId === order.id);
+  if (!inv) return res.status(404).json({ error: "no encontrado" });
+  if (!pricing.hasFeature(design.category, inv.plan, "invitadosPersonalizados")) {
+    return res.status(403).json({ error: "esta invitación no tiene invitados personalizados habilitado" });
+  }
+  const nombre = String(req.body.nombre || "").trim().slice(0, 80);
+  if (!nombre) return res.status(400).json({ error: "falta el nombre" });
+  const cupo = Math.min(20, Math.max(1, Number(req.body.cupo) || 1));
+  const guest = { id: uid("guest"), nombre, cupo, token: uid("gt"), confirmacion: null };
+  inv.invitadosNombrados = inv.invitadosNombrados || [];
+  inv.invitadosNombrados.push(guest);
+  saveDB(db);
+  res.json({ ok: true, guest });
+});
+
+app.post("/editar/:token/invitados-personalizados/:id/eliminar", (req, res) => {
+  const db = getDB();
+  const order = db.orders.find((o) => o.editToken === req.params.token);
+  if (!order || order.status !== "paid") return res.status(404).json({ error: "no encontrado" });
+  const inv = db.invitations.find((i) => i.orderId === order.id);
+  if (!inv) return res.status(404).json({ error: "no encontrado" });
+  inv.invitadosNombrados = (inv.invitadosNombrados || []).filter((g) => g.id !== req.params.id);
+  saveDB(db);
+  res.json({ ok: true });
 });
 
 // ---------- ADMIN (worklist de tarjetas/cobros + estadísticas) ----------
