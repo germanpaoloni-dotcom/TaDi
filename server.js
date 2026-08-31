@@ -37,6 +37,10 @@ const PRICE_ARS = Number(process.env.PRICE_ARS || 14900);
 const BUSINESS_LEGAL_NAME = process.env.BUSINESS_LEGAL_NAME || "";
 const BUSINESS_CUIT = process.env.BUSINESS_CUIT || "";
 const SUPPORT_WHATSAPP = process.env.SUPPORT_WHATSAPP || ""; // ej: 5491122334455
+// Google Analytics 4 — measurement ID (formato "G-XXXXXXXXXX"), se consigue
+// en analytics.google.com. Si no está cargada, simplemente no se inserta
+// ningún script de tracking (nada se rompe, el sitio sigue andando igual).
+const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || "";
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -121,18 +125,36 @@ function injectOgTags(html, { baseUrl, url, image, description }) {
     <meta name="twitter:description" content="${escapeHtml(desc)}">
     ${img ? `<meta name="twitter:image" content="${escapeHtml(img)}">` : ""}
   `;
-  return html.replace("<head>", "<head>" + tags);
+  html = html.replace("<head>", "<head>" + tags);
+  // meta description "real" (la que usa Google en el resultado de búsqueda,
+  // distinta de og:description que es la que usan las redes sociales) — si
+  // el html ya la traía puesta (no debería, pero por las dudas) no la
+  // duplicamos.
+  if (desc && !/<meta\s+name="description"/i.test(html)) {
+    html = html.replace("<head>", `<head><meta name="description" content="${escapeHtml(desc)}">`);
+  }
+  return html;
 }
 
-function layout({ title, body }) {
+// Script de Google Analytics 4 — vacío (no inserta nada) si no hay
+// GA_MEASUREMENT_ID cargado en el entorno.
+const GA_SNIPPET = GA_MEASUREMENT_ID
+  ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_MEASUREMENT_ID}');</script>`
+  : "";
+
+function layout({ title, body, description }) {
+  const desc = description || "Invitaciones digitales para bodas, cumpleaños, XV y más — elegí tu diseño, personalizalo en minutos y compartilo por WhatsApp con RSVP incluido.";
   return `<!doctype html>
 <html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title} · TaDi</title>
+<meta name="description" content="${escapeHtml(desc)}">
 <link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/static/img/logo/tadi-favicon-16.png">
 <link rel="apple-touch-icon" href="/static/img/logo/tadi-favicon-180.png">
 <link rel="stylesheet" href="${CSS_HREF}">
+${GA_SNIPPET}
 </head><body>
 <header class="site">
   <a class="brand" href="/" aria-label="TaDi — inicio"><img src="/static/img/logo/tadi-logo-light-bg.svg" alt="TaDi" class="brand-logo"><span class="brand-tagline">Tarjetas Digitales</span></a>
@@ -352,6 +374,7 @@ function catalogPage(activeCat) {
   if (!activeCat) {
     return layout({
       title: "Catálogo",
+      description: "Invitación digital lista en minutos: elegí un diseño para boda, cumpleaños, XV, bautismo o baby shower, personalizalo y compartilo por WhatsApp con edición ilimitada y RSVP incluido.",
       body: `<div class="orios-home-head">
         <span class="orios-home-kicker">Catálogo TaDi</span>
         <h1>Elegí tu tarjeta<span class="dot">.</span></h1>
@@ -370,6 +393,7 @@ function catalogPage(activeCat) {
   const cat = categories.find((c) => c.id === activeCat);
   return layout({
     title: cat.label,
+    description: `Invitaciones digitales de ${cat.label.toLowerCase()} — elegí tu diseño, cargá los datos de tu evento y compartilo por WhatsApp en minutos, con edición ilimitada hasta el día del evento.`,
     body: `${miniHeroHTML(cat, cats)}
     ${TRUST_STRIP_HTML}
     <div class="cat-filter" id="catalogo">${catButtons}</div>
@@ -401,6 +425,49 @@ function cardHTML(d) {
     </div>
   </div>`;
 }
+
+// ---------- SEO: robots.txt + sitemap.xml ----------
+// robots.txt: dejamos pasar todo lo público (home, categorías, demos de
+// diseño) y bloqueamos explícitamente lo transaccional/privado, que no
+// aporta nada indexado y en el caso de /editar/ además sería exponer
+// datos de compradores.
+app.get("/robots.txt", (req, res) => {
+  const baseUrl = resolvePublicBaseUrl(req);
+  res.type("text/plain").send(
+    `User-agent: *
+Disallow: /checkout/
+Disallow: /api/
+Disallow: /admin
+Disallow: /editar/
+Disallow: /preview/
+Disallow: /pago-exitoso
+Disallow: /pago-pendiente
+Disallow: /pago-fallido
+
+Sitemap: ${baseUrl}/sitemap.xml
+`
+  );
+});
+
+// sitemap.xml dinámico: home + categorías visibles + demo de cada diseño
+// (las páginas transaccionales de checkout/editor no se listan a propósito).
+app.get("/sitemap.xml", (req, res) => {
+  const baseUrl = resolvePublicBaseUrl(req);
+  const staticUrls = [
+    { loc: "/", priority: "1.0" },
+    { loc: "/como-funciona", priority: "0.5" },
+    { loc: "/preguntas-frecuentes", priority: "0.5" },
+    ...visibleCategories().map((c) => ({ loc: `/categoria/${c.id}`, priority: "0.8" })),
+  ];
+  const designUrls = designs.map((d) => ({ loc: `/demo/${d.id}`, priority: "0.6" }));
+  const urls = staticUrls.concat(designUrls);
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map((u) => `  <url><loc>${escapeHtml(baseUrl + u.loc)}</loc><priority>${u.priority}</priority></url>`).join("\n")}
+</urlset>
+`;
+  res.type("application/xml").send(xml);
+});
 
 app.get("/", (req, res) => res.send(catalogPage(null)));
 app.get("/categoria/:cat", (req, res) => {
@@ -440,6 +507,7 @@ app.get("/como-funciona", (req, res) => {
 
   res.send(layout({
     title: "Cómo funciona",
+    description: "Guía paso a paso: cómo elegir tu invitación digital en TaDi, personalizarla con tus datos y fotos, y compartirla por WhatsApp para recibir las confirmaciones de tus invitados.",
     body: `
     <div class="tutorial-hero">
       <span class="kicker">Guía rápida</span>
@@ -498,6 +566,7 @@ app.get("/preguntas-frecuentes", (req, res) => {
   ];
   res.send(layout({
     title: "Preguntas frecuentes",
+    description: "Respuestas sobre precios, edición, plazos de entrega, reembolsos y cómo funciona el RSVP por WhatsApp en las invitaciones digitales de TaDi.",
     body: `<div class="tutorial-hero">
       <span class="kicker">Ayuda</span>
       <h1>Preguntas frecuentes</h1>
@@ -516,6 +585,7 @@ app.get("/preguntas-frecuentes", (req, res) => {
 app.get("/terminos", (req, res) => {
   res.send(layout({
     title: "Términos y condiciones",
+    description: "Términos y condiciones de compra de las invitaciones digitales de TaDi.",
     body: `<div class="legal-wrap">
       <h1>Términos y condiciones</h1>
       <p>TaDi ofrece invitaciones digitales personalizables para eventos (bodas, save the date, fiestas infantiles, quince años, cumpleaños, bautismos, y por temporada Halloween y Navidad). Al comprar una invitación, el comprador puede personalizar sus datos (textos, fechas, lugares, fotos) y compartir el link resultante con sus invitados.</p>
@@ -537,6 +607,7 @@ app.get("/terminos", (req, res) => {
 app.get("/privacidad", (req, res) => {
   res.send(layout({
     title: "Política de privacidad",
+    description: "Política de privacidad y tratamiento de datos personales de TaDi, conforme a la Ley 25.326.",
     body: `<div class="legal-wrap">
       <h1>Política de privacidad</h1>
       <p>Esta política describe qué datos personales trata TaDi y con qué finalidad, en línea con la Ley 25.326 de Protección de los Datos Personales de Argentina.</p>
