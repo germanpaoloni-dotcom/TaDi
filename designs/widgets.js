@@ -144,8 +144,12 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
   const prevConf = guest && guest.confirmacion ? guest.confirmacion : null;
   const prevNombres = prevConf && Array.isArray(prevConf.nombres) ? prevConf.nombres : [];
 
+  // La conjugación tiene que ajustarse a la cantidad de personas invitadas:
+  // "tenés" (vos, singular) sólo tiene sentido si el cupo es 1 — con 2+
+  // lugares reservados (ej. "Juan y Lucía") corresponde "tienen" (plural),
+  // si no el saludo queda incoherente ("Juan y Lucía, tenés dos lugares").
   const guestIntro = guest
-    ? `<p class="rsvp-guest-intro" style="font-weight:700;margin:0 0 12px;">¡Hola <strong>${esc(guest.nombre)}</strong>! Tenés ${cupo === 1 ? "1 lugar reservado" : `${cupo} lugares reservados`} para ${evento}.</p>`
+    ? `<p class="rsvp-guest-intro" style="font-weight:700;margin:0 0 12px;">¡Hola <strong>${esc(guest.nombre)}</strong>! ${cupo === 1 ? "Tenés 1 lugar reservado" : `Tienen ${cupo} lugares reservados`} para ${evento}.</p>`
     : "";
 
   const guestNameFields = guest

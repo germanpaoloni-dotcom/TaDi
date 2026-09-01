@@ -148,9 +148,9 @@ function resolvePublicBaseUrl(req) {
   return `${req.protocol}://${req.get("host")}`;
 }
 
-function injectOgTags(html, { baseUrl, url, image, description }) {
+function injectOgTags(html, { baseUrl, url, image, description, title: titleOverride }) {
   const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/i);
-  const title = titleMatch ? titleMatch[1].trim() : "TaDi — Invitación digital";
+  const title = titleOverride || (titleMatch ? titleMatch[1].trim() : "TaDi — Invitación digital");
   const desc = description || "Mirá la invitación y confirmá tu asistencia.";
   const img = absoluteUrl(baseUrl, image);
   const tags = `
@@ -478,11 +478,26 @@ function renderPublicInvitation(inv, req, guest = null) {
   if (pricing.hasFeature(design.category, inv.plan, "multilenguaje") && inv.data.multilenguaje) {
     html = injectLanguageToggle(html);
   }
+  // El link personal de un invitado nombrado se comparte tal cual por
+  // WhatsApp, así que la tarjeta de preview que arma WhatsApp (og:title/
+  // og:description, leídas de ESTE html) tiene que estar personalizada con
+  // su nombre y su cupo — si no, aparece igual que el link genérico y se
+  // pierde toda la gracia de mandarlo personalizado.
+  const evento = eventoLabel(design.category, inv.data);
+  // Misma regla de coherencia gramatical que en designs/widgets.js: la
+  // conjugación (invitado/invitados, tenés/tienen) tiene que reflejar la
+  // cantidad real de lugares reservados, no quedar fija en plural/singular.
+  const guestCupo = guest ? Math.max(1, Number(guest.cupo) || 1) : null;
+  const ogTitle = guest ? `${guest.nombre} — ${guestCupo === 1 ? "invitado" : "invitados"} a ${evento}` : undefined;
+  const ogDescription = guest
+    ? `¡Hola ${guest.nombre}! ${guestCupo === 1 ? "Tenés 1 lugar reservado" : `Tienen ${guestCupo} lugares reservados`} para ${evento}. Confirmá tu asistencia acá.`
+    : "Mirá la invitación y confirmá tu asistencia.";
   html = injectOgTags(html, {
     baseUrl,
-    url: `${baseUrl}/invitacion/${inv.slug}`,
+    url: guest ? `${baseUrl}/invitacion/${inv.slug}/i/${guest.token}` : `${baseUrl}/invitacion/${inv.slug}`,
     image: inv.data.coverImage,
-    description: "Mirá la invitación y confirmá tu asistencia.",
+    title: ogTitle,
+    description: ogDescription,
   });
   return html;
 }
@@ -1446,7 +1461,7 @@ function invitadosPersonalizadosHTML(order, inv, req, design) {
     <p style="color:var(--muted);font-size:.82rem;margin:0 0 14px;">Cargá cada invitado o grupo con su cupo de acompañantes. Cada uno recibe un link propio: al confirmar, van a poder elegir cuántos de los lugares reservados van a usar y con qué nombres — y esa confirmación aparece acá abajo, sin mezclarse con las del link general.</p>
     <form id="addGuestForm" class="add-guest-form">
       <input type="text" name="nombre" placeholder="Ej: Juan y Rosa" required maxlength="80">
-      <input type="number" name="cupo" placeholder="Cupo" min="1" max="20" value="2" required style="width:80px">
+      <input type="number" name="cupo" placeholder="Cupo" min="1" max="20" value="1" required style="width:80px">
       <button type="submit" class="btn btn-outline" style="white-space:nowrap;">+ Agregar</button>
     </form>
     <div id="guestList">
@@ -1458,7 +1473,10 @@ function invitadosPersonalizadosHTML(order, inv, req, design) {
           : c.asiste === "no"
             ? `<span class="guest-estado guest-estado-no">❌ No asiste</span>`
             : `<span class="guest-estado guest-estado-si">✅ Confirmó ${c.cantidad} · ${(c.nombres || []).filter(Boolean).join(", ") || "-"}</span>`;
-        const waText = `¡Hola ${g.nombre}! Están invitados a ${evento}. Confirmen su asistencia acá, es un toque: ${url}`;
+        const gCupo = Math.max(1, Number(g.cupo) || 1);
+        const waText = gCupo === 1
+          ? `¡Hola ${g.nombre}! Estás invitado/a a ${evento}. Confirmá tu asistencia acá, es un toque: ${url}`
+          : `¡Hola ${g.nombre}! Están invitados a ${evento}. Confirmen su asistencia acá, es un toque: ${url}`;
         return `<div class="guest-row" data-id="${escapeHtml(g.id)}">
           <div class="guest-row-main">
             <strong>${escapeHtml(g.nombre)}</strong> <span style="color:var(--muted);font-size:.78rem;">· cupo ${g.cupo}</span>
