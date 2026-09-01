@@ -117,18 +117,42 @@ function eventoLabel(categoria, d = {}) {
   }
 }
 
+// Frase "con quién" para invitar a compartir fotos (muro de invitados), ej.
+// "Compartí tus fotos con los novios" / "...con Bruno". Usa el nombre real
+// cuando está cargado en vez de un genérico "cumpleañero/a" para no tener
+// que adivinar género.
+function photoShareLabel(categoria, d = {}) {
+  switch (categoria) {
+    case "bodas":
+      return "con los novios";
+    case "xv":
+      return d.nombre ? `con ${d.nombre}` : "con la quinceañera";
+    case "cumpleanos":
+      return d.nombre ? `con ${d.nombre}` : "con los festejados";
+    case "infantiles":
+      return d.nombreChico ? `con ${d.nombreChico}` : "con los festejados";
+    case "bautismos":
+      return d.nombreChico ? `con la familia de ${d.nombreChico}` : "con la familia";
+    case "halloween":
+    case "navidad":
+      return "con los anfitriones";
+    default:
+      return "con los organizadores";
+  }
+}
+
 // La confirmación de asistencia es un solo paso: la persona completa la
-// ficha y un único botón la manda directo por WhatsApp al número que cargó
-// el organizador (campo "whatsapp" del formulario del editor) — no hay un
-// botón separado que "guarda en el sitio" más un link aparte de WhatsApp.
-// Igual seguimos guardando la respuesta en segundo plano (silencioso, sin
-// bloquear ni depender de eso) para que el organizador la vea también en su
-// panel de invitados por si no llega a revisar WhatsApp.
+// ficha y el botón la guarda directo (fetch síncrono, esperado por el
+// formulario) contra el RSVP genérico o el del invitado puntual — nunca
+// abre WhatsApp. Así queda garantizado que la confirmación impacta en el
+// panel del organizador y en el panel de administrador apenas se confirma,
+// en vez de depender de que el navegador llegue a completar un POST en
+// segundo plano mientras el visitante ya se fue a WhatsApp (esa carrera
+// era justamente lo que hacía que confirmaciones "se perdieran").
 function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null, categoria = null, datos = {} } = {}) {
   const id = "rsvp-" + Math.random().toString(36).slice(2, 8);
-  const waNumber = whatsapp ? String(whatsapp).replace(/[^0-9]/g, "") : "";
   const evento = eventoLabel(categoria, datos);
-  const btnLabel = waNumber ? "✅ Confirmar asistencia por WhatsApp" : "✅ Confirmar asistencia";
+  const btnLabel = "✅ Confirmar asistencia";
   const menuLabels = { clasico: "Clásico", vegetariano: "Vegetariano", vegano: "Vegano", celiaco: "Sin TACC" };
 
   // Modo invitado nombrado (feature "invitadosPersonalizados", plan Premium
@@ -168,7 +192,7 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
         ? `<label>¿Cuántos van a ir (de los ${cupo} reservados)? <select name="cantidadInvitados">${Array.from({ length: cupo }).map((_, i) => `<option value="${i + 1}" ${prevConf && Number(prevConf.cantidad) === i + 1 ? "selected" : (!prevConf && i === cupo - 1 ? "selected" : "")}>${i + 1}</option>`).join("")}</select></label>
            <div class="rsvp-guest-names">${guestNameFields}</div>`
         : (withGuests ? `<label>¿Cuántos asisten? <input name="acompaniantes" type="number" min="1" value="1"></label>` : "")}
-      <label>¿Asistís? <select name="asiste"><option value="si" ${prevConf && prevConf.asiste === "no" ? "" : "selected"}>Sí, ahí estaré</option><option value="no" ${prevConf && prevConf.asiste === "no" ? "selected" : ""}>No voy a poder ir</option></select></label>
+      <label><span class="asiste-label-text">¿Asistís?</span> <select name="asiste"><option value="si" class="asiste-si-opt" ${prevConf && prevConf.asiste === "no" ? "" : "selected"}>Sí, ahí estaré</option><option value="no" ${prevConf && prevConf.asiste === "no" ? "selected" : ""}>No voy a poder ir</option></select></label>
       ${withMenu ? `<label>Preferencia de menú <select name="menu"><option value="clasico">Clásico</option><option value="vegetariano">Vegetariano</option><option value="vegano">Vegano</option><option value="celiaco">Sin TACC</option></select></label>` : ""}
       <label>Mensaje (opcional) <textarea name="mensaje" placeholder="¡Les mando un beso!">${prevConf ? esc(prevConf.mensaje || "") : ""}</textarea></label>
       <button type="submit">${prevConf ? "✏️ Actualizar mi confirmación" : btnLabel}</button>
@@ -178,12 +202,24 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
       (function(){
         var form = document.getElementById(${JSON.stringify(id)});
         var status = document.getElementById(${JSON.stringify(id + "-status")});
-        var waNumber = ${JSON.stringify(waNumber)};
-        var evento = ${JSON.stringify(evento)};
-        var menuLabels = ${JSON.stringify(menuLabels)};
         var guestToken = ${JSON.stringify(guest ? guest.token : null)};
         var cupo = ${JSON.stringify(cupo)};
+        var updateLabel = ${JSON.stringify("✏️ Actualizar mi confirmación")};
+        var idleLabel = ${JSON.stringify(prevConf ? "✏️ Actualizar mi confirmación" : btnLabel)};
         if(!form) return;
+        var submitBtn = form.querySelector('button[type="submit"]');
+
+        // La conjugación de "¿Asistís?" / "Sí, ahí estaré" tiene que
+        // reflejar cuántas personas va a confirmar este mismo formulario
+        // (1 = singular, 2+ = plural), si no queda incoherente.
+        var asisteLabelSpan = form.querySelector('.asiste-label-text');
+        var asisteSiOpt = form.querySelector('.asiste-si-opt');
+        function syncAsisteWording(n){
+          if (!asisteLabelSpan) return;
+          var multiple = Number(n) > 1;
+          asisteLabelSpan.textContent = multiple ? '¿Asisten?' : '¿Asistís?';
+          if (asisteSiOpt) asisteSiOpt.textContent = multiple ? 'Sí, asistiremos' : 'Sí, ahí estaré';
+        }
 
         // En modo invitado nombrado, mostrar/ocultar los campos de nombre
         // según cuántos de los lugares reservados va a usar.
@@ -199,59 +235,53 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
               if (idx < n) { if (idx === 0) input.required = true; }
               else { input.required = false; }
             });
+            syncAsisteWording(n);
           }
           cantidadSel.addEventListener('change', syncNameFields);
           syncNameFields();
+        } else {
+          var acompInput = form.querySelector('input[name="acompaniantes"]');
+          if (acompInput) {
+            acompInput.addEventListener('input', function(){ syncAsisteWording(acompInput.value); });
+            syncAsisteWording(acompInput.value);
+          } else {
+            syncAsisteWording(1);
+          }
         }
 
+        // Confirmar asistencia guarda directo (sin pasar por WhatsApp) y
+        // espera la respuesta del servidor antes de avisar que quedó
+        // guardada, para que la confirmación llegue de forma confiable al
+        // panel del organizador y al panel de administrador.
         form.addEventListener('submit', function(e){
           e.preventDefault();
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Enviando...'; }
+          status.textContent = '';
           var data = Object.fromEntries(new FormData(form).entries());
 
+          var url, body;
           if (guestToken) {
             var n = Number(data.cantidadInvitados) || 1;
             var nombres = [];
             for (var i = 0; i < n; i++) { nombres.push(data['invitadoNombre' + i] || ''); }
-            fetch('/api/invitacion/${slug}/invitado/' + guestToken + '/rsvp', {
-              method: 'POST', headers: {'Content-Type':'application/json'},
-              body: JSON.stringify({ asiste: data.asiste, cantidad: n, nombres: nombres, mensaje: data.mensaje || '' })
-            }).catch(function(){});
-
-            if (waNumber) {
-              var lineas2 = ['¡Hola! Somos ' + nombres.filter(Boolean).join(', ') + '.'];
-              lineas2.push(data.asiste === 'no' ? 'Lamentablemente no vamos a poder ir 😔' : ('¡Sí, ahí vamos a estar! Confirmamos ' + n + ' persona(s). 🎉'));
-              if (data.mensaje) lineas2.push('"' + data.mensaje + '"');
-              lineas2.push('Confirmamos nuestra asistencia para ' + evento + '.');
-              window.open('https://wa.me/' + waNumber + '?text=' + encodeURIComponent(lineas2.join('\\n')), '_blank', 'noopener');
-              status.textContent = '¡Te llevamos a WhatsApp para avisarles también!';
-            } else {
-              status.textContent = '¡Gracias, guardamos tu confirmación!';
-            }
-            return;
-          }
-
-          // Guardado best-effort en segundo plano: no bloquea ni condiciona
-          // el paso a WhatsApp, es solo para que quede también en el panel
-          // de invitados del organizador.
-          fetch('/api/invitacion/${slug}/rsvp', {
-            method: 'POST', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify(data)
-          }).catch(function(){});
-
-          if (waNumber) {
-            var lineas = ['¡Hola! Soy ' + (data.nombre || '') + '.'];
-            lineas.push(data.asiste === 'no' ? 'Lamentablemente no voy a poder ir 😔' : '¡Sí, ahí voy a estar! 🎉');
-            if (data.acompaniantes && data.asiste !== 'no') lineas.push('Vamos a ser ' + data.acompaniantes + ' persona(s).');
-            if (data.menu && menuLabels[data.menu] && data.asiste !== 'no') lineas.push('Preferencia de menú: ' + menuLabels[data.menu] + '.');
-            if (data.mensaje) lineas.push('"' + data.mensaje + '"');
-            lineas.push('Confirmo mi asistencia para ' + evento + '.');
-            var texto = lineas.join('\\n');
-            window.open('https://wa.me/' + waNumber + '?text=' + encodeURIComponent(texto), '_blank', 'noopener');
-            status.textContent = '¡Te llevamos a WhatsApp para confirmar!';
+            url = '/api/invitacion/${slug}/invitado/' + guestToken + '/rsvp';
+            body = JSON.stringify({ asiste: data.asiste, cantidad: n, nombres: nombres, mensaje: data.mensaje || '' });
           } else {
-            status.textContent = '¡Gracias, confirmamos tu respuesta!';
+            url = '/api/invitacion/${slug}/rsvp';
+            body = JSON.stringify(data);
           }
-          form.reset();
+
+          fetch(url, { method: 'POST', headers: {'Content-Type':'application/json'}, body: body })
+            .then(function(r){ if (!r.ok) throw new Error('bad response'); return r.json(); })
+            .then(function(){
+              status.textContent = '¡Gracias, confirmamos tu asistencia!';
+              if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = updateLabel; }
+              if (!guestToken) { form.reset(); syncAsisteWording(acompInput ? acompInput.value : 1); }
+            })
+            .catch(function(){
+              status.textContent = 'No pudimos guardar tu confirmación, probá de nuevo en un momento.';
+              if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = idleLabel; }
+            });
         });
       })();`,
   };
@@ -264,8 +294,15 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
 const TADI_INSTAGRAM = "tadi.tarjetas"; // sin @
 const TADI_WEBSITE = "tadi.com.ar";
 
+// Marcador HTML antes del zócalo, usado por server.js (injectPhotoWall) para
+// insertar el panel de fotos justo arriba del pie de marca en vez de tener
+// que adivinar dónde termina el contenido propio de cada uno de los ~60
+// diseños — así el panel queda dentro del flujo normal de la tarjeta (no
+// flotante) sin tocar el HTML de cada diseño individual.
+const TADI_FOOTER_MARKER = "<!--tadi-footer-->";
+
 function tadiFooterWidget() {
-  return `<div style="background:#fff;padding:26px 20px 24px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
+  return `${TADI_FOOTER_MARKER}<div style="background:#fff;padding:26px 20px 24px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
     <p style="margin:0 0 12px;font-size:.68rem;letter-spacing:.6px;color:#9a9a9a;">Tarjeta creada en</p>
     <a href="https://${TADI_WEBSITE}" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:12px;">
       <img src="/static/img/logo/tadi-logo-light-bg.svg" alt="TaDi" style="height:20px;width:auto;display:block;">
@@ -316,4 +353,4 @@ function googleCalendarLink({ title, dateISO, time = "12:00", details = "", loca
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-module.exports = { esc, countdownWidget, galleryWidget, rsvpWidget, eventoLabel, formatFechaCorta, tadiFooterWidget, googleCalendarLink };
+module.exports = { esc, countdownWidget, galleryWidget, rsvpWidget, eventoLabel, photoShareLabel, formatFechaCorta, tadiFooterWidget, TADI_FOOTER_MARKER, googleCalendarLink };

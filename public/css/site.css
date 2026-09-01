@@ -246,9 +246,16 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
    horizontal en mobile — mismo HTML/JS, cambia solo el layout por CSS). */
 .panel-shell{display:flex;gap:18px;margin-top:16px;align-items:flex-start;}
 .panel-nav{width:140px;flex:none;display:flex;flex-direction:column;gap:4px;position:sticky;top:24px;}
-.panel-nav-item{display:flex;align-items:center;gap:9px;text-align:left;background:transparent;border:0;border-radius:10px;padding:10px 11px;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;}
+.panel-nav-item{display:flex;align-items:center;gap:9px;text-align:left;background:transparent;border:0;border-left:3px solid transparent;border-radius:10px;padding:10px 12px 10px 9px;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;transition:background-color .16s ease,box-shadow .16s ease,color .16s ease,border-color .16s ease,transform .1s ease;}
 .panel-nav-item .nav-icon{font-size:.95rem;}
-.panel-nav-item.active{background:var(--bg);box-shadow:var(--nu-inset-sm);color:var(--accent-2);}
+.panel-nav-item:hover{background:var(--bg);box-shadow:var(--nu-xs);color:var(--ink);}
+.panel-nav-item:active{transform:scale(.96);}
+.panel-nav-item.active{background:var(--bg);box-shadow:var(--nu-inset-sm);color:var(--accent-2);border-left-color:var(--accent);animation:panelNavSelect .25s ease;}
+@keyframes panelNavSelect{
+  0%{transform:scale(.93);}
+  55%{transform:scale(1.03);}
+  100%{transform:scale(1);}
+}
 .panel-content{flex:1;min-width:0;}
 .panel-section{display:none;}
 .panel-section.active{display:block;}
@@ -381,6 +388,8 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
   .editor-preview-panel iframe{min-height:70vh;}
   .panel-shell{flex-direction:column;gap:12px;}
   .panel-nav{width:100%;flex-direction:row;overflow-x:auto;position:static;gap:6px;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+  .panel-nav-item{border-left:0;border-bottom:3px solid transparent;}
+  .panel-nav-item.active{border-bottom-color:var(--accent);}
   .panel-nav-item{flex:none;white-space:nowrap;}
   .tutorial-hero{padding:40px 20px 0;}
   .tutorial-hero h1{font-size:1.7rem;}

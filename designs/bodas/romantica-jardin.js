@@ -276,11 +276,15 @@ function render(data = {}) {
   .lightbox img{max-width:92%;max-height:85%;border-radius:6px;border:4px solid var(--gold);}
   .lightbox-close{position:absolute;top:20px;right:30px;color:var(--gold-light);font-size:2rem;cursor:pointer;}
 
-  /* RSVP */
+  /* RSVP — envuelto en .dark-card (mismo panel oscuro que "¿Dónde y
+     cuándo?" e "Itinerario") para que el formulario tenga un borde y
+     contraste claros en vez de flotar suelto sobre el fondo crema, que lo
+     dejaba apagado y poco legible. */
   .rsvp-deadline{margin:10px 0 0;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;color:var(--olive-dark);}
-  .rsvp-cols{display:grid;grid-template-columns:1fr 1px 1fr;gap:clamp(20px,4vw,44px);align-items:center;margin-top:30px;text-align:left;}
-  .rsvp-divider{align-self:stretch;background:linear-gradient(var(--cream) 0,var(--gold) 12%,var(--gold) 88%,var(--cream) 100%);opacity:.6;}
-  .rsvp-deco-col{display:flex;align-items:center;justify-content:center;color:var(--gold);}
+  .rsvp-card{margin-top:26px;}
+  .rsvp-cols{display:grid;grid-template-columns:1fr 1px 1fr;gap:clamp(20px,4vw,44px);align-items:center;text-align:left;}
+  .rsvp-divider{align-self:stretch;background:linear-gradient(var(--wine) 0,var(--gold) 12%,var(--gold) 88%,var(--wine) 100%);opacity:.7;}
+  .rsvp-deco-col{display:flex;align-items:center;justify-content:center;color:var(--gold-light);}
   .rsvp-deco-col .sprig{width:min(100%,180px);}
   @media(max-width:640px){
     .rsvp-cols{grid-template-columns:1fr;gap:8px;}
@@ -288,13 +292,16 @@ function render(data = {}) {
     .rsvp-deco-col{display:none;}
   }
   .rsvp-form{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:0 auto;text-align:left;}
-  .rsvp-form label{font-size:.75rem;text-transform:uppercase;letter-spacing:1.3px;color:var(--olive-dark);font-weight:600;}
-  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:'Cormorant Garamond',serif;font-size:1rem;padding:11px 12px;border:1px solid #d8c9a8;border-radius:8px;margin-top:5px;width:100%;background:var(--paper);color:var(--ink);}
+  .rsvp-form label{font-size:.75rem;text-transform:uppercase;letter-spacing:1.3px;color:var(--gold-light);font-weight:600;}
+  .rsvp-form input,.rsvp-form select,.rsvp-form textarea{font-family:'Cormorant Garamond',serif;font-size:1rem;padding:11px 12px;border:1px solid color-mix(in srgb, var(--gold-light) 45%, transparent);border-radius:8px;margin-top:5px;width:100%;background:var(--paper);color:var(--ink);}
   .rsvp-form input:focus,.rsvp-form select:focus,.rsvp-form textarea:focus{outline:2px solid var(--gold);border-color:var(--gold);}
-  .rsvp-form button{background:var(--wine);color:var(--gold-light);border:0;padding:14px;border-radius:30px;letter-spacing:1.6px;text-transform:uppercase;cursor:pointer;font-size:.82rem;font-weight:600;transition:background .2s;}
-  .rsvp-form button:hover{background:var(--wine-light);}
-  .rsvp-whatsapp{display:block;margin-top:14px;font-size:.88rem;color:var(--olive-dark);text-align:center;text-decoration:underline;}
-  .rsvp-status{text-align:center;color:var(--wine);font-weight:600;margin-top:10px;}
+  .rsvp-form button{background:var(--gold);color:var(--wine-deep);border:0;padding:14px;border-radius:30px;letter-spacing:1.6px;text-transform:uppercase;cursor:pointer;font-size:.82rem;font-weight:700;transition:background .2s,transform .12s;}
+  .rsvp-form button:hover{background:var(--gold-light);}
+  .rsvp-form button:active{transform:scale(.97);}
+  .rsvp-form button:disabled{opacity:.7;cursor:default;}
+  .rsvp-guest-intro{color:var(--paper) !important;}
+  .rsvp-whatsapp{display:block;margin-top:14px;font-size:.88rem;color:var(--gold-light);text-align:center;text-decoration:underline;}
+  .rsvp-status{text-align:center;color:var(--gold-light);font-weight:600;margin-top:10px;}
 
   footer{position:relative;text-align:center;padding:56px 20px 44px;color:var(--gold-light);background:linear-gradient(165deg,var(--wine-light),var(--wine) 60%,var(--wine-deep));overflow:hidden;}
   footer::before{content:"";position:absolute;inset:0;background:url('${toileURI}');background-size:260px 260px;opacity:.06;mix-blend-mode:screen;pointer-events:none;}
@@ -399,10 +406,14 @@ function render(data = {}) {
     <p class="eyebrow">Por favor confirmá</p>
     <h2 class="section-title">Confirmar asistencia</h2>
     ${rsvpDeadline ? `<p class="rsvp-deadline">Antes del ${esc(rsvpDeadline)}</p>` : ""}
-    <div class="rsvp-cols">
-      <div class="rsvp-form-col">${rsvp.html}</div>
-      <div class="rsvp-divider" aria-hidden="true"></div>
-      <div class="rsvp-deco-col">${sprigSVG(150, 65, accent)}</div>
+    <div class="dark-card rsvp-card">
+      ${squiggleSVG().replace('class="corner-squiggle"', 'class="corner-squiggle cs-tl"')}
+      <div class="corner-sprig cs-br">${sprigSVG(74, -20, accent)}</div>
+      <div class="rsvp-cols">
+        <div class="rsvp-form-col">${rsvp.html}</div>
+        <div class="rsvp-divider" aria-hidden="true"></div>
+        <div class="rsvp-deco-col">${sprigSVG(150, 65, accent)}</div>
+      </div>
     </div>
   </section>
 

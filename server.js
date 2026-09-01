@@ -16,7 +16,7 @@ const { getDB, saveDB, uid } = require("./db");
 const { categories, designs, getDesign, designsByCategory, isCategoryInSeason, visibleCategories } = require("./designs");
 const mp = require("./mercadopago");
 const mailer = require("./mailer");
-const { eventoLabel, formatFechaCorta } = require("./designs/widgets");
+const { eventoLabel, photoShareLabel, formatFechaCorta, TADI_FOOTER_MARKER } = require("./designs/widgets");
 const pricing = require("./designs/pricing");
 const music = require("./designs/music");
 
@@ -304,54 +304,56 @@ function injectMapEmbed(html, direccionMapa) {
   return html + widget;
 }
 
-// Inserta el botón flotante "📷 Muro" (feature "muro", plan Plus+): un panel
-// con las fotos que ya subieron los invitados + un input para sumar una
-// nueva foto directo desde el link de la invitación (sin login, el slug
-// público es el mismo "permiso" que ya usa el RSVP). Sube por fetch y la
-// agrega al grid al toque, sin recargar la página.
-function injectPhotoWall(html, { slug, photos }) {
-  const grid = (photos || []).map((p) => `<div class="tadi-wall-thumb"><img src="${escapeHtml(p.url)}" loading="lazy"></div>`).join("");
+// Panel de fotos del muro de invitados (feature "muro", plan Plus+): antes
+// era un botón flotante "📷 Fotos" que abría un modal — quedaba feo
+// (una píldora flotando sobre la tarjeta, sin relación visual con el
+// diseño) y desconectado del resto del contenido. Ahora es una sección
+// más, insertada en el flujo normal de la página justo arriba del pie de
+// marca "Tarjeta creada en TaDi" (usando TADI_FOOTER_MARKER que deja
+// tadiFooterWidget) en vez de flotar por encima de todo — funciona igual
+// en los ~60 diseños sin tener que tocar el HTML de cada uno. Estilos
+// 100% inline (independientes de la paleta del diseño, mismo criterio que
+// el pie de marca) y el carrusel de fotos ya subidas es simplemente una
+// tira con scroll horizontal que se va llenando a medida que suben fotos.
+function injectPhotoWall(html, { slug, photos, categoria, datos }) {
+  const conQuien = photoShareLabel(categoria, datos);
+  const thumbs = (photos || []).slice().reverse().map((p) => `<div class="tadi-wall-thumb"><img src="${escapeHtml(p.url)}" loading="lazy"></div>`).join("");
   const widget = `
-    <button type="button" id="tadi-wall-toggle" class="tadi-wall-toggle" aria-label="Ver muro de fotos de invitados">📷 Fotos</button>
-    <div id="tadi-wall-panel" class="tadi-wall-panel" hidden>
-      <div class="tadi-wall-panel-inner">
-        <button type="button" id="tadi-wall-close" class="tadi-wall-close" aria-label="Cerrar muro de fotos">✕</button>
-        <h3 class="tadi-wall-title">Fotos de la fiesta</h3>
-        <p class="tadi-wall-sub">Subí las tuyas para que queden todas juntas.</p>
+    <div class="tadi-wall-section">
+      <div class="tadi-wall-inner">
+        <p class="tadi-wall-eyebrow">📷 Muro de fotos</p>
+        <h3 class="tadi-wall-title">Compartí tus fotos ${escapeHtml(conQuien)}</h3>
+        <p class="tadi-wall-sub">Subí las tuyas y se van sumando acá, para armar entre todos un lindo recuerdo del día.</p>
         <label class="tadi-wall-upload-btn">
           📤 Subir una foto
           <input type="file" accept="image/*" id="tadi-wall-input" hidden>
         </label>
         <p class="tadi-wall-status" id="tadi-wall-status"></p>
-        <div class="tadi-wall-grid" id="tadi-wall-grid">${grid}</div>
+        <div class="tadi-wall-carousel" id="tadi-wall-grid">${thumbs}</div>
+        <p class="tadi-wall-empty" id="tadi-wall-empty" ${thumbs ? "hidden" : ""}>Todavía no hay fotos — ¡subí la primera!</p>
       </div>
     </div>
     <style>
-      .tadi-wall-toggle{position:fixed;left:18px;bottom:74px;z-index:60;background:#eaeef2;color:#33363f;border:0;border-radius:30px;padding:11px 18px;font-size:.8rem;font-weight:700;font-family:'Helvetica Neue',Arial,sans-serif;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
-      .tadi-wall-panel{position:fixed;inset:0;z-index:70;background:rgba(51,54,63,.55);display:flex;align-items:center;justify-content:center;padding:20px;}
-      .tadi-wall-panel[hidden]{display:none;}
-      .tadi-wall-panel-inner{position:relative;background:#eaeef2;border-radius:20px;box-shadow:14px 14px 30px #c5cbd6,-14px -14px 30px #ffffff;width:100%;max-width:640px;max-height:80vh;overflow-y:auto;padding:26px 22px;font-family:'Helvetica Neue',Arial,sans-serif;box-sizing:border-box;}
-      .tadi-wall-close{position:absolute;top:10px;right:10px;background:#eaeef2;color:#33363f;border:0;width:34px;height:34px;border-radius:50%;font-size:1rem;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;cursor:pointer;}
-      .tadi-wall-title{margin:0 0 4px;font-size:1.1rem;color:#33363f;}
-      .tadi-wall-sub{margin:0 0 16px;font-size:.82rem;color:#6d7280;}
-      .tadi-wall-upload-btn{display:inline-flex;align-items:center;gap:8px;background:#ff7a3d;color:#fff;font-weight:700;font-size:.85rem;padding:12px 18px;border-radius:14px;cursor:pointer;box-shadow:5px 5px 12px #c5cbd6,-5px -5px 12px #ffffff;}
+      .tadi-wall-section{background:#f6f3ee;padding:34px 20px;font-family:'Helvetica Neue',Arial,sans-serif;box-sizing:border-box;}
+      .tadi-wall-inner{max-width:560px;margin:0 auto;text-align:center;}
+      .tadi-wall-eyebrow{margin:0 0 6px;font-size:.68rem;letter-spacing:1.6px;text-transform:uppercase;color:#ff7a3d;font-weight:700;}
+      .tadi-wall-title{margin:0 0 6px;font-size:1.2rem;color:#33363f;}
+      .tadi-wall-sub{margin:0 0 18px;font-size:.85rem;color:#6d7280;line-height:1.5;}
+      .tadi-wall-upload-btn{display:inline-flex;align-items:center;gap:8px;background:#ff7a3d;color:#fff;font-weight:700;font-size:.85rem;padding:12px 20px;border-radius:14px;cursor:pointer;box-shadow:5px 5px 12px rgba(0,0,0,.08),-3px -3px 10px #ffffff;}
       .tadi-wall-status{font-size:.78rem;color:#6d7280;margin:10px 0 0;min-height:1.1em;}
-      .tadi-wall-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:16px;}
-      .tadi-wall-thumb{aspect-ratio:1;border-radius:10px;overflow:hidden;background:#dfe3e8;}
+      .tadi-wall-empty{font-size:.8rem;color:#9a9fa8;margin:16px 0 0;font-style:italic;}
+      .tadi-wall-carousel{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;margin-top:18px;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+      .tadi-wall-carousel:empty{margin-top:0;}
+      .tadi-wall-thumb{flex:none;scroll-snap-align:start;width:110px;height:110px;border-radius:12px;overflow:hidden;background:#dfe3e8;box-shadow:0 4px 10px rgba(0,0,0,.08);}
       .tadi-wall-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
     </style>
     <script>
       (function(){
-        var btn = document.getElementById('tadi-wall-toggle');
-        var panel = document.getElementById('tadi-wall-panel');
-        var closeBtn = document.getElementById('tadi-wall-close');
         var input = document.getElementById('tadi-wall-input');
         var grid = document.getElementById('tadi-wall-grid');
+        var empty = document.getElementById('tadi-wall-empty');
         var status = document.getElementById('tadi-wall-status');
-        if(!btn || !panel) return;
-        btn.addEventListener('click', function(){ panel.hidden = false; });
-        closeBtn.addEventListener('click', function(){ panel.hidden = true; });
-        panel.addEventListener('click', function(e){ if (e.target === panel) panel.hidden = true; });
+        if(!input || !grid) return;
         input.addEventListener('change', function(){
           var file = input.files && input.files[0];
           if (!file) return;
@@ -362,6 +364,7 @@ function injectPhotoWall(html, { slug, photos }) {
             .then(function(r){ return r.json(); })
             .then(function(data){
               if (data.error) { status.textContent = data.error; return; }
+              if (empty) empty.hidden = true;
               var div = document.createElement('div');
               div.className = 'tadi-wall-thumb';
               div.innerHTML = '<img src="' + data.url + '" loading="lazy">';
@@ -374,6 +377,7 @@ function injectPhotoWall(html, { slug, photos }) {
       })();
     </script>
   `;
+  if (html.includes(TADI_FOOTER_MARKER)) return html.replace(TADI_FOOTER_MARKER, widget + TADI_FOOTER_MARKER);
   if (html.includes("</body>")) return html.replace("</body>", widget + "</body>");
   return html + widget;
 }
@@ -470,7 +474,7 @@ function renderPublicInvitation(inv, req, guest = null) {
     html = injectBackgroundMusic(html, inv.data.musica);
   }
   if (pricing.hasFeature(design.category, inv.plan, "muro")) {
-    html = injectPhotoWall(html, { slug: inv.slug, photos: inv.muro || [] });
+    html = injectPhotoWall(html, { slug: inv.slug, photos: inv.muro || [], categoria: design.category, datos: inv.data });
   }
   if (pricing.hasFeature(design.category, inv.plan, "video")) {
     html = injectVideoCover(html, inv.data.videoPortada);
@@ -2400,7 +2404,20 @@ app.post("/api/invitacion/:slug/rsvp", (req, res) => {
   const db = getDB();
   const inv = db.invitations.find((i) => i.slug === req.params.slug);
   if (!inv) return res.status(404).json({ error: "no encontrado" });
-  db.rsvps.push({ slug: req.params.slug, ...req.body, createdAt: new Date().toISOString() });
+  // Ahora que "Confirmar asistencia" guarda directo (ya no manda al
+  // visitante a WhatsApp), este guardado pasó a ser la confirmación real
+  // que ve el organizador — así que si la misma persona reenvía el form
+  // (ej. usa el botón "Actualizar mi confirmación" tras cambiar de opinión)
+  // hay que actualizar su fila en vez de acumular una nueva por cada envío.
+  const nombreNorm = String(req.body.nombre || "").trim().toLowerCase();
+  const existente = nombreNorm
+    ? db.rsvps.find((r) => r.slug === req.params.slug && String(r.nombre || "").trim().toLowerCase() === nombreNorm)
+    : null;
+  if (existente) {
+    Object.assign(existente, req.body, { slug: req.params.slug, updatedAt: new Date().toISOString() });
+  } else {
+    db.rsvps.push({ slug: req.params.slug, ...req.body, createdAt: new Date().toISOString() });
+  }
   saveDB(db);
   res.json({ ok: true });
 });
@@ -2558,6 +2575,21 @@ function requireAdminAuth(req, res, next) {
   return res.status(401).send("Autenticación requerida.");
 }
 
+// Une las confirmaciones del RSVP genérico (db.rsvps) con las de los
+// invitados nombrados con link personal (inv.invitadosNombrados[].confirmacion)
+// para que el panel de administrador cuente y liste TODAS las confirmaciones
+// de una invitación, sin importar por cuál de los dos caminos llegaron.
+function allConfirmaciones(db, inv) {
+  if (!inv) return [];
+  const genericas = db.rsvps
+    .filter((r) => r.slug === inv.slug)
+    .map((r) => ({ nombre: r.nombre || "—", asiste: r.asiste, cantidad: r.acompaniantes, menu: r.menu, mensaje: r.mensaje, origen: "link general" }));
+  const nombradas = (inv.invitadosNombrados || [])
+    .filter((g) => g.confirmacion)
+    .map((g) => ({ nombre: (g.confirmacion.nombres || []).filter(Boolean).join(", ") || g.nombre, asiste: g.confirmacion.asiste, cantidad: g.confirmacion.cantidad, mensaje: g.confirmacion.mensaje, origen: "link personal" }));
+  return genericas.concat(nombradas);
+}
+
 function adminLayout({ title, body }) {
   return `<!doctype html>
 <html lang="es"><head>
@@ -2668,7 +2700,12 @@ app.get("/admin", requireAdminAuth, (req, res) => {
     .map(([cat, count]) => `${(categories.find((c) => c.id === cat) || {}).label || cat}: ${count}`)
     .join(" · ") || "—";
 
-  const totalRsvps = db.rsvps.length;
+  // Suma confirmaciones del RSVP genérico + las de invitados con link
+  // personal (ver allConfirmaciones), para que el total no se quede corto
+  // en invitaciones Premium que usan invitados nombrados.
+  const totalRsvps = db.orders
+    .filter((o) => o.status === "paid")
+    .reduce((sum, o) => sum + allConfirmaciones(db, db.invitations.find((i) => i.orderId === o.id)).length, 0);
 
   // Resumen mensual: tarjetas vendidas y facturación por mes (según fecha
   // de pago), más recientes primero.
@@ -2708,7 +2745,7 @@ app.get("/admin", requireAdminAuth, (req, res) => {
     const catLabel = design ? (categories.find((c) => c.id === design.category) || {}).label || design.category : "—";
     const evento = design && inv ? eventoLabel(design.category, inv.data) : "—";
     const fechaEvento = inv && inv.data && inv.data.fecha ? formatFechaCorta(inv.data.fecha) : "";
-    const rsvps = inv ? db.rsvps.filter((r) => r.slug === inv.slug) : [];
+    const rsvps = allConfirmaciones(db, inv);
     const rsvpSi = rsvps.filter((r) => r.asiste !== "no").length;
     const fechaCompra = order.createdAt ? new Date(order.createdAt).toLocaleDateString("es-AR") : "—";
 
@@ -2777,7 +2814,7 @@ app.get("/admin/orders/:id", requireAdminAuth, (req, res) => {
 
   const design = getDesign(order.designId);
   const inv = db.invitations.find((i) => i.orderId === order.id);
-  const rsvps = inv ? db.rsvps.filter((r) => r.slug === inv.slug) : [];
+  const rsvps = allConfirmaciones(db, inv);
   const catLabel = design ? (categories.find((c) => c.id === design.category) || {}).label || design.category : "—";
 
   const fieldsHTML = design && inv
@@ -2788,11 +2825,14 @@ app.get("/admin/orders/:id", requireAdminAuth, (req, res) => {
         </div>`).join("")
     : `<div class="admin-detail-row"><div class="admin-detail-value">Esta orden todavía no tiene una tarjeta cargada (el pago sigue pendiente).</div></div>`;
 
+  // Incluye tanto las confirmaciones del RSVP genérico como las de
+  // invitados con link personal (ver allConfirmaciones) — cada una marcada
+  // con su origen para que se entienda de dónde salió.
   const rsvpsHTML = rsvps.length
     ? rsvps.map((r) => `
         <div class="admin-detail-row">
-          <div class="admin-detail-label">${escapeHtml(r.nombre || "—")}</div>
-          <div class="admin-detail-value">${r.asiste === "no" ? "❌ No asiste" : "✅ Asiste"}${r.acompaniantes ? ` · ${escapeHtml(r.acompaniantes)} persona(s)` : ""}${r.menu ? ` · menú: ${escapeHtml(r.menu)}` : ""}${r.mensaje ? `<br><em>"${escapeHtml(r.mensaje)}"</em>` : ""}</div>
+          <div class="admin-detail-label">${escapeHtml(r.nombre || "—")} <span style="color:var(--muted);font-weight:400;font-size:.72rem;">(${escapeHtml(r.origen)})</span></div>
+          <div class="admin-detail-value">${r.asiste === "no" ? "❌ No asiste" : "✅ Asiste"}${r.cantidad ? ` · ${escapeHtml(String(r.cantidad))} persona(s)` : ""}${r.menu ? ` · menú: ${escapeHtml(r.menu)}` : ""}${r.mensaje ? `<br><em>"${escapeHtml(r.mensaje)}"</em>` : ""}</div>
         </div>`).join("")
     : "";
 
