@@ -17,6 +17,7 @@ const MUSIC_LIBRARY = [
   { id: "mundo-magico", label: "Mundo Mágico", mood: "Encantado y dulce — infantiles" },
   { id: "brindis", label: "Brindis", mood: "Festivo y adulto — cumpleaños" },
   { id: "misterio-halloween", label: "Misterio", mood: "Misterioso y divertido — halloween" },
+  { id: "ecos-nocturnos", label: "Ecos Nocturnos", mood: "Oscuro y tenebroso — halloween" },
   { id: "navidad-dorada", label: "Navidad Dorada", mood: "Cálido y festivo — navidad" },
   { id: "minimal-elegante", label: "Minimal Elegante", mood: "Sobrio y sutil — save the date, bodas modernas" },
 ];
