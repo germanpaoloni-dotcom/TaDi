@@ -428,6 +428,14 @@ function injectVideoCover(html, videoUrl) {
 // cualquiera de los 60+ diseños sin tener que traducir a mano cada uno.
 // Vale la pena avisarle esto al comprador si pregunta por la calidad.
 function injectLanguageToggle(html) {
+  // Estas tarjetas ya traen su propio botón "🌐 EN" (Google Translate
+  // Element manejado a mano). Sin esto, Chrome además ofrece SU propio
+  // cartel de "¿Traducir esta página?" arriba de todo apenas detecta
+  // español en un navegador en inglés — los dos widgets de traducción
+  // quedan superpuestos y se ve roto. notranslate le dice a Chrome que no
+  // se meta en estas páginas puntuales (el resto del sitio, sin este
+  // widget, sigue ofreciendo la traducción automática normal de Chrome).
+  if (html.includes("<head>")) html = html.replace("<head>", `<head><meta name="google" content="notranslate">`);
   const widget = `
     <div id="google_translate_element" style="position:fixed;top:0;left:0;opacity:0;pointer-events:none;height:0;overflow:hidden;"></div>
     <button type="button" id="tadi-lang-toggle" class="tadi-lang-toggle" aria-label="Ver en inglés / View in English">🌐 EN</button>
