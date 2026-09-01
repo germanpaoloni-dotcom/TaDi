@@ -19,6 +19,7 @@ const mailer = require("./mailer");
 const { eventoLabel, photoShareLabel, formatFechaCorta, TADI_FOOTER_MARKER } = require("./designs/widgets");
 const pricing = require("./designs/pricing");
 const music = require("./designs/music");
+const { buildConfirmacionesWorkbook } = require("./excel-export");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -1439,12 +1440,17 @@ function muroModerationHTML(order, inv) {
 
 // Confirmaciones "genéricas" (link público sin nombre, RSVP libre) — antes
 // vivían en una página huérfana sin link (/editar/:token/invitados), ahora
-// se muestran inline en el Panel de tu evento.
-function confirmacionesHTML(db, inv) {
+// se muestran inline en el Panel de tu evento. El botón de Excel baja TODAS
+// las confirmaciones (éstas + las de invitados con link personal, si el
+// plan tiene esa feature — ver allConfirmaciones), no solo las de acá, así
+// el organizador tiene una sola planilla con la lista completa.
+function confirmacionesHTML(db, inv, token) {
   const rsvps = db.rsvps.filter((r) => r.slug === inv.slug);
   const asisten = rsvps.filter((r) => r.asiste !== "no");
+  const totalConfirmaciones = allConfirmaciones(db, inv).length;
   return `<div class="links-section">
     <h2 class="links-section-title">✅ Confirmaciones (${rsvps.length})</h2>
+    ${totalConfirmaciones ? `<a class="btn btn-outline" href="/editar/${escapeHtml(token)}/confirmaciones.xlsx" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-bottom:14px;">📥 Descargar Excel</a><p style="color:var(--muted);font-size:.76rem;margin:-10px 0 14px;">Incluye las confirmaciones del link general y las de invitados con link personal, todas juntas.</p>` : ""}
     ${rsvps.length ? `<p style="color:var(--muted);font-size:.82rem;margin:0 0 12px;">${asisten.length} de ${rsvps.length} confirmaron que van.</p>` : ""}
     ${rsvps.map((r) => `<div class="checkout-row"><span>${escapeHtml(r.nombre || "-")} ${r.acompaniantes ? "(" + escapeHtml(String(r.acompaniantes)) + ")" : ""}</span><strong>${r.asiste === "no" ? "❌ No asiste" : "✅ Asiste"}</strong></div>`).join("") || `<p style="color:var(--muted);font-size:.82rem;">Todavía no hay confirmaciones por el link general.</p>`}
   </div>`;
@@ -1580,7 +1586,7 @@ app.get("/editar/:token", (req, res) => {
         </section>` : ""}
 
         <section class="panel-section" data-section="confirmaciones">
-          ${confirmacionesHTML(db, inv)}
+          ${confirmacionesHTML(db, inv, order.editToken)}
         </section>
 
         ${pricing.hasFeature(design.category, inv.plan, "muro") ? `<section class="panel-section" data-section="fotos">
@@ -2510,6 +2516,34 @@ app.get("/editar/:token/invitados", (req, res) => {
   res.redirect(`/editar/${req.params.token}`);
 });
 
+// Descarga en Excel de la lista de confirmados, con el diseño de marca de
+// TaDi (ver excel-export.js) — junta las confirmaciones del link general y
+// las de invitados con link personal en una sola planilla. Es de lectura,
+// así que se permite incluso con la edición bloqueada (evento ya pasado):
+// el organizador puede seguir necesitando bajar la lista después.
+app.get("/editar/:token/confirmaciones.xlsx", async (req, res) => {
+  const db = getDB();
+  const order = db.orders.find((o) => o.editToken === req.params.token);
+  if (!order || order.status !== "paid") return res.status(404).send("Link no válido.");
+  const design = getDesign(order.designId);
+  const inv = db.invitations.find((i) => i.orderId === order.id);
+  if (!design || !inv) return res.status(404).send("Todavía no hay una tarjeta cargada para esta orden.");
+
+  const evento = eventoLabel(design.category, inv.data);
+  const eventoTitulo = evento.charAt(0).toUpperCase() + evento.slice(1);
+  const confirmaciones = allConfirmaciones(db, inv);
+
+  try {
+    const buffer = await buildConfirmacionesWorkbook({ eventoTitulo, confirmaciones });
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename="confirmaciones-${inv.slug}.xlsx"`);
+    res.send(buffer);
+  } catch (err) {
+    console.error("Error generando el Excel de confirmaciones:", err);
+    res.status(500).send("No se pudo generar el Excel. Probá de nuevo en un momento.");
+  }
+});
+
 // El organizador agrega un invitado nombrado con su cupo de acompañantes
 // (feature "invitadosPersonalizados", plan Premium bodas/xv) — genera el
 // token del link personal acá mismo.
@@ -2583,10 +2617,10 @@ function allConfirmaciones(db, inv) {
   if (!inv) return [];
   const genericas = db.rsvps
     .filter((r) => r.slug === inv.slug)
-    .map((r) => ({ nombre: r.nombre || "—", asiste: r.asiste, cantidad: r.acompaniantes, menu: r.menu, mensaje: r.mensaje, origen: "link general" }));
+    .map((r) => ({ nombre: r.nombre || "—", asiste: r.asiste, cantidad: r.acompaniantes, menu: r.menu, mensaje: r.mensaje, origen: "link general", fecha: r.updatedAt || r.createdAt }));
   const nombradas = (inv.invitadosNombrados || [])
     .filter((g) => g.confirmacion)
-    .map((g) => ({ nombre: (g.confirmacion.nombres || []).filter(Boolean).join(", ") || g.nombre, asiste: g.confirmacion.asiste, cantidad: g.confirmacion.cantidad, mensaje: g.confirmacion.mensaje, origen: "link personal" }));
+    .map((g) => ({ nombre: (g.confirmacion.nombres || []).filter(Boolean).join(", ") || g.nombre, asiste: g.confirmacion.asiste, cantidad: g.confirmacion.cantidad, mensaje: g.confirmacion.mensaje, origen: "link personal", fecha: g.confirmacion.fecha }));
   return genericas.concat(nombradas);
 }
 
