@@ -1438,21 +1438,21 @@ function muroModerationHTML(order, inv) {
   </div>`;
 }
 
-// Confirmaciones "genéricas" (link público sin nombre, RSVP libre) — antes
-// vivían en una página huérfana sin link (/editar/:token/invitados), ahora
-// se muestran inline en el Panel de tu evento. El botón de Excel baja TODAS
-// las confirmaciones (éstas + las de invitados con link personal, si el
-// plan tiene esa feature — ver allConfirmaciones), no solo las de acá, así
-// el organizador tiene una sola planilla con la lista completa.
+// Confirmaciones — junta las del link general (RSVP libre) con las de
+// invitados con link personal (allConfirmaciones) para que el número del
+// título y la lista de acá reflejen TODAS las confirmaciones, no solo las
+// del link general: antes solo contaba db.rsvps, así que una invitación
+// Premium que recibía confirmaciones únicamente por links personales
+// mostraba "Confirmaciones (0)" aunque ya tuviera invitados confirmados.
 function confirmacionesHTML(db, inv, token) {
-  const rsvps = db.rsvps.filter((r) => r.slug === inv.slug);
-  const asisten = rsvps.filter((r) => r.asiste !== "no");
-  const totalConfirmaciones = allConfirmaciones(db, inv).length;
+  const todas = allConfirmaciones(db, inv);
+  const asisten = todas.filter((c) => c.asiste !== "no");
+  const totalPersonas = asisten.reduce((sum, c) => sum + (Number(c.cantidad) || 1), 0);
   return `<div class="links-section">
-    <h2 class="links-section-title">✅ Confirmaciones (${rsvps.length})</h2>
-    ${totalConfirmaciones ? `<a class="btn btn-outline" href="/editar/${escapeHtml(token)}/confirmaciones.xlsx" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-bottom:14px;">📥 Descargar Excel</a><p style="color:var(--muted);font-size:.76rem;margin:-10px 0 14px;">Incluye las confirmaciones del link general y las de invitados con link personal, todas juntas.</p>` : ""}
-    ${rsvps.length ? `<p style="color:var(--muted);font-size:.82rem;margin:0 0 12px;">${asisten.length} de ${rsvps.length} confirmaron que van.</p>` : ""}
-    ${rsvps.map((r) => `<div class="checkout-row"><span>${escapeHtml(r.nombre || "-")} ${r.acompaniantes ? "(" + escapeHtml(String(r.acompaniantes)) + ")" : ""}</span><strong>${r.asiste === "no" ? "❌ No asiste" : "✅ Asiste"}</strong></div>`).join("") || `<p style="color:var(--muted);font-size:.82rem;">Todavía no hay confirmaciones por el link general.</p>`}
+    <h2 class="links-section-title">✅ Confirmaciones (${todas.length})</h2>
+    ${todas.length ? `<a class="btn btn-outline" href="/editar/${escapeHtml(token)}/confirmaciones.xlsx" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-bottom:14px;">📥 Descargar Excel</a><p style="color:var(--muted);font-size:.76rem;margin:-10px 0 14px;">Incluye las confirmaciones del link general y las de invitados con link personal, todas juntas.</p>` : ""}
+    ${todas.length ? `<p style="color:var(--muted);font-size:.82rem;margin:0 0 12px;">${asisten.length} de ${todas.length} confirmaron que van · ${totalPersonas} persona(s) en total.</p>` : ""}
+    ${todas.map((c) => `<div class="checkout-row"><span>${escapeHtml(c.nombre || "-")} ${c.cantidad ? "(" + escapeHtml(String(c.cantidad)) + ")" : ""} <span style="color:var(--muted);font-size:.72rem;">· ${escapeHtml(c.origen)}</span></span><strong>${c.asiste === "no" ? "❌ No asiste" : "✅ Asiste"}</strong></div>`).join("") || `<p style="color:var(--muted);font-size:.82rem;">Todavía no hay confirmaciones.</p>`}
   </div>`;
 }
 
@@ -2531,7 +2531,22 @@ app.get("/editar/:token/confirmaciones.xlsx", async (req, res) => {
 
   const evento = eventoLabel(design.category, inv.data);
   const eventoTitulo = evento.charAt(0).toUpperCase() + evento.slice(1);
-  const confirmaciones = allConfirmaciones(db, inv);
+
+  // El Excel separa por persona: si un invitado con link personal confirmó
+  // para varios (ej. "Juan y Rosa" con nombres ["Juan","Rosa"]), cada uno
+  // va en su propia fila en vez de venir junto en una sola — así se puede
+  // usar la planilla como lista de mesa/ingreso persona por persona. El
+  // RSVP del link general sigue siendo una sola fila por respuesta: ahí
+  // solo tenemos el nombre de quien completó el form más una cantidad de
+  // acompañantes, no el nombre de cada uno.
+  const confirmaciones = [];
+  allConfirmaciones(db, inv).forEach((c) => {
+    if (c.origen === "link personal" && Array.isArray(c.nombres) && c.nombres.length > 1) {
+      c.nombres.forEach((nombreIndividual) => confirmaciones.push({ ...c, nombre: nombreIndividual, cantidad: 1 }));
+    } else {
+      confirmaciones.push(c);
+    }
+  });
 
   try {
     const buffer = await buildConfirmacionesWorkbook({ eventoTitulo, confirmaciones });
@@ -2611,8 +2626,11 @@ function requireAdminAuth(req, res, next) {
 
 // Une las confirmaciones del RSVP genérico (db.rsvps) con las de los
 // invitados nombrados con link personal (inv.invitadosNombrados[].confirmacion)
-// para que el panel de administrador cuente y liste TODAS las confirmaciones
-// de una invitación, sin importar por cuál de los dos caminos llegaron.
+// para que el panel del organizador (y el de administrador) cuenten y
+// listen TODAS las confirmaciones de una invitación, sin importar por cuál
+// de los dos caminos llegaron — "nombres" (array, solo en las de link
+// personal) queda disponible además de "nombre" (ya unido con ", ") para
+// poder separar por persona en el Excel sin tener que reparsear el string.
 function allConfirmaciones(db, inv) {
   if (!inv) return [];
   const genericas = db.rsvps
@@ -2620,7 +2638,10 @@ function allConfirmaciones(db, inv) {
     .map((r) => ({ nombre: r.nombre || "—", asiste: r.asiste, cantidad: r.acompaniantes, menu: r.menu, mensaje: r.mensaje, origen: "link general", fecha: r.updatedAt || r.createdAt }));
   const nombradas = (inv.invitadosNombrados || [])
     .filter((g) => g.confirmacion)
-    .map((g) => ({ nombre: (g.confirmacion.nombres || []).filter(Boolean).join(", ") || g.nombre, asiste: g.confirmacion.asiste, cantidad: g.confirmacion.cantidad, mensaje: g.confirmacion.mensaje, origen: "link personal", fecha: g.confirmacion.fecha }));
+    .map((g) => {
+      const nombresIndividuales = (g.confirmacion.nombres || []).filter(Boolean);
+      return { nombre: nombresIndividuales.join(", ") || g.nombre, nombres: nombresIndividuales, asiste: g.confirmacion.asiste, cantidad: g.confirmacion.cantidad, mensaje: g.confirmacion.mensaje, origen: "link personal", fecha: g.confirmacion.fecha };
+    });
   return genericas.concat(nombradas);
 }
 

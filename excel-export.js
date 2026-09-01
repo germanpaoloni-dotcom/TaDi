@@ -129,8 +129,29 @@ async function buildConfirmacionesWorkbook({ eventoTitulo, confirmaciones }) {
     emptyCell.font = { name: "Calibri", size: 10.5, italic: true, color: { argb: MUTED } };
   }
 
+  // --- Fila de total, destacada, justo debajo de los datos (no solo en el
+  // encabezado de arriba de todo, para que quede visible al pie de la
+  // planilla al mismo tiempo que se está mirando la lista). ---
+  const totalRowIdx = headerRowIdx + Math.max(confirmaciones.length, 1) + 1;
+  const totalRow = sheet.getRow(totalRowIdx);
+  for (let col = 1; col <= cols.length; col++) {
+    const cell = totalRow.getCell(col);
+    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: BG } };
+    cell.border = { top: { style: "medium", color: { argb: ACCENT } } };
+  }
+  sheet.mergeCells(`A${totalRowIdx}:D${totalRowIdx}`);
+  const totalLabelCell = sheet.getCell(`A${totalRowIdx}`);
+  totalLabelCell.value = `Total: ${totalSi} confirmado(s) que van`;
+  totalLabelCell.font = { name: "Calibri", size: 11, bold: true, color: { argb: INK } };
+  sheet.mergeCells(`E${totalRowIdx}:G${totalRowIdx}`);
+  const totalPersonasCell = sheet.getCell(`E${totalRowIdx}`);
+  totalPersonasCell.value = `${totalPersonas} persona(s) en total`;
+  totalPersonasCell.font = { name: "Calibri", size: 11, bold: true, color: { argb: ACCENT_2 } };
+  totalPersonasCell.alignment = { horizontal: "right" };
+  totalRow.height = 20;
+
   // --- Pie: mismo criterio de marca que el zócalo de las tarjetas. ---
-  const footerRowIdx = headerRowIdx + Math.max(confirmaciones.length, 1) + 2;
+  const footerRowIdx = totalRowIdx + 2;
   sheet.mergeCells(`A${footerRowIdx}:G${footerRowIdx}`);
   const footerCell = sheet.getCell(`A${footerRowIdx}`);
   footerCell.value = "Generado con TaDi — tadi.com.ar";
