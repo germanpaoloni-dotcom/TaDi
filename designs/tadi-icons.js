@@ -20,4 +20,6 @@ const pumpkin = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" str
 
 const tree = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 2l4 6H8Z"/><path d="M12 8l5 7H7Z"/><path d="M12 15l6 6H6Z"/><path d="M12 21v-3"/></svg>`;
 
-module.exports = { rings, calendar, partyHat, crown, cake, droplet, pumpkin, tree };
+const cross = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 3v18M6 9h12"/></svg>`;
+
+module.exports = { rings, calendar, partyHat, crown, cake, droplet, pumpkin, tree, cross };
