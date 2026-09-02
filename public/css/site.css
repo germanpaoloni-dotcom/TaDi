@@ -57,7 +57,7 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .orios-home-head h1{margin:0 0 8px;font-size:2rem;font-weight:800;color:var(--ink);letter-spacing:-.5px;}
 .orios-home-head h1 .dot{color:var(--accent);}
 .orios-home-head p{margin:0;color:var(--muted);font-size:.95rem;}
-.home-quickfacts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0 0;font-size:.78rem;font-weight:700;color:var(--accent-2);}
+.home-quickfacts{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:16px auto 0;max-width:440px;background:var(--bg);box-shadow:var(--nu-inset-sm);border-radius:30px;padding:9px 18px;font-size:.74rem;font-weight:700;color:var(--accent-2);}
 .home-quickfacts span:nth-child(even){color:var(--muted);font-weight:400;}
 .how-it-works{max-width:900px;margin:8px auto 0;padding:20px 32px 0;display:flex;align-items:flex-start;justify-content:center;gap:10px;flex-wrap:wrap;}
 .hiw-step{flex:1;min-width:150px;max-width:220px;text-align:center;background:var(--bg);border-radius:16px;box-shadow:var(--nu-xs);padding:16px 12px;}
@@ -66,6 +66,19 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .hiw-step span{display:block;font-size:.72rem;color:var(--muted);line-height:1.4;}
 .hiw-arrow{align-self:center;color:var(--muted);font-size:1.1rem;padding-top:20px;}
 @media (max-width:700px){ .hiw-arrow{display:none;} .how-it-works{gap:10px;} }
+/* En celular las 3 cards completas (con bajada de texto) ocupan demasiado
+   alto arriba de todo — se comprimen en una sola tira neomórfica con
+   numeritos + título corto, sin la bajada, tipo stepper. Las cards con
+   bajada se mantienen tal cual en desktop/tablet, esto solo pisa el look
+   en pantallas chicas. */
+@media (max-width:600px){
+  .how-it-works{background:var(--bg);box-shadow:var(--nu-sm);border-radius:20px;margin:16px 16px 0;padding:12px 6px;gap:2px;flex-wrap:nowrap;align-items:center;}
+  .hiw-step{background:none;box-shadow:none;padding:0;min-width:0;flex:1;max-width:none;}
+  .hiw-step .hiw-desc{display:none;}
+  .hiw-step strong{font-size:.66rem;line-height:1.2;}
+  .hiw-num{width:22px;height:22px;font-size:.68rem;margin-bottom:4px;}
+  .hiw-arrow{display:block;padding-top:0;font-size:.8rem;color:var(--muted);opacity:.55;}
+}
 .orios-home{max-width:1180px;margin:0 auto;padding:36px 32px 8px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
 .orios-panel{position:relative;background:var(--bg);border:0;border-radius:28px;box-shadow:var(--nu-md);padding:26px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:16px;cursor:pointer;font-family:inherit;transition:box-shadow .2s,transform .2s;text-decoration:none;color:inherit;}
 .orios-panel:hover, .orios-panel:focus-visible{box-shadow:var(--nu-lg);transform:translateY(-4px);}
@@ -421,10 +434,14 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 }
 
 @media (max-width: 480px){
-  .orios-home{grid-template-columns:1fr;gap:14px;}
-  .orios-panel{flex-direction:row;text-align:left;padding:14px 16px;}
-  .orios-panel-photo{width:64px;height:64px;flex-shrink:0;}
-  .orios-panel-label{text-align:left;font-size:.95rem;}
+  /* Antes esto pasaba a fila (foto a la izquierda, texto alineado a la
+     izquierda) — quedaba descentrado y cada panel ocupaba casi tanto alto
+     como en tablet. Se mantiene el layout centrado de siempre, achicado a
+     más o menos la mitad, así entran más categorías sin scrollear tanto. */
+  .orios-home{grid-template-columns:1fr;gap:8px;}
+  .orios-panel{flex-direction:column;text-align:center;padding:10px 14px;gap:6px;}
+  .orios-panel-photo{width:52px;height:52px;}
+  .orios-panel-label{text-align:center;font-size:.82rem;}
   header.site{padding:16px 20px;}
   .mega-hero-title, .mini-hero .mega-hero-title{font-size:2.1rem;}
   .mega-hero-ghost, .mini-hero .mega-hero-ghost{font-size:2.6rem;}

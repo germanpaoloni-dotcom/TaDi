@@ -804,11 +804,11 @@ const HOME_QUICKFACTS_HTML = `<div class="home-quickfacts">
 // proceso es autoservicio e instantáneo, pero si no se explica arriba de
 // todo el visitante no lo sabe hasta que ya está probando solo.
 const HOW_IT_WORKS_HTML = `<div class="how-it-works">
-  <div class="hiw-step"><span class="hiw-num">1</span><strong>Elegí tu diseño</strong><span>Mirá la vista previa antes de pagar</span></div>
+  <div class="hiw-step"><span class="hiw-num">1</span><strong>Elegí tu diseño</strong><span class="hiw-desc">Mirá la vista previa antes de pagar</span></div>
   <div class="hiw-arrow">→</div>
-  <div class="hiw-step"><span class="hiw-num">2</span><strong>Personalizalo</strong><span>Cargá tus datos y fotos, se ve al instante</span></div>
+  <div class="hiw-step"><span class="hiw-num">2</span><strong>Personalizalo</strong><span class="hiw-desc">Cargá tus datos y fotos, se ve al instante</span></div>
   <div class="hiw-arrow">→</div>
-  <div class="hiw-step"><span class="hiw-num">3</span><strong>Compartilo</strong><span>Un link por WhatsApp, con RSVP incluido</span></div>
+  <div class="hiw-step"><span class="hiw-num">3</span><strong>Compartilo</strong><span class="hiw-desc">Un link por WhatsApp, con RSVP incluido</span></div>
 </div>`;
 
 // ---------- HOME interactivo: 6 categorías lado a lado, hover con
