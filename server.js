@@ -993,28 +993,28 @@ app.get("/como-funciona", (req, res) => {
   const steps = [
     {
       title: "Entrá a tu link de edición",
+      short: "Apenas se acredita el pago",
       body: "Apenas se acredita el pago te llevamos directo al editor, y además te dejamos un link privado guardado ahí mismo para que puedas volver cuando quieras — no hace falta pagar de nuevo ni pedirlo por otro lado. Conviene guardarlo (por ejemplo, mandártelo a vos mismo por WhatsApp).",
-      img: "paso1-link.png",
     },
     {
       title: "Completá los datos de tu evento",
+      short: "Nombres, fecha, horarios, lugares",
       body: "Nombres, fecha, horarios, lugares, el mensaje para los invitados... a la izquierda vas completando cada campo y a la derecha ves la invitación real actualizarse al instante, tal cual la van a ver tus invitados.",
-      img: "paso2-datos.png",
     },
     {
       title: "Subí tus fotos",
+      short: "Portada y galería",
       body: "Cargá una foto de portada y las que quieras para la galería. Se suben directo desde el celular o la compu, no hace falta redimensionarlas ni nada — nosotros nos encargamos de que se vean bien.",
-      img: "paso3-fotos.png",
     },
     {
       title: "Guardá los cambios",
+      short: "Editá las veces que quieras",
       body: "Cuando quede como te gusta, tocá \"Guardar cambios\". Podés volver a entrar y seguir editando las veces que quieras antes del evento — no hay un único intento.",
-      img: "paso4-guardar.png",
     },
     {
       title: "Compartí el link con tus invitados",
+      short: "Por WhatsApp, con confirmaciones",
       body: "Este es el link público (distinto al de edición) — es el que le mandás a la gente por WhatsApp o donde quieras. Ahí van a poder ver la invitación y confirmar asistencia.",
-      img: "paso5-compartir.png",
     },
   ];
 
@@ -1024,24 +1024,40 @@ app.get("/como-funciona", (req, res) => {
     body: `
     <div class="tutorial-hero">
       <span class="kicker">Guía rápida</span>
-      <h1>Cómo cargar los datos de tu invitación</h1>
-      <p>Después de pagar, tenés que personalizar tu invitación con los datos de tu evento. Son 5 pasos y no lleva más de unos minutos — así funciona.</p>
+      <h1>Así se arma tu invitación</h1>
+      <p>Tocá cada paso para ver el detalle. Son 5 y no lleva más de unos minutos — así funciona.</p>
     </div>
-    <div class="tutorial-steps">
-      ${steps.map((s, i) => `
-        <div class="tutorial-step">
-          <div class="num">${i + 1}</div>
-          <div>
-            <h3>${s.title}</h3>
-            <p>${s.body}</p>
-            <div class="shot"><img src="/static/img/tutorial/${s.img}" alt="${s.title}" loading="lazy"></div>
-          </div>
+    <div class="howfaq-wrap">
+      <div class="howfaq-list" id="howfaqList">
+        ${steps.map((s, i) => `
+        <div class="howfaq-item${i === 0 ? " open" : ""}">
+          <button type="button" class="howfaq-head">
+            <span class="howfaq-badge">${i + 1}</span>
+            <span class="howfaq-title"><b>${s.title}</b><span>${s.short}</span></span>
+            <svg class="howfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="howfaq-body"><p>${s.body}</p></div>
         </div>`).join("")}
+      </div>
+      <a class="btn btn-primary howfaq-cta" href="/">✨ Ver diseños y elegir el mío</a>
     </div>
     <div class="tutorial-cta">
       <p style="color:var(--muted);margin-bottom:16px">¿Ya pagaste y no encontrás tu link de edición? Mirá las <a href="/preguntas-frecuentes">preguntas frecuentes</a> o escribinos y te ayudamos.</p>
       <a class="btn btn-outline" href="/">← Volver al catálogo</a>
-    </div>`,
+    </div>
+    <script>
+      (function(){
+        var items = document.querySelectorAll("#howfaqList .howfaq-item");
+        items.forEach(function(item){
+          var head = item.querySelector(".howfaq-head");
+          head.addEventListener("click", function(){
+            var wasOpen = item.classList.contains("open");
+            items.forEach(function(i){ i.classList.remove("open"); });
+            if (!wasOpen) item.classList.add("open");
+          });
+        });
+      })();
+    </script>`,
   }));
 });
 
