@@ -808,9 +808,10 @@ function colorFilterBarHTML(cat) {
   const allTags = [];
   list2.forEach((d) => extractColorTags(d.summary).forEach((t) => { if (!allTags.includes(t)) allTags.push(t); }));
   if (allTags.length < 2) return "";
+  const allSwatch = "conic-gradient(from 0deg,#d4af37,#4a7c59,#4a7fb5,#e8a2c0,#c1694f,#7a2f3d,#d4af37)";
   return `<div class="color-filter-bar" data-target="${gridId}">
-    <button type="button" class="color-chip active" data-tag="todos" aria-pressed="true">Todos</button>
-    ${allTags.map((t) => `<button type="button" class="color-chip" data-tag="${tagSlug(t)}" aria-pressed="false">${escapeHtml(t)}</button>`).join("")}
+    <button type="button" class="color-chip active" data-tag="todos" aria-pressed="true"><span class="swatch" style="background:${allSwatch}"></span>Todos</button>
+    ${allTags.map((t) => `<button type="button" class="color-chip" data-tag="${tagSlug(t)}" aria-pressed="false"><span class="swatch" style="background:${COLOR_HEX[t] || "#ccc"}"></span>${escapeHtml(t)}</button>`).join("")}
   </div>`;
 }
 
@@ -831,7 +832,7 @@ function categoryFilterSheetHTML(cat, catButtons) {
       <span class="filter-sheet-label">Categoría</span>
       <div class="cat-filter" id="catalogo">${catButtons}</div>
     </div>
-    ${colorBar ? `<div class="filter-sheet-section"><span class="filter-sheet-label">Color</span>${colorBar}</div>` : ""}
+    ${colorBar ? `<div class="filter-sheet-section color-section"><span class="filter-sheet-label">Color</span>${colorBar}</div>` : ""}
   </div>`;
 }
 
@@ -932,8 +933,8 @@ function catalogPage(activeCat) {
     ? visible.concat(categories.filter((c) => c.id === activeCat))
     : visible;
 
-  const catButtons = [`<a href="/" class="${!activeCat ? "active" : ""}">Todos</a>`]
-    .concat(cats.map((c) => `<a href="/categoria/${c.id}" class="${activeCat === c.id ? "active" : ""}">${c.label}</a>`))
+  const catButtons = [`<a href="/" class="${!activeCat ? "active" : ""}" style="--catcolor:${CATALOGO_PILL_COLOR}"><span class="cdot"></span>Todos</a>`]
+    .concat(cats.map((c) => `<a href="/categoria/${c.id}" class="${activeCat === c.id ? "active" : ""}" style="--catcolor:${CATEGORY_COLORS[c.id] || "#e8672e"}"><span class="cdot"></span>${c.label}</a>`))
     .join("");
 
   // HOME (sin categoría activa): selector interactivo de categorías +
@@ -980,6 +981,27 @@ const COLOR_KEYWORDS = [
   ["gris", "Gris"], ["naranja", "Naranja"], ["amarillo", "Amarillo"], ["marrón", "Marrón"],
   ["marron", "Marrón"], ["violeta", "Violeta"], ["fucsia", "Fucsia"],
 ];
+
+// Hex real de cada tag de color — se usa para pintar el puntito ("swatch")
+// de cada chip de color en el filtro del catálogo, así el chip se ve del
+// color que representa en vez de ser un pill genérico igual a los demás.
+const COLOR_HEX = {
+  Dorado: "#d4af37", Negro: "#2b2b2b", Blanco: "#f5f5f0", Verde: "#4a7c59",
+  Rosa: "#e8a2c0", Azul: "#4a7fb5", Vino: "#7a2f3d", Terracota: "#c1694f",
+  Pastel: "#e8c9d8", Plateado: "#b9bec7", Beige: "#d9c7a3", Turquesa: "#3fb8b0",
+  Oliva: "#6b7a3f", Coral: "#e8836a", Lila: "#b39ddb", Celeste: "#8ecae6",
+  Gris: "#9aa0a8", Naranja: "#e8823d", Amarillo: "#f0c93d", Marrón: "#7a5a3a",
+  Violeta: "#7e57c2", Fucsia: "#e0459a",
+};
+// Ídem, pero por categoría — el mismo mapeo de color ya usado en el nav
+// ("pill atardecer"), así el filtro de categoría queda coherente con el
+// resto del sitio en vez de ser un color nuevo inventado acá.
+const CATEGORY_COLORS = {
+  bodas: "#c9a24a", savethedate: "#e0896a", infantiles: "#4fb3a9",
+  xv: "#d68ca0", cumpleanos: "#f2b84b", bautismos: "#8fb2c9",
+  halloween: "#8a5cb8", navidad: "#4a9d6e",
+};
+const CATALOGO_PILL_COLOR = "#8a5a48";
 
 function extractColorTags(text) {
   const t = String(text || "").toLowerCase();
