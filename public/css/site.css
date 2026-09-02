@@ -141,6 +141,19 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .color-chip{padding:7px 15px;border-radius:20px;border:0;background:var(--bg);box-shadow:var(--nu-xs);color:var(--muted);font-size:.76rem;font-family:inherit;cursor:pointer;transition:box-shadow .15s,color .15s;}
 .color-chip:hover{color:var(--ink);}
 .color-chip.active{color:var(--accent-2);box-shadow:var(--nu-inset-sm);font-weight:700;}
+/* En celular angosto, wrappear las 8 categorías + los colores en varias
+   líneas apiladas era lo que hacía "horrible" la primera impresión de
+   /categoria/:id (había que scrollear un montón antes de ver una sola
+   tarjeta). En vez de wrappear, en mobile pasan a una sola fila que se
+   desliza (como el filtro de Instagram/e-commerce) — mismo contenido,
+   una línea de alto en vez de tres. Va DESPUÉS de las reglas base de
+   arriba a propósito: misma especificidad, tiene que ganar por orden. */
+@media (max-width:600px){
+  .cat-filter,.color-filter-bar{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;-webkit-overflow-scrolling:touch;scrollbar-width:none;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent 100%);mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent 100%);}
+  .color-filter-bar{padding-left:18px;padding-right:18px;}
+  .cat-filter::-webkit-scrollbar,.color-filter-bar::-webkit-scrollbar{display:none;}
+  .cat-filter a,.color-chip{flex:0 0 auto;white-space:nowrap;}
+}
 .grid{max-width:1180px;margin:0 auto;padding:20px 32px 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:26px;}
 .design-card{background:var(--bg);border:0;border-radius:var(--radius);box-shadow:var(--nu-sm);overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;}
 .design-card:hover{transform:translateY(-4px);box-shadow:var(--nu-md);}
