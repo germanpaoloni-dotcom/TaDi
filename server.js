@@ -1557,6 +1557,25 @@ function escapeHtml(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+// Íconos de línea para el menú del Panel de tu evento — antes eran emoji
+// (📝✏️💌...), que en la barra inferior fija de mobile (estilo Instagram)
+// quedaban demasiado "de colores" para ese look minimal. SVG de trazo
+// fino (stroke, sin relleno), mismo estilo en las 6: son los únicos
+// lugares que los usan, por eso van inline acá en vez de como archivos
+// aparte.
+function navIcon(name) {
+  const common = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"';
+  const paths = {
+    resumen: `<rect x="5" y="3" width="14" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/>`,
+    editar: `<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>`,
+    invitados: `<path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
+    confirmaciones: `<circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/>`,
+    fotos: `<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.5"/><path d="m21 15-5-5L5 21"/>`,
+    links: `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>`,
+  };
+  return `<svg ${common}>${paths[name] || ""}</svg>`;
+}
+
 // Sección de moderación del muro de invitados dentro del editor: el dueño
 // ve todo lo que subieron sus invitados y puede borrar lo que no
 // corresponda. Solo se muestra si el plan comprado tiene la feature "muro".
@@ -1719,12 +1738,12 @@ app.get("/editar/:token", (req, res) => {
 
     <div class="panel-shell">
       <nav class="panel-nav" id="panelNav">
-        <button type="button" class="panel-nav-item" data-target="resumen"><span class="nav-icon">📝</span><span>Resumen</span></button>
-        <button type="button" class="panel-nav-item" data-target="editar"><span class="nav-icon">✏️</span><span>Editar diseño</span></button>
-        ${hasInvitadosNombrados ? `<button type="button" class="panel-nav-item" data-target="invitados"><span class="nav-icon">💌</span><span>Invitados</span></button>` : ""}
-        <button type="button" class="panel-nav-item" data-target="confirmaciones"><span class="nav-icon">✅</span><span>Confirmaciones</span></button>
-        ${pricing.hasFeature(design.category, inv.plan, "muro") ? `<button type="button" class="panel-nav-item" data-target="fotos"><span class="nav-icon">📷</span><span>Fotos</span></button>` : ""}
-        <button type="button" class="panel-nav-item" data-target="links"><span class="nav-icon">🔗</span><span>Links</span></button>
+        <button type="button" class="panel-nav-item" data-target="resumen"><span class="nav-icon">${navIcon("resumen")}</span><span>Resumen</span></button>
+        <button type="button" class="panel-nav-item" data-target="editar"><span class="nav-icon">${navIcon("editar")}</span><span>Editar diseño</span></button>
+        ${hasInvitadosNombrados ? `<button type="button" class="panel-nav-item" data-target="invitados"><span class="nav-icon">${navIcon("invitados")}</span><span>Invitados</span></button>` : ""}
+        <button type="button" class="panel-nav-item" data-target="confirmaciones"><span class="nav-icon">${navIcon("confirmaciones")}</span><span>Confirmaciones</span></button>
+        ${pricing.hasFeature(design.category, inv.plan, "muro") ? `<button type="button" class="panel-nav-item" data-target="fotos"><span class="nav-icon">${navIcon("fotos")}</span><span>Fotos</span></button>` : ""}
+        <button type="button" class="panel-nav-item" data-target="links"><span class="nav-icon">${navIcon("links")}</span><span>Links</span></button>
       </nav>
 
       <div class="panel-content">

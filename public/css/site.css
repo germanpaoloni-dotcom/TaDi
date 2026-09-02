@@ -273,7 +273,8 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .panel-shell{display:flex;gap:18px;margin-top:16px;align-items:flex-start;}
 .panel-nav{width:140px;flex:none;display:flex;flex-direction:column;gap:4px;position:sticky;top:24px;}
 .panel-nav-item{display:flex;align-items:center;gap:9px;text-align:left;background:transparent;border:0;border-left:3px solid transparent;border-radius:10px;padding:10px 12px 10px 9px;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;transition:background-color .16s ease,box-shadow .16s ease,color .16s ease,border-color .16s ease,transform .1s ease;}
-.panel-nav-item .nav-icon{font-size:.95rem;}
+.panel-nav-item .nav-icon{display:inline-flex;flex-shrink:0;}
+.panel-nav-item .nav-icon svg{display:block;}
 .panel-nav-item:hover{background:var(--bg);box-shadow:var(--nu-xs);color:var(--ink);}
 .panel-nav-item:active{transform:scale(.96);}
 .panel-nav-item.active{background:var(--bg);box-shadow:var(--nu-inset-sm);color:var(--accent-2);border-left-color:var(--accent);animation:panelNavSelect .25s ease;}
@@ -444,6 +445,24 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
   .cat-modal-visual .mega-hero-info{display:none;}
   .cat-modal-catalog{padding:24px 20px;max-height:none;overflow-y:visible;}
   .cat-modal-title{font-size:1.4rem;}
+}
+
+/* Panel de tu evento en celular angosto: la tira de pestañas horizontal
+   (arriba, con texto) quedaba confusa — 6 pestañas con ícono+texto no
+   entraban y se sentía como una lista de botones sueltos, no como
+   navegación. Pasa a una barra flotante fija abajo, solo íconos, look
+   tipo Instagram (barra blanca redondeada, ícono de línea, puntito bajo
+   el activo). Sigue siendo el mismo <nav>/JS de siempre, esto solo cambia
+   el layout en pantallas de celular real (tablet en 900px sigue con la
+   tira arriba, ahí sí entra cómoda). */
+@media (max-width: 600px){
+  .editor-form-panel{padding-bottom:88px;}
+  .panel-nav{position:fixed;left:16px;right:16px;bottom:14px;top:auto;z-index:60;flex-direction:row;width:auto;justify-content:space-around;align-items:center;gap:0;background:#fff;border-radius:24px;box-shadow:0 8px 24px rgba(30,28,34,.18);padding:10px 4px;overflow-x:visible;-webkit-overflow-scrolling:touch;}
+  .panel-nav-item{flex-direction:column;gap:3px;padding:4px 6px;border:0;border-bottom:0;background:none;box-shadow:none;position:relative;color:var(--muted);white-space:normal;}
+  .panel-nav-item span:not(.nav-icon){display:none;}
+  .panel-nav-item:hover{background:none;box-shadow:none;}
+  .panel-nav-item.active{background:none;box-shadow:none;border-left-color:transparent;border-bottom-color:transparent;color:var(--accent);}
+  .panel-nav-item.active::after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent);}
 }
 
 @media (max-width: 480px){
