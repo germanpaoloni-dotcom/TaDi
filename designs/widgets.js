@@ -194,6 +194,7 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
         : (withGuests ? `<label>¿Cuántos asisten? <input name="acompaniantes" type="number" min="1" value="1"></label>` : "")}
       <label><span class="asiste-label-text">¿Asistís?</span> <select name="asiste"><option value="si" class="asiste-si-opt" ${prevConf && prevConf.asiste === "no" ? "" : "selected"}>Sí, ahí estaré</option><option value="no" ${prevConf && prevConf.asiste === "no" ? "selected" : ""}>No voy a poder ir</option></select></label>
       ${withMenu ? `<label>Preferencia de menú <select name="menu"><option value="clasico">Clásico</option><option value="vegetariano">Vegetariano</option><option value="vegano">Vegano</option><option value="celiaco">Sin TACC</option></select></label>` : ""}
+      <label>🎵 Sugerí una canción para la fiesta (opcional) <input name="cancionSugerida" type="text" placeholder="Nombre del tema y artista" value="${prevConf ? esc(prevConf.cancionSugerida || "") : ""}"></label>
       <label>Mensaje (opcional) <textarea name="mensaje" placeholder="¡Les mando un beso!">${prevConf ? esc(prevConf.mensaje || "") : ""}</textarea></label>
       <button type="submit">${prevConf ? "✏️ Actualizar mi confirmación" : btnLabel}</button>
       <p class="rsvp-status" id="${id}-status"></p>
@@ -265,7 +266,7 @@ function rsvpWidget(slug, { withGuests = true, withMenu = false, whatsapp = null
             var nombres = [];
             for (var i = 0; i < n; i++) { nombres.push(data['invitadoNombre' + i] || ''); }
             url = '/api/invitacion/${slug}/invitado/' + guestToken + '/rsvp';
-            body = JSON.stringify({ asiste: data.asiste, cantidad: n, nombres: nombres, mensaje: data.mensaje || '' });
+            body = JSON.stringify({ asiste: data.asiste, cantidad: n, nombres: nombres, mensaje: data.mensaje || '', cancionSugerida: data.cancionSugerida || '' });
           } else {
             url = '/api/invitacion/${slug}/rsvp';
             body = JSON.stringify(data);

@@ -46,6 +46,7 @@ async function buildConfirmacionesWorkbook({ eventoTitulo, confirmaciones }) {
     { header: "Personas", key: "cantidad", width: 12 },
     { header: "Menú", key: "menu", width: 16 },
     { header: "Mensaje", key: "mensaje", width: 42 },
+    { header: "Canción sugerida", key: "cancion", width: 26 },
     { header: "Cómo confirmó", key: "origen", width: 16 },
     { header: "Fecha de confirmación", key: "fecha", width: 22 },
   ];
@@ -64,7 +65,7 @@ async function buildConfirmacionesWorkbook({ eventoTitulo, confirmaciones }) {
   }
 
   // --- Fila 2: título del evento. Fila 3: metadata (generado el ..., total). ---
-  sheet.mergeCells("A2:G2");
+  sheet.mergeCells(`A2:${lastColLetter}2`);
   const tituloCell = sheet.getCell("A2");
   tituloCell.value = `Confirmaciones — ${eventoTitulo}`;
   tituloCell.font = { name: "Calibri", size: 15, bold: true, color: { argb: INK } };
@@ -74,7 +75,7 @@ async function buildConfirmacionesWorkbook({ eventoTitulo, confirmaciones }) {
     .filter((c) => c.asiste !== "no")
     .reduce((sum, c) => sum + (Number(c.cantidad) || 1), 0);
   const totalSi = confirmaciones.filter((c) => c.asiste !== "no").length;
-  sheet.mergeCells("A3:G3");
+  sheet.mergeCells(`A3:${lastColLetter}3`);
   const metaCell = sheet.getCell("A3");
   metaCell.value = `${totalSi} de ${confirmaciones.length} confirmaron que van · ${totalPersonas} persona(s) en total · generado el ${fmtFecha(new Date().toISOString())}`;
   metaCell.font = { name: "Calibri", size: 10, italic: true, color: { argb: MUTED } };
@@ -105,8 +106,9 @@ async function buildConfirmacionesWorkbook({ eventoTitulo, confirmaciones }) {
     r.getCell(3).value = c.cantidad ? Number(c.cantidad) || c.cantidad : "";
     r.getCell(4).value = c.menu ? (MENU_LABELS[c.menu] || c.menu) : "";
     r.getCell(5).value = c.mensaje || "";
-    r.getCell(6).value = c.origen || "";
-    r.getCell(7).value = fmtFecha(c.fecha);
+    r.getCell(6).value = c.cancion || "";
+    r.getCell(7).value = c.origen || "";
+    r.getCell(8).value = fmtFecha(c.fecha);
 
     const zebra = i % 2 === 1;
     r.eachCell({ includeEmpty: true }, (cell, colNumber) => {
@@ -123,7 +125,7 @@ async function buildConfirmacionesWorkbook({ eventoTitulo, confirmaciones }) {
   });
 
   if (!confirmaciones.length) {
-    sheet.mergeCells(`A${headerRowIdx + 1}:G${headerRowIdx + 1}`);
+    sheet.mergeCells(`A${headerRowIdx + 1}:${lastColLetter}${headerRowIdx + 1}`);
     const emptyCell = sheet.getCell(`A${headerRowIdx + 1}`);
     emptyCell.value = "Todavía no hay confirmaciones.";
     emptyCell.font = { name: "Calibri", size: 10.5, italic: true, color: { argb: MUTED } };
@@ -143,7 +145,7 @@ async function buildConfirmacionesWorkbook({ eventoTitulo, confirmaciones }) {
   const totalLabelCell = sheet.getCell(`A${totalRowIdx}`);
   totalLabelCell.value = `Total: ${totalSi} confirmado(s) que van`;
   totalLabelCell.font = { name: "Calibri", size: 11, bold: true, color: { argb: INK } };
-  sheet.mergeCells(`E${totalRowIdx}:G${totalRowIdx}`);
+  sheet.mergeCells(`E${totalRowIdx}:${lastColLetter}${totalRowIdx}`);
   const totalPersonasCell = sheet.getCell(`E${totalRowIdx}`);
   totalPersonasCell.value = `${totalPersonas} persona(s) en total`;
   totalPersonasCell.font = { name: "Calibri", size: 11, bold: true, color: { argb: ACCENT_2 } };
@@ -152,7 +154,7 @@ async function buildConfirmacionesWorkbook({ eventoTitulo, confirmaciones }) {
 
   // --- Pie: mismo criterio de marca que el zócalo de las tarjetas. ---
   const footerRowIdx = totalRowIdx + 2;
-  sheet.mergeCells(`A${footerRowIdx}:G${footerRowIdx}`);
+  sheet.mergeCells(`A${footerRowIdx}:${lastColLetter}${footerRowIdx}`);
   const footerCell = sheet.getCell(`A${footerRowIdx}`);
   footerCell.value = "Generado con TaDi — tadi.com.ar";
   footerCell.font = { name: "Calibri", size: 9, color: { argb: MUTED } };
