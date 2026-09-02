@@ -17,12 +17,33 @@ function getDB() {
           const initial = { orders: [], invitations: [], rsvps: [] };
           fs.writeFileSync(DB_PATH, JSON.stringify(initial, null, 2));
     }
-    return JSON.parse(fs.readFileSync(DB_PATH, "utf-8"));
+    const raw = fs.readFileSync(DB_PATH, "utf-8");
+    try {
+        return JSON.parse(raw);
+    } catch (err) {
+        // Con muchos pedidos en simultáneo (RSVP, subida de fotos, guardado
+        // del editor, etc.) es posible leer el archivo justo en el instante
+        // de una escritura ajena y encontrarlo a medio escribir — eso tiraba
+        // "No encontrado" en cualquier ruta que justo cayera en esa lectura
+        // (el panel, la vista previa, RSVP...). Un reintento a los 20ms
+        // alcanza casi siempre; si tampoco se puede parsear, ahí sí se
+        // deja explotar el error real en vez de devolver una base vacía.
+        const raw2 = fs.readFileSync(DB_PATH, "utf-8");
+        return JSON.parse(raw2);
+    }
 }
 
 function saveDB(db) {
     ensureDataDir();
-    fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+    // Escritura atómica: se escribe a un archivo temporal y se renombra
+    // encima del real. rename() es atómico a nivel de sistema de archivos,
+    // así que una lectura concurrente (getDB) nunca puede encontrar el
+    // archivo a medio escribir — antes con writeFileSync directo sobre
+    // db.json sí podía pasar, y esa lectura corrupta era la causa real del
+    // "No encontrado" intermitente.
+    const tmpPath = DB_PATH + "." + process.pid + "." + Date.now() + ".tmp";
+    fs.writeFileSync(tmpPath, JSON.stringify(db, null, 2));
+    fs.renameSync(tmpPath, DB_PATH);
 }
 
 function uid(prefix) {
