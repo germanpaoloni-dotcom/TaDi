@@ -210,20 +210,33 @@ function injectBackgroundMusic(html, trackId) {
         noteIcon.insertAdjacentHTML('afterend', ${JSON.stringify(barsIcon)});
         var label = btn.querySelector('.tadi-bgm-label');
         var playing = false;
-        btn.addEventListener('click', function(){
-          if (!playing) {
-            audio.volume = 0.55;
-            audio.play().catch(function(){});
+        function start(){
+          if (playing) return;
+          audio.volume = 0.55;
+          audio.play().then(function(){
             label.textContent = 'Pausar';
             btn.classList.add('playing');
             playing = true;
-          } else {
-            audio.pause();
-            label.textContent = 'Música';
-            btn.classList.remove('playing');
-            playing = false;
-          }
-        });
+          }).catch(function(){});
+        }
+        function stop(){
+          audio.pause();
+          label.textContent = 'Música';
+          btn.classList.remove('playing');
+          playing = false;
+        }
+        btn.addEventListener('click', function(){ playing ? stop() : start(); });
+
+        // Los navegadores no dejan arrancar audio con sonido antes de que la
+        // persona interactúe con la página (política de autoplay), así que
+        // "suena apenas abrís la tarjeta" en la práctica es "suena apenas
+        // tocás/scrolleás por primera vez" — enganchamos el primer gesto que
+        // sea (tap, scroll o tecla), no hace falta que toquen el botón de
+        // música puntualmente. El botón sigue sirviendo para pausar/reanudar
+        // después.
+        var autoStartEvents = ['pointerdown', 'touchstart', 'keydown', 'scroll'];
+        function autoStart(){ start(); autoStartEvents.forEach(function(ev){ document.removeEventListener(ev, autoStart); }); }
+        autoStartEvents.forEach(function(ev){ document.addEventListener(ev, autoStart, { once: true, passive: true }); });
       })();
     </script>
   `;
@@ -383,6 +396,36 @@ function injectPhotoWall(html, { slug, photos, categoria, datos }) {
   return html + widget;
 }
 
+// Hospedaje y cómo llegar (feature "logistica", plan Premium bodas/xv) —
+// sección informativa para invitados de afuera, a pedido de comparar con
+// lo que ofrece la competencia (Amo Invitar plan Deluxe). Solo se muestra
+// si el organizador cargó al menos uno de los dos campos, mismo criterio
+// de inyección que el muro de fotos (arriba del zócalo de marca).
+function injectHospedaje(html, { hospedaje, comoLlegar }) {
+  if (!hospedaje && !comoLlegar) return html;
+  const widget = `
+    <div class="tadi-logistica-section">
+      <div class="tadi-logistica-inner">
+        <p class="tadi-logistica-eyebrow">🧳 Para invitados de afuera</p>
+        ${hospedaje ? `<div class="tadi-logistica-block"><h4>Hospedaje sugerido</h4><p>${escapeHtml(hospedaje).replace(/\n/g, "<br>")}</p></div>` : ""}
+        ${comoLlegar ? `<div class="tadi-logistica-block"><h4>Cómo llegar</h4><p>${escapeHtml(comoLlegar).replace(/\n/g, "<br>")}</p></div>` : ""}
+      </div>
+    </div>
+    <style>
+      .tadi-logistica-section{background:#f6f3ee;padding:30px 20px;font-family:'Helvetica Neue',Arial,sans-serif;box-sizing:border-box;}
+      .tadi-logistica-inner{max-width:520px;margin:0 auto;}
+      .tadi-logistica-eyebrow{margin:0 0 16px;font-size:.68rem;letter-spacing:1.6px;text-transform:uppercase;color:#ff7a3d;font-weight:700;text-align:center;}
+      .tadi-logistica-block{background:#fff;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 3px 10px rgba(0,0,0,.05);}
+      .tadi-logistica-block:last-child{margin-bottom:0;}
+      .tadi-logistica-block h4{margin:0 0 6px;font-size:.85rem;color:#33363f;}
+      .tadi-logistica-block p{margin:0;font-size:.82rem;color:#6d7280;line-height:1.5;}
+    </style>
+  `;
+  if (html.includes(TADI_FOOTER_MARKER)) return html.replace(TADI_FOOTER_MARKER, widget + TADI_FOOTER_MARKER);
+  if (html.includes("</body>")) return html.replace("</body>", widget + "</body>");
+  return html + widget;
+}
+
 // Video de portada flotante (feature "video", plan Premium bodas/xv) — se
 // suma arriba de la píldora de música, mismo patrón visual.
 function injectVideoCover(html, videoUrl) {
@@ -487,6 +530,9 @@ function renderPublicInvitation(inv, req, guest = null) {
   }
   if (pricing.hasFeature(design.category, inv.plan, "video")) {
     html = injectVideoCover(html, inv.data.videoPortada);
+  }
+  if (pricing.hasFeature(design.category, inv.plan, "logistica")) {
+    html = injectHospedaje(html, { hospedaje: inv.data.hospedaje, comoLlegar: inv.data.comoLlegar });
   }
   if (pricing.hasFeature(design.category, inv.plan, "multilenguaje") && inv.data.multilenguaje) {
     html = injectLanguageToggle(html);
@@ -627,12 +673,41 @@ ${body}
       });
     });
   })();
+
+  // Chips de filtro por color (catálogo): delegado en document porque hay
+  // varias grillas en la página a la vez (una por categoría, dentro de cada
+  // modal) — un solo listener alcanza para todas.
+  document.addEventListener('click', function(e){
+    var chip = e.target.closest('.color-chip');
+    if (!chip) return;
+    var bar = chip.closest('.color-filter-bar');
+    var grid = bar && document.getElementById(bar.dataset.target);
+    if (!grid) return;
+    bar.querySelectorAll('.color-chip').forEach(function(c){
+      var active = c === chip;
+      c.classList.toggle('active', active);
+      c.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    var tag = chip.dataset.tag;
+    grid.querySelectorAll('.design-card').forEach(function(card){
+      var tags = (card.dataset.tags || '').split(' ');
+      card.style.display = (tag === 'todos' || tags.indexOf(tag) !== -1) ? '' : 'none';
+    });
+  });
 </script>
 </body></html>`;
 }
 
 function money(n) {
   return "$" + Number(n).toLocaleString("es-AR");
+}
+
+// Igual que money(), pero aclarando la moneda — para los precios de cara
+// al público (catálogo, checkout), donde puede haber visitantes de otros
+// países (la competencia también atiende Uruguay) y "$23.900" solo, sin
+// aclarar, se presta a confusión.
+function moneyARS(n) {
+  return money(n) + " ARS";
 }
 
 // ---------- HERO (portada tipo "product drop": foto + aro de acento + textos) ----------
@@ -687,7 +762,17 @@ function categoryGridHTML(cat) {
       <span>Estamos preparando los primeros diseños de ${cat.label.toLowerCase()}.</span>
     </div></div>`;
   }
-  return `<div class="grid">
+  // Filtro rápido por color/paleta — se arma solo con las que efectivamente
+  // aparecen en esta categoría (nada de mostrar chips vacíos), extraídas de
+  // la copy de cada diseño. Con 1 sola no aporta nada, así que no se muestra.
+  const gridId = `cat-grid-${cat.id}`;
+  const allTags = [];
+  list2.forEach((d) => extractColorTags(d.summary).forEach((t) => { if (!allTags.includes(t)) allTags.push(t); }));
+  const chipBar = allTags.length >= 2 ? `<div class="color-filter-bar" data-target="${gridId}">
+    <button type="button" class="color-chip active" data-tag="todos" aria-pressed="true">Todos</button>
+    ${allTags.map((t) => `<button type="button" class="color-chip" data-tag="${tagSlug(t)}" aria-pressed="false">${escapeHtml(t)}</button>`).join("")}
+  </div>` : "";
+  return `${chipBar}<div class="grid" id="${gridId}">
     ${list2.map(cardHTML).join("")}
     <div class="coming-soon">
       <strong>+ Nuevos diseños</strong>
@@ -701,6 +786,26 @@ const TRUST_STRIP_HTML = `<div class="trust-strip">
   <div><span class="trust-icon">✏️</span><strong>Edición ilimitada</strong><span>Cambiá los datos las veces que quieras hasta el evento</span></div>
   <div><span class="trust-icon">⚡</span><strong>Entrega al instante</strong><span>Tu link queda listo apenas se acredita el pago</span></div>
   <div><span class="trust-icon">🎨</span><strong>Catálogo en crecimiento</strong><span>Sumamos diseños nuevos todos los meses</span></div>
+</div>`;
+
+// Franja corta arriba del hero (a diferencia de TRUST_STRIP_HTML, que queda
+// más abajo): lo que más distingue a TaDi de la competencia — precio a la
+// vista y entrega instantánea — tiene que verse antes de elegir categoría,
+// no solo después de scrollear.
+const HOME_QUICKFACTS_HTML = `<div class="home-quickfacts">
+  <span>⚡ Entrega al instante</span><span>·</span><span>💳 Desde ${moneyARS(19900)}</span><span>·</span><span>✏️ Edición ilimitada hasta el evento</span>
+</div>`;
+
+// 3 pasos de "cómo funciona", antes de elegir categoría — la competencia
+// (manual/consultiva) tarda días y esconde el precio hasta cotizar; acá el
+// proceso es autoservicio e instantáneo, pero si no se explica arriba de
+// todo el visitante no lo sabe hasta que ya está probando solo.
+const HOW_IT_WORKS_HTML = `<div class="how-it-works">
+  <div class="hiw-step"><span class="hiw-num">1</span><strong>Elegí tu diseño</strong><span>Mirá la vista previa antes de pagar</span></div>
+  <div class="hiw-arrow">→</div>
+  <div class="hiw-step"><span class="hiw-num">2</span><strong>Personalizalo</strong><span>Cargá tus datos y fotos, se ve al instante</span></div>
+  <div class="hiw-arrow">→</div>
+  <div class="hiw-step"><span class="hiw-num">3</span><strong>Compartilo</strong><span>Un link por WhatsApp, con RSVP incluido</span></div>
 </div>`;
 
 // ---------- HOME interactivo: 6 categorías lado a lado, hover con
@@ -808,7 +913,9 @@ function catalogPage(activeCat) {
         <span class="orios-home-kicker">Catálogo TaDi</span>
         <h1>Elegí tu tarjeta<span class="dot">.</span></h1>
         <p>Diseños digitales para cada ocasión, listos para personalizar en minutos.</p>
+        ${HOME_QUICKFACTS_HTML}
       </div>
+      ${HOW_IT_WORKS_HTML}
       ${oriosHomeHTML(visible)}
       ${TRUST_STRIP_HTML}
       ${categoryModalsHTML(visible)}`,
@@ -834,10 +941,38 @@ function catalogPage(activeCat) {
   });
 }
 
+// Diccionario de palabras de color en español, para extraer "tags" de
+// filtro directo de la copy que cada diseño ya tiene en su summary (sin
+// tener que taggear a mano 60 diseños). Se busca en orden y se devuelve
+// como mucho una vez cada tag, en el orden en que aparecen en el texto.
+const COLOR_KEYWORDS = [
+  ["dorad", "Dorado"], ["negro", "Negro"], ["blanco", "Blanco"], ["verde", "Verde"],
+  ["rosa", "Rosa"], ["azul", "Azul"], ["vino", "Vino"], ["borgo", "Vino"],
+  ["terracota", "Terracota"], ["pastel", "Pastel"], ["plate", "Plateado"],
+  ["beige", "Beige"], ["arena", "Beige"], ["turquesa", "Turquesa"], ["oliva", "Oliva"],
+  ["coral", "Coral"], ["lila", "Lila"], ["lavanda", "Lila"], ["celeste", "Celeste"],
+  ["gris", "Gris"], ["naranja", "Naranja"], ["amarillo", "Amarillo"], ["marrón", "Marrón"],
+  ["marron", "Marrón"], ["violeta", "Violeta"], ["fucsia", "Fucsia"],
+];
+
+function extractColorTags(text) {
+  const t = String(text || "").toLowerCase();
+  const found = [];
+  for (const [kw, label] of COLOR_KEYWORDS) {
+    if (t.includes(kw) && !found.includes(label)) found.push(label);
+  }
+  return found;
+}
+
+function tagSlug(s) {
+  return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-");
+}
+
 function cardHTML(d) {
   const cat = categories.find((c) => c.id === d.category);
   const isFlagship = cat.flagshipDesign === d.id;
-  return `<div class="design-card">
+  const tags = extractColorTags(d.summary);
+  return `<div class="design-card" data-tags="${tags.map(tagSlug).join(" ")}">
     <div class="swatch" style="background:linear-gradient(135deg, ${d.accent}, ${d.accent2 || d.accent})">
       ${isFlagship ? `<span class="badge-fav">★ Más elegido</span>` : ""}
       ${typeof d.cardPreview === "function" ? d.cardPreview(d) : d.name}
@@ -846,10 +981,10 @@ function cardHTML(d) {
       <span class="cat-tag">${cat.label}</span>
       <h3>${d.name}</h3>
       <p>${d.summary}</p>
-      <span class="price-tag">Desde ${money(pricing.defaultPlan(cat.id).price)}</span>
+      <span class="price-tag">Desde ${moneyARS(pricing.defaultPlan(cat.id).price)}</span>
       <div class="actions">
-        <a class="btn btn-outline" href="/demo/${d.id}">Ver demo</a>
-        <a class="btn btn-primary" href="/checkout/${d.id}">Elegir</a>
+        <a class="btn btn-primary" href="/demo/${d.id}">Ver demo</a>
+        <a class="btn btn-outline" href="/checkout/${d.id}">Elegir</a>
       </div>
     </div>
   </div>`;
@@ -1061,6 +1196,23 @@ const DEMO_BACK_BUTTON = `<a href="/" onclick="if(window.history.length>1){histo
   background:#fff;color:#222;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:.82rem;
   font-weight:600;padding:9px 16px 9px 12px;border-radius:30px;box-shadow:0 3px 12px rgba(0,0,0,.22);">← Volver</a>`;
 
+// Barra fija abajo en el demo con el CTA de compra — antes, para elegir un
+// diseño después de mirar la vista previa había que volver atrás y buscar
+// de nuevo el botón "Elegir" en la grilla del catálogo.
+function demoCtaBarHTML(design) {
+  const plan = pricing.defaultPlan(design.category);
+  return `<div style="position:fixed;left:0;right:0;bottom:0;z-index:9999;display:flex;align-items:center;
+    justify-content:space-between;gap:14px;background:#fff;padding:12px 16px;
+    box-shadow:0 -4px 16px rgba(0,0,0,.14);font-family:Arial,Helvetica,sans-serif;box-sizing:border-box;">
+    <div style="min-width:0;">
+      <strong style="display:block;font-size:.85rem;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(design.name)}</strong>
+      <span style="font-size:.76rem;color:#777;">Desde ${moneyARS(plan.price)}</span>
+    </div>
+    <a href="/checkout/${design.id}" style="flex:none;background:#ff7a3d;color:#fff;text-decoration:none;
+      font-weight:700;font-size:.86rem;padding:12px 20px;border-radius:14px;white-space:nowrap;">Elegir este diseño</a>
+  </div>`;
+}
+
 // ---------- DEMO (preview con datos de ejemplo) ----------
 app.get("/demo/:designId", (req, res) => {
   const design = getDesign(req.params.designId);
@@ -1073,7 +1225,9 @@ app.get("/demo/:designId", (req, res) => {
     image: design.sampleData.coverImage,
     description: `Diseño "${design.name}" de TaDi — mirá cómo queda antes de elegirlo.`,
   });
-  res.send(html.replace("<body>", "<body>" + DEMO_BACK_BUTTON));
+  html = html.replace("<body>", "<body>" + DEMO_BACK_BUTTON);
+  html = html.includes("</body>") ? html.replace("</body>", demoCtaBarHTML(design) + "</body>") : html + demoCtaBarHTML(design);
+  res.send(html);
 });
 
 // ---------- CHECKOUT ----------
@@ -1090,7 +1244,7 @@ function planCardsHTML(catId, selectedPlanId) {
           <span class="plan-card-name">${p.label}</span>
           ${isRecommended ? `<span class="plan-card-flag">Recomendado</span>` : ""}
         </div>
-        <div class="plan-card-price">${money(p.price)}</div>
+        <div class="plan-card-price">${moneyARS(p.price)}</div>
         <p class="plan-card-tagline">${p.tagline}</p>
         <ul class="plan-card-includes">
           ${p.includes.map((item) => `<li>${item}</li>`).join("")}
@@ -1109,6 +1263,7 @@ app.get("/checkout/:designId", (req, res) => {
     body: `<div class="checkout-wrap" style="max-width:720px">
       <h1>Estás por elegir: ${design.name}</h1>
       <p style="color:var(--muted)">${design.summary}</p>
+      <p style="margin:0 0 20px;"><a href="/demo/${design.id}">← Ver el diseño completo antes de pagar</a></p>
       <div class="checkout-row"><span>Diseño</span><strong>${design.name}</strong></div>
       <div class="checkout-row"><span>Categoría</span><strong>${categories.find((c) => c.id === design.category).label}</strong></div>
 
@@ -1116,7 +1271,7 @@ app.get("/checkout/:designId", (req, res) => {
       <form method="POST" action="/api/orders" id="checkout-form">
         <input type="hidden" name="designId" value="${design.id}">
         ${planCardsHTML(design.category, defaultPlan.id)}
-        <div class="checkout-price" id="checkout-total">${money(defaultPlan.price)}</div>
+        <div class="checkout-price" id="checkout-total">${moneyARS(defaultPlan.price)}</div>
         <div class="field" style="margin-bottom:16px;text-align:left;">
           <label for="checkout-email">Tu email</label>
           <input type="email" id="checkout-email" name="email" required placeholder="tu@email.com"
@@ -1133,14 +1288,13 @@ app.get("/checkout/:designId", (req, res) => {
       ${BUSINESS_LEGAL_NAME ? `<p class="checkout-trust">Vendido por ${BUSINESS_LEGAL_NAME}${BUSINESS_CUIT ? ` (CUIT ${BUSINESS_CUIT})` : ""}.</p>` : ""}
       <p class="checkout-trust">¿Dudas antes de pagar? Mirá las <a href="/preguntas-frecuentes">preguntas frecuentes</a>${SUPPORT_WHATSAPP ? ` o <a href="https://wa.me/${SUPPORT_WHATSAPP}" target="_blank">escribinos por WhatsApp</a>` : ""}.</p>
       ${!mp.isConfigured() ? `<div class="demo-note">Modo demo: no hay credenciales de Mercado Pago cargadas, así que el pago se simula como aprobado al instante para que puedas probar todo el flujo. Para cobrar de verdad, cargá <code>MP_ACCESS_TOKEN</code> (ver README).</div>` : ""}
-      <p style="margin-top:16px"><a href="/demo/${design.id}">← Ver el diseño antes de pagar</a></p>
     </div>
     <script>
       (function(){
         var form = document.getElementById('checkout-form');
         var total = document.getElementById('checkout-total');
         var radios = form.querySelectorAll('input[name="plan"]');
-        function fmt(n){ return '$' + Number(n).toLocaleString('es-AR'); }
+        function fmt(n){ return '$' + Number(n).toLocaleString('es-AR') + ' ARS'; }
         radios.forEach(function(r){
           r.addEventListener('change', function(){
             radios.forEach(function(other){ other.closest('.plan-card').classList.toggle('selected', other.checked); });
@@ -1460,7 +1614,7 @@ function confirmacionesHTML(db, inv, token) {
     <h2 class="links-section-title">✅ Confirmaciones (${todas.length})</h2>
     ${todas.length ? `<a class="btn btn-outline" href="/editar/${escapeHtml(token)}/confirmaciones.xlsx" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-bottom:14px;">📥 Descargar Excel</a><p style="color:var(--muted);font-size:.76rem;margin:-10px 0 14px;">Incluye las confirmaciones del link general y las de invitados con link personal, todas juntas.</p>` : ""}
     ${todas.length ? `<p style="color:var(--muted);font-size:.82rem;margin:0 0 12px;">${asisten.length} de ${todas.length} confirmaron que van · ${totalPersonas} persona(s) en total.</p>` : ""}
-    ${todas.map((c) => `<div class="checkout-row"><span>${escapeHtml(c.nombre || "-")} ${c.cantidad ? "(" + escapeHtml(String(c.cantidad)) + ")" : ""} <span style="color:var(--muted);font-size:.72rem;">· ${escapeHtml(c.origen)}</span></span><strong>${c.asiste === "no" ? "❌ No asiste" : "✅ Asiste"}</strong></div>`).join("") || `<p style="color:var(--muted);font-size:.82rem;">Todavía no hay confirmaciones.</p>`}
+    ${todas.map((c) => `<div class="checkout-row" style="align-items:flex-start;"><span>${escapeHtml(c.nombre || "-")} ${c.cantidad ? "(" + escapeHtml(String(c.cantidad)) + ")" : ""} <span style="color:var(--muted);font-size:.72rem;">· ${escapeHtml(c.origen)}</span>${c.cancion ? `<br><span style="color:var(--accent-2);font-size:.74rem;">🎵 ${escapeHtml(c.cancion)}</span>` : ""}</span><strong>${c.asiste === "no" ? "❌ No asiste" : "✅ Asiste"}</strong></div>`).join("") || `<p style="color:var(--muted);font-size:.82rem;">Todavía no hay confirmaciones.</p>`}
   </div>`;
 }
 
@@ -1508,6 +1662,35 @@ function invitadosPersonalizadosHTML(order, inv, req, design) {
         </div>`;
       }).join("") : `<p style="color:var(--muted);font-size:.82rem;">Todavía no cargaste ningún invitado.</p>`}
     </div>
+  </div>`;
+}
+
+// Checklist de "te falta completar" en la pestaña Resumen — antes esa
+// pestaña quedaba vacía (mucho espacio en blanco) sin guiar a alguien que
+// recién entra por primera vez sobre por dónde arrancar. Se arma con los
+// campos obligatorios del schema del plan más un par de opcionales que
+// valen la pena (portada, galería, ubicación, música si el plan la tiene).
+function panelChecklistHTML(design, inv) {
+  const schema = schemaForPlan(design, inv.plan);
+  const importantNames = ["coverImage", "galeria", "musica"];
+  const items = schema.filter((f) => f.required || importantNames.includes(f.name));
+  const locField = schema.find((f) => ["lugar", "lugarFiesta"].includes(f.name));
+  if (locField && !items.includes(locField)) items.push(locField);
+  if (!items.length) return "";
+  const withStatus = items.map((f) => {
+    const v = inv.data[f.name];
+    const done = Array.isArray(v) ? v.length > 0 : Boolean(v && String(v).trim());
+    const label = f.label.replace(/\s*\(opcional\)/i, "").replace(/\s*—.*$/, "");
+    return { label, done };
+  });
+  const doneCount = withStatus.filter((i) => i.done).length;
+  const pct = Math.round((100 * doneCount) / withStatus.length);
+  return `<div class="panel-checklist">
+    <div class="panel-checklist-head"><strong>Te falta completar</strong><span>${doneCount}/${withStatus.length}</span></div>
+    <div class="panel-checklist-bar"><div class="panel-checklist-fill" style="width:${pct}%"></div></div>
+    <ul class="panel-checklist-list">
+      ${withStatus.map((i) => `<li class="${i.done ? "done" : ""}">${i.done ? "✅" : "⬜"} ${escapeHtml(i.label)}</li>`).join("")}
+    </ul>
   </div>`;
 }
 
@@ -1570,6 +1753,7 @@ app.get("/editar/:token", (req, res) => {
 
       <div class="panel-content">
         <section class="panel-section" data-section="resumen">
+          ${panelChecklistHTML(design, inv)}
           <div class="panel-stat-row">
             <div class="panel-stat-tile"><div class="panel-stat-num">${personasConfirmadas}</div><div class="panel-stat-label">Personas confirmadas</div></div>
             ${hasInvitadosNombrados ? `<div class="panel-stat-tile"><div class="panel-stat-num">${invitadosPendientes}</div><div class="panel-stat-label">Invitados pendientes</div></div>` : `<div class="panel-stat-tile"><div class="panel-stat-num">${rsvpsGenericos.length}</div><div class="panel-stat-label">Confirmaciones</div></div>`}
@@ -1640,8 +1824,14 @@ app.get("/editar/:token", (req, res) => {
       <p class="finish-hint" id="finishHint">Guarda los cambios y te manda tus links por mail.</p>
     </div>
   </div>
-  <div class="editor-preview-panel">
-    <iframe id="preview" src="/preview/${order.editToken}"></iframe>
+  <div class="editor-preview-panel" id="previewPanel">
+    <div class="preview-device-toggle">
+      <button type="button" class="preview-device-btn active" data-device="mobile" aria-pressed="true">📱 Celular</button>
+      <button type="button" class="preview-device-btn" data-device="desktop" aria-pressed="false">🖥️ Escritorio</button>
+    </div>
+    <div class="preview-frame-wrap">
+      <iframe id="preview" src="/preview/${order.editToken}"></iframe>
+    </div>
   </div>
 </div>
 <script>
@@ -1673,6 +1863,22 @@ app.get("/editar/:token", (req, res) => {
       });
     });
     activate((window.location.hash || '#resumen').slice(1));
+  })();
+
+  // Toggle 📱/🖥️ de la vista previa: por default se ve como celular, que es
+  // como la va a abrir casi cualquier invitado (el link se comparte por
+  // WhatsApp) — antes solo se veía en ancho de escritorio y quien edita
+  // nunca terminaba de ver cómo le queda a la gente que la recibe.
+  (function(){
+    var panel = document.getElementById('previewPanel');
+    var btns = document.querySelectorAll('.preview-device-btn');
+    if (!panel || !btns.length) return;
+    btns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        btns.forEach(function(b){ b.classList.toggle('active', b === btn); b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+        panel.classList.toggle('device-desktop', btn.dataset.device === 'desktop');
+      });
+    });
   })();
 
   // Al hacer foco en un campo de texto (click o Tab), selecciona todo el
@@ -2408,6 +2614,7 @@ app.post("/api/invitacion/:slug/invitado/:guestToken/rsvp", (req, res) => {
     cantidad,
     nombres,
     mensaje: String(req.body.mensaje || "").slice(0, 500),
+    cancionSugerida: String(req.body.cancionSugerida || "").slice(0, 200),
     fecha: new Date().toISOString(),
   };
   saveDB(db);
@@ -2643,12 +2850,12 @@ function allConfirmaciones(db, inv) {
   if (!inv) return [];
   const genericas = db.rsvps
     .filter((r) => r.slug === inv.slug)
-    .map((r) => ({ nombre: r.nombre || "—", asiste: r.asiste, cantidad: r.acompaniantes, menu: r.menu, mensaje: r.mensaje, origen: "link general", fecha: r.updatedAt || r.createdAt }));
+    .map((r) => ({ nombre: r.nombre || "—", asiste: r.asiste, cantidad: r.acompaniantes, menu: r.menu, mensaje: r.mensaje, cancion: r.cancionSugerida, origen: "link general", fecha: r.updatedAt || r.createdAt }));
   const nombradas = (inv.invitadosNombrados || [])
     .filter((g) => g.confirmacion)
     .map((g) => {
       const nombresIndividuales = (g.confirmacion.nombres || []).filter(Boolean);
-      return { nombre: nombresIndividuales.join(", ") || g.nombre, nombres: nombresIndividuales, asiste: g.confirmacion.asiste, cantidad: g.confirmacion.cantidad, mensaje: g.confirmacion.mensaje, origen: "link personal", fecha: g.confirmacion.fecha };
+      return { nombre: nombresIndividuales.join(", ") || g.nombre, nombres: nombresIndividuales, asiste: g.confirmacion.asiste, cantidad: g.confirmacion.cantidad, mensaje: g.confirmacion.mensaje, cancion: g.confirmacion.cancionSugerida, origen: "link personal", fecha: g.confirmacion.fecha };
     });
   return genericas.concat(nombradas);
 }

@@ -94,13 +94,14 @@ const PREMIUM_TIER = {
   label: "Premium",
   price: 36900,
   tagline: "La versión completa, sin límites.",
-  features: ["musica", "mapa", "muro", "alias", "video", "multilenguaje", "invitadosPersonalizados"],
+  features: ["musica", "mapa", "muro", "alias", "video", "multilenguaje", "invitadosPersonalizados", "logistica"],
   includes: [
     "Todo lo del plan Plus",
     "Alias personalizado en la URL (tadi.com.ar/tu-nombre)",
     "Video de portada",
     "Invitación en 2 idiomas (español + inglés)",
     "Invitaciones nombradas con link personal y cupo de acompañantes por invitado",
+    "Info de hospedaje y cómo llegar para invitados de afuera",
   ],
 };
 

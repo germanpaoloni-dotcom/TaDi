@@ -49,6 +49,15 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .orios-home-head h1{margin:0 0 8px;font-size:2rem;font-weight:800;color:var(--ink);letter-spacing:-.5px;}
 .orios-home-head h1 .dot{color:var(--accent);}
 .orios-home-head p{margin:0;color:var(--muted);font-size:.95rem;}
+.home-quickfacts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0 0;font-size:.78rem;font-weight:700;color:var(--accent-2);}
+.home-quickfacts span:nth-child(even){color:var(--muted);font-weight:400;}
+.how-it-works{max-width:900px;margin:8px auto 0;padding:20px 32px 0;display:flex;align-items:flex-start;justify-content:center;gap:10px;flex-wrap:wrap;}
+.hiw-step{flex:1;min-width:150px;max-width:220px;text-align:center;background:var(--bg);border-radius:16px;box-shadow:var(--nu-xs);padding:16px 12px;}
+.hiw-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:.8rem;margin-bottom:8px;}
+.hiw-step strong{display:block;font-size:.86rem;color:var(--ink);margin-bottom:3px;}
+.hiw-step span{display:block;font-size:.72rem;color:var(--muted);line-height:1.4;}
+.hiw-arrow{align-self:center;color:var(--muted);font-size:1.1rem;padding-top:20px;}
+@media (max-width:700px){ .hiw-arrow{display:none;} .how-it-works{gap:10px;} }
 .orios-home{max-width:1180px;margin:0 auto;padding:36px 32px 8px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
 .orios-panel{position:relative;background:var(--bg);border:0;border-radius:28px;box-shadow:var(--nu-md);padding:26px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:16px;cursor:pointer;font-family:inherit;transition:box-shadow .2s,transform .2s;}
 .orios-panel:hover, .orios-panel:focus-visible{box-shadow:var(--nu-lg);transform:translateY(-4px);}
@@ -159,10 +168,18 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .cat-filter a{padding:9px 18px;border-radius:20px;text-decoration:none;color:var(--muted);font-size:.82rem;background:var(--bg);box-shadow:var(--nu-xs);letter-spacing:.5px;transition:box-shadow .15s,color .15s;}
 .cat-filter a:hover{color:var(--ink);}
 .cat-filter a.active{color:var(--accent-2);box-shadow:var(--nu-inset-sm);font-weight:700;}
+.color-filter-bar{display:flex;gap:8px;flex-wrap:wrap;max-width:1180px;margin:0 auto 18px;padding:0 32px;}
+.color-chip{padding:7px 15px;border-radius:20px;border:0;background:var(--bg);box-shadow:var(--nu-xs);color:var(--muted);font-size:.76rem;font-family:inherit;cursor:pointer;transition:box-shadow .15s,color .15s;}
+.color-chip:hover{color:var(--ink);}
+.color-chip.active{color:var(--accent-2);box-shadow:var(--nu-inset-sm);font-weight:700;}
 .grid{max-width:1180px;margin:0 auto;padding:20px 32px 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:26px;}
 .design-card{background:var(--bg);border:0;border-radius:var(--radius);box-shadow:var(--nu-sm);overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;}
 .design-card:hover{transform:translateY(-4px);box-shadow:var(--nu-md);}
 .design-card .swatch{position:relative;height:130px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.05rem;text-align:center;padding:10px;}
+/* Marquito tipo "pantalla de celular" sobre el preview — nod visual a que
+   la tarjeta se abre y se ve en el teléfono, sin rehacer el preview interno
+   de cada uno de los diseños (cardPreview ya viene armado por diseño). */
+.design-card .swatch::before{content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);width:54px;height:14px;background:rgba(0,0,0,.28);border-radius:10px;z-index:3;pointer-events:none;}
 .badge-fav{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.85);backdrop-filter:blur(3px);color:var(--ink);font-size:.66rem;font-weight:700;letter-spacing:.4px;padding:5px 10px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:2;}
 
 /* Preview de lujo (verde mármol + dorado) para las tarjetas del catálogo
@@ -239,7 +256,22 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .editor-wrap{display:flex;gap:0;min-height:100vh;background:var(--bg);}
 .editor-form-panel{width:560px;min-width:340px;background:var(--bg);box-shadow:6px 0 20px -10px var(--sh-dark);padding:24px;overflow-y:auto;height:100vh;position:sticky;top:0;}
 .editor-preview-panel{flex:1;background:#dde1e6;display:flex;flex-direction:column;}
+.preview-device-toggle{flex:none;display:flex;justify-content:center;gap:8px;padding:12px;background:#dde1e6;}
+.preview-device-btn{background:#fff;border:0;border-radius:20px;padding:8px 16px;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;box-shadow:var(--nu-xs);}
+.preview-device-btn.active{color:var(--accent-2);box-shadow:inset 3px 3px 7px rgba(0,0,0,.12);}
+.preview-frame-wrap{flex:1;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:0 0 20px;box-sizing:border-box;}
 .editor-preview-panel iframe{flex:1;border:0;width:100%;background:#fff;}
+.editor-preview-panel .preview-frame-wrap iframe{flex:none;width:min(390px,100%);height:100%;min-height:760px;border-radius:28px;box-shadow:0 12px 34px rgba(0,0,0,.22);margin-top:20px;}
+.editor-preview-panel.device-desktop .preview-frame-wrap{align-items:stretch;padding:0;}
+.editor-preview-panel.device-desktop .preview-frame-wrap iframe{width:100%;height:100%;min-height:0;border-radius:0;box-shadow:none;margin-top:0;}
+.panel-checklist{background:var(--bg);box-shadow:var(--nu-sm);border-radius:14px;padding:14px 16px;margin-bottom:16px;}
+.panel-checklist-head{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--ink);margin-bottom:8px;}
+.panel-checklist-head span{color:var(--accent-2);font-weight:800;}
+.panel-checklist-bar{height:6px;background:var(--bg);box-shadow:var(--nu-inset-sm);border-radius:3px;overflow:hidden;margin-bottom:10px;}
+.panel-checklist-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .25s ease;}
+.panel-checklist-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+.panel-checklist-list li{font-size:.78rem;color:var(--muted);}
+.panel-checklist-list li.done{color:var(--ink);text-decoration:line-through;opacity:.7;}
 .editor-form-panel h1{font-size:1.2rem;color:var(--ink);}
 
 /* Panel de tu evento: nav lateral (sidebar en desktop, tira de pestañas
