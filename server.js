@@ -861,24 +861,54 @@ const TRUST_STRIP_HTML = `<div class="trust-strip">
   <div><span class="trust-icon">🎨</span><strong>Catálogo en crecimiento</strong><span>Sumamos diseños nuevos todos los meses</span></div>
 </div>`;
 
+// Variante de TRUST_STRIP_HTML solo para el home: "Edición ilimitada" y
+// "Entrega al instante" ya se muestran arriba de todo en HOME_QUICKFACTS_HTML
+// (más visible, con ícono propio), así que repetirlas acá abajo se lee como
+// error/duplicado. Se reemplazan por 2 datos que no están en ningún otro
+// lado de la página, para que la franja siga con 4 items (mismo grid) en
+// vez de quedar corta con solo 2.
+const TRUST_STRIP_HOME_HTML = `<div class="trust-strip">
+  <div><span class="trust-icon">🔒</span><strong>Pago seguro</strong><span>En cuotas según tu banco</span><span class="mp-chip">con <b>Mercado</b><b class="mp-blue">Pago</b></span></div>
+  <div><span class="trust-icon">💌</span><strong>RSVP incluido</strong><span>Tus invitados confirman asistencia con un click, sin apps ni registros</span></div>
+  <div><span class="trust-icon">💬</span><strong>Compartilo por WhatsApp</strong><span>Un link para mandar a todos tus invitados, sin imprimir nada</span></div>
+  <div><span class="trust-icon">🎨</span><strong>Catálogo en crecimiento</strong><span>Sumamos diseños nuevos todos los meses</span></div>
+</div>`;
+
+// Iconos de línea inline (sin dependencias, currentColor) para reemplazar
+// los emoji de la franja de datos rápidos y de los pasos de "cómo
+// funciona" — un emoji como ícono se ve inconsistente entre sistemas
+// operativos y desentona con el resto del sitio, que no usa ninguno.
+const ICON_ZAP = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>`;
+const ICON_CARD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg>`;
+const ICON_INFINITY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15c-2 0-3.5-1.5-3.5-3.5S5 8 7 8c2.5 0 3.7 2 5 3.5 1.3 1.5 2.5 3.5 5 3.5 2 0 3.5-1.5 3.5-3.5S19.5 8 17.5 8c-2.5 0-3.7 2-5 3.5"/></svg>`;
+const ICON_CURSOR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 6-6 2-2 6-6-14Z"/></svg>`;
+const ICON_PENCIL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>`;
+const ICON_SEND = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>`;
+
 // Franja corta arriba del hero (a diferencia de TRUST_STRIP_HTML, que queda
 // más abajo): lo que más distingue a TaDi de la competencia — precio a la
 // vista y entrega instantánea — tiene que verse antes de elegir categoría,
-// no solo después de scrollear.
+// no solo después de scrollear. Cada dato es su propia píldora con ícono
+// (en vez de emoji separados por "·") para que se lea como 3 datos
+// concretos y no como una sola frase larga.
 const HOME_QUICKFACTS_HTML = `<div class="home-quickfacts">
-  <span>⚡ Entrega al instante</span><span>·</span><span>💳 Desde ${moneyARS(19900)}</span><span>·</span><span>✏️ Edición ilimitada hasta el evento</span>
+  <span class="qf-chip"><span class="qf-ico">${ICON_ZAP}</span>Entrega al instante</span>
+  <span class="qf-chip"><span class="qf-ico">${ICON_CARD}</span>Desde ${moneyARS(19900)}</span>
+  <span class="qf-chip"><span class="qf-ico">${ICON_INFINITY}</span>Edición ilimitada hasta el evento</span>
 </div>`;
 
 // 3 pasos de "cómo funciona", antes de elegir categoría — la competencia
 // (manual/consultiva) tarda días y esconde el precio hasta cotizar; acá el
 // proceso es autoservicio e instantáneo, pero si no se explica arriba de
-// todo el visitante no lo sabe hasta que ya está probando solo.
+// todo el visitante no lo sabe hasta que ya está probando solo. Cada paso
+// suma un ícono propio (además del numerito) para que las 3 tarjetas se
+// distingan de un vistazo, no solo por el número.
 const HOW_IT_WORKS_HTML = `<div class="how-it-works">
-  <div class="hiw-step"><span class="hiw-num">1</span><strong>Elegí tu diseño</strong><span class="hiw-desc">Mirá la vista previa antes de pagar</span></div>
+  <div class="hiw-step"><span class="hiw-icowrap"><span class="hiw-ico">${ICON_CURSOR}</span><span class="hiw-num">1</span></span><span class="hiw-step-text"><strong>Elegí tu diseño</strong><span class="hiw-desc">Mirá la vista previa antes de pagar</span></span></div>
   <div class="hiw-arrow">→</div>
-  <div class="hiw-step"><span class="hiw-num">2</span><strong>Personalizalo</strong><span class="hiw-desc">Cargá tus datos y fotos, se ve al instante</span></div>
+  <div class="hiw-step"><span class="hiw-icowrap"><span class="hiw-ico">${ICON_PENCIL}</span><span class="hiw-num">2</span></span><span class="hiw-step-text"><strong>Personalizalo</strong><span class="hiw-desc">Cargá tus datos y fotos, se ve al instante</span></span></div>
   <div class="hiw-arrow">→</div>
-  <div class="hiw-step"><span class="hiw-num">3</span><strong>Compartilo</strong><span class="hiw-desc">Un link por WhatsApp, con RSVP incluido</span></div>
+  <div class="hiw-step"><span class="hiw-icowrap"><span class="hiw-ico">${ICON_SEND}</span><span class="hiw-num">3</span></span><span class="hiw-step-text"><strong>Compartilo</strong><span class="hiw-desc">Un link por WhatsApp, con RSVP incluido</span></span></div>
 </div>`;
 
 // ---------- HOME interactivo: 6 categorías lado a lado, hover con
@@ -931,11 +961,9 @@ function catalogPage(activeCat) {
         <span class="orios-home-kicker">Catálogo TaDi</span>
         <h1>Elegí tu tarjeta<span class="dot">.</span></h1>
         <p>Diseños digitales para cada ocasión, listos para personalizar en minutos.</p>
-        ${HOME_QUICKFACTS_HTML}
       </div>
-      ${HOW_IT_WORKS_HTML}
       ${oriosHomeHTML(visible)}
-      ${TRUST_STRIP_HTML}`,
+      ${TRUST_STRIP_HOME_HTML}`,
     });
   }
 
