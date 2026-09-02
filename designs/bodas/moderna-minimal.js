@@ -164,16 +164,23 @@ function render(data = {}) {
   .blob-deco{position:absolute;top:-16px;left:-20px;width:420px;height:320px;z-index:0;pointer-events:none;opacity:.95;}
   .blob-deco svg{width:100%;height:100%;display:block;}
 
-  /* --- hero / portada --- */
-  .hero{padding-top:60px;padding-bottom:46px;}
+  /* --- foto de portada editorial: a pantalla completa arriba de todo,
+     se funde en degradé con el crema en vez de quedar como una tira suelta
+     entre dos bloques de texto --- */
+  .photo-editorial{position:relative;width:100%;height:56vh;min-height:320px;max-height:560px;overflow:hidden;}
+  .photo-editorial img{width:100%;height:100%;object-fit:cover;display:block;}
+  .photo-editorial::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(61,69,39,0) 55%, var(--cream) 100%);}
+
+  /* --- hero / identidad (monograma + nombre chico), justo debajo de la
+     foto. La franja completa (mismo crema que el final del degradé de la
+     foto) se sube por encima para que la transición quede sin costura. --- */
+  .band.hero-band{margin-top:-64px;}
+  .hero{padding-top:0;padding-bottom:46px;}
   .hero-inner{position:relative;z-index:1;max-width:460px;margin:0 auto;}
   .hero blockquote{margin:8px auto 34px;max-width:400px;text-align:center;font-size:.82rem;letter-spacing:1px;line-height:1.9;color:var(--olive-dark);font-style:normal;text-transform:uppercase;}
   .monogram{display:flex;align-items:center;justify-content:center;gap:18px;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(2.8rem,10vw,3.8rem);color:var(--olive-dark);margin:6px 0 22px;}
   .monogram .bar{width:1px;height:.8em;background:var(--olive-dark);display:inline-block;opacity:.7;}
   .monogram-label{text-align:center;font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--olive);margin:0;}
-
-  /* --- foto de portada --- */
-  .cover-photo{width:100%;height:min(70vw,460px);object-fit:cover;display:block;}
 
   /* --- nombres --- */
   .names-intro{text-align:center;font-size:.78rem;letter-spacing:1px;color:#6b6b57;max-width:420px;margin:0 auto 24px;text-transform:uppercase;position:relative;z-index:1;}
@@ -265,8 +272,12 @@ function render(data = {}) {
 </style></head>
 <body>
 
-  <!-- Portada -->
-  <div class="band bg-cream">
+  <!-- Portada: foto editorial a pantalla completa, fundida en degradé -->
+  ${d.coverImage ? `<div class="photo-editorial">
+    <img src="${esc(d.coverImage)}" alt="${esc(d.novia)} y ${esc(d.novio)}">
+  </div>` : ""}
+
+  <div class="band bg-cream${d.coverImage ? " hero-band" : ""}">
     <div class="blob-deco" aria-hidden="true">${BLOB_DECO}</div>
     ${leaf("leaf-tr")}
     <section class="section hero">
@@ -279,8 +290,6 @@ function render(data = {}) {
       </div>
     </section>
   </div>
-
-  <img class="cover-photo" src="${esc(d.coverImage)}" alt="${esc(d.novia)} y ${esc(d.novio)}">
 
   <!-- Nombres -->
   <div class="band bg-cream">

@@ -725,7 +725,47 @@ ${body}
       var tags = (card.dataset.tags || '').split(' ');
       card.style.display = (tag === 'todos' || tags.indexOf(tag) !== -1) ? '' : 'none';
     });
+    var crumb = document.getElementById('filterBreadcrumb');
+    if (crumb) {
+      var label = tag === 'todos' ? 'todos' : chip.textContent.trim();
+      crumb.innerHTML = 'Mostrando <b>' + label.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</b> los diseños de ' + crumb.dataset.catLabel;
+    }
   });
+
+  // Bandeja "Filtrar" de /categoria/:id — en celular los chips de categoría
+  // y color quedan ocultos por default y se abren en una bandeja deslizable
+  // desde abajo (antes se mostraban en una fila con scroll horizontal).
+  (function(){
+    var toggleBtn = document.getElementById('filterToggleBtn');
+    var sheet = document.getElementById('filterSheet');
+    var backdrop = document.getElementById('filterSheetBackdrop');
+    var closeBtn = document.getElementById('filterSheetClose');
+    if (!toggleBtn || !sheet || !backdrop) return;
+    function openSheet(){
+      sheet.classList.add('open');
+      backdrop.classList.add('open');
+      toggleBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSheet(){
+      sheet.classList.remove('open');
+      backdrop.classList.remove('open');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+    toggleBtn.addEventListener('click', function(){
+      sheet.classList.contains('open') ? closeSheet() : openSheet();
+    });
+    closeBtn.addEventListener('click', closeSheet);
+    backdrop.addEventListener('click', closeSheet);
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') closeSheet();
+    });
+    // Al elegir un color desde la bandeja, cerrarla para mostrar el resultado.
+    sheet.addEventListener('click', function(e){
+      if (e.target.closest('.color-chip')) setTimeout(closeSheet, 220);
+    });
+  })();
 </script>
 </body></html>`;
 }
@@ -748,15 +788,54 @@ function moneyARS(n) {
 // casi toda la primera pantalla y dejaba la grilla de tarjetas bien abajo.
 // Se reemplaza por un título simple — nada de foto ni de carrusel — para
 // que la lista de invitaciones quede a la vista de entrada.
+// Título + botón "Filtrar" (el botón solo se ve en celular vía CSS — en
+// escritorio los chips de categoría/color ya se ven de una, sin hace falta
+// esconderlos detrás de nada).
 function categoryHeaderHTML(cat) {
   return `<div class="section-head">
     <h2>${cat.label}<span class="dot">.</span></h2>
+    <button type="button" class="filter-toggle-btn" id="filterToggleBtn" aria-haspopup="true" aria-expanded="false" aria-controls="filterSheet"><span class="dot2"></span>Filtrar</button>
+  </div>`;
+}
+
+// Chips de color/paleta de una categoría — se arman solo con las que
+// efectivamente aparecen (nada de mostrar chips vacíos), extraídas de la
+// copy de cada diseño. Con 1 sola no aporta nada, así que no se muestra.
+function colorFilterBarHTML(cat) {
+  const list2 = designsByCategory(cat.id);
+  const gridId = `cat-grid-${cat.id}`;
+  const allTags = [];
+  list2.forEach((d) => extractColorTags(d.summary).forEach((t) => { if (!allTags.includes(t)) allTags.push(t); }));
+  if (allTags.length < 2) return "";
+  return `<div class="color-filter-bar" data-target="${gridId}">
+    <button type="button" class="color-chip active" data-tag="todos" aria-pressed="true">Todos</button>
+    ${allTags.map((t) => `<button type="button" class="color-chip" data-tag="${tagSlug(t)}" aria-pressed="false">${escapeHtml(t)}</button>`).join("")}
+  </div>`;
+}
+
+// Bandeja deslizable ("bottom sheet") con los chips de categoría y color —
+// en celular queda oculta hasta tocar "Filtrar" (antes esos chips wrappeaban
+// en 3 líneas y tapaban la primera tarjeta; después probamos que se
+// deslizaran en una fila horizontal; esta versión los esconde del todo por
+// default). En escritorio el mismo markup se ve siempre, en flujo normal
+// (ver @media(max-width:600px) en site.css).
+function categoryFilterSheetHTML(cat, catButtons) {
+  const colorBar = colorFilterBarHTML(cat);
+  const catLabelLower = escapeHtml(cat.label.toLowerCase());
+  return `<p class="filter-breadcrumb" id="filterBreadcrumb" data-cat-label="${catLabelLower}">Mostrando <b>todos</b> los diseños de ${catLabelLower}</p>
+  <div class="filter-sheet-backdrop" id="filterSheetBackdrop"></div>
+  <div class="filter-sheet" id="filterSheet" role="dialog" aria-modal="true" aria-label="Filtrar diseños de ${escapeHtml(cat.label)}">
+    <div class="filter-sheet-head"><b>Filtrar</b><button type="button" class="filter-sheet-close" id="filterSheetClose" aria-label="Cerrar filtro">✕</button></div>
+    <div class="filter-sheet-section">
+      <span class="filter-sheet-label">Categoría</span>
+      <div class="cat-filter" id="catalogo">${catButtons}</div>
+    </div>
+    ${colorBar ? `<div class="filter-sheet-section"><span class="filter-sheet-label">Color</span>${colorBar}</div>` : ""}
   </div>`;
 }
 
 // ---------- CATÁLOGO ----------
-// grilla de tarjetas de una categoría (se reutiliza en /categoria/:id y
-// dentro del modal de categoría del home interactivo).
+// grilla de tarjetas de una categoría.
 function categoryGridHTML(cat) {
   const list2 = designsByCategory(cat.id);
   if (list2.length === 0) {
@@ -765,17 +844,8 @@ function categoryGridHTML(cat) {
       <span>Estamos preparando los primeros diseños de ${cat.label.toLowerCase()}.</span>
     </div></div>`;
   }
-  // Filtro rápido por color/paleta — se arma solo con las que efectivamente
-  // aparecen en esta categoría (nada de mostrar chips vacíos), extraídas de
-  // la copy de cada diseño. Con 1 sola no aporta nada, así que no se muestra.
   const gridId = `cat-grid-${cat.id}`;
-  const allTags = [];
-  list2.forEach((d) => extractColorTags(d.summary).forEach((t) => { if (!allTags.includes(t)) allTags.push(t); }));
-  const chipBar = allTags.length >= 2 ? `<div class="color-filter-bar" data-target="${gridId}">
-    <button type="button" class="color-chip active" data-tag="todos" aria-pressed="true">Todos</button>
-    ${allTags.map((t) => `<button type="button" class="color-chip" data-tag="${tagSlug(t)}" aria-pressed="false">${escapeHtml(t)}</button>`).join("")}
-  </div>` : "";
-  return `${chipBar}<div class="grid" id="${gridId}">
+  return `<div class="grid" id="${gridId}">
     ${list2.map(cardHTML).join("")}
     <div class="coming-soon">
       <strong>+ Nuevos diseños</strong>
@@ -879,7 +949,7 @@ function catalogPage(activeCat) {
     title: cat.label,
     description: `Invitaciones digitales de ${cat.label.toLowerCase()} — elegí tu diseño, cargá los datos de tu evento y compartilo por WhatsApp en minutos, con edición ilimitada hasta el día del evento.`,
     body: `${categoryHeaderHTML(cat)}
-    <div class="cat-filter" id="catalogo">${catButtons}</div>
+    ${categoryFilterSheetHTML(cat, catButtons)}
     ${categoryGridHTML(cat)}
     ${TRUST_STRIP_HTML}`,
   });

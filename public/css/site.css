@@ -141,18 +141,37 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .color-chip{padding:7px 15px;border-radius:20px;border:0;background:var(--bg);box-shadow:var(--nu-xs);color:var(--muted);font-size:.76rem;font-family:inherit;cursor:pointer;transition:box-shadow .15s,color .15s;}
 .color-chip:hover{color:var(--ink);}
 .color-chip.active{color:var(--accent-2);box-shadow:var(--nu-inset-sm);font-weight:700;}
-/* En celular angosto, wrappear las 8 categorías + los colores en varias
-   líneas apiladas era lo que hacía "horrible" la primera impresión de
-   /categoria/:id (había que scrollear un montón antes de ver una sola
-   tarjeta). En vez de wrappear, en mobile pasan a una sola fila que se
-   desliza (como el filtro de Instagram/e-commerce) — mismo contenido,
-   una línea de alto en vez de tres. Va DESPUÉS de las reglas base de
-   arriba a propósito: misma especificidad, tiene que ganar por orden. */
+
+/* Botón "Filtrar" + bandeja deslizable de /categoria/:id — reemplaza el
+   scroll horizontal de antes. En escritorio no se usa (el botón queda
+   oculto y la bandeja se ve siempre, en flujo normal, como antes). En
+   celular el botón queda visible y la bandeja arranca oculta abajo del
+   todo hasta que se toca "Filtrar". */
+.filter-toggle-btn{display:none;}
+.filter-breadcrumb{display:none;}
+.filter-sheet-backdrop{display:none;}
+.filter-sheet-head{display:none;}
+.filter-sheet-label{display:none;}
+.filter-sheet-section{margin:0;}
 @media (max-width:600px){
-  .cat-filter,.color-filter-bar{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;-webkit-overflow-scrolling:touch;scrollbar-width:none;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent 100%);mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent 100%);}
-  .color-filter-bar{padding-left:18px;padding-right:18px;}
-  .cat-filter::-webkit-scrollbar,.color-filter-bar::-webkit-scrollbar{display:none;}
-  .cat-filter a,.color-chip{flex:0 0 auto;white-space:nowrap;}
+  .section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:24px 20px 0;}
+  .section-head h2{font-size:1.5rem;}
+  .filter-toggle-btn{display:flex;align-items:center;gap:6px;flex-shrink:0;background:var(--bg);box-shadow:var(--nu-sm);border:0;border-radius:20px;padding:9px 15px;font-size:.76rem;font-weight:700;color:var(--ink);font-family:inherit;cursor:pointer;}
+  .filter-toggle-btn .dot2{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+  .filter-breadcrumb{display:block;margin:8px 20px 4px;font-size:.74rem;color:var(--muted);}
+  .filter-breadcrumb b{color:var(--accent-2);}
+
+  .filter-sheet-backdrop{display:block;position:fixed;inset:0;background:rgba(20,20,26,.42);z-index:65;opacity:0;pointer-events:none;transition:opacity .25s ease;}
+  .filter-sheet-backdrop.open{opacity:1;pointer-events:auto;}
+  .filter-sheet{position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-radius:22px 22px 0 0;padding:18px 20px 26px;box-shadow:0 -10px 30px rgba(20,20,26,.18);max-height:75vh;overflow-y:auto;transform:translateY(110%);transition:transform .3s ease;}
+  .filter-sheet.open{transform:translateY(0);}
+  .filter-sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .filter-sheet-head b{font-size:1rem;}
+  .filter-sheet-close{width:30px;height:30px;border-radius:50%;border:0;background:var(--bg);box-shadow:var(--nu-xs);color:var(--muted);font-size:.85rem;cursor:pointer;font-family:inherit;}
+  .filter-sheet-section{margin-bottom:20px;}
+  .filter-sheet-section:last-child{margin-bottom:0;}
+  .filter-sheet-label{display:block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;}
+  .filter-sheet .cat-filter,.filter-sheet .color-filter-bar{flex-wrap:wrap;justify-content:flex-start;margin:0;padding:0;overflow:visible;-webkit-mask-image:none;mask-image:none;}
 }
 .grid{max-width:1180px;margin:0 auto;padding:20px 32px 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:26px;}
 .design-card{background:var(--bg);border:0;border-radius:var(--radius);box-shadow:var(--nu-sm);overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;}

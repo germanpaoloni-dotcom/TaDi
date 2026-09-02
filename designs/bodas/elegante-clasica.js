@@ -35,13 +35,17 @@ function render(data = {}) {
   const inicialNovio = (d.novio || "?").trim().charAt(0).toUpperCase();
 
   let fechaLarga = "";
+  let fechaNum = "";
+  let fechaDia = "";
   if (d.fecha) {
     const partes = String(d.fecha).split("-");
     if (partes.length === 3) {
       const dt = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
       if (!isNaN(dt.getTime())) {
         const dias = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
-        fechaLarga = `${partes[2]} · ${partes[1]} · ${partes[0]} — ${dias[dt.getDay()]}`;
+        fechaNum = `${partes[2]} · ${partes[1]} · ${partes[0]}`;
+        fechaDia = dias[dt.getDay()];
+        fechaLarga = `${fechaNum} — ${fechaDia}`;
       }
     }
   }
@@ -118,13 +122,6 @@ function render(data = {}) {
     0%,100%{background-position:-60% 0;}
     50%{background-position:160% 0;}
   }
-  @keyframes dustFall{
-    0%{transform:translateY(0);opacity:0;}
-    8%{opacity:.55;}
-    55%{opacity:.3;}
-    92%{opacity:0;}
-    100%{transform:translateY(100vh);opacity:0;}
-  }
   .laurel{animation:candleGlow 10s ease-in-out infinite;}
   .laurel-left{animation-delay:0s;}
   .laurel-right{animation-delay:4.6s;}
@@ -134,50 +131,53 @@ function render(data = {}) {
   .corner-flourish.cf-bl{animation-delay:7.3s;}
   .corner-flourish.cf-br{animation-delay:10.1s;}
 
-  /* ---------- HERO ---------- */
-  .hero{
-    position:relative;
-    min-height:100vh;
-    padding:56px 20px 70px;
-    display:flex;align-items:center;justify-content:center;text-align:center;
+  /* ---------- HERO: foto de portada fija + tarjeta que la tapa al
+     deslizar (sin JS — la foto va con position:fixed detrás de todo, un
+     "spacer" transparente de 100vh deja verla de entrada, y la tarjeta
+     ornamental, que viene después en el flujo normal, sube y la va
+     tapando a medida que se scrollea). ---------- */
+  .hero-photo-fixed{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(160deg,#1c2e25,#0d1611);}
+  .hero-photo-fixed img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;}
+  .hero-photo-fixed::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(13,22,17,.1) 0%, rgba(13,22,17,.05) 40%, rgba(13,22,17,.4) 100%);}
+  .hero-scroll-hint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:1;color:#fff;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;opacity:.85;display:flex;flex-direction:column;align-items:center;gap:6px;text-shadow:0 1px 6px rgba(0,0,0,.5);}
+  .hero-scroll-hint svg{animation:heroHintBob 1.6s ease-in-out infinite;}
+  @keyframes heroHintBob{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+  @media (prefers-reduced-motion: reduce){.hero-scroll-hint svg{animation:none;}}
+
+  .hero-spacer{position:relative;height:100vh;z-index:1;}
+
+  .hero-card{
+    position:relative;z-index:2;min-height:104vh;
     background:
       radial-gradient(circle at 18% 8%, rgba(255,255,255,.05), transparent 42%),
       radial-gradient(circle at 85% 92%, rgba(255,255,255,.05), transparent 45%),
       radial-gradient(circle at 60% 40%, color-mix(in srgb, ${accent} 6%, transparent), transparent 55%),
       linear-gradient(160deg, #16241d 0%, #0d1611 55%, #1a2b22 100%);
+    padding:56px 24px 60px;
+    display:flex;align-items:center;justify-content:center;text-align:center;
     color:var(--cream);
-    overflow:hidden;
+    box-shadow:0 -30px 50px rgba(0,0,0,.3);
   }
-  .hero::before{
-    content:"";position:absolute;inset:0;
-    background:
-      linear-gradient(115deg, transparent 40%, rgba(255,255,255,.035) 42%, transparent 44%),
-      linear-gradient(65deg, transparent 60%, rgba(255,255,255,.03) 62%, transparent 64%);
+  .hero-card::before{
+    content:"";position:absolute;inset:16px;
+    border:1px solid color-mix(in srgb, ${accent} 65%, transparent);
+    border-radius:32px;
     pointer-events:none;
   }
-  .hero::after{
-    content:"";position:absolute;inset:14px;
-    border:1px solid color-mix(in srgb, ${accent} 55%, transparent);
-    pointer-events:none;
-  }
-  .gold-dust{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
-  .dust{position:absolute;top:-6%;width:3px;height:3px;border-radius:50%;background:var(--gold-light);opacity:0;box-shadow:0 0 5px 1px color-mix(in srgb, ${accent} 65%, transparent);animation:dustFall 16s linear infinite;}
-  .dust.d1{left:16%;animation-duration:15s;animation-delay:0s;}
-  .dust.d2{left:40%;animation-duration:19s;animation-delay:5s;}
-  .dust.d3{left:66%;animation-duration:17.5s;animation-delay:9.5s;}
-  .dust.d4{left:83%;animation-duration:21s;animation-delay:2.8s;}
-  .hero-content{position:relative;z-index:1;max-width:520px;}
-  .monogram{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:22px;}
-  .laurel{width:26px;height:52px;color:var(--gold);}
-  @media(min-width:480px){.laurel{width:34px;height:68px;}}
+  .hero-branch{position:absolute;pointer-events:none;filter:drop-shadow(0 0 10px rgba(201,168,106,.12));}
+  .hero-branch-tr{top:2px;right:2px;width:150px;}
+  .hero-branch-bl{bottom:2px;left:2px;width:150px;}
+  @media(min-width:480px){.hero-branch-tr,.hero-branch-bl{width:190px;}}
+
+  .hero-content{position:relative;z-index:1;max-width:480px;}
   .monogram-circle{
-    width:76px;height:76px;border-radius:50%;
+    width:70px;height:70px;margin:0 auto 20px;border-radius:50%;
     border:1px solid var(--gold);
     display:flex;align-items:center;justify-content:center;
-    font-family:'Playfair Display',serif;font-size:1.15rem;letter-spacing:2px;color:var(--gold-light);
+    font-family:'Playfair Display',serif;font-size:1.05rem;letter-spacing:2px;color:var(--gold-light);
     flex-shrink:0;
   }
-  @media(min-width:480px){.monogram-circle{width:92px;height:92px;font-size:1.35rem;}}
+  @media(min-width:480px){.monogram-circle{width:82px;height:82px;font-size:1.2rem;}}
   .monogram-circle .amp-small{color:var(--gold);margin:0 4px;font-style:italic;font-size:.9em;}
   .mono-shine{display:inline-block;}
   @supports ((-webkit-background-clip:text) or (background-clip:text)){
@@ -190,27 +190,32 @@ function render(data = {}) {
     }
     .mono-shine .amp-small{-webkit-text-fill-color:var(--gold);color:var(--gold);}
   }
-  .eyebrow{color:var(--gold-light);margin:0 0 14px;}
+  .eyebrow{color:var(--gold-light);margin:0 0 12px;}
   .hero-content h1{
     margin:0;
-    font-size:clamp(2.3rem,9vw,3.6rem);
-    line-height:1.15;
+    font-size:clamp(2.1rem,8.6vw,3.2rem);
+    line-height:1.16;
     color:#fdfaf3;
-    letter-spacing:1px;
+    letter-spacing:.5px;
   }
   .hero-content h1 .amp{
     display:block;
     font-family:'Cormorant Garamond',serif;font-style:italic;
     color:var(--gold);
     font-size:.55em;
-    margin:2px 0;
+    margin:3px 0;
   }
-  .thin-divider{width:70px;height:1px;background:var(--gold);margin:26px auto;position:relative;}
-  .thin-divider::before{content:"◆";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.5rem;color:var(--gold);background:transparent;}
-  .date-line{margin:0;color:var(--gold-light);letter-spacing:3px;font-size:.85rem;text-transform:uppercase;}
+  .ornament-divider{display:flex;align-items:center;justify-content:center;gap:8px;margin:16px auto;width:150px;}
+  .ornament-divider .line{flex:1;height:1px;background:var(--gold);}
+  .ornament-divider svg{color:var(--gold);flex-shrink:0;}
+  .date-line{margin:0;color:var(--gold-light);letter-spacing:3px;font-size:.88rem;text-transform:uppercase;font-weight:500;}
+  .day-line{margin:4px 0 0;color:var(--gold-light);letter-spacing:3px;font-size:.7rem;text-transform:uppercase;opacity:.85;}
+  .bottom-flourish{margin-top:20px;color:var(--gold);opacity:.85;}
 
   /* ---------- SECTIONS (cream) ---------- */
-  section{max-width:720px;margin:0 auto;padding:64px 22px;text-align:center;}
+  /* position+z-index required: sections are siblings of the position:fixed hero photo,
+     so without it the fixed photo paints over their (non-positioned) content regardless of DOM order */
+  section{position:relative;z-index:2;background:var(--cream);max-width:720px;margin:0 auto;padding:64px 22px;text-align:center;}
   h2{
     letter-spacing:3px;text-transform:uppercase;
     font-size:clamp(1.1rem,4vw,1.5rem);
@@ -332,6 +337,7 @@ function render(data = {}) {
 
   /* ---------- FOOTER ---------- */
   footer{
+    position:relative;z-index:2;
     text-align:center;padding:50px 22px 60px;
     background:var(--green-dark);color:var(--gold-light);
   }
@@ -346,27 +352,36 @@ function render(data = {}) {
 
   /* ---------- MOVIMIENTO REDUCIDO ---------- */
   @media (prefers-reduced-motion: reduce){
-    .laurel,.corner-flourish,.mono-shine,.dust{animation:none !important;}
-    .dust{opacity:0 !important;}
+    .laurel,.corner-flourish,.mono-shine,.hero-scroll-hint svg{animation:none !important;}
   }
 </style></head>
 <body>
 
-  <div class="hero">
-    ${corners}
-    <div class="gold-dust" aria-hidden="true">
-      <span class="dust d1"></span><span class="dust d2"></span><span class="dust d3"></span><span class="dust d4"></span>
+  <div class="hero-photo-fixed">
+    ${d.coverImage ? `<img src="${esc(d.coverImage)}" alt="">` : ""}
+    <div class="hero-scroll-hint" aria-hidden="true">
+      <span>Deslizá</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
     </div>
+  </div>
+
+  <div class="hero-spacer"></div>
+
+  <div class="hero-card">
+    <img class="hero-branch hero-branch-tr" src="/static/img/ornaments/laurel-gold-top-right.webp" alt="" aria-hidden="true">
+    <img class="hero-branch hero-branch-bl" src="/static/img/ornaments/laurel-gold-bottom-left.webp" alt="" aria-hidden="true">
     <div class="hero-content">
-      <div class="monogram">
-        ${laurelLeft}
-        <div class="monogram-circle"><span class="mono-shine">${esc(inicialNovia)}<span class="amp-small">&amp;</span>${esc(inicialNovio)}</span></div>
-        ${laurelRight}
-      </div>
+      <div class="monogram-circle"><span class="mono-shine">${esc(inicialNovia)}<span class="amp-small">&amp;</span>${esc(inicialNovio)}</span></div>
       <p class="eyebrow">Nos casamos</p>
+      <div class="ornament-divider"><span class="line"></span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><span class="line"></span></div>
       <h1>${esc(d.novia)}<span class="amp">&amp;</span>${esc(d.novio)}</h1>
-      <div class="thin-divider"></div>
-      <p class="date-line">${fechaLarga ? esc(fechaLarga) : esc(d.fecha)}</p>
+      <div class="ornament-divider"><span class="line"></span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><span class="line"></span></div>
+      <p class="date-line">${fechaNum ? esc(fechaNum) : esc(d.fecha)}</p>
+      ${fechaDia ? `<p class="day-line">${esc(fechaDia)}</p>` : ""}
+      <svg class="bottom-flourish" width="60" height="18" viewBox="0 0 60 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M2 9c8-8 14-8 18 0s10 8 18 0 10-8 18 0" stroke="currentColor" stroke-width="1"/>
+        <circle cx="30" cy="9" r="1.6" fill="currentColor"/>
+      </svg>
     </div>
   </div>
 
