@@ -101,62 +101,6 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .cat-modal-visual .mega-hero-info-left{left:24px;}
 .cat-modal-visual .mega-hero-block p{color:var(--muted);}
 
-/* ---------- mega hero (portada de /categoria/:id) ---------- */
-.mega-hero{position:relative;overflow:hidden;background:var(--bg);}
-.mega-hero-slide{display:none;position:relative;min-height:640px;background:var(--bg);}
-.mega-hero-slide.active{display:block;}
-.mega-hero-ghost{position:absolute;top:16px;left:0;right:0;width:100%;text-align:center;font-size:clamp(2.6rem,5.6vw,5.4rem);font-weight:800;letter-spacing:2px;color:var(--bg);text-shadow:5px 5px 9px var(--sh-dark),-5px -5px 9px var(--sh-light);white-space:nowrap;pointer-events:none;line-height:1;user-select:none;z-index:0;overflow:hidden;}
-.mega-hero-grid{position:relative;max-width:1320px;margin:0 auto;display:grid;grid-template-columns:.85fr 1.15fr;align-items:stretch;min-height:640px;gap:0;}
-.mega-hero-grid > *{min-width:0;}
-.mega-hero-text{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:flex-start;padding:76px 20px 40px 40px;}
-.mega-hero-kicker{display:block;text-transform:uppercase;letter-spacing:3px;font-size:.72rem;color:var(--accent);margin-bottom:14px;}
-.mega-hero-title{font-size:clamp(2.1rem,4.1vw,4.1rem);font-weight:800;line-height:1.04;margin:0;letter-spacing:-1px;overflow-wrap:normal;word-break:normal;}
-.mega-hero-title .dot{color:var(--accent);}
-.mega-hero-cta{margin-top:28px;align-self:flex-start;}
-.mega-hero-skip{display:none;margin-top:14px;font-size:.78rem;color:var(--muted);text-decoration:underline;}
-.mega-hero-visual{position:relative;height:auto;min-height:640px;overflow:hidden;margin:20px 20px 20px 0;border-radius:24px;box-shadow:var(--nu-inset);}
-.mega-hero-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 58% 62% at 56% 40%,rgba(255,122,61,.12),transparent 70%);pointer-events:none;}
-.mega-hero-ring{position:absolute;width:210px;height:210px;border-radius:50%;background:var(--bg);box-shadow:var(--nu-lg);top:64px;left:44%;opacity:.97;z-index:0;}
-.mega-hero-ring::before{content:'';position:absolute;inset:20px;border-radius:50%;box-shadow:var(--nu-inset);}
-.mega-hero-ring::after{content:'';position:absolute;inset:20px;border-radius:50%;box-shadow:inset 0 0 0 3px rgba(255,122,61,.45);}
-.mega-hero-visual img{position:absolute;right:0;bottom:0;z-index:1;height:92%;max-height:620px;width:auto;max-width:96%;object-fit:contain;object-position:bottom right;filter:saturate(.9) contrast(1.05);}
-.mega-hero-info{position:absolute;bottom:36px;z-index:3;max-width:250px;background:rgba(255,255,255,.62);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.7);box-shadow:var(--nu-xs);border-radius:14px;padding:16px 18px;color:var(--ink);}
-.mega-hero-info-left{left:40px;}
-.mega-hero-block h3{margin:0 0 8px;font-size:.85rem;font-weight:700;color:var(--ink);}
-.mega-hero-block p{margin:0;font-size:.78rem;color:var(--muted);line-height:1.55;}
-.mega-hero-play{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:0;background:var(--bg);box-shadow:var(--nu-xs);color:var(--ink);text-decoration:none;margin-top:10px;transition:box-shadow .15s,color .15s;}
-.mega-hero-play:hover{color:var(--accent-2);box-shadow:var(--nu-sm);}
-.mega-hero-controls{position:relative;max-width:1320px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;}
-.mega-hero-progress{display:flex;align-items:center;gap:12px;}
-.mega-hero-bar{width:140px;height:6px;background:var(--bg);box-shadow:var(--nu-inset-sm);border-radius:3px;overflow:hidden;}
-.mega-hero-bar-fill{height:100%;width:33%;background:var(--accent);transition:width .2s;}
-.mega-hero-count{font-size:.72rem;color:var(--muted);letter-spacing:1px;}
-.mega-hero-dots{display:flex;gap:8px;}
-.mega-hero-dots button{width:8px;height:8px;border-radius:50%;border:0;background:var(--bg);box-shadow:var(--nu-inset-sm);cursor:pointer;padding:0;}
-.mega-hero-dots button.active{background:var(--accent);box-shadow:none;}
-.mega-hero-arrow{width:48px;height:48px;border-radius:50%;border:0;background:var(--bg);box-shadow:var(--nu-xs);color:var(--ink);font-size:1.2rem;cursor:pointer;transition:box-shadow .15s,transform .15s;}
-.mega-hero-arrow:hover{box-shadow:var(--nu-sm);transform:translateX(3px);}
-
-/* single (non-carousel) hero band used on /categoria/:id */
-.mini-hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);}
-.mini-hero .mega-hero-text{padding:56px 20px 30px 40px;}
-.mini-hero .mega-hero-title{font-size:clamp(1.8rem,3.2vw,3rem);}
-.mini-hero .mega-hero-ghost{font-size:clamp(2.1rem,4.2vw,4rem);top:12px;}
-/* Los tamaños/posiciones absolutas de abajo son SOLO de desktop: en mobile
-   los pisa por completo el bloque .mega-hero-visual en flex-column de la
-   media query de 900px (min-height:0, ring chico, card en flujo normal). Se
-   scopean a min-width:901px para que la mayor especificidad de ".mini-hero
-   .mega-hero-x" no le gane por cascada a la regla mobile de menor
-   especificidad y deje la caja gigante y vacía / el aro desproporcionado. */
-@media (min-width: 901px){
-  .mini-hero .mega-hero-grid{min-height:460px;}
-  .mini-hero .mega-hero-visual{min-height:460px;}
-  .mini-hero .mega-hero-ring{width:150px;height:150px;top:44px;left:42%;}
-  .mini-hero .mega-hero-ring::before,.mini-hero .mega-hero-ring::after{inset:14px;}
-  .mini-hero .mega-hero-info{max-width:210px;padding:13px 15px;bottom:26px;}
-  .mini-hero .mega-hero-info-left{left:26px;}
-}
-
 /* ---------- trust strip ---------- */
 .trust-strip{max-width:1180px;margin:0 auto;padding:26px 32px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
 .trust-strip > div{position:relative;background:linear-gradient(160deg,rgba(255,122,61,.14),rgba(255,122,61,.03));border:1px solid rgba(255,122,61,.22);border-radius:16px;padding:16px 18px;box-shadow:var(--nu-xs);transition:transform .15s,box-shadow .15s;}
@@ -169,9 +113,13 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .trust-strip .mp-chip b.mp-blue{color:#00b1ea;}
 
 /* ---------- catálogo (neumorphism) ---------- */
-.section-head{max-width:1180px;margin:0 auto;padding:50px 32px 0;}
-.section-head h2{margin-bottom:2px;font-size:1.5rem;color:var(--ink);}
-.section-head p{margin:0;color:var(--muted);font-size:.9rem;}
+/* Cabecera compacta de /categoria/:id — antes había un hero enorme (foto de
+   pareja + carrusel de categorías) que empujaba la grilla de tarjetas bien
+   abajo de la pantalla; ahora es solo kicker + título, así la grilla queda
+   a la vista casi de entrada. */
+.section-head{max-width:1180px;margin:0 auto;padding:36px 32px 0;text-align:center;}
+.section-head h2{margin:0;font-size:2rem;font-weight:800;color:var(--ink);letter-spacing:-.5px;}
+.section-head h2 .dot{color:var(--accent);}
 .cat-filter{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:26px 0;padding:0 20px;}
 .cat-filter a{padding:9px 18px;border-radius:20px;text-decoration:none;color:var(--muted);font-size:.82rem;background:var(--bg);box-shadow:var(--nu-xs);letter-spacing:.5px;transition:box-shadow .15s,color .15s;}
 .cat-filter a:hover{color:var(--ink);}
@@ -183,7 +131,16 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .grid{max-width:1180px;margin:0 auto;padding:20px 32px 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:26px;}
 .design-card{background:var(--bg);border:0;border-radius:var(--radius);box-shadow:var(--nu-sm);overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;}
 .design-card:hover{transform:translateY(-4px);box-shadow:var(--nu-md);}
-.design-card .swatch{position:relative;height:130px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.05rem;text-align:center;padding:10px;}
+/* Vista previa "en el celular", tal como la usa la competencia: un cuerpo
+   de teléfono blanco con relieve neomórfico y la tarjeta como pantalla
+   recesada adentro (mismo truco de doble relieve que .orios-panel-photo:
+   objeto en relieve + hueco recesado). El markup del preview de cada
+   diseño (d.cardPreview) no cambia — solo se envuelve el .swatch de
+   siempre en este marco nuevo. */
+.design-card .card-phone-wrap{background:var(--bg);padding:22px 22px 12px;display:flex;justify-content:center;}
+.design-card .card-phone{position:relative;width:100%;max-width:186px;background:#fff;border-radius:28px;padding:9px 8px 15px;box-shadow:var(--nu-sm);}
+.design-card .card-phone::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:42px;height:4px;border-radius:3px;background:rgba(0,0,0,.14);}
+.design-card .swatch{position:relative;height:236px;border-radius:19px;overflow:hidden;box-shadow:var(--nu-inset-sm);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.95rem;text-align:center;padding:10px;}
 /* Marquito tipo "pantalla de celular" sobre el preview — nod visual a que
    la tarjeta se abre y se ve en el teléfono, sin rehacer el preview interno
    de cada uno de los diseños (cardPreview ya viene armado por diseño). */

@@ -742,45 +742,16 @@ function moneyARS(n) {
   return money(n) + " ARS";
 }
 
-// ---------- HERO (portada tipo "product drop": foto + aro de acento + textos) ----------
-function heroSlideHTML(cat, index, isCarousel) {
-  return `<div class="mega-hero-slide${index === 0 ? " active" : ""}" data-cat="${cat.id}">
-    <div class="mega-hero-grid">
-      <div class="mega-hero-text">
-        <span class="mega-hero-kicker">Invitaciones digitales</span>
-        <h1 class="mega-hero-title">${cat.label.replace(/ /g, "<br>")}<span class="dot">.</span></h1>
-        ${isCarousel ? `<a class="btn btn-primary mega-hero-cta" href="/categoria/${cat.id}">Elegí tu diseño</a>` : ""}
-        <a class="mega-hero-skip" href="#catalogo">Ver diseños y precios ↓</a>
-      </div>
-      <div class="mega-hero-visual">
-        <div class="mega-hero-ghost">${cat.ghost}</div>
-        <div class="mega-hero-ring"></div>
-        <img src="${cat.heroImage}" alt="${cat.label}">
-        <div class="mega-hero-info mega-hero-info-left">
-          <div class="mega-hero-block">
-            <h3>${cat.kicker}</h3>
-            <p>${cat.heroBody}</p>
-          </div>
-        </div>
-      </div>
-    </div>
+// ---------- CABECERA COMPACTA de /categoria/:id ----------
+// Antes había un hero enorme (foto de la pareja, aro decorativo, texto
+// "Para quién es" y un carrusel para saltar entre categorías) que ocupaba
+// casi toda la primera pantalla y dejaba la grilla de tarjetas bien abajo.
+// Se reemplaza por un título simple — nada de foto ni de carrusel — para
+// que la lista de invitaciones quede a la vista de entrada.
+function categoryHeaderHTML(cat) {
+  return `<div class="section-head">
+    <h2>${cat.label}<span class="dot">.</span></h2>
   </div>`;
-}
-
-function miniHeroHTML(cat, cats) {
-  const nextCat = cats[(cats.findIndex((c) => c.id === cat.id) + 1) % cats.length];
-  const idx = cats.findIndex((c) => c.id === cat.id);
-  return `<section class="mega-hero mini-hero">
-    ${heroSlideHTML(cat, 0, false)}
-    <div class="mega-hero-controls">
-      <div class="mega-hero-progress">
-        <div class="mega-hero-bar"><div class="mega-hero-bar-fill" style="width:${(100 * (idx + 1)) / cats.length}%"></div></div>
-        <span class="mega-hero-count">${String(idx + 1).padStart(2, "0")} / ${String(cats.length).padStart(2, "0")}</span>
-      </div>
-      <div class="mega-hero-dots">${cats.map((c, i) => `<a href="/categoria/${c.id}" class="${i === idx ? "active" : ""}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${i === idx ? "var(--accent)" : "var(--line)"}"></a>`).join("")}</div>
-      <a class="mega-hero-arrow" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="/categoria/${nextCat.id}" aria-label="Siguiente categoría">→</a>
-    </div>
-  </section>`;
 }
 
 // ---------- CATÁLOGO ----------
@@ -898,22 +869,19 @@ function catalogPage(activeCat) {
     });
   }
 
-  // Página de una categoría puntual (link directo, nav, footer, SEO):
-  // se mantiene el comportamiento existente (mini-hero + grilla). Usa la
-  // lista completa de categorías para el lookup, así una categoría de
-  // temporada sigue siendo accesible todo el año por link directo.
+  // Página de una categoría puntual (link directo, nav, footer, SEO): título
+  // compacto + selector de categoría + grilla, sin hero grande — así la
+  // grilla queda arriba de todo. Usa la lista completa de categorías para
+  // el lookup, así una categoría de temporada sigue siendo accesible todo
+  // el año por link directo.
   const cat = categories.find((c) => c.id === activeCat);
   return layout({
     title: cat.label,
     description: `Invitaciones digitales de ${cat.label.toLowerCase()} — elegí tu diseño, cargá los datos de tu evento y compartilo por WhatsApp en minutos, con edición ilimitada hasta el día del evento.`,
-    body: `${miniHeroHTML(cat, cats)}
-    ${TRUST_STRIP_HTML}
+    body: `${categoryHeaderHTML(cat)}
     <div class="cat-filter" id="catalogo">${catButtons}</div>
-    <div class="section-head">
-      <h2>${cat.label}</h2>
-      <p>${cat.description}</p>
-    </div>
-    ${categoryGridHTML(cat)}`,
+    ${categoryGridHTML(cat)}
+    ${TRUST_STRIP_HTML}`,
   });
 }
 
@@ -949,9 +917,13 @@ function cardHTML(d) {
   const isFlagship = cat.flagshipDesign === d.id;
   const tags = extractColorTags(d.summary);
   return `<div class="design-card" data-tags="${tags.map(tagSlug).join(" ")}">
-    <div class="swatch" style="background:linear-gradient(135deg, ${d.accent}, ${d.accent2 || d.accent})">
-      ${isFlagship ? `<span class="badge-fav">★ Más elegido</span>` : ""}
-      ${typeof d.cardPreview === "function" ? d.cardPreview(d) : d.name}
+    <div class="card-phone-wrap">
+      <div class="card-phone">
+        <div class="swatch" style="background:linear-gradient(135deg, ${d.accent}, ${d.accent2 || d.accent})">
+          ${isFlagship ? `<span class="badge-fav">★ Más elegido</span>` : ""}
+          ${typeof d.cardPreview === "function" ? d.cardPreview(d) : d.name}
+        </div>
+      </div>
     </div>
     <div class="body">
       <span class="cat-tag">${cat.label}</span>
