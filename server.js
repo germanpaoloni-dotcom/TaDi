@@ -648,7 +648,7 @@ const GA_SNIPPET = GA_MEASUREMENT_ID
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_MEASUREMENT_ID}');</script>`
   : "";
 
-function layout({ title, body, description, extraHead }) {
+function layout({ title, body, description, extraHead, activeNav }) {
   const desc = description || "Invitaciones digitales para bodas, cumpleaños, XV y más — elegí tu diseño, personalizalo en minutos y compartilo por WhatsApp con RSVP incluido.";
   return `<!doctype html>
 <html lang="es"><head>
@@ -668,10 +668,10 @@ ${GA_SNIPPET}
     <span></span><span></span><span></span>
   </button>
   <nav id="siteNav">
-    <a href="/">Catálogo</a>
-    ${visibleCategories().map((c) => `<a href="/categoria/${c.id}">${c.label}</a>`).join("")}
-    <a href="/como-funciona">¿Cómo funciona?</a>
-    <a href="/nosotros">Nosotros</a>
+    <a href="/" class="${activeNav === "catalogo" ? "active" : ""}">Catálogo</a>
+    ${visibleCategories().map((c) => `<a href="/categoria/${c.id}" class="${activeNav === c.id ? "active" : ""}">${c.label}</a>`).join("")}
+    <a href="/como-funciona" class="${activeNav === "como-funciona" ? "active" : ""}">¿Cómo funciona?</a>
+    <a href="/nosotros" class="${activeNav === "nosotros" ? "active" : ""}">Nosotros</a>
   </nav>
 </header>
 ${body}
@@ -943,6 +943,7 @@ function catalogPage(activeCat) {
       title: "Catálogo",
       description: "Invitación digital lista en minutos: elegí un diseño para boda, cumpleaños, XV, bautismo o baby shower, personalizalo y compartilo por WhatsApp con edición ilimitada y RSVP incluido.",
       extraHead: `<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&display=swap" rel="stylesheet">`,
+      activeNav: "catalogo",
       body: `${CATALOG_HERO_HTML}
       ${oriosHomeHTML(visible)}
       ${TRUST_STRIP_HOME_HTML}`,
@@ -958,6 +959,7 @@ function catalogPage(activeCat) {
   return layout({
     title: cat.label,
     description: `Invitaciones digitales de ${cat.label.toLowerCase()} — elegí tu diseño, cargá los datos de tu evento y compartilo por WhatsApp en minutos, con edición ilimitada hasta el día del evento.`,
+    activeNav: cat.id,
     body: `${categoryHeaderHTML(cat)}
     ${categoryFilterSheetHTML(cat, catButtons)}
     ${categoryGridHTML(cat)}
@@ -1101,6 +1103,7 @@ app.get("/como-funciona", (req, res) => {
   res.send(layout({
     title: "Cómo funciona",
     description: "Guía paso a paso: cómo elegir tu invitación digital en TaDi, personalizarla con tus datos y fotos, y compartirla por WhatsApp para recibir las confirmaciones de tus invitados.",
+    activeNav: "como-funciona",
     body: `
     <div class="tutorial-hero">
       <span class="kicker">Guía rápida</span>
@@ -1146,6 +1149,7 @@ app.get("/nosotros", (req, res) => {
   res.send(layout({
     title: "Nosotros",
     description: "Quiénes hacemos TaDi: cómo nació el proyecto y cómo contactarnos por Instagram o mail.",
+    activeNav: "nosotros",
     body: `
     <div class="tutorial-hero">
       <span class="kicker">Nosotros</span>
