@@ -27,10 +27,14 @@ header.site .brand{display:flex;align-items:center;gap:10px;line-height:0;text-d
 header.site .brand-logo{height:24px;width:auto;display:block;}
 header.site .brand-tagline{line-height:normal;font-size:.66rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);padding-left:10px;border-left:1px solid var(--sh-dark);white-space:nowrap;}
 @media (max-width:560px){ header.site .brand-tagline{display:none;} }
-header.site nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;background:var(--bg);border-radius:30px;box-shadow:var(--nu-inset-sm);padding:5px;}
-header.site nav a{color:var(--muted);text-decoration:none;padding:8px 14px;border-radius:22px;font-size:.72rem;text-transform:uppercase;letter-spacing:1px;transition:color .15s,box-shadow .15s,background .15s;}
+/* Pill "atardecer": mismo degradé cálido que el fondo aurora del home,
+   para que el nav se sienta parte de la misma marca en vez de un gris
+   neutro aparte. El activo se resuelve en tinta oscura (no naranja sobre
+   naranja) para no perder contraste contra el degradé claro. */
+header.site nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px;background:linear-gradient(120deg,#fff3ea,#ffe4d6 40%,#ffd9e6 100%);border-radius:30px;box-shadow:0 3px 10px rgba(200,120,90,.22),inset 0 1px 1px rgba(255,255,255,.8);padding:5px;}
+header.site nav a{color:#8a5a48;text-decoration:none;padding:8px 15px;border-radius:22px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;transition:color .15s,box-shadow .15s,background .15s;}
 header.site nav a:hover{color:var(--ink);}
-header.site nav a.active{color:var(--accent-2);background:var(--bg);box-shadow:var(--nu-xs);font-weight:700;}
+header.site nav a.active{color:#ffd9b8;background:var(--ink);box-shadow:0 3px 10px rgba(0,0,0,.2);font-weight:700;}
 header.site .nav-toggle{display:none;flex-direction:column;justify-content:center;gap:5px;width:38px;height:38px;background:var(--bg);border:0;border-radius:12px;box-shadow:var(--nu-xs);cursor:pointer;padding:0;}
 header.site .nav-toggle span{display:block;height:2px;width:16px;margin:0 auto;background:var(--ink);border-radius:2px;transition:transform .2s,opacity .2s;}
 header.site .nav-toggle.open{box-shadow:var(--nu-inset-sm);}
@@ -434,10 +438,14 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 /* ---------- responsive ---------- */
 @media (max-width: 900px){
   header.site .nav-toggle{display:flex;}
-  header.site nav{display:none;width:100%;flex-direction:column;gap:2px;order:3;padding-top:14px;margin-top:14px;background:transparent;box-shadow:none;border-top:1px solid var(--sh-dark);border-radius:0;}
+  header.site nav{display:none;width:100%;flex-direction:column;gap:4px;order:3;padding-top:14px;margin-top:14px;background:transparent;box-shadow:none;border-top:1px solid var(--sh-dark);border-radius:0;}
   header.site nav.open{display:flex;}
-  header.site nav a{margin-left:0;padding:10px 4px;font-size:.85rem;border-bottom:1px solid var(--line);border-radius:0;}
-  header.site nav a.active{box-shadow:none;background:transparent;}
+  header.site nav a{margin-left:0;padding:10px 12px;font-size:.85rem;border-radius:12px;color:var(--muted);font-weight:600;}
+  /* En la lista vertical no hay lugar para el degradé de la pill de
+     escritorio — el activo se marca con una ficha color durazno en vez de
+     tinta oscura de fondo a fondo, para mantener la misma energía cálida
+     sin perder contraste en una lista angosta. */
+  header.site nav a.active{color:var(--ink);background:linear-gradient(120deg,#fff3ea,#ffe4d6 40%,#ffd9e6 100%);font-weight:800;}
   .mega-hero-slide{background:var(--bg);}
   .mega-hero-grid{grid-template-columns:1fr;gap:0;text-align:center;min-height:0;}
   .mega-hero-text{padding:28px 20px 6px;align-items:center;}
