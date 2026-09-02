@@ -178,7 +178,13 @@ function render(data = {}) {
   .hero blockquote{margin:14px auto 0;max-width:420px;text-align:center;font-size:.9rem;line-height:1.85;color:#3d5654;font-style:italic;font-family:'Cormorant Garamond',serif;}
   .hero-label{text-align:center;font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--turquoise-dark);margin:18px 0 0;}
 
-  .cover-photo{width:100%;height:min(72vw,470px);object-fit:cover;display:block;}
+  /* El borde inferior de la foto de portada se recorta en una ola suave
+     (mismo lenguaje que WAVE_DIVIDER/WAVE_LINES) en vez de terminar en una
+     línea recta — como una foto real cortada por la orilla, no un
+     rectángulo pegado entre dos secciones. clipPathUnits="objectBoundingBox"
+     hace que el recorte escale solo con el ancho/alto de la imagen, sin
+     depender de JS ni de un tamaño fijo. */
+  .cover-photo{width:100%;height:min(76vw,500px);object-fit:cover;display:block;clip-path:url(#wave-shore-playa);}
 
   .names-intro{text-align:center;font-size:.78rem;letter-spacing:1px;color:#5a716f;max-width:420px;margin:0 auto 24px;text-transform:uppercase;position:relative;z-index:1;}
   .names-script{position:relative;z-index:1;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;text-align:center;color:var(--turquoise-dark);line-height:1.08;}
@@ -277,6 +283,11 @@ function render(data = {}) {
     ${wave("wave-bottom")}
   </div>
 
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <clipPath id="wave-shore-playa" clipPathUnits="objectBoundingBox">
+      <path d="M0,0 L1,0 L1,0.87 C0.83,0.96 0.68,0.8 0.5,0.89 C0.32,0.98 0.17,0.81 0,0.9 Z"/>
+    </clipPath>
+  </svg>
   <img class="cover-photo" src="${esc(d.coverImage)}" alt="${esc(d.novia)} y ${esc(d.novio)}">
 
   <!-- Nombres -->

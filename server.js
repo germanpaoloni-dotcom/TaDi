@@ -648,7 +648,7 @@ const GA_SNIPPET = GA_MEASUREMENT_ID
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_MEASUREMENT_ID}');</script>`
   : "";
 
-function layout({ title, body, description }) {
+function layout({ title, body, description, extraHead }) {
   const desc = description || "Invitaciones digitales para bodas, cumpleaños, XV y más — elegí tu diseño, personalizalo en minutos y compartilo por WhatsApp con RSVP incluido.";
   return `<!doctype html>
 <html lang="es"><head>
@@ -659,6 +659,7 @@ function layout({ title, body, description }) {
 <link rel="icon" type="image/png" sizes="16x16" href="/static/img/logo/tadi-favicon-16.png">
 <link rel="apple-touch-icon" href="/static/img/logo/tadi-favicon-180.png">
 <link rel="stylesheet" href="${CSS_HREF}">
+${extraHead || ""}
 ${GA_SNIPPET}
 </head><body>
 <header class="site">
@@ -861,24 +862,38 @@ const TRUST_STRIP_HTML = `<div class="trust-strip">
   <div><span class="trust-icon">🎨</span><strong>Catálogo en crecimiento</strong><span>Sumamos diseños nuevos todos los meses</span></div>
 </div>`;
 
-// Franja corta arriba del hero (a diferencia de TRUST_STRIP_HTML, que queda
-// más abajo): lo que más distingue a TaDi de la competencia — precio a la
-// vista y entrega instantánea — tiene que verse antes de elegir categoría,
-// no solo después de scrollear.
-const HOME_QUICKFACTS_HTML = `<div class="home-quickfacts">
-  <span>⚡ Entrega al instante</span><span>·</span><span>💳 Desde ${moneyARS(19900)}</span><span>·</span><span>✏️ Edición ilimitada hasta el evento</span>
+// Variante de TRUST_STRIP_HTML solo para el home: "Edición ilimitada" y
+// "Entrega al instante" ya se mencionan en el hero de arriba, así que
+// repetirlas acá abajo se lee como error/duplicado. Se reemplazan por 2
+// datos que no están en ningún otro lado de la página, para que la franja
+// siga con 4 items (mismo grid) en vez de quedar corta con solo 2.
+const TRUST_STRIP_HOME_HTML = `<div class="trust-strip">
+  <div><span class="trust-icon">🔒</span><strong>Pago seguro</strong><span>En cuotas según tu banco</span><span class="mp-chip">con <b>Mercado</b><b class="mp-blue">Pago</b></span></div>
+  <div><span class="trust-icon">💌</span><strong>RSVP incluido</strong><span>Tus invitados confirman asistencia con un click, sin apps ni registros</span></div>
+  <div><span class="trust-icon">💬</span><strong>Compartilo por WhatsApp</strong><span>Un link para mandar a todos tus invitados, sin imprimir nada</span></div>
+  <div><span class="trust-icon">🎨</span><strong>Catálogo en crecimiento</strong><span>Sumamos diseños nuevos todos los meses</span></div>
 </div>`;
 
-// 3 pasos de "cómo funciona", antes de elegir categoría — la competencia
-// (manual/consultiva) tarda días y esconde el precio hasta cotizar; acá el
-// proceso es autoservicio e instantáneo, pero si no se explica arriba de
-// todo el visitante no lo sabe hasta que ya está probando solo.
-const HOW_IT_WORKS_HTML = `<div class="how-it-works">
-  <div class="hiw-step"><span class="hiw-num">1</span><strong>Elegí tu diseño</strong><span class="hiw-desc">Mirá la vista previa antes de pagar</span></div>
-  <div class="hiw-arrow">→</div>
-  <div class="hiw-step"><span class="hiw-num">2</span><strong>Personalizalo</strong><span class="hiw-desc">Cargá tus datos y fotos, se ve al instante</span></div>
-  <div class="hiw-arrow">→</div>
-  <div class="hiw-step"><span class="hiw-num">3</span><strong>Compartilo</strong><span class="hiw-desc">Un link por WhatsApp, con RSVP incluido</span></div>
+// Hero animado del home del catálogo: fondo "aurora" (gradientes radiales
+// difuminados que derivan lento) + puntitos de acento flotando + el título
+// entra con fade/subida al cargar. Reemplaza la versión anterior (chips de
+// datos + stepper de "cómo funciona" apretados debajo del título), que
+// quedaba recargada — esos 3 pasos ya están explicados en /como-funciona y
+// los datos de precio/entrega/edición viven en la franja de abajo
+// (TRUST_STRIP_HOME_HTML). Acá el único trabajo es dar el pantallazo de
+// marca antes de elegir categoría, con algo de calidez y movimiento.
+const CATALOG_HERO_HTML = `<div class="cat-hero">
+  <div class="cat-hero-aurora"></div>
+  <span class="cat-hero-dot" style="width:14px;height:14px;background:#ff9c6b;top:38px;left:16%;animation-delay:-1.1s;"></span>
+  <span class="cat-hero-dot" style="width:9px;height:9px;background:#d68caa;top:96px;left:9%;animation-delay:-3.4s;"></span>
+  <span class="cat-hero-dot" style="width:11px;height:11px;background:#f2c265;top:52px;right:14%;animation-delay:-.6s;"></span>
+  <span class="cat-hero-dot" style="width:7px;height:7px;background:#8fb2c9;top:118px;right:20%;animation-delay:-2.2s;"></span>
+  <span class="cat-hero-dot" style="width:16px;height:16px;background:#e8672e;top:150px;right:8%;opacity:.35;animation-delay:-4s;"></span>
+  <div class="orios-home-head">
+    <span class="orios-home-kicker">Catálogo TaDi</span>
+    <h1>Elegí tu <span class="cat-hero-accent">tarjeta</span><span class="dot">.</span></h1>
+    <p>Diseños digitales para cada ocasión, listos para personalizar en minutos.</p>
+  </div>
 </div>`;
 
 // ---------- HOME interactivo: 6 categorías lado a lado, hover con
@@ -927,15 +942,10 @@ function catalogPage(activeCat) {
     return layout({
       title: "Catálogo",
       description: "Invitación digital lista en minutos: elegí un diseño para boda, cumpleaños, XV, bautismo o baby shower, personalizalo y compartilo por WhatsApp con edición ilimitada y RSVP incluido.",
-      body: `<div class="orios-home-head">
-        <span class="orios-home-kicker">Catálogo TaDi</span>
-        <h1>Elegí tu tarjeta<span class="dot">.</span></h1>
-        <p>Diseños digitales para cada ocasión, listos para personalizar en minutos.</p>
-        ${HOME_QUICKFACTS_HTML}
-      </div>
-      ${HOW_IT_WORKS_HTML}
+      extraHead: `<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&display=swap" rel="stylesheet">`,
+      body: `${CATALOG_HERO_HTML}
       ${oriosHomeHTML(visible)}
-      ${TRUST_STRIP_HTML}`,
+      ${TRUST_STRIP_HOME_HTML}`,
     });
   }
 

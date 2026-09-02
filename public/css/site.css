@@ -52,34 +52,61 @@ footer.site .footer-links{line-height:1.9;}
 footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spacing:.2px;}
 
 /* ---------- home interactivo (6 categorías + modal) — neumorphism ---------- */
-.orios-home-head{max-width:1180px;margin:0 auto;padding:44px 32px 4px;text-align:center;}
-.orios-home-kicker{display:block;text-transform:uppercase;letter-spacing:3px;font-size:.72rem;font-weight:700;color:var(--accent-2);margin-bottom:10px;}
-.orios-home-head h1{margin:0 0 8px;font-size:2rem;font-weight:800;color:var(--ink);letter-spacing:-.5px;}
-.orios-home-head h1 .dot{color:var(--accent);}
-.orios-home-head p{margin:0;color:var(--muted);font-size:.95rem;}
-.home-quickfacts{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:16px auto 0;max-width:440px;background:var(--bg);box-shadow:var(--nu-inset-sm);border-radius:30px;padding:9px 18px;font-size:.74rem;font-weight:700;color:var(--accent-2);}
-.home-quickfacts span:nth-child(even){color:var(--muted);font-weight:400;}
-.how-it-works{max-width:900px;margin:8px auto 0;padding:20px 32px 0;display:flex;align-items:flex-start;justify-content:center;gap:10px;flex-wrap:wrap;}
-.hiw-step{flex:1;min-width:150px;max-width:220px;text-align:center;background:var(--bg);border-radius:16px;box-shadow:var(--nu-xs);padding:16px 12px;}
-.hiw-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:.8rem;margin-bottom:8px;}
-.hiw-step strong{display:block;font-size:.86rem;color:var(--ink);margin-bottom:3px;}
-.hiw-step span{display:block;font-size:.72rem;color:var(--muted);line-height:1.4;}
-.hiw-arrow{align-self:center;color:var(--muted);font-size:1.1rem;padding-top:20px;}
-@media (max-width:700px){ .hiw-arrow{display:none;} .how-it-works{gap:10px;} }
-/* En celular las 3 cards completas (con bajada de texto) ocupan demasiado
-   alto arriba de todo — se comprimen en una sola tira neomórfica con
-   numeritos + título corto, sin la bajada, tipo stepper. Las cards con
-   bajada se mantienen tal cual en desktop/tablet, esto solo pisa el look
-   en pantallas chicas. */
-@media (max-width:600px){
-  .how-it-works{background:var(--bg);box-shadow:var(--nu-sm);border-radius:20px;margin:16px 16px 0;padding:12px 6px;gap:2px;flex-wrap:nowrap;align-items:center;}
-  .hiw-step{background:none;box-shadow:none;padding:0;min-width:0;flex:1;max-width:none;}
-  .hiw-step .hiw-desc{display:none;}
-  .hiw-step strong{font-size:.66rem;line-height:1.2;}
-  .hiw-num{width:22px;height:22px;font-size:.68rem;margin-bottom:4px;}
-  .hiw-arrow{display:block;padding-top:0;font-size:.8rem;color:var(--muted);opacity:.55;}
+
+/* Hero animado del catálogo: fondo "aurora" (gradientes radiales
+   difuminados, deriva lenta) + puntitos de acento flotando detrás del
+   título. El título entra con fade/subida al cargar la página, y el punto
+   naranja de "tarjeta." tiene un pulso suave. Todo el bloque de animación
+   se desactiva entero si el visitante prefiere menos movimiento. */
+.cat-hero{position:relative;overflow:hidden;}
+.cat-hero-aurora{position:absolute;inset:-40% -10% -30% -10%;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 20% 25%, rgba(255,150,110,.34), transparent 58%),
+    radial-gradient(circle at 82% 15%, rgba(255,196,120,.28), transparent 52%),
+    radial-gradient(circle at 55% 45%, rgba(214,140,170,.24), transparent 58%),
+    radial-gradient(circle at 10% 65%, rgba(150,180,200,.20), transparent 52%);
+  filter:blur(38px);
+  transform-origin:50% 40%;
 }
-.orios-home{max-width:1180px;margin:0 auto;padding:36px 32px 8px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.cat-hero::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg, transparent 45%, var(--bg) 96%);pointer-events:none;}
+.cat-hero-dot{position:absolute;border-radius:50%;z-index:0;opacity:.55;}
+
+.orios-home-head{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:64px 32px 20px;text-align:center;}
+.orios-home-kicker{display:inline-flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:3px;font-size:.72rem;font-weight:700;color:var(--accent-2);margin-bottom:14px;}
+.orios-home-kicker::before,.orios-home-kicker::after{content:"";width:16px;height:1px;background:var(--accent-2);opacity:.5;}
+.orios-home-head h1{margin:0 0 10px;font-size:clamp(2.1rem,5vw,3rem);font-weight:800;color:var(--ink);letter-spacing:-.6px;line-height:1.1;}
+.orios-home-head h1 .dot{color:var(--accent);display:inline-block;}
+.cat-hero-accent{font-family:'Playfair Display',Georgia,serif;font-style:italic;font-weight:600;color:var(--accent-2);padding:0 2px;}
+.orios-home-head p{margin:0 auto;max-width:480px;color:var(--muted);font-size:1.05rem;line-height:1.5;}
+
+@media (prefers-reduced-motion: no-preference){
+  .cat-hero-aurora{animation:catHeroAurora 22s ease-in-out infinite;}
+  @keyframes catHeroAurora{
+    0%,100%{transform:translate(0,0) rotate(0deg) scale(1);}
+    33%{transform:translate(1.5%,-2%) rotate(4deg) scale(1.04);}
+    66%{transform:translate(-2%,1.5%) rotate(-3deg) scale(1.02);}
+  }
+  .cat-hero-dot{animation:catHeroFloat 5s ease-in-out infinite;}
+  @keyframes catHeroFloat{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-10px);}
+  }
+  .orios-home-head h1 .dot{animation:catHeroDotPulse 2.6s ease-in-out infinite;}
+  @keyframes catHeroDotPulse{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.35);}
+  }
+  .orios-home-head .orios-home-kicker,.orios-home-head h1,.orios-home-head p{animation:catHeroRiseIn .7s cubic-bezier(.2,.8,.2,1) both;}
+  .orios-home-head .orios-home-kicker{animation-delay:.05s;}
+  .orios-home-head h1{animation-delay:.18s;}
+  .orios-home-head p{animation-delay:.32s;}
+  @keyframes catHeroRiseIn{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+}
+
+.orios-home{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:36px 32px 8px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
 .orios-panel{position:relative;background:var(--bg);border:0;border-radius:28px;box-shadow:var(--nu-md);padding:26px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:16px;cursor:pointer;font-family:inherit;transition:box-shadow .2s,transform .2s;text-decoration:none;color:inherit;}
 .orios-panel:hover, .orios-panel:focus-visible{box-shadow:var(--nu-lg);transform:translateY(-4px);}
 .orios-panel:active{box-shadow:var(--nu-inset);transform:translateY(0);}
