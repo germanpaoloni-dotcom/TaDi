@@ -42,43 +42,6 @@ function corners(color) {
   return `${cornerLeaf("cb-tl", color)}${cornerLeaf("cb-tr", color)}${cornerLeaf("cb-bl", color)}${cornerLeaf("cb-br", color)}`;
 }
 
-// Rama alta (hojas + espigas tipo pampa) para los laterales del hero —
-// se estira verticalmente para acompañar todo el alto de la franja.
-function heroBranch(extraClass, color) {
-  const leafAt = (x, y, r, s = 1) =>
-    `<g transform="translate(${x},${y}) rotate(${r}) scale(${s})"><path d="M0 0 C 8 -6 8 -17 0 -23 C -8 -17 -8 -6 0 0 Z" fill="${color}" opacity=".82"/></g>`;
-  const plume = (cx, cy, rot) => {
-    const strands = [-16, -8, 0, 8, 16]
-      .map((a) => `<path d="M${cx} ${cy} q ${a * 0.6} -26 ${a} -52" stroke="${color}" stroke-width="1" fill="none" opacity=".55"/>`)
-      .join("");
-    return `<g transform="rotate(${rot} ${cx} ${cy})">${strands}</g>`;
-  };
-  return `<svg class="hero-branch ${extraClass}" viewBox="0 0 100 380" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <g class="branch-sway-tall">
-    <path d="M8 8 C 40 55, 14 140, 36 210 C 52 265, 22 320, 32 372" fill="none" stroke="${color}" stroke-width="1.2" stroke-linecap="round"/>
-    ${leafAt(18, 38, -150)}${leafAt(10, 78, -165)}${leafAt(22, 118, 170)}${leafAt(30, 168, 160)}${leafAt(16, 205, -170)}${leafAt(30, 250, 150, 0.9)}${leafAt(20, 300, -160, 0.85)}${leafAt(28, 340, 165, 0.8)}
-    ${plume(18, 26, -8)}
-    ${plume(34, 226, 20)}
-    </g>
-  </svg>`;
-}
-
-// Ramita fina de espigas, usada como sprig sobre el monograma del hero.
-function sprigSVG(color) {
-  const grain = (y, i) => {
-    const dx = i % 2 ? -3 : 3;
-    const rot = i % 2 ? -18 : 18;
-    return `<ellipse cx="${15 + dx}" cy="${y}" rx="2.4" ry="4.6" fill="${color}" opacity=".85" transform="rotate(${rot} ${15 + dx} ${y})"/>`;
-  };
-  return `<svg class="sprig" viewBox="0 0 30 50" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <g class="sprig-sway">
-    <path d="M15 48 L15 6" stroke="${color}" stroke-width="1.1"/>
-    ${[10, 16, 22, 28, 34].map(grain).join("")}
-    <circle cx="15" cy="6" r="1.6" fill="${color}"/>
-    </g>
-  </svg>`;
-}
-
 // Separador fino con una hoja al centro, usado entre bloques de texto.
 function dividerSVG(color) {
   return `<svg class="divider-deco" width="150" height="18" viewBox="0 0 150 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -157,15 +120,19 @@ function render(data = {}) {
   .corner-branch.cb-br{bottom:8px;right:8px;transform:scale(-1,-1);}
 
   /* ---------- HERO ---------- */
-  .hero{text-align:center;padding-top:clamp(50px,9vw,90px);padding-bottom:clamp(50px,9vw,90px);}
-  .hero-branch{position:absolute;top:0;width:min(28vw,150px);height:100%;color:var(--tan-accent);opacity:.9;pointer-events:none;z-index:0;}
-  .hero-branch.hb-left{left:0;}
-  .hero-branch.hb-right{right:0;transform:scaleX(-1);}
-  .sprig{display:block;width:26px;height:auto;margin:0 auto 16px;color:var(--tan-accent);}
+  .hero{text-align:center;padding-top:clamp(46px,8vw,80px);padding-bottom:clamp(50px,9vw,90px);}
+  .arch-frame{position:relative;width:min(64vw,260px);height:min(56vw,330px);margin:0 auto 22px;border-radius:130px 130px 8px 8px;overflow:hidden;box-shadow:0 18px 36px rgba(0,0,0,.28);border:1px solid var(--tan-accent);}
+  .arch-frame img{width:100%;height:100%;object-fit:cover;}
   .monogram{width:clamp(78px,18vw,100px);height:clamp(78px,18vw,100px);border:1px solid var(--tan-accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-family:'Fraunces',serif;font-style:italic;font-size:clamp(1.25rem,4vw,1.6rem);letter-spacing:1px;color:#fdfbf3;}
 
-  .cover-wrap{background:var(--cream);padding:clamp(24px,5vw,44px) 20px 0;text-align:center;}
-  .cover-photo{width:100%;max-width:520px;height:clamp(240px,44vw,400px);object-fit:cover;border-radius:6px 70px 6px 70px;box-shadow:0 14px 30px rgba(60,53,36,.18);}
+  /* ---------- RAMAS REALES (fotos de referencia recortadas) ---------- */
+  .leaf-rail{position:absolute;top:10px;width:min(20vw,96px);pointer-events:none;z-index:0;opacity:.8;}
+  .leaf-rail img{width:100%;height:auto;display:block;}
+  .leaf-rail.left{left:-14px;}
+  .leaf-rail.right{right:-14px;transform:scaleX(-1);}
+  .leaf-rail.small{width:min(16vw,78px);top:6px;opacity:.7;}
+  .leaf-rail.small.left{left:-10px;}
+  .leaf-rail.small.right{right:-10px;}
 
   .names{font-size:clamp(2.3rem,7vw,3.6rem);margin:6px 0 4px;}
   .fecha-grande{font-family:'Fraunces',serif;font-style:italic;font-size:clamp(1.4rem,4.5vw,2.1rem);letter-spacing:2px;margin:12px 0 4px;color:var(--tan-accent);}
@@ -238,30 +205,23 @@ function render(data = {}) {
     0%,100%{transform:rotate(-2.4deg);}
     50%{transform:rotate(2.2deg);}
   }
-  @keyframes brisa-suave-tallo{
-    0%,100%{transform:rotate(-1.7deg);}
-    50%{transform:rotate(1.9deg);}
-  }
   .corner-branch .branch-sway{transform-origin:4px 4px;animation:brisa-suave 8.5s ease-in-out infinite;}
   .corner-branch.cb-tl .branch-sway{animation-delay:0s;}
   .corner-branch.cb-tr .branch-sway{animation-delay:1.6s;}
   .corner-branch.cb-bl .branch-sway{animation-delay:3.2s;}
   .corner-branch.cb-br .branch-sway{animation-delay:4.8s;}
-  .hero-branch .branch-sway-tall{transform-origin:30px 372px;animation:brisa-suave-tallo 11s ease-in-out infinite;}
-  .hero-branch.hb-left .branch-sway-tall{animation-delay:0s;}
-  .hero-branch.hb-right .branch-sway-tall{animation-delay:3.6s;}
-  .sprig .sprig-sway{transform-origin:15px 48px;animation:brisa-suave 7.2s ease-in-out infinite;animation-delay:.8s;}
 
   @media (prefers-reduced-motion: reduce){
-    .branch-sway,.branch-sway-tall,.sprig-sway{animation:none !important;transform:none !important;}
+    .branch-sway{animation:none !important;transform:none !important;}
   }
 </style></head>
 <body>
 
   <div class="band band-olive hero">
-    ${heroBranch("hb-left", accent)}${heroBranch("hb-right", accent)}
+    <div class="leaf-rail left"><img src="/static/img/ornaments/boho-branch-tall-left.webp" alt="" aria-hidden="true"></div>
+    <div class="leaf-rail right"><img src="/static/img/ornaments/boho-branch-tall-right.webp" alt="" aria-hidden="true"></div>
     <div class="wrap">
-      ${sprigSVG(accent)}
+      ${d.coverImage ? `<div class="arch-frame"><img src="${esc(d.coverImage)}" alt="${esc(d.novia)} y ${esc(d.novio)}"></div>` : ""}
       <div class="monogram">${inicial(d.novia)}<span class="amp">&amp;</span>${inicial(d.novio)}</div>
       <p class="kicker">Nos casamos</p>
       <h1 class="names">${esc(d.novia)}<span class="amp"> &amp; </span>${esc(d.novio)}</h1>
@@ -273,10 +233,6 @@ function render(data = {}) {
   ${(d.direccionMapa || d.dressCode) ? `<div class="mapdress-row">
     ${d.direccionMapa ? `<a class="map-link" href="${esc(d.direccionMapa)}" target="_blank" rel="noopener">Ver ubicación en el mapa &rarr;</a>` : ""}
     ${d.dressCode ? `<div class="dresscode-box"><span class="kicker">Dress code</span><strong>${esc(d.dressCode)}</strong></div>` : ""}
-  </div>` : ""}
-
-  ${d.coverImage ? `<div class="cover-wrap">
-    <img class="cover-photo" src="${esc(d.coverImage)}" alt="${esc(d.novia)} y ${esc(d.novio)}">
   </div>` : ""}
 
   ${d.mensaje ? `<div class="band band-cream">
@@ -304,7 +260,8 @@ function render(data = {}) {
   </div>` : ""}
 
   <div class="band band-cream">
-    ${corners("#8a9463")}
+    <div class="leaf-rail small left"><img src="/static/img/ornaments/boho-branch-corner-bl.webp" alt="" aria-hidden="true"></div>
+    <div class="leaf-rail small right"><img src="/static/img/ornaments/boho-branch-corner-br.webp" alt="" aria-hidden="true"></div>
     <div class="wrap">
       ${dividerSVG("#a68f68")}
       <h2 class="caps-heading">Falta poco</h2>
@@ -323,7 +280,8 @@ function render(data = {}) {
   </div>` : ""}
 
   <div class="band band-tan">
-    ${corners("#7d6a45")}
+    <div class="leaf-rail small left"><img src="/static/img/ornaments/boho-branch-corner-bl.webp" alt="" aria-hidden="true"></div>
+    <div class="leaf-rail small right"><img src="/static/img/ornaments/boho-branch-corner-br.webp" alt="" aria-hidden="true"></div>
     <div class="wrap">
       <div class="${d.alias ? "rsvp-wrap-two" : ""}">
         ${d.alias ? `<div class="rsvp-col">${giftHTML}</div><div class="rsvp-sep" aria-hidden="true"></div><div class="rsvp-col">${rsvpMainHTML}</div>` : rsvpMainHTML}
