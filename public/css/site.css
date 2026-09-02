@@ -57,7 +57,7 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .orios-home-head h1{margin:0 0 8px;font-size:2rem;font-weight:800;color:var(--ink);letter-spacing:-.5px;}
 .orios-home-head h1 .dot{color:var(--accent);}
 .orios-home-head p{margin:0;color:var(--muted);font-size:.95rem;}
-.home-quickfacts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0 0;font-size:.78rem;font-weight:700;color:var(--accent-2);}
+.home-quickfacts{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:16px auto 0;max-width:440px;background:var(--bg);box-shadow:var(--nu-inset-sm);border-radius:30px;padding:9px 18px;font-size:.74rem;font-weight:700;color:var(--accent-2);}
 .home-quickfacts span:nth-child(even){color:var(--muted);font-weight:400;}
 .how-it-works{max-width:900px;margin:8px auto 0;padding:20px 32px 0;display:flex;align-items:flex-start;justify-content:center;gap:10px;flex-wrap:wrap;}
 .hiw-step{flex:1;min-width:150px;max-width:220px;text-align:center;background:var(--bg);border-radius:16px;box-shadow:var(--nu-xs);padding:16px 12px;}
@@ -66,6 +66,19 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .hiw-step span{display:block;font-size:.72rem;color:var(--muted);line-height:1.4;}
 .hiw-arrow{align-self:center;color:var(--muted);font-size:1.1rem;padding-top:20px;}
 @media (max-width:700px){ .hiw-arrow{display:none;} .how-it-works{gap:10px;} }
+/* En celular las 3 cards completas (con bajada de texto) ocupan demasiado
+   alto arriba de todo — se comprimen en una sola tira neomórfica con
+   numeritos + título corto, sin la bajada, tipo stepper. Las cards con
+   bajada se mantienen tal cual en desktop/tablet, esto solo pisa el look
+   en pantallas chicas. */
+@media (max-width:600px){
+  .how-it-works{background:var(--bg);box-shadow:var(--nu-sm);border-radius:20px;margin:16px 16px 0;padding:12px 6px;gap:2px;flex-wrap:nowrap;align-items:center;}
+  .hiw-step{background:none;box-shadow:none;padding:0;min-width:0;flex:1;max-width:none;}
+  .hiw-step .hiw-desc{display:none;}
+  .hiw-step strong{font-size:.66rem;line-height:1.2;}
+  .hiw-num{width:22px;height:22px;font-size:.68rem;margin-bottom:4px;}
+  .hiw-arrow{display:block;padding-top:0;font-size:.8rem;color:var(--muted);opacity:.55;}
+}
 .orios-home{max-width:1180px;margin:0 auto;padding:36px 32px 8px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
 .orios-panel{position:relative;background:var(--bg);border:0;border-radius:28px;box-shadow:var(--nu-md);padding:26px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:16px;cursor:pointer;font-family:inherit;transition:box-shadow .2s,transform .2s;text-decoration:none;color:inherit;}
 .orios-panel:hover, .orios-panel:focus-visible{box-shadow:var(--nu-lg);transform:translateY(-4px);}
@@ -128,6 +141,19 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .color-chip{padding:7px 15px;border-radius:20px;border:0;background:var(--bg);box-shadow:var(--nu-xs);color:var(--muted);font-size:.76rem;font-family:inherit;cursor:pointer;transition:box-shadow .15s,color .15s;}
 .color-chip:hover{color:var(--ink);}
 .color-chip.active{color:var(--accent-2);box-shadow:var(--nu-inset-sm);font-weight:700;}
+/* En celular angosto, wrappear las 8 categorías + los colores en varias
+   líneas apiladas era lo que hacía "horrible" la primera impresión de
+   /categoria/:id (había que scrollear un montón antes de ver una sola
+   tarjeta). En vez de wrappear, en mobile pasan a una sola fila que se
+   desliza (como el filtro de Instagram/e-commerce) — mismo contenido,
+   una línea de alto en vez de tres. Va DESPUÉS de las reglas base de
+   arriba a propósito: misma especificidad, tiene que ganar por orden. */
+@media (max-width:600px){
+  .cat-filter,.color-filter-bar{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;-webkit-overflow-scrolling:touch;scrollbar-width:none;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent 100%);mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent 100%);}
+  .color-filter-bar{padding-left:18px;padding-right:18px;}
+  .cat-filter::-webkit-scrollbar,.color-filter-bar::-webkit-scrollbar{display:none;}
+  .cat-filter a,.color-chip{flex:0 0 auto;white-space:nowrap;}
+}
 .grid{max-width:1180px;margin:0 auto;padding:20px 32px 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:26px;}
 .design-card{background:var(--bg);border:0;border-radius:var(--radius);box-shadow:var(--nu-sm);overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;}
 .design-card:hover{transform:translateY(-4px);box-shadow:var(--nu-md);}
@@ -247,7 +273,8 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .panel-shell{display:flex;gap:18px;margin-top:16px;align-items:flex-start;}
 .panel-nav{width:140px;flex:none;display:flex;flex-direction:column;gap:4px;position:sticky;top:24px;}
 .panel-nav-item{display:flex;align-items:center;gap:9px;text-align:left;background:transparent;border:0;border-left:3px solid transparent;border-radius:10px;padding:10px 12px 10px 9px;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;transition:background-color .16s ease,box-shadow .16s ease,color .16s ease,border-color .16s ease,transform .1s ease;}
-.panel-nav-item .nav-icon{font-size:.95rem;}
+.panel-nav-item .nav-icon{display:inline-flex;flex-shrink:0;}
+.panel-nav-item .nav-icon svg{display:block;}
 .panel-nav-item:hover{background:var(--bg);box-shadow:var(--nu-xs);color:var(--ink);}
 .panel-nav-item:active{transform:scale(.96);}
 .panel-nav-item.active{background:var(--bg);box-shadow:var(--nu-inset-sm);color:var(--accent-2);border-left-color:var(--accent);animation:panelNavSelect .25s ease;}
@@ -338,15 +365,25 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .tutorial-hero .kicker{color:var(--accent-2);font-size:.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
 .tutorial-hero h1{font-size:2.1rem;margin:14px 0 10px;color:var(--ink);}
 .tutorial-hero p{color:var(--muted);font-size:1rem;line-height:1.6;}
-.tutorial-steps{max-width:820px;margin:40px auto 0;padding:0 32px 70px;display:flex;flex-direction:column;gap:36px;}
-.tutorial-step{background:var(--bg);border:0;border-radius:var(--radius);box-shadow:var(--nu-sm);padding:28px;display:grid;grid-template-columns:52px 1fr;gap:20px;align-items:start;}
-.tutorial-step .num{width:52px;height:52px;border-radius:50%;background:var(--bg);box-shadow:var(--nu-inset-sm);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.3rem;color:var(--accent-2);flex-shrink:0;}
-.tutorial-step h3{margin:2px 0 8px;font-size:1.15rem;color:var(--ink);}
-.tutorial-step p{margin:0 0 16px;color:var(--muted);font-size:.92rem;line-height:1.6;}
-.tutorial-step .shot{background:var(--bg);box-shadow:var(--nu-inset-sm);border-radius:14px;padding:14px;display:inline-block;max-width:100%;}
-.tutorial-step .shot img{display:block;max-width:100%;height:auto;border-radius:8px;}
 .tutorial-cta{max-width:820px;margin:0 auto 80px;padding:0 32px;text-align:center;}
 .tutorial-cta .btn{padding:14px 28px;}
+
+/* ---------- cómo funciona: acordeón numerado (dirección B elegida) ---------- */
+.howfaq-wrap{max-width:640px;margin:36px auto 0;padding:0 32px;}
+.howfaq-list{background:var(--bg);border-radius:var(--radius);box-shadow:var(--nu-sm);overflow:hidden;}
+.howfaq-item + .howfaq-item{border-top:1px solid var(--line);}
+.howfaq-head{width:100%;display:flex;align-items:center;gap:14px;padding:18px 20px;background:none;border:0;cursor:pointer;font-family:inherit;text-align:left;}
+.howfaq-badge{width:36px;height:36px;border-radius:11px;background:var(--bg);box-shadow:var(--nu-inset-sm);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.92rem;color:var(--muted);flex-shrink:0;transition:background .18s,color .18s,box-shadow .18s;}
+.howfaq-item.open .howfaq-badge{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;box-shadow:none;}
+.howfaq-title{flex:1;display:flex;flex-direction:column;gap:2px;}
+.howfaq-title b{font-size:.98rem;color:var(--ink);}
+.howfaq-title span{font-size:.78rem;color:var(--muted);}
+.howfaq-chev{color:var(--muted);flex-shrink:0;transition:transform .2s;}
+.howfaq-item.open .howfaq-chev{transform:rotate(180deg);color:var(--accent-2);}
+.howfaq-body{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+.howfaq-item.open .howfaq-body{max-height:320px;}
+.howfaq-body p{margin:0;padding:0 20px 20px 70px;color:var(--muted);font-size:.88rem;line-height:1.65;}
+.howfaq-cta{display:block;margin:22px auto 0;max-width:340px;padding:15px 20px;font-size:.9rem;}
 
 /* ---------- responsive ---------- */
 @media (max-width: 900px){
@@ -393,9 +430,10 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
   .panel-nav-item{flex:none;white-space:nowrap;}
   .tutorial-hero{padding:40px 20px 0;}
   .tutorial-hero h1{font-size:1.7rem;}
-  .tutorial-steps{padding:0 20px 50px;}
-  .tutorial-step{grid-template-columns:1fr;padding:22px;}
-  .tutorial-step .num{margin-bottom:4px;}
+  .howfaq-wrap{padding:0 20px;}
+  .howfaq-head{padding:15px 16px;gap:11px;}
+  .howfaq-badge{width:32px;height:32px;font-size:.84rem;}
+  .howfaq-body p{padding:0 16px 18px 59px;font-size:.84rem;}
 
   .orios-home-head{padding:30px 20px 4px;}
   .orios-home-head h1{font-size:1.5rem;}
@@ -420,11 +458,33 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
   .cat-modal-title{font-size:1.4rem;}
 }
 
+/* Panel de tu evento en celular angosto: la tira de pestañas horizontal
+   (arriba, con texto) quedaba confusa — 6 pestañas con ícono+texto no
+   entraban y se sentía como una lista de botones sueltos, no como
+   navegación. Pasa a una barra flotante fija abajo, solo íconos, look
+   tipo Instagram (barra blanca redondeada, ícono de línea, puntito bajo
+   el activo). Sigue siendo el mismo <nav>/JS de siempre, esto solo cambia
+   el layout en pantallas de celular real (tablet en 900px sigue con la
+   tira arriba, ahí sí entra cómoda). */
+@media (max-width: 600px){
+  .editor-form-panel{padding-bottom:88px;}
+  .panel-nav{position:fixed;left:16px;right:16px;bottom:14px;top:auto;z-index:60;flex-direction:row;width:auto;justify-content:space-around;align-items:center;gap:0;background:#fff;border-radius:24px;box-shadow:0 8px 24px rgba(30,28,34,.18);padding:10px 4px;overflow-x:visible;-webkit-overflow-scrolling:touch;}
+  .panel-nav-item{flex-direction:column;gap:3px;padding:4px 6px;border:0;border-bottom:0;background:none;box-shadow:none;position:relative;color:var(--muted);white-space:normal;}
+  .panel-nav-item span:not(.nav-icon){display:none;}
+  .panel-nav-item:hover{background:none;box-shadow:none;}
+  .panel-nav-item.active{background:none;box-shadow:none;border-left-color:transparent;border-bottom-color:transparent;color:var(--accent);}
+  .panel-nav-item.active::after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent);}
+}
+
 @media (max-width: 480px){
-  .orios-home{grid-template-columns:1fr;gap:14px;}
-  .orios-panel{flex-direction:row;text-align:left;padding:14px 16px;}
-  .orios-panel-photo{width:64px;height:64px;flex-shrink:0;}
-  .orios-panel-label{text-align:left;font-size:.95rem;}
+  /* Antes esto pasaba a fila (foto a la izquierda, texto alineado a la
+     izquierda) — quedaba descentrado y cada panel ocupaba casi tanto alto
+     como en tablet. Se mantiene el layout centrado de siempre, achicado a
+     más o menos la mitad, así entran más categorías sin scrollear tanto. */
+  .orios-home{grid-template-columns:1fr;gap:8px;}
+  .orios-panel{flex-direction:column;text-align:center;padding:10px 14px;gap:6px;}
+  .orios-panel-photo{width:52px;height:52px;}
+  .orios-panel-label{text-align:center;font-size:.82rem;}
   header.site{padding:16px 20px;}
   .mega-hero-title, .mini-hero .mega-hero-title{font-size:2.1rem;}
   .mega-hero-ghost, .mini-hero .mega-hero-ghost{font-size:2.6rem;}

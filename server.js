@@ -804,11 +804,11 @@ const HOME_QUICKFACTS_HTML = `<div class="home-quickfacts">
 // proceso es autoservicio e instantáneo, pero si no se explica arriba de
 // todo el visitante no lo sabe hasta que ya está probando solo.
 const HOW_IT_WORKS_HTML = `<div class="how-it-works">
-  <div class="hiw-step"><span class="hiw-num">1</span><strong>Elegí tu diseño</strong><span>Mirá la vista previa antes de pagar</span></div>
+  <div class="hiw-step"><span class="hiw-num">1</span><strong>Elegí tu diseño</strong><span class="hiw-desc">Mirá la vista previa antes de pagar</span></div>
   <div class="hiw-arrow">→</div>
-  <div class="hiw-step"><span class="hiw-num">2</span><strong>Personalizalo</strong><span>Cargá tus datos y fotos, se ve al instante</span></div>
+  <div class="hiw-step"><span class="hiw-num">2</span><strong>Personalizalo</strong><span class="hiw-desc">Cargá tus datos y fotos, se ve al instante</span></div>
   <div class="hiw-arrow">→</div>
-  <div class="hiw-step"><span class="hiw-num">3</span><strong>Compartilo</strong><span>Un link por WhatsApp, con RSVP incluido</span></div>
+  <div class="hiw-step"><span class="hiw-num">3</span><strong>Compartilo</strong><span class="hiw-desc">Un link por WhatsApp, con RSVP incluido</span></div>
 </div>`;
 
 // ---------- HOME interactivo: 6 categorías lado a lado, hover con
@@ -993,28 +993,28 @@ app.get("/como-funciona", (req, res) => {
   const steps = [
     {
       title: "Entrá a tu link de edición",
+      short: "Apenas se acredita el pago",
       body: "Apenas se acredita el pago te llevamos directo al editor, y además te dejamos un link privado guardado ahí mismo para que puedas volver cuando quieras — no hace falta pagar de nuevo ni pedirlo por otro lado. Conviene guardarlo (por ejemplo, mandártelo a vos mismo por WhatsApp).",
-      img: "paso1-link.png",
     },
     {
       title: "Completá los datos de tu evento",
+      short: "Nombres, fecha, horarios, lugares",
       body: "Nombres, fecha, horarios, lugares, el mensaje para los invitados... a la izquierda vas completando cada campo y a la derecha ves la invitación real actualizarse al instante, tal cual la van a ver tus invitados.",
-      img: "paso2-datos.png",
     },
     {
       title: "Subí tus fotos",
+      short: "Portada y galería",
       body: "Cargá una foto de portada y las que quieras para la galería. Se suben directo desde el celular o la compu, no hace falta redimensionarlas ni nada — nosotros nos encargamos de que se vean bien.",
-      img: "paso3-fotos.png",
     },
     {
       title: "Guardá los cambios",
+      short: "Editá las veces que quieras",
       body: "Cuando quede como te gusta, tocá \"Guardar cambios\". Podés volver a entrar y seguir editando las veces que quieras antes del evento — no hay un único intento.",
-      img: "paso4-guardar.png",
     },
     {
       title: "Compartí el link con tus invitados",
+      short: "Por WhatsApp, con confirmaciones",
       body: "Este es el link público (distinto al de edición) — es el que le mandás a la gente por WhatsApp o donde quieras. Ahí van a poder ver la invitación y confirmar asistencia.",
-      img: "paso5-compartir.png",
     },
   ];
 
@@ -1024,24 +1024,40 @@ app.get("/como-funciona", (req, res) => {
     body: `
     <div class="tutorial-hero">
       <span class="kicker">Guía rápida</span>
-      <h1>Cómo cargar los datos de tu invitación</h1>
-      <p>Después de pagar, tenés que personalizar tu invitación con los datos de tu evento. Son 5 pasos y no lleva más de unos minutos — así funciona.</p>
+      <h1>Así se arma tu invitación</h1>
+      <p>Tocá cada paso para ver el detalle. Son 5 y no lleva más de unos minutos — así funciona.</p>
     </div>
-    <div class="tutorial-steps">
-      ${steps.map((s, i) => `
-        <div class="tutorial-step">
-          <div class="num">${i + 1}</div>
-          <div>
-            <h3>${s.title}</h3>
-            <p>${s.body}</p>
-            <div class="shot"><img src="/static/img/tutorial/${s.img}" alt="${s.title}" loading="lazy"></div>
-          </div>
+    <div class="howfaq-wrap">
+      <div class="howfaq-list" id="howfaqList">
+        ${steps.map((s, i) => `
+        <div class="howfaq-item${i === 0 ? " open" : ""}">
+          <button type="button" class="howfaq-head">
+            <span class="howfaq-badge">${i + 1}</span>
+            <span class="howfaq-title"><b>${s.title}</b><span>${s.short}</span></span>
+            <svg class="howfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="howfaq-body"><p>${s.body}</p></div>
         </div>`).join("")}
+      </div>
+      <a class="btn btn-primary howfaq-cta" href="/">✨ Ver diseños y elegir el mío</a>
     </div>
     <div class="tutorial-cta">
       <p style="color:var(--muted);margin-bottom:16px">¿Ya pagaste y no encontrás tu link de edición? Mirá las <a href="/preguntas-frecuentes">preguntas frecuentes</a> o escribinos y te ayudamos.</p>
       <a class="btn btn-outline" href="/">← Volver al catálogo</a>
-    </div>`,
+    </div>
+    <script>
+      (function(){
+        var items = document.querySelectorAll("#howfaqList .howfaq-item");
+        items.forEach(function(item){
+          var head = item.querySelector(".howfaq-head");
+          head.addEventListener("click", function(){
+            var wasOpen = item.classList.contains("open");
+            items.forEach(function(i){ i.classList.remove("open"); });
+            if (!wasOpen) item.classList.add("open");
+          });
+        });
+      })();
+    </script>`,
   }));
 });
 
@@ -1557,6 +1573,25 @@ function escapeHtml(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+// Íconos de línea para el menú del Panel de tu evento — antes eran emoji
+// (📝✏️💌...), que en la barra inferior fija de mobile (estilo Instagram)
+// quedaban demasiado "de colores" para ese look minimal. SVG de trazo
+// fino (stroke, sin relleno), mismo estilo en las 6: son los únicos
+// lugares que los usan, por eso van inline acá en vez de como archivos
+// aparte.
+function navIcon(name) {
+  const common = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"';
+  const paths = {
+    resumen: `<rect x="5" y="3" width="14" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/>`,
+    editar: `<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>`,
+    invitados: `<path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
+    confirmaciones: `<circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/>`,
+    fotos: `<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.5"/><path d="m21 15-5-5L5 21"/>`,
+    links: `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>`,
+  };
+  return `<svg ${common}>${paths[name] || ""}</svg>`;
+}
+
 // Sección de moderación del muro de invitados dentro del editor: el dueño
 // ve todo lo que subieron sus invitados y puede borrar lo que no
 // corresponda. Solo se muestra si el plan comprado tiene la feature "muro".
@@ -1719,12 +1754,12 @@ app.get("/editar/:token", (req, res) => {
 
     <div class="panel-shell">
       <nav class="panel-nav" id="panelNav">
-        <button type="button" class="panel-nav-item" data-target="resumen"><span class="nav-icon">📝</span><span>Resumen</span></button>
-        <button type="button" class="panel-nav-item" data-target="editar"><span class="nav-icon">✏️</span><span>Editar diseño</span></button>
-        ${hasInvitadosNombrados ? `<button type="button" class="panel-nav-item" data-target="invitados"><span class="nav-icon">💌</span><span>Invitados</span></button>` : ""}
-        <button type="button" class="panel-nav-item" data-target="confirmaciones"><span class="nav-icon">✅</span><span>Confirmaciones</span></button>
-        ${pricing.hasFeature(design.category, inv.plan, "muro") ? `<button type="button" class="panel-nav-item" data-target="fotos"><span class="nav-icon">📷</span><span>Fotos</span></button>` : ""}
-        <button type="button" class="panel-nav-item" data-target="links"><span class="nav-icon">🔗</span><span>Links</span></button>
+        <button type="button" class="panel-nav-item" data-target="resumen"><span class="nav-icon">${navIcon("resumen")}</span><span>Resumen</span></button>
+        <button type="button" class="panel-nav-item" data-target="editar"><span class="nav-icon">${navIcon("editar")}</span><span>Editar diseño</span></button>
+        ${hasInvitadosNombrados ? `<button type="button" class="panel-nav-item" data-target="invitados"><span class="nav-icon">${navIcon("invitados")}</span><span>Invitados</span></button>` : ""}
+        <button type="button" class="panel-nav-item" data-target="confirmaciones"><span class="nav-icon">${navIcon("confirmaciones")}</span><span>Confirmaciones</span></button>
+        ${pricing.hasFeature(design.category, inv.plan, "muro") ? `<button type="button" class="panel-nav-item" data-target="fotos"><span class="nav-icon">${navIcon("fotos")}</span><span>Fotos</span></button>` : ""}
+        <button type="button" class="panel-nav-item" data-target="links"><span class="nav-icon">${navIcon("links")}</span><span>Links</span></button>
       </nav>
 
       <div class="panel-content">
