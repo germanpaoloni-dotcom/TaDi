@@ -27,7 +27,7 @@ header.site .brand{display:flex;align-items:center;gap:10px;line-height:0;text-d
 header.site .brand-logo{height:24px;width:auto;display:block;}
 header.site .brand-tagline{line-height:normal;font-size:.66rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);padding-left:10px;border-left:1px solid var(--sh-dark);white-space:nowrap;}
 @media (max-width:560px){ header.site .brand-tagline{display:none;} }
-header.site nav{display:flex;align-items:center;gap:4px;background:var(--bg);border-radius:30px;box-shadow:var(--nu-inset-sm);padding:5px;}
+header.site nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;background:var(--bg);border-radius:30px;box-shadow:var(--nu-inset-sm);padding:5px;}
 header.site nav a{color:var(--muted);text-decoration:none;padding:8px 14px;border-radius:22px;font-size:.72rem;text-transform:uppercase;letter-spacing:1px;transition:color .15s,box-shadow .15s,background .15s;}
 header.site nav a:hover{color:var(--ink);}
 header.site nav a.active{color:var(--accent-2);background:var(--bg);box-shadow:var(--nu-xs);font-weight:700;}
@@ -37,6 +37,14 @@ header.site .nav-toggle.open{box-shadow:var(--nu-inset-sm);}
 header.site .nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
 header.site .nav-toggle.open span:nth-child(2){opacity:0;}
 header.site .nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+/* En escritorio el nav queda centrado respecto al ancho completo del header
+   (no solo "pegado a la derecha" del logo) — el toggle de mobile no se ve
+   acá, así que no hace falta tocar nada de ese bloque. */
+@media (min-width:901px){
+  header.site{display:grid;grid-template-columns:1fr auto 1fr;}
+  header.site .brand{grid-column:1;justify-self:start;}
+  header.site nav{grid-column:2;justify-self:center;}
+}
 footer.site{text-align:center;padding:34px;color:var(--muted);font-size:.8rem;box-shadow:0 -4px 16px -8px var(--sh-dark);margin-top:20px;letter-spacing:.5px;}
 footer.site a{color:var(--muted);text-decoration:underline;}
 footer.site a:hover{color:var(--accent-2);}
@@ -59,7 +67,7 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .hiw-arrow{align-self:center;color:var(--muted);font-size:1.1rem;padding-top:20px;}
 @media (max-width:700px){ .hiw-arrow{display:none;} .how-it-works{gap:10px;} }
 .orios-home{max-width:1180px;margin:0 auto;padding:36px 32px 8px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-.orios-panel{position:relative;background:var(--bg);border:0;border-radius:28px;box-shadow:var(--nu-md);padding:26px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:16px;cursor:pointer;font-family:inherit;transition:box-shadow .2s,transform .2s;}
+.orios-panel{position:relative;background:var(--bg);border:0;border-radius:28px;box-shadow:var(--nu-md);padding:26px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:16px;cursor:pointer;font-family:inherit;transition:box-shadow .2s,transform .2s;text-decoration:none;color:inherit;}
 .orios-panel:hover, .orios-panel:focus-visible{box-shadow:var(--nu-lg);transform:translateY(-4px);}
 .orios-panel:active{box-shadow:var(--nu-inset);transform:translateY(0);}
 .orios-panel-photo{position:relative;width:132px;height:132px;border-radius:50%;box-shadow:var(--nu-inset);overflow:hidden;background:var(--bg);}
@@ -251,6 +259,9 @@ footer.site .footer-legal{margin-top:6px;font-size:.72rem;opacity:.75;letter-spa
 .legal-wrap h3{margin:28px 0 8px;font-size:1.05rem;color:var(--accent-2);}
 .legal-wrap p{color:var(--muted);font-size:.92rem;}
 .legal-wrap a{color:var(--accent-2);}
+.nosotros-contacts{max-width:720px;margin:0 auto 40px;padding:0 32px;display:flex;flex-wrap:wrap;gap:14px;justify-content:center;}
+.nosotros-contacts a{display:inline-flex;align-items:center;gap:8px;background:var(--bg);box-shadow:var(--nu-sm);border-radius:14px;padding:14px 20px;color:var(--ink);text-decoration:none;font-size:.92rem;font-weight:600;transition:box-shadow .2s,transform .2s;}
+.nosotros-contacts a:hover{box-shadow:var(--nu-inset-sm);transform:translateY(1px);}
 
 /* ---------- editor (neumorphism) ---------- */
 .editor-wrap{display:flex;gap:0;min-height:100vh;background:var(--bg);}

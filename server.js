@@ -580,7 +580,7 @@ const RESERVED_SLUGS = new Set([
   "preguntas-frecuentes", "terminos", "privacidad", "demo", "checkout",
   "pago-exitoso", "pago-pendiente", "pago-fallido", "editar", "preview",
   "invitacion", "admin", "api", "static", "webhook", "login", "logout",
-  "contacto", "ayuda", "app",
+  "contacto", "ayuda", "app", "nosotros",
 ]);
 
 // Si el alias pedido ya está tomado (por otra invitación, o choca con una
@@ -611,6 +611,36 @@ function schemaForPlan(design, planId) {
   return design.schema.filter((f) => !f.feature || pricing.hasFeature(design.category, planId, f.feature));
 }
 
+// Datos en blanco para una invitación recién comprada — antes arrancaba
+// con una COPIA de design.sampleData (los nombres/fecha/fotos de ejemplo
+// de la demo), así que un comprador real veía su tarjeta ya "completa"
+// con datos falsos: la checklist de "Te falta completar" la marcaba todo
+// hecho sin haber cargado nada, y si se olvidaba de pisar algún campo
+// quedaba compartiendo la invitación con datos de mentira. Se arma un
+// valor vacío por tipo de campo (nunca undefined, para no romper un
+// template que interpole el dato sin chequear) — colorPalette es la única
+// excepción: es una elección de diseño, no un dato personal, así que ahí
+// sí conviene el default de la demo.
+function blankInvitationData(design) {
+  const blank = {};
+  (design.schema || []).forEach((f) => {
+    switch (f.type) {
+      case "checkbox":
+        blank[f.name] = false;
+        break;
+      case "images":
+        blank[f.name] = [];
+        break;
+      case "palette":
+        blank[f.name] = design.sampleData ? design.sampleData[f.name] : "";
+        break;
+      default:
+        blank[f.name] = "";
+    }
+  });
+  return blank;
+}
+
 // Script de Google Analytics 4 — vacío (no inserta nada) si no hay
 // GA_MEASUREMENT_ID cargado en el entorno.
 const GA_SNIPPET = GA_MEASUREMENT_ID
@@ -639,6 +669,8 @@ ${GA_SNIPPET}
   <nav id="siteNav">
     <a href="/">Catálogo</a>
     ${visibleCategories().map((c) => `<a href="/categoria/${c.id}">${c.label}</a>`).join("")}
+    <a href="/como-funciona">¿Cómo funciona?</a>
+    <a href="/nosotros">Nosotros</a>
   </nav>
 </header>
 ${body}
@@ -811,81 +843,26 @@ const HOW_IT_WORKS_HTML = `<div class="how-it-works">
 // ---------- HOME interactivo: 6 categorías lado a lado, hover con
 // ampliación + halo contenido, click abre modal con personaje + catálogo
 // (no navega a otra página) ----------
+// Antes cada panel abría un modal con una lista + una foto grande al
+// costado — para elegir había que abrir el modal y todavía no se veía
+// cómo quedaba cada tarjeta. Ahora el panel lleva directo a la página de
+// la categoría (/categoria/:id), que ya muestra la vista previa de cada
+// diseño (cardHTML, con su preview propio) — un click menos y con la
+// info que hace falta para elegir, no una foto decorativa.
 function oriosPanelHTML(cat) {
-  return `<button type="button" class="orios-panel orios-panel-${cat.id}" data-cat="${cat.id}" aria-label="Ver catálogo de ${cat.label}">
+  return `<a href="/categoria/${cat.id}" class="orios-panel orios-panel-${cat.id}" aria-label="Ver catálogo de ${cat.label}">
     <span class="orios-panel-photo">
       <img src="${cat.heroImage}" alt="${cat.label}" loading="eager" fetchpriority="high">
     </span>
     <span class="orios-panel-label">${cat.label}<span class="dot">.</span></span>
     <span class="orios-panel-hint">Ver diseños →</span>
-  </button>`;
+  </a>`;
 }
 
 function oriosHomeHTML(cats) {
   return `<section class="orios-home">
     ${cats.map(oriosPanelHTML).join("")}
   </section>`;
-}
-
-function categoryModalPanelHTML(cat) {
-  return `<div class="cat-modal-panel" id="modal-panel-${cat.id}">
-    <div class="cat-modal-catalog">
-      <span class="cat-modal-kicker">${cat.label}</span>
-      <h2 class="cat-modal-title">${cat.label}<span class="dot">.</span></h2>
-      <p class="cat-modal-desc">${cat.description}</p>
-      ${categoryGridHTML(cat)}
-      <a class="cat-modal-full-link" href="/categoria/${cat.id}">Ver la página completa de ${cat.label.toLowerCase()} →</a>
-    </div>
-    <div class="cat-modal-visual">
-      <div class="mega-hero-ring"></div>
-      <img src="${cat.heroImage}" alt="${cat.label}">
-      <div class="mega-hero-info mega-hero-info-left">
-        <div class="mega-hero-block">
-          <h3>${cat.kicker}</h3>
-          <p>${cat.heroBody}</p>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
-function categoryModalsHTML(cats) {
-  return `<div class="cat-modal-overlay" id="catModalOverlay">
-    <div class="cat-modal" id="catModal">
-      <button type="button" class="cat-modal-close" id="catModalClose" aria-label="Cerrar">&times;</button>
-      ${cats.map(categoryModalPanelHTML).join("")}
-    </div>
-  </div>
-  <script>
-    (function(){
-      var overlay = document.getElementById('catModalOverlay');
-      var closeBtn = document.getElementById('catModalClose');
-      var panels = document.querySelectorAll('.orios-panel');
-      function open(id){
-        document.querySelectorAll('.cat-modal-panel').forEach(function(p){ p.classList.toggle('active', p.id === 'modal-panel-' + id); });
-        overlay.classList.add('open');
-        document.body.style.overflow = 'hidden';
-        // Reseteamos el scroll: como los paneles quedan en el DOM y solo se
-        // ocultan con display:none, si el usuario los había scrolleado antes
-        // (por ejemplo viendo más diseños del catálogo), al reabrir el modal
-        // aparecía scrolleado y la foto de arriba quedaba tapada/cortada.
-        var activePanel = document.getElementById('modal-panel-' + id);
-        if (activePanel) activePanel.scrollTop = 0;
-        var catalogEl = activePanel ? activePanel.querySelector('.cat-modal-catalog') : null;
-        if (catalogEl) catalogEl.scrollTop = 0;
-        var modalEl = document.getElementById('catModal');
-        if (modalEl) modalEl.scrollTop = 0;
-      }
-      function close(){
-        overlay.classList.remove('open');
-        document.body.style.overflow = '';
-      }
-      panels.forEach(function(p){ p.addEventListener('click', function(){ open(p.dataset.cat); }); });
-      closeBtn.addEventListener('click', close);
-      overlay.addEventListener('click', function(e){ if (e.target === overlay) close(); });
-      document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
-    })();
-  </script>`;
 }
 
 function catalogPage(activeCat) {
@@ -917,8 +894,7 @@ function catalogPage(activeCat) {
       </div>
       ${HOW_IT_WORKS_HTML}
       ${oriosHomeHTML(visible)}
-      ${TRUST_STRIP_HTML}
-      ${categoryModalsHTML(visible)}`,
+      ${TRUST_STRIP_HTML}`,
     });
   }
 
@@ -1020,6 +996,7 @@ app.get("/sitemap.xml", (req, res) => {
   const staticUrls = [
     { loc: "/", priority: "1.0" },
     { loc: "/como-funciona", priority: "0.5" },
+    { loc: "/nosotros", priority: "0.4" },
     { loc: "/preguntas-frecuentes", priority: "0.5" },
     ...visibleCategories().map((c) => ({ loc: `/categoria/${c.id}`, priority: "0.8" })),
   ];
@@ -1091,6 +1068,33 @@ app.get("/como-funciona", (req, res) => {
     </div>
     <div class="tutorial-cta">
       <p style="color:var(--muted);margin-bottom:16px">¿Ya pagaste y no encontrás tu link de edición? Mirá las <a href="/preguntas-frecuentes">preguntas frecuentes</a> o escribinos y te ayudamos.</p>
+      <a class="btn btn-outline" href="/">← Volver al catálogo</a>
+    </div>`,
+  }));
+});
+
+// ---------- NOSOTROS ----------
+app.get("/nosotros", (req, res) => {
+  res.send(layout({
+    title: "Nosotros",
+    description: "Quiénes hacemos TaDi: cómo nació el proyecto y cómo contactarnos por Instagram o mail.",
+    body: `
+    <div class="tutorial-hero">
+      <span class="kicker">Nosotros</span>
+      <h1>La historia de TaDi<span class="dot">.</span></h1>
+      <p>Un equipo chico, con ganas de que armar la invitación sea la parte fácil del evento.</p>
+    </div>
+    <div class="legal-wrap">
+      <p>TaDi nació de la bronca de siempre: organizando el casamiento de un amigo, nos pusimos a buscar una invitación digital y encontramos de todo un poco — opciones carísimas, plataformas complicadas de usar, o diseños que parecían sacados de otra época. No había un lugar simple, lindo y a un precio justo. Así que decidimos armarlo nosotros.</p>
+      <p>Hoy TaDi es eso: una forma fácil de tener una invitación digital hermosa en minutos, sin depender de un diseñador ni pelearte con un programa complicado. Elegís tu diseño, cargás tus datos, subís tus fotos y listo — lo hacés vos mismo, sin instalar nada ni entender de tecnología.</p>
+      <p>Seguimos siendo un equipo chico y argentino, y eso se nota: pensamos cada diseño con cariño, y si nos escribís, del otro lado te contesta una persona de verdad. La idea es simple — que la parte de las invitaciones sea de lo más fácil y lindo de organizar.</p>
+    </div>
+    <div class="nosotros-contacts">
+      <a href="https://instagram.com/tadi.tarjetas" target="_blank" rel="noopener">📷 @tadi.tarjetas</a>
+      <a href="mailto:hola@tadi.com.ar">✉️ hola@tadi.com.ar</a>
+      ${SUPPORT_WHATSAPP ? `<a href="https://wa.me/${SUPPORT_WHATSAPP}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ""}
+    </div>
+    <div class="tutorial-cta">
       <a class="btn btn-outline" href="/">← Volver al catálogo</a>
     </div>`,
   }));
@@ -1380,7 +1384,7 @@ function markOrderPaid(order) {
       designId: ord.designId,
       plan: ord.plan || pricing.defaultPlan(design.category).id,
       slug: ord.publicSlug,
-      data: { ...design.sampleData },
+      data: blankInvitationData(design),
       updatedAt: new Date().toISOString(),
     });
   }
@@ -2268,9 +2272,11 @@ app.post("/editar/:token/cambiar-diseno", (req, res) => {
   if (newDesign.id !== order.designId) {
     // Merge: todo campo del diseño nuevo que ya existía con datos cargados
     // (mismo nombre de campo, p.ej. "fecha", "lugar", "coverImage",
-    // "galeria") se conserva; el resto arranca con el sampleData del
-    // diseño nuevo.
-    const mergedData = { ...newDesign.sampleData };
+    // "galeria") se conserva; un campo que el diseño nuevo suma y el
+    // anterior no tenía arranca en blanco (no con el sampleData de la
+    // demo — si no, un cambio de diseño podía colar un nombre/fecha de
+    // mentira encima de una invitación real).
+    const mergedData = blankInvitationData(newDesign);
     Object.keys(mergedData).forEach((key) => {
       if (inv.data[key] !== undefined && inv.data[key] !== "") {
         mergedData[key] = inv.data[key];
