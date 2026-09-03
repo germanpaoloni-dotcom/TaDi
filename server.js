@@ -875,11 +875,9 @@ ${ogImageUrl ? `<meta property="og:image" content="${escapeHtml(ogImageUrl)}">
 ${ogImageUrl ? `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}">` : ""}
 ${jsonLd}
 <link rel="stylesheet" href="${CSS_HREF}">
-<link rel="stylesheet" href="${INTRO_CSS_HREF}">
 ${extraHead || ""}
 ${GA_SNIPPET}
 </head><body>
-${INTRO_HTML}
 <header class="site">
   <a class="brand" href="/" aria-label="TaDi — inicio"><img src="/static/img/logo/tadi-logo-light-bg.svg" alt="TaDi" class="brand-logo"><span class="brand-tagline">Tarjetas Digitales</span></a>
   <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
@@ -986,7 +984,6 @@ ${body}
     });
   })();
 </script>
-<script src="${INTRO_JS_HREF}" defer></script>
 </body></html>`;
 }
 
