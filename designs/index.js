@@ -86,10 +86,9 @@ const categories = [
     heroBody: "Para la fiesta de Halloween que se festeja con disfraz obligatorio: una invitación con la onda justa de misterio y diversión, lista para compartir.",
     heroImage: "/static/img/categorias/halloween.webp",
     flagshipDesign: "hall-noche-embrujada",
-    // TESTING: temporalmente visible todo el año a pedido del cliente,
-    // mientras el sitio está en pruebas. Restaurar cuando avise que el
-    // sitio está listo para lanzar:
-    // season: { startMonth: 10, startDay: 1, endMonth: 10, endDay: 31 },
+    // Restaurado al lanzar el sitio: fuera de octubre queda oculta del nav,
+    // el home y el filtro del catálogo (sigue accesible por link directo).
+    season: { startMonth: 10, startDay: 1, endMonth: 10, endDay: 31 },
   },
   {
     id: "navidad",
@@ -100,10 +99,10 @@ const categories = [
     heroBody: "Para la cena de Navidad, el amigo invisible o el brindis de fin de año: una invitación cálida y festiva con todos los datos para que nadie falte.",
     heroImage: "/static/img/categorias/navidad.webp",
     flagshipDesign: "nav-clasica-dorada",
-    // TESTING: temporalmente visible todo el año a pedido del cliente,
-    // mientras el sitio está en pruebas. Restaurar cuando avise que el
-    // sitio está listo para lanzar:
-    // season: { startMonth: 11, startDay: 25, endMonth: 12, endDay: 25 },
+    // Restaurado al lanzar el sitio: fuera de temporada queda oculta del
+    // nav, el home y el filtro del catálogo (sigue accesible por link
+    // directo, por si se quiere compartir de antemano).
+    season: { startMonth: 11, startDay: 25, endMonth: 12, endDay: 25 },
   },
 ];
 

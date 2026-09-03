@@ -3,6 +3,7 @@
 // pero la forma de leer/escribir (getDB/saveDB) queda igual.
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const DATA_DIR = path.join(__dirname, "data");
 const DB_PATH = path.join(DATA_DIR, "db.json");
@@ -46,13 +47,15 @@ function saveDB(db) {
     fs.renameSync(tmpPath, DB_PATH);
 }
 
+// Genera IDs impredecibles con crypto.randomBytes (no Math.random(), que no
+// es un generador criptográficamente seguro, ni Date.now(), que es un valor
+// adivinable). Esto importa mucho más de lo que parece: uid() no solo arma
+// IDs internos, también genera el editToken del editor post-pago y el token
+// del link personal de cada invitado — la ÚNICA "contraseña" que protege
+// esas rutas. 16 bytes al azar (128 bits) en base64url dan un espacio de
+// búsqueda imposible de fuerza-bruta, a diferencia del esquema anterior.
 function uid(prefix) {
-    return (
-          prefix +
-          "_" +
-          Date.now().toString(36) +
-          Math.random().toString(36).slice(2, 8)
-        );
+    return prefix + "_" + crypto.randomBytes(16).toString("base64url");
 }
 
 module.exports = { getDB, saveDB, uid };
