@@ -138,6 +138,20 @@ try {
 } catch {}
 const OG_IMAGE_PATH = `/static/img/og/tadi-og-default.png?v=${OG_IMAGE_VERSION}`;
 
+// Ídem, pero una imagen OG propia por categoría (foto real de la categoría +
+// color de marca correspondiente) para que compartir el link de /categoria/:id
+// por WhatsApp muestre una tarjeta de preview específica en vez de la
+// genérica de arriba. Categorías sin imagen propia (temporada, nuevas) caen
+// solas a OG_IMAGE_PATH vía el fallback en layout().
+const CATEGORY_OG_IMAGE = {};
+for (const catId of ["bodas", "savethedate", "infantiles", "xv", "cumpleanos", "bautismos"]) {
+  let v = Date.now();
+  try {
+    v = fs.statSync(path.join(__dirname, "public", "img", "og", `tadi-og-${catId}.png`)).mtimeMs;
+  } catch {}
+  CATEGORY_OG_IMAGE[catId] = `/static/img/og/tadi-og-${catId}.png?v=${v}`;
+}
+
 // Palabras clave reales del negocio (sin keyword stuffing) para el <meta
 // name="keywords"> de las páginas públicas.
 const SITE_KEYWORDS = "invitaciones digitales, invitaciones de casamiento, invitaciones de cumpleaños, invitaciones de XV, invitaciones online, tarjetas de invitación digitales, invitaciones para eventos Argentina";
@@ -1186,6 +1200,7 @@ function catalogPage(activeCat, req) {
     activeNav: cat.id,
     req,
     canonicalPath: `/categoria/${cat.id}`,
+    ogImagePath: CATEGORY_OG_IMAGE[cat.id],
     body: `${categoryHeaderHTML(cat)}
     ${categoryFilterSheetHTML(cat, catButtons)}
     ${categoryGridHTML(cat)}
