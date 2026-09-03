@@ -8,6 +8,8 @@
 require("dns").setDefaultResultOrder("ipv4first");
 
 const express = require("express");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const multer = require("multer");
 const sharp = require("sharp");
 const path = require("path");
@@ -45,9 +47,59 @@ const SUPPORT_WHATSAPP = process.env.SUPPORT_WHATSAPP || ""; // ej: 549112233445
 // ningún script de tracking (nada se rompe, el sitio sigue andando igual).
 const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || "";
 
+// Headers de seguridad estándar (X-Content-Type-Options, X-Frame-Options,
+// Referrer-Policy, HSTS, etc.). El CSP por defecto de helmet queda
+// desactivado a propósito: cada diseño de tarjeta trae su propio <style>
+// y <script> inline en el mismo documento (así están armados los 30+
+// archivos de designs/*), y una CSP estricta sin nonces rompería eso. El
+// resto de los headers de helmet no depende de eso y no tiene contras.
+app.use(helmet({ contentSecurityPolicy: false }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static(path.join(__dirname, "public")));
+
+// Límite general para rutas públicas que reciben datos (RSVP, subida de
+// fotos, crear una orden): sin esto no había NINGÚN freno a mandar miles de
+// requests por minuto desde una sola IP (spam de RSVP, llenar el disco de
+// fotos, etc.). Los números son generosos para uso real (un invitado
+// confirmando o subiendo una foto no se acerca ni de cerca a esto).
+const publicWriteLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Demasiados intentos. Probá de nuevo en unos minutos." },
+});
+
+// Límite específico para /editar/:token: es la ÚNICA barrera que protege el
+// editor de un comprador (no hay usuario/contraseña, es el token en sí). Sin
+// límite de intentos, alguien podría probar tokens al voleo muy rápido. El
+// número es generoso para el uso real (un comprador recargando su propio
+// editor muchas veces mientras carga fotos, por ejemplo) pero corta en seco
+// cualquier intento de ir probando tokens distintos a alta velocidad.
+const editTokenLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Demasiados intentos desde esta conexión. Probá de nuevo en unos minutos.",
+});
+
+// Límite para el login del panel de administrador (Basic Auth) — las
+// credenciales ya son fuertes (variables de entorno, comparación a tiempo
+// constante), esto es una capa extra para no dejar la puerta abierta a
+// probar contraseñas sin freno.
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Demasiados intentos desde esta conexión. Probá de nuevo en unos minutos.",
+});
+app.use("/admin", adminLimiter);
+app.use("/editar/:token", editTokenLimiter);
+app.use("/api/invitaciones/:token", editTokenLimiter);
 
 // Cache-busting para site.css: el navegador (sobre todo Safari de iOS) puede
 // quedarse con una copia vieja del CSS en caché incluso después de un
@@ -60,16 +112,34 @@ try {
 } catch {}
 const CSS_HREF = `/static/css/site.css?v=${CSS_VERSION}`;
 
+// Los nombres de carpeta de subida salen de un parámetro de la URL (token
+// de edición o slug público). Nunca hay que confiar en eso a ciegas para
+// armar una ruta de archivo: sin este chequeo, alguien podría mandar un
+// valor con "../" (codificado) e intentar escribir fuera de public/uploads.
+// Los tokens/slugs reales que genera uid() son siempre alfanuméricos con
+// "_"/"-", así que cualquier otra cosa se rechaza directo.
+const SAFE_UPLOAD_DIR_RE = /^[A-Za-z0-9_-]+$/;
+function safeUploadDirName(name) {
+  return SAFE_UPLOAD_DIR_RE.test(name || "") ? name : null;
+}
+
 // --- subida de imágenes (portada / galería) ---
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      const dir = path.join(__dirname, "public", "uploads", req.params.token || "tmp");
+      const safe = safeUploadDirName(req.params.token);
+      if (!safe) return cb(new Error("token inválido"));
+      const dir = path.join(__dirname, "public", "uploads", safe);
       fs.mkdirSync(dir, { recursive: true });
       cb(null, dir);
     },
     filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname.replace(/[^a-zA-Z0-9._-]/g, "")),
   }),
+  // Solo imágenes reales — más abajo, además, cada imagen se vuelve a
+  // codificar con sharp (que rechaza cualquier archivo que no pueda decodificar
+  // como imagen) antes de quedar accesible por URL, así que esta validación
+  // por mimetype es la primera capa, no la única.
+  fileFilter: (req, file, cb) => cb(null, /^image\//.test(file.mimetype)),
   // Las fotos que vienen directo de la cámara de un celular (12MP+, HEIC o
   // JPEG sin comprimir) pueden pesar bien más de los 8MB que había antes —
   // con ese límite tan bajo, subir una foto real fallaba en silencio (el
@@ -86,12 +156,15 @@ const upload = multer({
 const uploadMuroPhoto = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      const dir = path.join(__dirname, "public", "uploads", "muro", req.params.slug || "tmp");
+      const safe = safeUploadDirName(req.params.slug);
+      if (!safe) return cb(new Error("slug inválido"));
+      const dir = path.join(__dirname, "public", "uploads", "muro", safe);
       fs.mkdirSync(dir, { recursive: true });
       cb(null, dir);
     },
     filename: (req, file, cb) => cb(null, Date.now() + "-" + Math.random().toString(36).slice(2, 8) + ".jpg"),
   }),
+  fileFilter: (req, file, cb) => cb(null, /^image\//.test(file.mimetype)),
   limits: { fileSize: 25 * 1024 * 1024 },
 });
 
@@ -103,7 +176,9 @@ const uploadMuroPhoto = multer({
 const uploadVideo = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      const dir = path.join(__dirname, "public", "uploads", req.params.token || "tmp");
+      const safe = safeUploadDirName(req.params.token);
+      if (!safe) return cb(new Error("token inválido"));
+      const dir = path.join(__dirname, "public", "uploads", safe);
       fs.mkdirSync(dir, { recursive: true });
       cb(null, dir);
     },
@@ -1406,7 +1481,7 @@ app.get("/checkout/:designId", (req, res) => {
 
 // crea la orden y, según haya o no credenciales reales, redirige a Mercado
 // Pago o directamente al flujo de éxito simulado (modo demo).
-app.post("/api/orders", async (req, res) => {
+app.post("/api/orders", publicWriteLimiter, async (req, res) => {
   const design = getDesign(req.body.designId);
   if (!design) return res.status(404).send("Diseño no encontrado");
 
@@ -2405,7 +2480,7 @@ app.post("/editar/:token/cambiar-diseno", (req, res) => {
   res.redirect(`/editar/${order.editToken}?disenoCambiado=1`);
 });
 
-app.post("/api/upload/:token", (req, res) => {
+app.post("/api/upload/:token", editTokenLimiter, (req, res) => {
   upload.single("imagen")(req, res, async (err) => {
     // Antes, un error acá (ej. "MulterError: File too large") no lo agarraba
     // nadie: Express devolvía una página de error en HTML, el fetch del
@@ -2452,12 +2527,26 @@ app.post("/api/upload/:token", (req, res) => {
       res.json({ url: `/static/uploads/${req.params.token}/${finalName}` });
     } catch (e) {
       console.error("Error procesando imagen subida:", e);
+      // Si sharp no pudo decodificar el archivo como imagen (porque no lo
+      // es — alguien mandó algo distinto con mimetype falseado), NO puede
+      // quedar el archivo original tirado en public/uploads: esa carpeta se
+      // sirve tal cual por HTTP, así que un archivo no-imagen ahí sería
+      // contenido arbitrario servido desde el dominio real. Se borra todo
+      // rastro (el original y cualquier .tmp a medio escribir) antes de
+      // responder con el error.
+      try { if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path); } catch {}
+      try {
+        const dir = req.file && path.dirname(req.file.path);
+        const finalName = req.file && req.file.filename.replace(/\.[a-zA-Z0-9]+$/, "") + ".jpg.tmp";
+        const tmpPath = dir && path.join(dir, finalName);
+        if (tmpPath && fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+      } catch {}
       res.status(500).json({ error: "No se pudo procesar la foto. Probá con otra." });
     }
   });
 });
 
-app.post("/api/upload-video/:token", (req, res) => {
+app.post("/api/upload-video/:token", editTokenLimiter, (req, res) => {
   uploadVideo.single("video")(req, res, (err) => {
     if (err) {
       const msg = err.code === "LIMIT_FILE_SIZE"
@@ -2714,7 +2803,7 @@ app.get("/invitacion/:slug/i/:guestToken", (req, res) => {
   res.send(renderPublicInvitation(inv, req, guest || null));
 });
 
-app.post("/api/invitacion/:slug/invitado/:guestToken/rsvp", (req, res) => {
+app.post("/api/invitacion/:slug/invitado/:guestToken/rsvp", publicWriteLimiter, (req, res) => {
   const db = getDB();
   const inv = db.invitations.find((i) => i.slug === req.params.slug);
   if (!inv || inv.purgedAt) return res.status(404).json({ error: "no encontrado" });
@@ -2740,7 +2829,7 @@ app.post("/api/invitacion/:slug/invitado/:guestToken/rsvp", (req, res) => {
   res.json({ ok: true });
 });
 
-app.post("/api/invitacion/:slug/rsvp", (req, res) => {
+app.post("/api/invitacion/:slug/rsvp", publicWriteLimiter, (req, res) => {
   const db = getDB();
   const inv = db.invitations.find((i) => i.slug === req.params.slug);
   if (!inv) return res.status(404).json({ error: "no encontrado" });
@@ -2766,7 +2855,7 @@ app.post("/api/invitacion/:slug/rsvp", (req, res) => {
 // la invitación), igual que el RSVP: el slug es el único "permiso" que
 // hace falta, no requiere el editToken del dueño. Solo funciona si el plan
 // comprado tiene la feature "muro" y la invitación no está purgada.
-app.post("/api/invitacion/:slug/muro", (req, res) => {
+app.post("/api/invitacion/:slug/muro", publicWriteLimiter, (req, res) => {
   uploadMuroPhoto.single("foto")(req, res, async (err) => {
     if (err) {
       const msg = err.code === "LIMIT_FILE_SIZE"
@@ -2805,6 +2894,17 @@ app.post("/api/invitacion/:slug/muro", (req, res) => {
       res.json({ url });
     } catch (e) {
       console.error("Error procesando foto del muro:", e);
+      // Mismo motivo que en /api/upload/:token: nunca dejar el archivo
+      // original (no validado como imagen real) en una carpeta que se sirve
+      // públicamente por HTTP. Esta ruta encima no requiere ningún login —
+      // cualquiera con el link de la invitación puede llegar acá.
+      try { if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path); } catch {}
+      try {
+        const dir = req.file && path.dirname(req.file.path);
+        const finalName = req.file && req.file.filename.replace(/\.[a-zA-Z0-9]+$/, "") + ".jpg.tmp";
+        const tmpPath = dir && path.join(dir, finalName);
+        if (tmpPath && fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+      } catch {}
       res.status(500).json({ error: "No se pudo procesar la foto. Probá con otra." });
     }
   });
