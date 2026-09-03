@@ -28,7 +28,11 @@ const PORT = process.env.PORT || 3000;
 // Render (y la mayoría de los hosts) ponen el server detrás de un proxy que
 // termina el HTTPS: sin esto, req.protocol siempre da "http" aunque el sitio
 // real sea https, y los links armados a partir de él (mails, etc.) salen mal.
-app.set("trust proxy", true);
+// OJO: "true" (confiar en TODOS los proxies) es inseguro y express-rate-limit
+// lo rechaza con ERR_ERL_PERMISSIVE_TRUST_PROXY apenas se usa un limiter —
+// Render agrega exactamente UN proxy en el medio, así que hay que confiar en
+// ese único salto, no en una cadena arbitraria.
+app.set("trust proxy", 1);
 
 // Precio por defecto (según la investigación de mercado, se puede subir el
 // precio con el tiempo sin tocar código: alcanza con cambiar esta variable
