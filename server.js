@@ -125,6 +125,49 @@ try {
 } catch {}
 const INTRO_JS_HREF = `/static/js/intro.js?v=${INTRO_JS_VERSION}`;
 
+// Imagen default para Open Graph / Twitter Card en las páginas de marketing
+// (home, categorías, como-funciona, etc.) que no tienen una imagen propia
+// como sí la tienen las invitaciones o los demos de diseño.
+let OG_IMAGE_VERSION = Date.now();
+try {
+  OG_IMAGE_VERSION = fs.statSync(path.join(__dirname, "public", "img", "og", "tadi-og-default.png")).mtimeMs;
+} catch {}
+const OG_IMAGE_PATH = `/static/img/og/tadi-og-default.png?v=${OG_IMAGE_VERSION}`;
+
+// Palabras clave reales del negocio (sin keyword stuffing) para el <meta
+// name="keywords"> de las páginas públicas.
+const SITE_KEYWORDS = "invitaciones digitales, invitaciones de casamiento, invitaciones de cumpleaños, invitaciones de XV, invitaciones online, tarjetas de invitación digitales, invitaciones para eventos Argentina";
+
+// JSON-LD "Organization" — solo con datos reales del negocio (nunca se
+// inventan razón social/CUIT: esos dos solo se incluyen si están cargados
+// como variable de entorno).
+function organizationJsonLd(baseUrl) {
+  const legalName = (process.env.BUSINESS_LEGAL_NAME || "").trim();
+  const taxId = (process.env.BUSINESS_CUIT || "").trim();
+  const org = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "TaDi",
+    "url": baseUrl,
+    "logo": absoluteUrl(baseUrl, "/static/img/logo/tadi-logo-light-bg.svg"),
+    "sameAs": ["https://instagram.com/tadi.tarjetas"],
+    "email": "hola@tadi.com.ar",
+  };
+  if (legalName) org.legalName = legalName;
+  if (taxId) org.taxID = taxId;
+  return org;
+}
+
+
+function websiteJsonLd(baseUrl) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "TaDi",
+    "url": baseUrl,
+  };
+}
+
 // Los nombres de carpeta de subida salen de un parámetro de la URL (token
 // de edición o slug público). Nunca hay que confiar en eso a ciegas para
 // armar una ruta de archivo: sin este chequeo, alguien podría mandar un
@@ -237,12 +280,15 @@ function resolvePublicBaseUrl(req) {
   return `${req.protocol}://${req.get("host")}`;
 }
 
-function injectOgTags(html, { baseUrl, url, image, description, title: titleOverride }) {
+function injectOgTags(html, { baseUrl, url, image, description, title: titleOverride, noindex = false }) {
   const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/i);
   const title = titleOverride || (titleMatch ? titleMatch[1].trim() : "TaDi — Invitación digital");
   const desc = description || "Mirá la invitación y confirmá tu asistencia.";
   const img = absoluteUrl(baseUrl, image);
   const tags = `
+    ${noindex ? `<meta name="robots" content="noindex,nofollow">` : (url ? `<link rel="canonical" href="${escapeHtml(url)}">` : "")}
+    <meta property="og:site_name" content="TaDi">
+    <meta property="og:locale" content="es_AR">
     <meta property="og:type" content="website">
     <meta property="og:title" content="${escapeHtml(title)}">
     <meta property="og:description" content="${escapeHtml(desc)}">
@@ -645,6 +691,11 @@ function renderPublicInvitation(inv, req, guest = null) {
     image: inv.data.coverImage,
     title: ogTitle,
     description: ogDescription,
+    // Las páginas de invitaciones de clientes son contenido privado del
+    // evento de cada uno — no deben aparecer indexadas en Google (ni la de
+    // slug genérico ni el alias corto /:alias, que comparte este mismo
+    // renderer y no se puede bloquear por prefijo en robots.txt).
+    noindex: true,
   });
   return html;
 }
@@ -785,16 +836,44 @@ const INTRO_HTML = `<div id="tadiIntro" hidden>
   </div>
 </div>`;
 
-function layout({ title, body, description, extraHead, activeNav }) {
+function layout({ title, body, description, extraHead, activeNav, req, canonicalPath, robotsNoindex = false, ogImagePath, rawTitle = false }) {
   const desc = description || "Invitaciones digitales para bodas, cumpleaños, XV y más — elegí tu diseño, personalizalo en minutos y compartilo por WhatsApp con RSVP incluido.";
+  const pageTitle = rawTitle ? title : `${title} · TaDi`;
+  // baseUrl solo se resuelve si nos pasaron el req de la request (todas las
+  // páginas públicas lo hacen); sin él, canonical/OG/JSON-LD simplemente se
+  // omiten en vez de armar una URL relativa rota.
+  const baseUrl = req ? resolvePublicBaseUrl(req) : null;
+  const canonicalUrl = baseUrl && canonicalPath ? absoluteUrl(baseUrl, canonicalPath) : null;
+  const ogImageUrl = baseUrl ? absoluteUrl(baseUrl, ogImagePath || OG_IMAGE_PATH) : null;
+  const jsonLd = baseUrl && !robotsNoindex
+    ? `<script type="application/ld+json">${JSON.stringify(organizationJsonLd(baseUrl))}</script>
+<script type="application/ld+json">${JSON.stringify(websiteJsonLd(baseUrl))}</script>`
+    : "";
   return `<!doctype html>
 <html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${title} · TaDi</title>
+<title>${pageTitle}</title>
 <meta name="description" content="${escapeHtml(desc)}">
+<meta name="keywords" content="${escapeHtml(SITE_KEYWORDS)}">
+${robotsNoindex ? `<meta name="robots" content="noindex,nofollow">` : ""}
+${canonicalUrl ? `<link rel="canonical" href="${escapeHtml(canonicalUrl)}">` : ""}
 <link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/static/img/logo/tadi-favicon-16.png">
 <link rel="apple-touch-icon" href="/static/img/logo/tadi-favicon-180.png">
+<meta property="og:site_name" content="TaDi">
+<meta property="og:locale" content="es_AR">
+<meta property="og:type" content="website">
+<meta property="og:title" content="${escapeHtml(pageTitle)}">
+<meta property="og:description" content="${escapeHtml(desc)}">
+${canonicalUrl ? `<meta property="og:url" content="${escapeHtml(canonicalUrl)}">` : ""}
+${ogImageUrl ? `<meta property="og:image" content="${escapeHtml(ogImageUrl)}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">` : ""}
+<meta name="twitter:card" content="${ogImageUrl ? "summary_large_image" : "summary"}">
+<meta name="twitter:title" content="${escapeHtml(pageTitle)}">
+<meta name="twitter:description" content="${escapeHtml(desc)}">
+${ogImageUrl ? `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}">` : ""}
+${jsonLd}
 <link rel="stylesheet" href="${CSS_HREF}">
 <link rel="stylesheet" href="${INTRO_CSS_HREF}">
 ${extraHead || ""}
@@ -1062,7 +1141,7 @@ function oriosHomeHTML(cats) {
   </section>`;
 }
 
-function catalogPage(activeCat) {
+function catalogPage(activeCat, req) {
   // Categorías visibles en el nav/home/filtro: todas menos las de
   // temporada (Halloween, Navidad) fuera de fecha. Si se está viendo
   // justo una categoría de temporada por link directo fuera de fecha, se
@@ -1081,10 +1160,13 @@ function catalogPage(activeCat) {
   // modal con personaje/catálogo — no se apilan las grillas en la página.
   if (!activeCat) {
     return layout({
-      title: "Catálogo",
-      description: "Invitación digital lista en minutos: elegí un diseño para boda, cumpleaños, XV, bautismo o baby shower, personalizalo y compartilo por WhatsApp con edición ilimitada y RSVP incluido.",
+      rawTitle: true,
+      title: "Tadi – Invitaciones digitales",
+      description: "Creá invitaciones digitales personalizadas para bodas, cumpleaños y eventos. Diseños modernos, interactivos y fáciles de compartir.",
       extraHead: `<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&display=swap" rel="stylesheet">`,
       activeNav: "catalogo",
+      req,
+      canonicalPath: "/",
       body: `${CATALOG_HERO_HTML}
       ${oriosHomeHTML(visible)}
       ${TRUST_STRIP_HOME_HTML}`,
@@ -1101,6 +1183,8 @@ function catalogPage(activeCat) {
     title: cat.label,
     description: `Invitaciones digitales de ${cat.label.toLowerCase()} — elegí tu diseño, cargá los datos de tu evento y compartilo por WhatsApp en minutos, con edición ilimitada hasta el día del evento.`,
     activeNav: cat.id,
+    req,
+    canonicalPath: `/categoria/${cat.id}`,
     body: `${categoryHeaderHTML(cat)}
     ${categoryFilterSheetHTML(cat, catButtons)}
     ${categoryGridHTML(cat)}
@@ -1196,6 +1280,8 @@ Disallow: /api/
 Disallow: /admin
 Disallow: /editar/
 Disallow: /preview/
+Disallow: /invitacion/
+Disallow: /webhook/
 Disallow: /pago-exitoso
 Disallow: /pago-pendiente
 Disallow: /pago-fallido
@@ -1214,6 +1300,8 @@ app.get("/sitemap.xml", (req, res) => {
     { loc: "/como-funciona", priority: "0.5" },
     { loc: "/nosotros", priority: "0.4" },
     { loc: "/preguntas-frecuentes", priority: "0.5" },
+    { loc: "/terminos", priority: "0.3" },
+    { loc: "/privacidad", priority: "0.3" },
     ...visibleCategories().map((c) => ({ loc: `/categoria/${c.id}`, priority: "0.8" })),
   ];
   const designUrls = designs.map((d) => ({ loc: `/demo/${d.id}`, priority: "0.6" }));
@@ -1226,10 +1314,10 @@ ${urls.map((u) => `  <url><loc>${escapeHtml(baseUrl + u.loc)}</loc><priority>${u
   res.type("application/xml").send(xml);
 });
 
-app.get("/", (req, res) => res.send(catalogPage(null)));
+app.get("/", (req, res) => res.send(catalogPage(null, req)));
 app.get("/categoria/:cat", (req, res) => {
   if (!categories.find((c) => c.id === req.params.cat)) return res.status(404).send("Categoría no encontrada");
-  res.send(catalogPage(req.params.cat));
+  res.send(catalogPage(req.params.cat, req));
 });
 
 // ---------- CÓMO FUNCIONA (tutorial para cargar los datos después de pagar) ----------
@@ -1266,6 +1354,8 @@ app.get("/como-funciona", (req, res) => {
     title: "Cómo funciona",
     description: "Guía paso a paso: cómo elegir tu invitación digital en TaDi, personalizarla con tus datos y fotos, y compartirla por WhatsApp para recibir las confirmaciones de tus invitados.",
     activeNav: "como-funciona",
+    req,
+    canonicalPath: "/como-funciona",
     body: `
     <div class="tutorial-hero">
       <span class="kicker">Guía rápida</span>
@@ -1312,6 +1402,8 @@ app.get("/nosotros", (req, res) => {
     title: "Nosotros",
     description: "Quiénes hacemos TaDi: cómo nació el proyecto y cómo contactarnos por Instagram o mail.",
     activeNav: "nosotros",
+    req,
+    canonicalPath: "/nosotros",
     body: `
     <div class="tutorial-hero">
       <span class="kicker">Nosotros</span>
@@ -1369,6 +1461,8 @@ app.get("/preguntas-frecuentes", (req, res) => {
   res.send(layout({
     title: "Preguntas frecuentes",
     description: "Respuestas sobre precios, edición, plazos de entrega, reembolsos y cómo funciona el RSVP por WhatsApp en las invitaciones digitales de TaDi.",
+    req,
+    canonicalPath: "/preguntas-frecuentes",
     body: `<div class="tutorial-hero">
       <span class="kicker">Ayuda</span>
       <h1>Preguntas frecuentes</h1>
@@ -1388,6 +1482,8 @@ app.get("/terminos", (req, res) => {
   res.send(layout({
     title: "Términos y condiciones",
     description: "Términos y condiciones de compra de las invitaciones digitales de TaDi.",
+    req,
+    canonicalPath: "/terminos",
     body: `<div class="legal-wrap">
       <h1>Términos y condiciones</h1>
       <p>TaDi ofrece invitaciones digitales personalizables para eventos (bodas, save the date, fiestas infantiles, quince años, cumpleaños, bautismos, y por temporada Halloween y Navidad). Al comprar una invitación, el comprador puede personalizar sus datos (textos, fechas, lugares, fotos) y compartir el link resultante con sus invitados.</p>
@@ -1410,6 +1506,8 @@ app.get("/privacidad", (req, res) => {
   res.send(layout({
     title: "Política de privacidad",
     description: "Política de privacidad y tratamiento de datos personales de TaDi, conforme a la Ley 25.326.",
+    req,
+    canonicalPath: "/privacidad",
     body: `<div class="legal-wrap">
       <h1>Política de privacidad</h1>
       <p>Esta política describe qué datos personales trata TaDi y con qué finalidad, en línea con la Ley 25.326 de Protección de los Datos Personales de Argentina.</p>
@@ -1498,6 +1596,8 @@ app.get("/checkout/:designId", (req, res) => {
   const defaultPlan = pricing.defaultPlan(design.category);
   res.send(layout({
     title: "Checkout",
+    req,
+    robotsNoindex: true,
     body: `<div class="checkout-wrap" style="max-width:720px">
       <h1>Estás por elegir: ${design.name}</h1>
       <p style="color:var(--muted)">${design.summary}</p>
@@ -1688,10 +1788,10 @@ app.get("/pago-exitoso", async (req, res) => {
 });
 
 app.get("/pago-pendiente", (req, res) => {
-  res.send(layout({ title: "Pago pendiente", body: `<div class="status-page"><h1>⏳ Tu pago está pendiente</h1><p>Te avisamos apenas se acredite. Podés cerrar esta ventana.</p></div>` }));
+  res.send(layout({ title: "Pago pendiente", req, robotsNoindex: true, body: `<div class="status-page"><h1>⏳ Tu pago está pendiente</h1><p>Te avisamos apenas se acredite. Podés cerrar esta ventana.</p></div>` }));
 });
 app.get("/pago-fallido", (req, res) => {
-  res.send(layout({ title: "Pago fallido", body: `<div class="status-page"><h1>❌ El pago no pudo procesarse</h1><p>Podés volver al catálogo e intentar de nuevo.</p><p><a class="btn btn-primary" href="/">Volver al catálogo</a></p></div>` }));
+  res.send(layout({ title: "Pago fallido", req, robotsNoindex: true, body: `<div class="status-page"><h1>❌ El pago no pudo procesarse</h1><p>Podés volver al catálogo e intentar de nuevo.</p><p><a class="btn btn-primary" href="/">Volver al catálogo</a></p></div>` }));
 });
 
 // webhook real de Mercado Pago (para producción)
@@ -1954,7 +2054,7 @@ function panelChecklistHTML(design, inv) {
 app.get("/editar/:token", (req, res) => {
   const db = getDB();
   const order = db.orders.find((o) => o.editToken === req.params.token);
-  if (!order || order.status !== "paid") return res.status(404).send(layout({ title: "No encontrado", body: `<div class="status-page"><h1>Link no válido</h1><p>Este link de edición no existe o el pago todavía no fue confirmado.</p></div>` }));
+  if (!order || order.status !== "paid") return res.status(404).send(layout({ title: "No encontrado", req, robotsNoindex: true, body: `<div class="status-page"><h1>Link no válido</h1><p>Este link de edición no existe o el pago todavía no fue confirmado.</p></div>` }));
 
   const design = getDesign(order.designId);
   const inv = db.invitations.find((i) => i.orderId === order.id);
@@ -1987,6 +2087,7 @@ app.get("/editar/:token", (req, res) => {
   res.send(`<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Panel de tu evento · TaDi</title>
+<meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/static/img/logo/tadi-favicon-16.png">
 <link rel="apple-touch-icon" href="/static/img/logo/tadi-favicon-180.png">
@@ -2483,6 +2584,7 @@ function changeDesignPickerHTML(order, currentDesign) {
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cambiar diseño · TaDi</title>
+<meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
 <link rel="stylesheet" href="${CSS_HREF}"></head>
 <body>
@@ -2505,7 +2607,7 @@ function changeDesignPickerHTML(order, currentDesign) {
 app.get("/editar/:token/cambiar-diseno", (req, res) => {
   const db = getDB();
   const order = db.orders.find((o) => o.editToken === req.params.token);
-  if (!order || order.status !== "paid") return res.status(404).send(layout({ title: "No encontrado", body: `<div class="status-page"><h1>Link no válido</h1><p>Este link de edición no existe o el pago todavía no fue confirmado.</p></div>` }));
+  if (!order || order.status !== "paid") return res.status(404).send(layout({ title: "No encontrado", req, robotsNoindex: true, body: `<div class="status-page"><h1>Link no válido</h1><p>Este link de edición no existe o el pago todavía no fue confirmado.</p></div>` }));
   const currentDesign = getDesign(order.designId);
   const inv = db.invitations.find((i) => i.orderId === order.id);
   if (isEditLocked(inv)) return res.send(lockedPage(order, currentDesign, inv));
@@ -2690,6 +2792,7 @@ function lockedPage(order, design, inv) {
   const purged = Boolean(inv?.purgedAt);
   return layout({
     title: "Invitación vencida",
+    robotsNoindex: true,
     body: `<div class="status-page">
       <h1>🔒 Esta invitación ya cumplió su ciclo</h1>
       <p>Pasaron más de ${EDIT_GRACE_DAYS} días desde la fecha del evento, así que la edición quedó bloqueada para que cada invitación se use para un solo evento. Más info en las <a href="/preguntas-frecuentes">preguntas frecuentes</a>.</p>
@@ -2834,6 +2937,7 @@ app.post("/api/invitaciones/:token/finalizar", async (req, res) => {
 function purgedPublicPage() {
   return layout({
     title: "Invitación vencida",
+    robotsNoindex: true,
     body: `<div class="status-page">
       <h1>🗑️ Esta invitación ya no está disponible</h1>
       <p>Pasaron más de ${DATA_RETENTION_DAYS} días desde la fecha del evento, así que los datos cargados (textos, fotos y confirmaciones) se eliminaron de forma permanente, tal como avisan los <a href="/terminos">Términos y condiciones</a>.</p>
@@ -3149,6 +3253,7 @@ function adminLayout({ title, body }) {
 <html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title} · Admin TaDi</title>
+<meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/tadi-favicon-32.png">
 <link rel="stylesheet" href="${CSS_HREF}">
 <style>
