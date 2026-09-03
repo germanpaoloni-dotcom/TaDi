@@ -112,6 +112,19 @@ try {
 } catch {}
 const CSS_HREF = `/static/css/site.css?v=${CSS_VERSION}`;
 
+// Mismo esquema de cache-busting que site.css, para los dos assets de la
+// intro cinemática de marca (ver INTRO_HTML más abajo).
+let INTRO_CSS_VERSION = Date.now();
+try {
+  INTRO_CSS_VERSION = fs.statSync(path.join(__dirname, "public", "css", "intro.css")).mtimeMs;
+} catch {}
+const INTRO_CSS_HREF = `/static/css/intro.css?v=${INTRO_CSS_VERSION}`;
+let INTRO_JS_VERSION = Date.now();
+try {
+  INTRO_JS_VERSION = fs.statSync(path.join(__dirname, "public", "js", "intro.js")).mtimeMs;
+} catch {}
+const INTRO_JS_HREF = `/static/js/intro.js?v=${INTRO_JS_VERSION}`;
+
 // Los nombres de carpeta de subida salen de un parámetro de la URL (token
 // de edición o slug público). Nunca hay que confiar en eso a ciegas para
 // armar una ruta de archivo: sin este chequeo, alguien podría mandar un
@@ -723,6 +736,55 @@ const GA_SNIPPET = GA_MEASUREMENT_ID
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_MEASUREMENT_ID}');</script>`
   : "";
 
+// ---------- Intro cinemática de marca ----------
+// Overlay que se inyecta en TODAS las páginas que usan layout() (para no
+// duplicar código ni mantener dos plantillas), pero que intro.js solo
+// activa en la home y en la primera visita real del navegador — en el
+// resto de las páginas queda con [hidden] y no hace nada ni pesa en el
+// render. Los paths del "Ta"/"Di" y el círculo son EXACTAMENTE los de
+// /static/img/logo/tadi-logo-light-bg.svg (mismo viewBox, sin deformar).
+const INTRO_HTML = `<div id="tadiIntro" hidden>
+  <div class="intro-aurora"></div>
+  <button type="button" class="intro-skip">Saltar</button>
+  <button type="button" class="intro-sound" data-muted="0" aria-label="Silenciar">
+    <svg class="ico-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg>
+    <svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>
+  </button>
+  <div class="intro-stage">
+    <div class="intro-envelope">
+      <div class="env-body"></div>
+      <div class="env-pocket"></div>
+      <div class="intro-seal"></div>
+      <div class="env-flap"><div class="env-flap-inner"></div></div>
+    </div>
+    <div class="intro-card">
+      <div class="intro-card-line"></div>
+      <div class="intro-card-line"></div>
+      <div class="intro-card-line"></div>
+    </div>
+    <div class="intro-ring"></div>
+    <div class="intro-logo-wrap">
+      <svg class="intro-logo" viewBox="-40 -1003.5 2387.0 1063.5">
+        <g transform="scale(1,-1)">
+          <g class="grp-ta">
+            <path d="M241.00,0.00 L241.00,696.00 L398.00,696.00 L398.00,0.00 Z M20.00,569.00 L20.00,706.00 L619.00,706.00 L619.00,569.00 Z" fill="#333640"/>
+            <path d="M878.00,-10.00 Q811.00,-10.00 758.50,23.00 Q706.00,56.00 675.50,113.00 Q645.00,170.00 645.00,243.00 Q645.00,316.00 675.50,373.00 Q706.00,430.00 758.50,463.00 Q811.00,496.00 878.00,496.00 Q927.00,496.00 966.50,477.00 Q1006.00,458.00 1031.00,424.50 Q1056.00,391.00 1059.00,348.00 L1059.00,138.00 Q1056.00,95.00 1031.50,61.50 Q1007.00,28.00 967.00,9.00 Q927.00,-10.00 878.00,-10.00 Z M909.00,128.00 Q958.00,128.00 988.00,160.50 Q1018.00,193.00 1018.00,243.00 Q1018.00,277.00 1004.50,303.00 Q991.00,329.00 966.50,343.50 Q942.00,358.00 910.00,358.00 Q878.00,358.00 853.50,343.50 Q829.00,329.00 814.50,303.00 Q800.00,277.00 800.00,243.00 Q800.00,210.00 814.00,184.00 Q828.00,158.00 853.00,143.00 Q878.00,128.00 909.00,128.00 Z M1012.00,0.00 L1012.00,131.00 L1035.00,249.00 L1012.00,367.00 L1012.00,486.00 L1162.00,486.00 L1162.00,0.00 Z" fill="#333640"/>
+          </g>
+          <g class="grp-di">
+            <path d="M1372.00,0.00 L1372.00,138.00 L1547.00,138.00 Q1611.00,138.00 1659.00,163.50 Q1707.00,189.00 1733.00,238.00 Q1759.00,287.00 1759.00,354.00 Q1759.00,421.00 1732.50,469.00 Q1706.00,517.00 1658.50,543.00 Q1611.00,569.00 1547.00,569.00 L1367.00,569.00 L1367.00,706.00 L1549.00,706.00 Q1629.00,706.00 1696.50,680.50 Q1764.00,655.00 1814.50,607.50 Q1865.00,560.00 1892.50,495.50 Q1920.00,431.00 1920.00,353.00 Q1920.00,276.00 1892.50,211.00 Q1865.00,146.00 1815.00,99.00 Q1765.00,52.00 1697.50,26.00 Q1630.00,0.00 1551.00,0.00 Z M1266.00,0.00 L1266.00,706.00 L1423.00,706.00 L1423.00,0.00 Z" fill="#ff7a3d"/>
+            <path d="M1988.00,0.00 L1988.00,486.00 L2141.00,486.00 L2141.00,0.00 Z" fill="#ff7a3d"/>
+          </g>
+          <g class="grp-ring">
+            <circle cx="2064.50" cy="721.00" r="137.50" fill="none" stroke="#ff7a3d" stroke-width="105"/>
+          </g>
+        </g>
+      </svg>
+      <div class="intro-tagline">Invitaciones digitales</div>
+    </div>
+    <div class="intro-shine"></div>
+  </div>
+</div>`;
+
 function layout({ title, body, description, extraHead, activeNav }) {
   const desc = description || "Invitaciones digitales para bodas, cumpleaños, XV y más — elegí tu diseño, personalizalo en minutos y compartilo por WhatsApp con RSVP incluido.";
   return `<!doctype html>
@@ -734,9 +796,11 @@ function layout({ title, body, description, extraHead, activeNav }) {
 <link rel="icon" type="image/png" sizes="16x16" href="/static/img/logo/tadi-favicon-16.png">
 <link rel="apple-touch-icon" href="/static/img/logo/tadi-favicon-180.png">
 <link rel="stylesheet" href="${CSS_HREF}">
+<link rel="stylesheet" href="${INTRO_CSS_HREF}">
 ${extraHead || ""}
 ${GA_SNIPPET}
 </head><body>
+${INTRO_HTML}
 <header class="site">
   <a class="brand" href="/" aria-label="TaDi — inicio"><img src="/static/img/logo/tadi-logo-light-bg.svg" alt="TaDi" class="brand-logo"><span class="brand-tagline">Tarjetas Digitales</span></a>
   <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
@@ -843,6 +907,7 @@ ${body}
     });
   })();
 </script>
+<script src="${INTRO_JS_HREF}" defer></script>
 </body></html>`;
 }
 
